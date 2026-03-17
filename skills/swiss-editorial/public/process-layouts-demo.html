@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流程类布局示例 - Swiss Editorial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #1a1a1a;
+            padding: 40px;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-title {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .demo-subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        /* 模拟卡片容器 */
+        .swiss-card {
+            width: 600px;
+            background: #fff;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .swiss-card h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #d95e00;
+        }
+
+        .swiss-card p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .layout-label {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #d95e00;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ============================================
+           1. PROCESS-CHAIN - 线性流程链
+           ============================================ */
+        .swiss-card .process-chain {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            gap: 0;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .swiss-card .process-chain .step {
+            flex: 1;
+            text-align: center;
+            padding: 16px 12px;
+            background: rgba(217, 94, 0, 0.05);
+            border: 1px solid rgba(217, 94, 0, 0.2);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+
+        .swiss-card .process-chain .step::before {
+            content: attr(data-step);
+            display: block;
+            width: 24px;
+            height: 24px;
+            background: #d95e00;
+            color: #fff;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 24px;
+            margin: 0 auto 8px;
+        }
+
+        .swiss-card .process-chain .step:not([data-step])::before {
+            content: '';
+            display: none;
+        }
+
+        .swiss-card .process-chain .arrow {
+            position: relative;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0;
+        }
+
+        .swiss-card .process-chain .arrow::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #d95e00 0%, #d95e00 70%, transparent 100%);
+            transform: translateY(-50%);
+        }
+
+        .swiss-card .process-chain .arrow::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #d95e00;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            transform: translateY(-50%);
+        }
+
+        /* ============================================
+           2. PROCESS-LOOP - 循环流程
+           ============================================ */
+        .swiss-card .process-loop {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 32px 0;
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .swiss-card .process-loop .loop-item {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            border: 2px solid #d95e00;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 2px 8px rgba(217, 94, 0, 0.15);
+        }
+
+        .swiss-card .process-loop .loop-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 20px;
+            height: 2px;
+            background: #d95e00;
+            transform: translateY(-50%);
+        }
+
+        .swiss-card .process-loop .loop-item:last-child::after {
+            display: none;
+        }
+
+        .swiss-card .process-loop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            height: 100%;
+            border: 2px dashed rgba(217, 94, 0, 0.3);
+            border-radius: 50px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .swiss-card .process-loop::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            right: calc(50% - 20px);
+            width: 40px;
+            height: 40px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d95e00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8'/%3E%3Cpath d='M3 3v5h5'/%3E%3C/svg%3E") no-repeat center;
+            background-size: 24px;
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        /* ============================================
+           3. JOURNEY - 用户旅程
+           ============================================ */
+        .swiss-card .journey {
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .swiss-card .journey .path {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 40px 20px 20px;
+            min-height: 120px;
+        }
+
+        .swiss-card .journey .path::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50px;
+            right: 50px;
+            height: 70px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 80' preserveAspectRatio='none'%3E%3Cpath d='M0 60 Q 60 60, 90 40 T 180 35 T 270 20 T 360 45 T 450 30 T 500 35' fill='none' stroke='%23d95e00' stroke-width='2.5' stroke-dasharray='8 4' opacity='0.5'/%3E%3C/svg%3E") no-repeat center;
+            background-size: 100% 100%;
+            z-index: 0;
+        }
+
+        .swiss-card .journey .point {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .swiss-card .journey .point:nth-child(1) { margin-top: 20px; }
+        .swiss-card .journey .point:nth-child(2) { margin-top: 5px; }
+        .swiss-card .journey .point:nth-child(3) { margin-top: -5px; }
+        .swiss-card .journey .point:nth-child(4) { margin-top: 10px; }
+        .swiss-card .journey .point:nth-child(5) { margin-top: 0px; }
+
+        .swiss-card .journey .dot {
+            width: 16px;
+            height: 16px;
+            background: #d95e00;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px #d95e00;
+        }
+
+        .swiss-card .journey .point[data-milestone] .dot {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 4px solid #d95e00;
+            box-shadow: 0 0 0 2px #d95e00, 0 4px 12px rgba(217, 94, 0, 0.3);
+        }
+
+        .swiss-card .journey .point[data-milestone]::before {
+            content: attr(data-milestone);
+            position: absolute;
+            top: -28px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #d95e00;
+            background: rgba(217, 94, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .swiss-card .journey .label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #1a1a1a;
+            max-width: 80px;
+            line-height: 1.3;
+        }
+
+        /* ============================================
+           4. GANTT - 甘特图
+           ============================================ */
+        .swiss-card .gantt {
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .swiss-card .gantt-header {
+            display: flex;
+            margin-bottom: 8px;
+            padding-left: 100px;
+            border-bottom: 2px solid #d95e00;
+            padding-bottom: 4px;
+        }
+
+        .swiss-card .gantt-header .time-label {
+            flex: 1;
+            text-align: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .swiss-card .gantt .task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .swiss-card .gantt .task-name {
+            width: 90px;
+            font-size: 11px;
+            font-weight: 500;
+            flex-shrink: 0;
+            padding-right: 10px;
+            text-align: right;
+            color: #1a1a1a;
+        }
+
+        .swiss-card .gantt .task-bar {
+            flex: 1;
+            height: 24px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent calc(25% - 1px),
+                rgba(217, 94, 0, 0.1) calc(25% - 1px),
+                rgba(217, 94, 0, 0.1) 25%
+            );
+            border-radius: 4px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .swiss-card .gantt .task-bar .fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #d95e00 0%, #e87d2a 100%);
+            border-radius: 4px;
+        }
+
+        .swiss-card .gantt .task-bar .fill::after {
+            content: attr(data-progress);
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .swiss-card .gantt .task-bar .milestone {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 14px solid #d95e00;
+            z-index: 2;
+        }
+
+        .swiss-card .gantt .task-bar .milestone::after {
+            content: attr(data-label);
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            font-weight: 600;
+            color: #d95e00;
+            white-space: nowrap;
+        }
+
+        .swiss-card .gantt .today-line {
+            position: absolute;
+            top: 24px;
+            bottom: 0;
+            width: 2px;
+            background: repeating-linear-gradient(
+                180deg,
+                #dc3545,
+                #dc3545 4px,
+                transparent 4px,
+                transparent 8px
+            );
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .swiss-card .gantt .today-line::before {
+            content: 'TODAY';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            font-weight: 700;
+            color: #dc3545;
+            background: #fff;
+            padding: 0 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1 class="demo-title">流程类布局演示</h1>
+        <p class="demo-subtitle">Swiss Editorial - 600×800px 卡片优化版</p>
+
+        <!-- ============================================
+             1. PROCESS-CHAIN - 线性流程链
+             ============================================ -->
+        <div class="swiss-card">
+            <span class="layout-label">.process-chain 线性流程链</span>
+            <h2>产品开发流程</h2>
+            <p>使用 data-step 属性添加步骤编号，箭头使用 CSS 绘制，优雅简洁。</p>
+
+            <div class="process-chain">
+                <div class="step" data-step="1">需求分析</div>
+                <div class="arrow">→</div>
+                <div class="step" data-step="2">原型设计</div>
+                <div class="arrow">→</div>
+                <div class="step" data-step="3">开发实现</div>
+                <div class="arrow">→</div>
+                <div class="step" data-step="4">测试验收</div>
+                <div class="arrow">→</div>
+                <div class="step" data-step="5">上线运维</div>
+            </div>
+
+            <p style="font-size: 13px; color: #666; margin-top: 16px;">
+                <strong>使用说明：</strong>每个 .step 添加 data-step 属性显示编号，.arrow 自动绘制连接箭头。
+            </p>
+        </div>
+
+        <!-- ============================================
+             2. PROCESS-LOOP - 循环流程
+             ============================================ -->
+        <div class="swiss-card">
+            <span class="layout-label">.process-loop 循环流程</span>
+            <h2>PDCA 持续改进</h2>
+            <p>虚线椭圆表示循环范围，右下角刷新图标指示循环方向。</p>
+
+            <div class="process-loop">
+                <div class="loop-item">计划<br>Plan</div>
+                <div class="loop-item">执行<br>Do</div>
+                <div class="loop-item">检查<br>Check</div>
+                <div class="loop-item">改进<br>Act</div>
+            </div>
+
+            <p style="font-size: 13px; color: #666; margin-top: 16px;">
+                <strong>使用说明：</strong>四个阶段圆形排列，虚线椭圆和 SVG 图标自动显示循环特性。
+            </p>
+        </div>
+
+        <!-- ============================================
+             3. JOURNEY - 用户旅程
+             ============================================ -->
+        <div class="swiss-card">
+            <span class="layout-label">.journey 用户旅程</span>
+            <h2>客户购买旅程</h2>
+            <p>虚线波浪表示情感曲线，data-milestone 标记关键里程碑，垂直位置暗示情感高低。</p>
+
+            <div class="journey">
+                <div class="path">
+                    <div class="point" data-milestone="开始">
+                        <div class="dot"></div>
+                        <div class="label">认知</div>
+                    </div>
+                    <div class="point">
+                        <div class="dot"></div>
+                        <div class="label">兴趣</div>
+                    </div>
+                    <div class="point" data-milestone="决策">
+                        <div class="dot"></div>
+                        <div class="label">考虑</div>
+                    </div>
+                    <div class="point">
+                        <div class="dot"></div>
+                        <div class="label">购买</div>
+                    </div>
+                    <div class="point" data-milestone="忠诚">
+                        <div class="dot"></div>
+                        <div class="label">复购</div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: #666; margin-top: 16px;">
+                <strong>使用说明：</strong>data-milestone 添加里程碑标签，点的垂直位置可通过 CSS 调整表示情感波动。
+            </p>
+        </div>
+
+        <!-- ============================================
+             4. GANTT - 甘特图
+             ============================================ -->
+        <div class="swiss-card">
+            <span class="layout-label">.gantt 甘特图</span>
+            <h2>项目进度计划</h2>
+            <p>时间轴头部、网格背景、进度填充、里程碑标记、今日指示线。</p>
+
+            <div class="gantt">
+                <!-- 时间轴头部 -->
+                <div class="gantt-header">
+                    <div class="time-label">Q1</div>
+                    <div class="time-label">Q2</div>
+                    <div class="time-label">Q3</div>
+                    <div class="time-label">Q4</div>
+                </div>
+
+                <!-- 今日标记线 (50% 位置) -->
+                <div class="today-line" style="left: calc(100px + 50%);"></div>
+
+                <!-- 任务行 -->
+                <div class="task">
+                    <div class="task-name">需求分析</div>
+                    <div class="task-bar">
+                        <div class="fill" style="left: 0; width: 25%;" data-progress="100%"></div>
+                    </div>
+                </div>
+
+                <div class="task">
+                    <div class="task-name">产品设计</div>
+                    <div class="task-bar">
+                        <div class="fill" style="left: 15%; width: 30%;" data-progress="100%"></div>
+                        <!-- 里程碑 -->
+                        <div class="milestone" style="left: 45%;" data-label="PRD"></div>
+                    </div>
+                </div>
+
+                <div class="task">
+                    <div class="task-name">开发实现</div>
+                    <div class="task-bar">
+                        <div class="fill" style="left: 40%; width: 35%;" data-progress="60%"></div>
+                    </div>
+                </div>
+
+                <div class="task">
+                    <div class="task-name">测试上线</div>
+                    <div class="task-bar">
+                        <div class="fill" style="left: 70%; width: 25%;" data-progress="0%"></div>
+                        <!-- 里程碑 -->
+                        <div class="milestone" style="left: 95%;" data-label="发布"></div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="font-size: 13px; color: #666; margin-top: 16px;">
+                <strong>使用说明：</strong>.gantt-header 定义时间刻度，.fill 的 width 表示进度，.milestone 添加里程碑标记。
+            </p>
+        </div>
+
+        <!-- ============================================
+             代码示例
+             ============================================ -->
+        <div class="swiss-card">
+            <span class="layout-label">HTML 结构参考</span>
+            <h2>快速开始</h2>
+
+            <pre style="background: #1a1a1a; color: #e0e0e0; padding: 16px; border-radius: 8px; font-size: 12px; line-height: 1.6; overflow-x: auto;"><code>&lt;!-- 1. 流程链 --&gt;
+&lt;div class="process-chain"&gt;
+  &lt;div class="step" data-step="1"&gt;步骤一&lt;/div&gt;
+  &lt;div class="arrow"&gt;&lt;/div&gt;
+  &lt;div class="step" data-step="2"&gt;步骤二&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 2. 循环流程 --&gt;
+&lt;div class="process-loop"&gt;
+  &lt;div class="loop-item"&gt;计划&lt;/div&gt;
+  &lt;div class="loop-item"&gt;执行&lt;/div&gt;
+  &lt;div class="loop-item"&gt;检查&lt;/div&gt;
+  &lt;div class="loop-item"&gt;改进&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 3. 用户旅程 --&gt;
+&lt;div class="journey"&gt;
+  &lt;div class="path"&gt;
+    &lt;div class="point" data-milestone="开始"&gt;
+      &lt;div class="dot"&gt;&lt;/div&gt;
+      &lt;div class="label"&gt;认知&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- 更多点... --&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 4. 甘特图 --&gt;
+&lt;div class="gantt"&gt;
+  &lt;div class="gantt-header"&gt;...&lt;/div&gt;
+  &lt;div class="task"&gt;
+    &lt;div class="task-name"&gt;任务名&lt;/div&gt;
+    &lt;div class="task-bar"&gt;
+      &lt;div class="fill" style="width: 60%;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+    </div>
+</body>
+</html>

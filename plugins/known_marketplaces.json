@@ -1,0 +1,42 @@
+{
+  "anthropic-agent-skills": {
+    "source": {
+      "source": "git",
+      "url": "https://github.com/anthropics/skills.git"
+    },
+    "installLocation": "/Users/bmo/.claude/plugins/marketplaces/anthropic-agent-skills",
+    "lastUpdated": "2026-03-15T06:26:40.669Z"
+  },
+  "ui-ux-pro-max-skill": {
+    "source": {
+      "source": "github",
+      "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+    },
+    "installLocation": "/Users/bmo/.claude/plugins/marketplaces/ui-ux-pro-max-skill",
+    "lastUpdated": "2026-03-15T07:11:46.154Z"
+  },
+  "superpowers-marketplace": {
+    "source": {
+      "source": "github",
+      "repo": "obra/superpowers-marketplace"
+    },
+    "installLocation": "/Users/bmo/.claude/plugins/marketplaces/superpowers-marketplace",
+    "lastUpdated": "2026-03-15T07:15:23.376Z"
+  },
+  "claude-plugins-official": {
+    "source": {
+      "source": "github",
+      "repo": "anthropics/claude-plugins-official"
+    },
+    "installLocation": "/Users/bmo/.claude/plugins/marketplaces/claude-plugins-official",
+    "lastUpdated": "2026-03-15T07:15:49.179Z"
+  },
+  "pua-skills": {
+    "source": {
+      "source": "github",
+      "repo": "tanweai/pua"
+    },
+    "installLocation": "/Users/bmo/.claude/plugins/marketplaces/pua-skills",
+    "lastUpdated": "2026-03-17T03:39:43.015Z"
+  }
+}

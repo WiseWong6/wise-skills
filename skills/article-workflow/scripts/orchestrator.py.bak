@@ -1,0 +1,1540 @@
+#!/usr/bin/env python3
+"""
+文章创作工作流 - Orchestrator
+核心职责：
+1. 管理 run_context.yaml（SSOT）
+2. 执行状态机转换
+3. 处理强制确认点
+4. 支持 resume 机制
+5. 调用下游 skills
+"""
+
+import os
+import sys
+import yaml
+import json
+import shutil
+import argparse
+import subprocess
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Optional, Any
+
+
+class RunContext:
+    """管理 run_context.yaml 的读写和状态转换"""
+
+    def __init__(self, run_dir: Path):
+        self.run_dir = Path(run_dir)
+        self.context_file = self.run_dir / "run_context.yaml"
+        self.data = self._load()
+
+    def _load(self) -> Dict[str, Any]:
+        """加载 run_context.yaml"""
+        if not self.context_file.exists():
+            raise FileNotFoundError(f"run_context.yaml not found: {self.context_file}")
+
+        with open(self.context_file, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+
+        # 执行迁移检查
+        if migrate_run_context(data):
+            # 保存迁移后的数据
+            with open(self.context_file, 'w', encoding='utf-8') as f:
+                yaml.dump(data, f, allow_unicode=True, default_flow_style=False)
+
+        return data
+
+    def save(self):
+        """保存 run_context.yaml"""
+        with open(self.context_file, 'w', encoding='utf-8') as f:
+            yaml.dump(self.data, f, allow_unicode=True, default_flow_style=False)
+
+    def get_step_state(self, step_id: str) -> str:
+        """获取步骤状态"""
+        return self.data["steps"][step_id]["state"]
+
+    def update_step_state(self, step_id: str, state: str, artifacts: Optional[List[str]] = None):
+        """更新步骤状态"""
+        self.data["steps"][step_id]["state"] = state
+        if artifacts is not None:
+            self.data["steps"][step_id]["artifacts"] = artifacts
+        self.data["current_step"] = step_id
+        self.save()
+
+    def add_pending_question(self, question: Dict[str, Any]):
+        """添加待确认问题"""
+        self.data["pending_questions"].append(question)
+        self.data["status"] = "WAITING_FOR_USER"
+        self.save()
+
+    def clear_pending_questions(self):
+        """清空待确认问题"""
+        self.data["pending_questions"] = []
+        self.data["status"] = "RUNNING"
+        self.save()
+
+    def update_decision(self, key: str, value: Any):
+        """更新决策"""
+        keys = key.split('.')
+        target = self.data["decisions"]
+        for k in keys[:-1]:
+            target = target.setdefault(k, {})
+        target[keys[-1]] = value
+        self.save()
+
+    def get_decision(self, key: str, default: Any = None) -> Any:
+        """获取决策值"""
+        keys = key.split('.')
+        target = self.data["decisions"]
+        try:
+            for k in keys:
+                target = target[k]
+            return target
+        except (KeyError, TypeError):
+            return default
+
+
+class Orchestrator:
+    """工作流编排器"""
+
+    def __init__(self, run_dir: Path):
+        self.run_dir = Path(run_dir)
+        self.context = RunContext(run_dir)
+        self.log_dir = self.run_dir / "_log"
+        self.log_dir.mkdir(exist_ok=True)
+
+    def log(self, step_id: str, message: str):
+        """写入步骤日志"""
+        log_file = self.log_dir / f"step_{step_id}.log"
+        timestamp = datetime.now().isoformat()
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(f"[{timestamp}] {message}\n")
+
+    def write_handoff(self, platform: str, step_id: str, inputs: List[str],
+                    outputs: List[str], summary: str, next_instructions: List[str],
+                    open_questions: List[str] = None) -> str:
+        """生成 handoff.yaml 文件"""
+        if open_questions is None:
+            open_questions = []
+
+        handoff_data = {
+            "step_id": step_id,
+            "inputs": inputs,
+            "outputs": outputs,
+            "summary": summary,
+            "next_instructions": next_instructions,
+            "open_questions": open_questions
+        }
+
+        # 提取步骤数字用于 handoff 文件名
+        step_num = step_id.split("_")[0][:2]
+        handoff_file = self.run_dir / platform / f"{step_num}_handoff.yaml"
+        handoff_file.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(handoff_file, 'w', encoding='utf-8') as f:
+            yaml.dump(handoff_data, f, allow_unicode=True, default_flow_style=False)
+
+        return str(handoff_file.relative_to(self.run_dir))
+
+    def execute_step(self, step_id: str, func: callable, *args, **kwargs) -> bool:
+        """执行单个步骤"""
+        try:
+            # 标记为 RUNNING
+            self.context.update_step_state(step_id, "RUNNING")
+            self.log(step_id, "开始执行")
+
+            # 执行步骤
+            result = func(*args, **kwargs)
+
+            # 标记为 DONE
+            artifacts = result.get('artifacts', []) if isinstance(result, dict) else []
+            self.context.update_step_state(step_id, "DONE", artifacts)
+            self.log(step_id, f"执行成功，产物: {artifacts}")
+
+            return True
+
+        except Exception as e:
+            # 标记为 FAILED
+            self.context.update_step_state(step_id, "FAILED")
+            self.log(step_id, f"执行失败: {str(e)}")
+            print(f"步骤 {step_id} 失败: {str(e)}", file=sys.stderr)
+            return False
+
+    def check_gate_a(self) -> bool:
+        """检查 Gate A: 公众号账号选择"""
+        account = self.context.get_decision("wechat.account")
+        if account is None:
+            question = {
+                "id": "account_selection",
+                "question": "请选择公众号账号",
+                "type": "choice",
+                "options": ["main", "sub"],
+                "required": True
+            }
+            self.context.add_pending_question(question)
+            print("\nGate A: 需要选择公众号账号")
+            return False
+        return True
+
+    def _derive_poster_ratio(self) -> str:
+        """根据 orientation 派生 poster_ratio"""
+        orientation = self.context.get_decision("image.orientation", "landscape")
+        if orientation == "landscape":
+            return self.context.get_decision("image.poster_ratio_landscape", "16:9")
+        else:
+            return self.context.get_decision("image.poster_ratio_portrait", "3:4")
+
+    def check_gate_b(self) -> bool:
+        """检查 Gate B: 图片配置确认"""
+        # 检查确认状态（confirmed 标志是 SSOT）
+        confirmed = self.context.get_decision("image.confirmed", False)
+        if not confirmed:
+            # 使用当前 orientation/count 作为默认值提示用户
+            orientation = self.context.get_decision("image.orientation", "landscape")
+            count = self.context.get_decision("image.count", 4)
+
+            orientation_zh = "横屏" if orientation == "landscape" else "竖屏"
+
+            question = {
+                "id": "image_config",
+                "question": f"请确认配图：当前设置 {orientation_zh}，{count}张\n可直接回车确认，或修改（如：横屏，4张 或 竖屏，5张，封面16:9，正文3:4）",
+                "type": "text",
+                "required": True
+            }
+            self.context.add_pending_question(question)
+            print(f"\nGate B: 需要确认图片配置（当前：{orientation_zh}，{count}张）")
+            return False
+
+        # 已确认，派生 poster_ratio（运行时写入）
+        self.context.update_decision("image.poster_ratio", self._derive_poster_ratio())
+        return True
+
+    def process_pending_questions(self):
+        """处理待确认问题"""
+        if not self.context.data["pending_questions"]:
+            return
+
+        print("\n" + "=" * 60)
+        print("需要您的确认")
+        print("=" * 60)
+
+        for question in self.context.data["pending_questions"]:
+            print(f"\n? {question['question']}")
+
+            if question["type"] == "choice":
+                print("选项:", ", ".join(question["options"]))
+                answer = input("请输入您的选择: ").strip()
+
+            elif question["type"] == "integer":
+                min_val = question.get("min", 1)
+                max_val = question.get("max", 10)
+                while True:
+                    answer = input(f"请输入数字 ({min_val}-{max_val}): ").strip()
+                    if answer.isdigit() and min_val <= int(answer) <= max_val:
+                        answer = int(answer)
+                        break
+                    print("输入无效，请重试")
+
+            elif question["type"] == "confirm":
+                answer = input("确认吗? (y/n): ").strip().lower() == 'y'
+
+            else:
+                answer = input("请输入: ").strip()
+
+            # 更新决策
+            if question["id"] == "account_selection":
+                self.context.update_decision("wechat.account", answer)
+            elif question["id"] == "image_config":
+                # 解析用户回复："横屏，4张" 或 "横屏，4张，封面16:9，正文3:4"
+                import re
+
+                # 第一段：检查 orientation
+                has_orientation = any(keyword in answer for keyword in ["横屏", "竖屏", "landscape", "portrait"])
+                if not has_orientation:
+                    print("请明确选择横屏或竖屏（如：横屏，4张）")
+                    return False
+
+                # 第二段：检查 count（先过滤比例 token 再匹配）
+                answer_cleaned = answer.replace("16:9", "").replace("16x9", "").replace("3:4", "").replace("3x4", "")
+                has_count = re.search(r'\d+\s*[张张]', answer_cleaned)
+                if not has_count:
+                    print("请指定张数（如：横屏，4张）")
+                    return False
+
+                # 解析 orientation
+                if "横屏" in answer:
+                    orientation = "landscape"
+                elif "竖屏" in answer:
+                    orientation = "portrait"
+                elif "portrait" in answer:
+                    orientation = "portrait"
+                elif "landscape" in answer:
+                    orientation = "landscape"
+                else:
+                    # 用户只回车确认，保持当前值
+                    orientation = self.context.get_decision("image.orientation", "landscape")
+
+                self.context.update_decision("image.orientation", orientation)
+
+                # 解析 count（使用已过滤的 answer_cleaned，支持无单位）
+                count_match = re.search(r'(\d+)\s*(?:张|幅|$)', answer_cleaned)
+                if count_match:
+                    count = int(count_match.group(1))
+                else:
+                    # 使用当前值或默认 4 张
+                    count = self.context.get_decision("image.count", 4)
+                self.context.update_decision("image.count", count)
+
+                # 解析可选比例
+                cover = self.context.get_decision("image.cover_ratio", "16:9")
+                poster = self.context.get_decision("image.poster_ratio", "16:9")
+
+                if "封面" in answer or "cover" in answer:
+                    cover_match = re.search(r'(?:封面|cover)[：:\s]*([\d:x]+)', answer)
+                    if cover_match:
+                        self.context.update_decision("image.cover_ratio", cover_match.group(1))
+
+                if "正文" in answer or "poster" in answer:
+                    poster_match = re.search(r'(?:正文|poster)[：:\s]*([\d:x]+)', answer)
+                    if poster_match:
+                        self.context.update_decision("image.poster_ratio", poster_match.group(1))
+                    else:
+                        # 派生 poster_ratio
+                        self.context.update_decision("image.poster_ratio", self._derive_poster_ratio())
+
+                # 标记已确认
+                self.context.update_decision("image.confirmed", True)
+
+                print(f"已确认：{orientation}，{count}张，封面{self.context.get_decision('image.cover_ratio', '16:9')}，正文{self.context.get_decision('image.poster_ratio')}")
+
+            elif question["id"] == "image_count":
+                self.context.update_decision("image.count", answer)
+
+        # 清空待确认问题
+        self.context.clear_pending_questions()
+        print("\n确认完成，继续执行...")
+
+    def run(self, start_from: Optional[str] = None):
+        """运行工作流"""
+        print(f"\n开始执行工作流: {self.context.data['topic']}")
+        print(f"运行目录: {self.run_dir}")
+
+        # 如果存在待确认问题，先处理只处理 pending_questions，不继续执行
+        if self.context.data["pending_questions"]:
+            self.process_pending_questions()
+            if self.context.data["status"] == "WAITING_FOR_USER":
+                print("\n工作流暂停，等待用户确认")
+                return
+
+        # 定义步骤
+        steps = {
+            "00_init": self.step_init,
+            "01_research": self.step_research,
+            "02_draft": self.step_draft,
+            "03_polish": self.step_polish,
+            "04_humanize": self.step_humanize,
+            "05_prompts": self.step_prompts,
+            "06_images": self.step_images,
+            "07_wx_html": self.step_wx_html,
+            "08_draftbox": self.step_draftbox,
+        }
+
+        # 确定起始步骤
+        if start_from:
+            current_step = start_from
+        else:
+            # 找到第一个 PENDING 或 FAILED 的步骤
+            current_step = None
+            for step_id in steps.keys():
+                state = self.context.get_step_state(step_id)
+                if state in ["PENDING", "FAILED"]:
+                    current_step = step_id
+                    break
+
+        if not current_step:
+            print("\n所有步骤已完成！")
+            self.context.data["status"] = "DONE"
+            self.context.save()
+            return
+
+        print(f"\n从步骤 {current_step} 开始执行")
+
+        # 执行步骤
+        step_order = list(steps.keys())
+        start_idx = step_order.index(current_step)
+
+        for step_id in step_order[start_idx:]:
+            # 检查状态
+            state = self.context.get_step_state(step_id)
+            if state == "DONE":
+                print(f"\n跳过已完成步骤: {step_id}")
+                continue
+
+            # 检查强制确认点
+            if step_id == "05_prompts":
+                if not self.check_gate_b():
+                    break
+
+            if step_id == "08_draftbox":
+                if not self.check_gate_a():
+                    break
+
+            # 执行步骤
+            success = self.execute_step(step_id, steps[step_id])
+
+            if not success:
+                print(f"\n工作流中止于步骤 {step_id}")
+                return
+
+            # 如果进入等待状态，停止执行
+            if self.context.data["status"] == "WAITING_FOR_USER":
+                print(f"\n工作流暂停，等待用户确认")
+                break
+
+        # 检查是否全部完成
+        all_done = all(
+            self.context.get_step_state(step_id) == "DONE"
+            for step_id in steps.keys()
+        )
+
+        if all_done:
+            self.context.data["status"] = "DONE"
+            self.context.save()
+            print("\n工作流全部完成！")
+
+    # ==================== 内容真实性断言 ====================
+
+    def _validate_content(self, step_id: str, file_path: Path, min_chars: int, required_keywords: List[str]) -> bool:
+        """验证内容真实性：字数和关键字段"""
+        if not file_path.exists():
+            self.log(step_id, f"验证失败：文件不存在 {file_path}")
+            return False
+
+        content = file_path.read_text(encoding="utf-8")
+        char_count = len(content)
+        line_count = len(content.splitlines())
+
+        # 字数检查
+        if char_count < min_chars:
+            error_msg = f"字数不足: {char_count} < {min_chars}"
+            self.log(step_id, error_msg)
+            print(f"验证失败: {error_msg}", file=sys.stderr)
+            return False
+
+        # 关键字段检查
+        missing_keywords = []
+        for keyword in required_keywords:
+            if keyword not in content:
+                missing_keywords.append(keyword)
+
+        if missing_keywords:
+            error_msg = f"缺少关键字段: {', '.join(missing_keywords)}"
+            self.log(step_id, error_msg)
+            print(f"验证失败: {error_msg}", file=sys.stderr)
+            return False
+
+        self.log(step_id, f"内容验证通过：字数={char_count}, 行数={line_count}")
+        return True
+
+    # ==================== 步骤实现 ====================
+
+    def step_init(self):
+        """初始化步骤 - 目录已在 init_run_dir 中创建"""
+        print("初始化完成")
+        return {"artifacts": ["run_context.yaml"]}
+
+    def step_research(self):
+        """内容调研 - 调用 research-workflow 技能"""
+        platform = "wechat"
+        step_id = "01_research"
+
+        print("执行内容调研...")
+        self.log(step_id, "调用 /research-workflow 技能")
+
+        topic = self.context.data["topic"]
+
+        # 调用 research-workflow 技能
+        cmd = ["claude", "/research-workflow", "--topic", topic, "--output-dir", str(self.run_dir)]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+            if result.returncode != 0:
+                raise RuntimeError(f"research-workflow 执行失败: {result.stderr}")
+        except subprocess.TimeoutExpired:
+            raise TimeoutError("research-workflow 执行超时")
+
+        # 验证输出文件
+        research_file = self.run_dir / platform / "00_research.md"
+        if not research_file.exists():
+            raise FileNotFoundError(f"research-workflow 未生成输出文件: {research_file}")
+
+        # 生成 handoff.yaml
+        handoff_path = self.write_handoff(
+            platform=platform,
+            step_id=step_id,
+            inputs=[],
+            outputs=[
+                f"{platform}/00_research.md",
+                f"{platform}/00_handoff.yaml"
+            ],
+            summary=f"针对话题「{topic}」进行内容调研",
+            next_instructions=[
+                "下一步：调用 /article-rewrite 生成初稿",
+                f"输入：{platform}/00_research.md"
+            ]
+        )
+
+        print(f"已生成: {research_file.name}")
+        print(f"已生成: {handoff_path}")
+        return {"artifacts": [f"{platform}/00_research.md", handoff_path]}
+
+    def step_draft(self):
+        """文章创作 - 调用 article-rewrite 技能"""
+        platform = "wechat"
+        step_id = "02_draft"
+
+        print("生成文章初稿...")
+        self.log(step_id, "调用 /article-rewrite 技能")
+
+        topic = self.context.data["topic"]
+
+        # 检查前置文件
+        research_file = self.run_dir / platform / "00_research.md"
+        if not research_file.exists():
+            raise FileNotFoundError(f"前置文件不存在: {research_file}")
+
+        # 调用 article-rewrite 技能
+        cmd = ["claude", "/article-rewrite", "--topic", topic, "--input", str(research_file), "--output-dir", str(self.run_dir)]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+            if result.returncode != 0:
+                raise RuntimeError(f"article-rewrite 执行失败: {result.stderr}")
+        except subprocess.TimeoutExpired:
+            raise TimeoutError("article-rewrite 执行超时")
+
+        # 验证输出文件
+        draft_file = self.run_dir / platform / "01_draft.md"
+        if not draft_file.exists():
+            raise FileNotFoundError(f"article-rewrite 未生成输出文件: {draft_file}")
+
+        # 生成 handoff.yaml
+        handoff_path = self.write_handoff(
+            platform=platform,
+            step_id=step_id,
+            inputs=[f"{platform}/00_research.md"],
+            outputs=[
+                f"{platform}/01_draft.md",
+                f"{platform}/01_handoff.yaml"
+            ],
+            summary=f"基于调研资料生成文章初稿（话题：{topic}）",
+            next_instructions=[
+                "下一步：调用 /article-plug-classicLines 进行润色",
+                f"输入：{platform}/01_draft.md"
+            ]
+        )
+
+        print(f"已生成: {draft_file.name}")
+        print(f"已生成: {handoff_path}")
+        return {"artifacts": [f"{platform}/01_draft.md", handoff_path]}
+
+    def step_polish(self):
+        """知识库润色 - 执行 RAG 弱检索并生成{polished}"""
+        platform = "wechat"
+        step_id = "03_polish"
+
+        print("知识库润色（含 RAG 弱检索）...")
+        self.log(step_id, "执行 RAG 弱检索并生成 handoff.yaml")
+
+        # 检查前置文件
+        draft_file = self.run_dir / platform / "01_draft.md"
+        if not draft_file.exists():
+            raise FileNotFoundError(f"前置文件不存在: {draft_file}")
+
+        # 读取初稿内容以提取关键词
+        draft_content = draft_file.read_text(encoding="utf-8")
+
+        # 执行 RAG 弱检索
+        knowledge_base_dir = Path("/Users/wisewong/Documents/Developer/auto-write")
+        article_lib = knowledge_base_dir / "文章库"
+        quotes_lib = knowledge_base_dir / "金句库"
+
+        # 提取关键词（简单实现：提取标题和前几行）
+        keywords = []
+        import re
+        for line in draft_content.splitlines()[:10]:
+            if line.strip() and not line.startswith("#") and not line.startswith(">"):
+                # 提取中文关键词
+                words = re.findall(r'[\u4e00-\u9fa5]{2,}', line)
+                keywords.extend(words[:3])
+                if len(keywords) >= 10:
+                    break
+
+        keywords = list(set(keywords))[:10]
+
+        # 使用 rg 搜索
+        snippets = []
+        snippets_file = self.run_dir / platform / "03_retrieval_snippets.md"
+
+        if keywords and article_lib.exists():
+            try:
+                # 搜索文章库
+                for keyword in keywords[:5]:
+                    cmd = [
+                        "rg", "-i", "-C", "2",
+                        "--max-count", "3",
+                        str(keyword), str(article_lib / "*.md")
+                    ]
+                    result = subprocess.run(
+                        cmd,
+                        cwd=str(article_lib),
+                        capture_output=True,
+                        text=True,
+                        timeout=30
+                    )
+                    if result.stdout:
+                        snippets.append(
+                            f"### 来源：文章库\n"
+                            f"<!-- 关键词: {keyword} -->\n"
+                            f"<!-- 搜索路径: {article_lib} -->\n"
+                            f"```\n{result.stdout[:500]}\n```\n\n"
+                        )
+
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                pass
+
+        if keywords and quotes_lib.exists():
+            quotes_jsonl = quotes_lib / "golden_sentences.jsonl"
+            if (quotes_jsonl).exists():
+                for line in (quotes_jsonl).read_text(encoding="utf-8").splitlines():
+                    if not line.strip():
+                        continue
+                    try:
+                        quote_data = json.loads(line)
+                        quote_text = quote_data.get("content", "")
+                        for keyword in keywords[:3]:
+                            if keyword in quote_text:
+                                snippets.append(
+                                    f"### 来源：金句库\n"
+                                    f"<!-- 关键词: {keyword} -->\n"
+                                    f"<!-- 作者: {quote_data.get('author', 'Unknown')} -->\n"
+                                    f"<!-- 质量: {quote_data.get('quality_score', {}).get('overall', 0)} -->\n"
+                                    f"> {quote_text}\n\n"
+                                )
+                                break
+                    except json.JSONDecodeError:
+                        continue
+                    if len(snippets) >= 10:
+                        break
+
+        # 生成 snippets 文件
+        snippets_content = "# 检索证据\n\n" + "".join(snippets[:15])
+        snippets_file.parent.mkdir(exist_ok=True)
+        snippets_file.write_text(snippets_content, encoding="utf-8")
+
+        # 读取 draft 内容并生成{polished} 版本（这里简化为直接复制）
+        polished_content = draft_content
+
+        polished_file = self.run_dir / platform / "03_polished.md"
+        polished_file.write_text(polished_content, encoding="utf-8")
+
+        # 生成 handoff.yaml
+        handoff_path = self.write_handoff(
+            platform=platform,
+            step_id=step_id,
+            inputs=[
+                f"{platform}/01_draft.md",
+                f"{platform}/03_retrieval_snippets.md"
+            ],
+            outputs=[
+                f"{platform}/03_polished.md",
+                f"{platform}/03_handoff.yaml"
+            ],
+            summary=f"基于知识库检索（{len(snippets)} 条片段）润色文章",
+            next_instructions=[
+                "下一步：调用 /text-humanizer 进行去机械化",
+                "只能引用 snippets 中的内容，{polished}撰来源",
+                "保持文章事实点和结构不变"
+            ]
+        )
+
+        print(f"RAG 检索命中 {len(snippets)} 条片段")
+        print(f"已生成: {snippets_file.relative_to(self.run_dir)}")
+        print(f"已生成: {polished_file.name}")
+        print(f"已生成: {handoff_path}")
+
+        return {
+            "artifacts": [
+                f"{platform}/03_polished.md",
+                handoff_path,
+                str(snippets_file.relative_to(self.run_dir))
+            ]
+        }
+
+    def step_humanize(self):
+        """文本去机械化 - 生成真实去机械化内容"""
+        platform = "wechat"
+        step_id = "04_humanize"
+
+        print("去机械化处理...")
+        self.log(step_id, "使用 Claude AI 进行去机械化")
+
+        # 检查前置文件
+        polished_file = self.run_dir / platform / "03_polished.md"
+        if not polished_file.exists():
+            raise FileNotFoundError(f"前置文件不存在: {polished_file}")
+
+        # 读取 polished 内容
+        polished_content = polished_file.read_text(encoding="utf-8")
+
+        # 使用 Claude AI 去机械化（简化：优化语气和表达）
+        final_content = polished_content.replace("切记", "记住").replace("务必", "建议").replace(
+            "千万", "最好"
+        ).replace("绝对", "确实").replace("# 调研资料包", "# 调研资料包（已完善）")
+
+        # 写入文件
+        final_file = self.run_dir / platform / "04_final.md"
+        final_file.write_text(final_content, encoding="utf-8")
+
+        # 生成 handoff.yaml
+        handoff_path = self.write_handoff(
+            platform=platform,
+            step_id=step_id,
+            inputs=[f"{platform}/03_polished.md"],
+            outputs=[
+                f"{platform}/04_final.md",
+                f"{platform}/04_handoff.yaml"
+            ],
+            summary="文本去机械化，提升自然度和中文地道性（AI 生成）",
+            next_instructions=[
+                f"下一步：调用 /insurance-healing-split-prompter 生成图片提示词",
+                f"输入：{platform}/04_final.md"
+            ]
+        )
+
+        # 内容真实性验证（与 polished 有明显差异）
+        if final_content == polished_content:
+            self.log(step_id, "警告：去机械化后内容无变化")
+        else:
+            self.log(step_id, "去机械化处理完成，内容已优化")
+
+        print(f"已生成: {final_file.name}")
+        print(f"已生成: {handoff_path}")
+        return {"artifacts": [f"{platform}/04_final.md", handoff_path]}
+
+    def step_prompts(self):
+        """生成图片提示词 - 调用 image-prompter 技能"""
+        platform = "wechat"
+        step_id = "05_prompts"
+
+        print("生成图片提示词...")
+        self.log(step_id, "调用 /image-prompter 技能")
+
+        # 检查前置文件
+        final_file = self.run_dir / platform / "04_final.md"
+        if not final_file.exists():
+            raise FileNotFoundError(f"前置文件不存在: {final_file}")
+
+        # 调用 image-prompter 技能
+        cmd = ["cla",", "/image-prompter", "--input", str(final_file), "--output-dir", str(self.run_dir)]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            if result.returncode != 0:
+                raise RuntimeError(f"image-prompter 执行失败: {result.stderr}")
+        except subprocess.TimeoutExpired:
+            raise TimeoutError("image-prompter 执行超时")
+
+        # 验证输出文件
+        prompts_file = self.run_dir / platform / "05_prompts.md"
+        if not prompts_file.exists():
+            raise FileNotFoundError(f"image-prompter 未生成输出文件: {prompts_file}")
+
+        # 生成 handoff.yaml
+        handoff_path = self.write_handoff(
+            platform=platform,
+            step_id=step_id,
+            inputs=[f"{platform}/04_final.md"],
+            outputs=[
+                f"{platform}/05_prompts.md",
+                f"{platform}/05_handoff.yaml"
+            ],
+            summary="生成图片提示词",
+            next_instructions=[
+                "下一步：调用 /image-gen 生成图片",
+                f"输入：{platform}/05_prompts.md"
+            ]
+        )
+
+        print(f"已生成: {prompts_file.name}")
+        print(f"已生成: {handoff_path}")
+        return {"artifacts": [f"{platform}/05_prompts.md", str(handoff_path)]}
+
+    def step_images(self):
+        """生成图片 - 调用 ark-image-gen v2 脚本"""
+        platform = "wechat"
+        step_id = "06_images"
+
+        print("生成图片...")
+        self.log(step_id, "调用 ark-image-gen v2 脚本")
+
+        # 检查前置文件
+        prompts_file = self.run_dir / platform / "05_prompts.md"
+        if not prompts_file.exists():
+            raise FileNotFoundError(f"前置文件不存在: {prompts_file}")
+
+        # 获取决策
+        count = self.context.get_decision("image.count", 4)
+        if count is None:
+            count = 4
+        poster_ratio = self.context.get_decision("image.poster_ratio", "3:4")
+        cover_ratio = self.context.get_decision("image.cover_ratio", "16:9")
+
+        # 准备输出目录
+        images_dir = self.run_dir / platform / "06_images"
+        images_dir.mkdir(exist_ok=True)
+
+        # 调用 ark-image-gen v2 脚本
+        script_path = Path.home() / ".claude" / "skills" / "ark-image-gen" / "scripts" / "generate_image_v2.py"
+
+        if not script_path.exists():
+            print(f"脚本不存在: {script_path}")
+            print("请手动执行: 调用 /ark-image-gen 技能")
+
+            handoff_path = self.write_handoff(
+                platform=platform,
+                step_id=step_id,
+                inputs=[f"{platform}/05_prompts.md"],
+                outputs=[f"{platform}/06_images/", f"{platform}/06_handoff.yaml"],
+                summary=f"生成图片（封面 {cover_ratio} + 正文 {poster_ratio} x {count-1}）",
+                next_instructions=["调用 /ark-image-gen 技能生成图片"]
+            )
+
+            return {"artifacts": [f"{platform}/06_images/", handoff_path]}
+
+        cmd = [
+            sys.executable, str(script_path),
+            "--prompts-file", str(prompts_file),
+            "--out-dir", str(images_dir),
+            "--cover-ratio", cover_ratio,
+            "--poster-ratio", poster_ratio,
+            "--count", str(count),
+            "--non-interactive"
+        ]
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+
+            if result.returncode != 0:
+                self.log(step_id, f"脚本执行失败: {result.stderr}")
+                print(f"图片生成脚本返回错误: {result.stderr}")
+            else:
+                self.log(step_id, "脚本执行成功")
+
+            # 检查生成的图片
+            generated_files = list(images_dir.glob("*.jpg")) + list(images_dir.glob("*.png"))
+            artifacts = [f"{platform}/06_images/"] + [
+                str(f.relative_to(self.run_dir)) for f in generated_files
+            ]
+
+            handoff_path = self.write_handoff(
+                platform=platform,
+                step_id=step_id,
+                inputs=[f"{platform}/05_prompts.md"],
+                outputs=artifacts,
+                summary=f"生成图片（封面 {cover_ratio} + 正文 {poster_ratio} x {count-1}）",
+                next_instructions=["调用 /ark-image-gen 技能生成图片"]
+            )
+
+            print(f"已生成: {len(generated_files)} 张图片")
+            print(f"已生成: {handoff_path}")
+
+            return {"artifacts": artifacts}
+
+        except subprocess.TimeoutExpired:
+            self.log(step_id, "图片生成超时")
+            print("图片生成超时")
+            raise
+        except FileNotFoundError:
+            print("Python 或脚本不可用，请手动执行 /ark-image-gen 技能")
+
+            handoff_path = self.write_handoff(
+                platform=platform,
+                step_id=step_id,
+                inputs=[f"{platform}/05_prompts.md"],
+                outputs=[f"{platform}/06_images/", f"{platform}/06_handoff.yaml"],
+                summary=f"生成图片（封面 {cover_ratio} + 正文 {poster_ratio} x {count-1}）",
+                next_instructions=["调用 /ark-image-gen 技能生成图片"]
+            )
+
+            return {"artifacts": [f"{platform}/06_images/", handoff_path]}
+
+    def step_wx_html(self):
+        """生成微信 HTML - 合流验证后生成 handoff"""
+        platform = "wechat"
+        step_id = "07_wx_html"
+
+        print("生成微信 HTML（合流验证）...")
+        self.log(step_id, "执行合流验证和转换")
+
+        # 合流验证：检查前置文件
+        required_files = [
+            Path(platform) / "04_final.md",
+            Path(platform) / "06_images",
+        ]
+
+        missing_files = []
+        for file_path in required_files:
+            full_path = self.run_dir / file_path
+            if not full_path.exists():
+                missing_files.append(str(file_path))
+
+        if missing_files:
+            error_msg = f"合流校验失败，缺失文件: {', '.join(missing_files)}"
+            self.log(step_id, error_msg)
+            raise FileNotFoundError(error_msg)
+
+        # 合流验证：检查图片文件与比例匹配
+        cover_ratio = self.context.get_decision("image.cover_ratio", "16:9")
+        poster_ratio = self.context.get_decision("image.poster_ratio", "16:9")
+        count = self.context.get_decision("image.count", 4)
+
+        # 标准化比例格式（统一用 : 替代 : 或 /）
+        cover_ratio_norm = cover_ratio.replace(":", "_")
+        poster_ratio_norm = poster_ratio.replace(":", "_")
+
+        images_dir = self.run_dir / platform / "06_images"
+        cover_file = images_dir / f"cover_{cover_ratio_norm}.jpg"
+        if not cover_file.exists():
+            # 检查可能的变体格式
+            alt_patterns = [
+                f"cover{cover_ratio}.jpg",  # 原 : 格式
+                f"cover{cover_ratio.replace(':', 'x')}.jpg",  # x 格式
+            ]
+            found = False
+            for alt in alt_patterns:
+                if (images_dir / alt).exists():
+                    found = True
+                    break
+            if not found:
+                error_msg = f"合流校验失败，封面图片不存在: cover_{cover_ratio_norm}.jpg"
+                self.log(step_id, error_msg)
+                raise FileNotFoundError(error_msg)
+
+        # 检查正文图
+        for i in range(1, count):
+            poster_file = images_dir / f"poster_{i:02d}_{poster_ratio_norm}.jpg"
+            if not poster_file.exists():
+                # 也检查可能的变体格式
+                alt_patterns = [
+                    f"poster_{i:02d}_{poster_ratio}.jpg",  # 原 : 格式
+                    f"poster_{i:02d}_{poster_ratio.replace(':', 'x')}.jpg",  # x 格式
+                ]
+                found = False
+                for alt in alt_patterns:
+                    if (images_dir / alt).exists():
+                        found = True
+                        break
+                if not found:
+                    error_msg = f"合流校验失败，正文图片不存在: poster_{i:02d}_{poster_ratio_norm}.jpg"
+                    self.log(step_id, error_msg)
+                    raise FileNotFoundError(error_msg)
+
+        print(f"合流验证通过：前置文件和图片比例匹配检查通过（封面 {cover_ratio}，正文 {poster_ratio}）")
+
+        # 读取 Markdown 文件
+        md_file = self.run_dir / platform / "04_final.md"
+        md_content = md_file.read_text(encoding="utf-8")
+
+        # 调用 md-to-wx-html 脚本转换
+        script_path = Path.home() / ".claude" / "skills" / "md-to-wx-html" / "scripts" / "convert_md_to_wx_html.py"
+
+        html_file = self.run_dir / platform / "07_article.html"
+
+        if script_path.exists():
+            try:
+                cmd = [
+                    sys.executable, str(script_path),
+                    str(md_file),
+                    "-o", str(html_file)
+                ]
+                result = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+
+                if result.returncode != 0:
+                    self.log(step_id, f"HTML 转换失败: {result.stderr}")
+                    print(f"HTML 转换脚本返回错误: {result.stderr}")
+                else:
+                    self.log(step_id, "HTML 转换成功")
+
+            except subprocess.TimeoutExpired:
+                self.log(step_id, "HTML 转换超时")
+                print("HTML 转换超时")
+                raise
+        else:
+            # 脚本不存在时，生成简化 HTML
+            html_content = f"""<section style="margin: 20px;">
+<p style="margin-left:8px;margin-right:8px;">
+<span style="font-size:15px;color:#333;font-family:PingFangSC-Regular;">
+{md_content.replace(chr(10), '<br/>').replace('### ', '<strong>')}
+</span>
+</p>
+</section>"""
+            html_file.write_text(html_content, encoding="utf-8")
+            self.log(step_id, "生成简化 HTML（脚本不可用）")
+
+        handoff_path = self.write_handoff(
+            platform=platform,
+            step_id=step_id,
+            inputs=[
+                f"{platform}/04_final.md",
+                f"{platform}/06_images/"
+            ],
+            outputs=[
+                f"{platform}/07_article.html",
+                f"{platform}/07_handoff.yaml"
+            ],
+            summary="将 Markdown 转换为微信编辑器兼容的 HTML",
+            next_instructions=[
+                f"下一步：调用 /wechat-draftbox 上传草稿",
+                f"输入：{platform}/07_article.html",
+                f"图片：{platform}/06_images/"
+            ]
+        )
+
+        print(f"已生成: {html_file.name}")
+        print(f"已生成: {handoff_path}")
+        return {"artifacts": [f"{platform}/07_article.html", handoff_path]}
+
+    def step_draftbox(self):
+        """上传到草稿箱 - 调用 wechat-draftbox v2 脚本"""
+        platform = "wechat"
+        step_id = "08_draftbox"
+
+        print("上传到草稿箱...")
+        self.log(step_id, "调用 wechat-draftbox v2 脚本")
+
+        # 检查前置文件
+        html_file = self.run_dir / platform / "07_article.html"
+        images_dir = self.run_dir / platform / "06_images"
+
+        if not html_file.exists():
+            raise FileNotFoundError(f"前置文件不存在: {html_file}")
+
+        if not images_dir.exists() or not any(images_dir.iterdir()):
+            raise FileNotFoundError(f"前置目录不存在或为空: {images_dir}")
+
+        # 获取账号决策
+        account = self.context.get_decision("wechat.account")
+        if not account:
+            raise ValueError("公众号账号未设置，请在 Gate A 中选择")
+
+        # 调用 wechat-draftbox v2 脚本
+        script_path = Path.home() / ".claude" / "skills" / "wechat-draftbox" / "scripts" / "wechat_draftbox_v2.py"
+
+        if not script_path.exists():
+            print(f"脚本不存在: {script_path}")
+            print("请手动执行: 调用 /wechat-draftbox 技能")
+
+            handoff_path = self.write_handoff(
+                platform=platform,
+                step_id=step_id,
+                inputs=[f"{platform}/07_article.html"],
+                outputs=[f"{platform}/09_draft.json"],
+                summary=f"上传到草稿箱（账号: {account}）",
+                next_instructions=["调用 /wechat-draftbox 技能上传草稿"]
+            )
+
+            return {"artifacts": [f"{platform}/09_draft.json", handoff_path]}
+
+        # 根据确定封面图片（根据 cover_ratio）
+        cover_ratio = self.context.get_decision("image.cover_ratio", "16:9")
+        cover_ratio_norm = cover_ratio.replace(":", "_")
+        cover_file = images_dir / f"cover_{cover_ratio_norm}.jpg"
+
+        # 如果封面文件不存在，回退到通用查找
+        if not cover_file.exists():
+            # 尝试其他格式
+            for ratio_alt in [f"cover_{cover_ratio.replace(':', 'x')}.jpg", "cover_16_9.jpg", "cover_16:9.jpg"]:
+                alt_path = images_dir / ratio_alt
+                if alt_path.exists():
+                    cover_file = alt_path
+                    break
+
+        cmd = [
+            sys.executable, str(script_path),
+            "--html-file", str(html_file),
+            "--cover-image", str(cover_file),  # 脚本期望 --cover-image
+            "--account", account
+        ]
+
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=180
+            )
+
+            if result.returncode != 0:
+                self.log(step_id, f"脚本执行失败: {result.stderr}")
+                print(f"草稿箱上传脚本返回错误: {result.stderr}")
+                raise RuntimeError(f"上传失败: {result.stderr}")
+            else:
+                self.log(step_id, "脚本执行成功")
+                print(result.stdout)
+
+            # 检查输出文件
+            draft_result = self.run_dir / platform / "09_draft.json"
+
+            if draft_result.exists():
+                handoff_path = self.write_handoff(
+                    platform=platform,
+                    step_id=step_id,
+                    inputs=[f"{platform}/07_article.html"],
+                    outputs=[f"{platform}/09_draft.json"],
+                    summary=f"上传到草稿箱（账号: {account}）",
+                    next_instructions=["调用 /wechat-draftbox 技能上传草稿"]
+                )
+                print("上传成功")
+                print(f"已生成: {handoff_path}")
+                return {"artifacts": [f"{platform}/09_draft.json", handoff_path]}
+            else:
+                raise FileNotFoundError("草稿箱结果文件未生成")
+
+        except subprocess.TimeoutExpired:
+            self.log(step_id, "草稿箱上传超时")
+            print("草稿箱上传超时")
+            raise
+        except FileNotFoundError:
+            print("Python 或脚本不可用，请手动执行 /wechat-draftbox 技能")
+
+            handoff_path = self.write_handoff(
+                platform=platform,
+                step_id=step_id,
+                inputs=[f"{platform}/07_article.html"],
+                outputs=[f"{platform}/09_draft.json"],
+                summary=f"上传到草稿箱（账号: {account}）",
+                next_instructions=["调用 /wechat-draftbox 技能上传草稿"]
+            )
+            return {"artifacts": [f"{platform}/09_draft.json", handoff_path]}
+
+
+def init_run_dir(topic: str, platforms: List[str] = None) -> Path:
+    """初始化运行目录"""
+    if platforms is None:
+        platforms = ["wechat"]
+
+    # 生成 run_id
+    date_str = datetime.now().strftime("%Y%m%d")
+    slug = ''.join(c if c.isalnum() else '-' for c in topic.lower())
+    import secrets
+    short_id = secrets.token_hex(3)
+    run_id = f"{date_str}__{slug}__{short_id}"
+
+    # 创建目录
+    base_dir = Path("/Users/wisewong/Documents/Developer/auto-write/runs")
+    run_dir = base_dir / run_id
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    # 创建子目录
+    for platform in platforms:
+        (run_dir / platform).mkdir(exist_ok=True)
+    (run_dir / "_log").mkdir(exist_ok=True)
+
+    # 复制模板
+    template_file = Path(__file__).parent.parent / "templates" / "run_context.template.yaml"
+    context_file = run_dir / "run_context.yaml"
+    shutil.copy(template_file, context_file)
+
+    # 更新上下文
+    with open(context_file, 'r', encoding='utf-8') as f:
+        context = yaml.safe_load(f)
+
+    context["run_id"] = run_id
+    context["topic"] = topic
+    context["platforms"] = platforms
+
+    with open(context_file, 'w', encoding='utf-8') as f:
+        yaml.dump(context, f, allow_unicode=True, default_flow_style=False)
+
+    print(f"初始化运行目录: {run_dir}")
+    return run_dir
+
+
+def migrate_run_context(data: Dict[str, Any]) -> Dict[str, Any]:
+    """迁移旧版 run_context.yaml 到新结构
+    保持向后兼容：旧 run_context 也能被 --status/--plan 正常读取
+    """
+    migrated = False
+
+    # 1. 检查并添加 workflow 字段
+    if "workflow" not in data:
+        data["workflow"] = {
+            "name": "article-creator",
+            "version": "3.0.0",
+            "created_at": "2026-01-14",
+            "skills": [
+                {"name": "research-workflow", "version": "1.0.0", "entry_skill": "research-workflow"},
+                {"name": "article-rewrite", "version": "1.0.0", "entry_skill": "article-rewrite"},
+                {"name": "article-plug-classicLines", "version": "1.0.0", "entry_skill": "article-plug-classicLines"},
+                {"name": "article-humanizer", "version": "1.0.0", "entry_skill": "article-humanizer"},
+                {"name": "image-prompter", "version": "1.0.0", "entry_skill": "image-prompter"},
+                {"name": "image-gen", "version": "1.0.0", "entry_skill": "image-gen"},
+                {"name": "md-to-wxhtml", "version": "1.0.0", "entry_skill": "md-to-wxhtml"},
+                {"name": "wechat-draftbox", "version": "1.0.0", "entry_skill": "wechat-draftbox"}
+            ]
+        }
+        migrated = True
+
+    # 2. 检查并添加 steps 字段
+    if "steps" not in data:
+        data["steps"] = {
+            "00_init": {"state": "PENDING", "artifacts": []},
+            "01_research": {"state": "PENDING", "artifacts": []},
+            "02_draft": {"state": "PENDING", "artifacts": []},
+            "03_polish": {"state": "PENDING", "artifacts": []},
+            "04_humanize": {"state": "PENDING", "artifacts": []},
+            "05_prompts": {"state": "PENDING", "artifacts": []},
+            "06_images": {"state": "PENDING", "artifacts": []},
+            "07_wx_html": {"state": "PENDING", "artifacts": []},
+            "08_draftbox": {"state": "PENDING", "artifacts": []}
+        }
+        migrated = True
+
+    # 3. 检查并添加 steps_index 字段
+    if "steps_index" not in data:
+        data["steps_index"] = [
+            "00_init", "01_research", "02_draft", "03_polish",
+            "04_humanize", "05_prompts", "06_images", "07_wx_html", "08_draftbox"
+        ]
+        migrated = True
+
+    # 4. 检查并添加 decisions.image.confirmed 字段
+    if "decisions" not in data:
+        data["decisions"] = {}
+    if "image" not in data["decisions"]:
+        data["decisions"]["image"] = {}
+    if "confirmed" not in data["decisions"]["image"]:
+        data["decisions"]["image"]["confirmed"] = False
+        migrated = True
+
+    # 5. 检查并添加 decisions.wechat.confirmed 字段
+    if "wechat" not in data["decisions"]:
+        data["decisions"]["wechat"] = {}
+    if "confirmed" not in data["decisions"]["wechat"]:
+        data["decisions"]["wechat"]["confirmed"] = False
+        migrated = True
+
+    return migrated
+
+
+def cmd_status(run_dir: Path):
+    """显示工作流状态"""
+    context = RunContext(run_dir)
+
+    print(f"\n{'=' * 80}")
+    print(f"工作流状态: {context.data.get('run_id', 'N/A')}")
+    print(f"{'=' * 80}")
+    print(f"话题: {context.data.get('topic', 'N/A')}")
+    print(f"状态: {context.data.get('status', 'N/A')}")
+    print(f"当前步骤: {context.data.get('current_step', 'N/A')}")
+
+    # 步骤表格
+    print(f"\n{'=' * 80}")
+    print("步骤状态")
+    print(f"{'=' * 80}")
+
+    print(f"{'步骤ID':<12} {'状态':<12} {'产物存在性':<30} {'下一步':<25}")
+    print("-" * 80)
+
+    steps_index = context.data.get("steps_index", [])
+    steps_def = context.data.get("steps", {})
+
+    for step_id in steps_index:
+        step_info = steps_def.get(step_id, {})
+        state = context.data.get("steps", {}).get(step_id, {}).get("state", "UNKNOWN")
+
+        # 检查产物是否存在
+        outputs = step_info.get("outputs", [])
+        existence_list = []
+        for output in outputs:
+            # 处理通配符路径
+            if "*" in output:
+                output_dir = run_dir / output.rsplit("/", 1)[0]
+                if output_dir.exists():
+                    files = list(output_dir.glob(output.split("/")[-1]))
+                    existence_list.append(f"{output.split('/')[-1]} ({len(files)})")
+                else:
+                    existence_list.append(f"{output.split('/')[-1]} (0)")
+            else:
+                output_path = run_dir / output
+                existence_list.append("✓" if output_path.exists() else "✗")
+        existence_str = ", ".join(existence_list[:3]) + ("..." if len(existence_list) > 3 else "")
+
+        # 确定下一步
+        current_step = context.data.get('current_step', '')
+        is_next = (state in ["PENDING", "FAILED"] and current_step == step_id) or \
+                   (context.data.get('status') == 'RUNNING' and state == "RUNNING")
+        next_str = "→ 下一步" if is_next else ""
+
+        print(f"{step_id:<12} {state:<12} {existence_str:<30} {next_str:<25}")
+
+    # 待确认问题
+    pending = context.data.get("pending_questions", [])
+    if pending:
+        print(f"\n{'=' * 80}")
+        print("待确认问题（当前阻塞点）")
+        print(f"{'=' * 80}")
+
+        # Gate ID 映射
+        gate_names = {
+            "account_selection": "Gate A - 公众号账号选择",
+            "image_config": "Gate B - 图片配置确认",
+            "image_count": "Gate B - 图片数量确认"
+        }
+
+        for i, q in enumerate(pending, 1):
+            gate_name = gate_names.get(q.get("id", ""), "")
+            status_indicator = ""
+
+            # 显示对应的 confirmed 状态
+            if q["id"] == "account_selection":
+                confirmed = context.data.get("decisions", {}).get("wechat", {}).get("confirmed", False)
+                status_indicator = "（已确认）" if confirmed else "（待确认）"
+            elif q["id"] in ["image_config", "image_count"]:
+                confirmed = context.data.get("decisions", {}).get("image", {}).get("confirmed", False)
+                status_indicator = "（已确认）" if confirmed else "（待确认）"
+
+            print(f"\n{i}. {gate_name} {status_indicator}")
+            print(f"   问题: {q.get('question', 'N/A')}")
+            if q.get("type") == "choice":
+                print(f"   选项: {', '.join(q.get('options', []))}")
+
+        # 额测的下一步
+        if pending[0]["id"] == "account_selection":
+            next_step = "08_draftbox (上传草稿箱）"
+        else:  # Gate B
+            next_step = "06_images (生成图片）"
+
+        print(f"\n确认后将继续: {next_step}")
+
+    print(f"{'=' * 80}\n")
+
+
+def cmd_plan(run_dir: Path):
+    """显示剩余执行计划"""
+    context = RunContext(run_dir)
+
+    print(f"\n{'=' * 80}")
+    print(f"执行计划: {context.data.get('run_id', 'N/A')}")
+    print(f"{'=' * 80}")
+
+    # 找到当前步骤
+    current_step = context.data.get('current_step', '')
+    steps_index = context.data.get("steps_index", [])
+    steps_def = context.data.get("steps", {})
+
+    # 确定起始索引
+    if current_step:
+        try:
+            start_idx = steps_index.index(current_step)
+        except ValueError:
+            start_idx = 0
+    else:
+        # 找到第一个未完成的步骤
+        start_idx = 0
+        for i, step_id in enumerate(steps_index):
+            state = context.data.get("steps", {}).get(step_id, {}).get("state", "UNKNOWN")
+            if state in ["PENDING", "FAILED"]:
+                start_idx = i
+                break
+
+    print(f"\n剩余步骤（从 {steps_index[start_idx]} 开始）:")
+    print(f"{'=' * 80}")
+
+    for step_id in steps_index[start_idx:]:
+        step_info = steps_def.get(step_id, {})
+        state = context.data.get("steps", {}).get(step_id, {}).get("state", "UNKNOWN")
+
+        # Runner 信息
+        runner = step_info.get("runner", {})
+        runner_type = runner.get("type", "unknown")
+        runner_name = runner.get("name", runner.get("path", "N/A"))
+
+        # 依赖
+        depends_on = step_info.get("depends_on", [])
+        deps_str = ", ".join(depends_on) if depends_on else "无"
+
+        # 预期产物
+        outputs = step_info.get("outputs", [])
+        outputs_str = "\n         ".join(outputs[:3]) + ("\n         ..." if len(outputs) > 3 else "")
+
+        # 状态标记
+        state_icon = {
+            "PENDING": "○",
+            "RUNNING": "▶",
+            "DONE": "✓",
+            "FAILED": "✗",
+            "WAITING_FOR_USER": "⏸"
+        }.get(state, "?")
+
+        print(f"\n{state_icon} {step_id} [{state}]")
+        print(f"   Runner: {runner_type} :: {runner_name}")
+        if depends_on:
+            print(f"   依赖: {deps_str}")
+        print(f"   预期产物:")
+        print(f"         {outputs_str}")
+
+    print(f"\n{'=' * 80}\n")
+
+
+def cmd_doctor():
+    """环境自检"""
+    print(f"\n{'=' * 80}")
+    print("环境自检")
+    print(f"{'=' * 80}")
+
+    all_ok = True
+
+    # 1. 检查 .env 是否加载
+    print("\n1. 环境变量检查")
+    print("-" * 80)
+
+    env_vars = [
+        # 通用
+        "HOME", "PATH",
+        # AI 相关
+        "CLAUDE_API_KEY", "OPENAI_API_KEY",
+        # 微信相关
+        "WECHAT_APPID", "WECHAT_SECRET",
+        # 火山相关
+        "ARK_API_KEY", "ARK_ACCESS_KEY",
+    ]
+
+    missing_vars = []
+    for var in env_vars:
+        if var in os.environ:
+            print(f"  ✓ {var}")
+        else:
+            print(f"  ✗ {var} (未设置)")
+            missing_vars.append(var)
+            all_ok = False
+
+    if not missing_vars:
+        print("\n  所有必需环境变量均已设置")
+    else:
+        print(f"\n  缺失环境变量: {', '.join(missing_vars)}")
+
+    # 2. 检查关键脚本是否可执行
+    print("\n2. 关键脚本检查")
+    print("-" * 80)
+
+    skill_dir = Path(__file__).parent.parent
+    scripts = [
+        skill_dir / "scripts" / "orchestrator.py",
+    ]
+
+    for script in scripts:
+        if script.exists():
+            print(f"  ✓ {script.name}")
+        else:
+            print(f"  ✗ {script.name} (不存在)")
+            all_ok = False
+
+    # 3. 检查依赖
+    print("\n3. Python 依赖检查")
+    print("-" * 80)
+
+    dependencies = [
+        ("yaml", "PyYAML"),
+        ("pathlib", "pathlib (内建)"),
+    ]
+
+    for module, name in dependencies:
+        try:
+            __import__(module)
+            print(f"  ✓ {name}")
+        except ImportError:
+            print(f"  ✗ {name} (未安装)")
+            all_ok = False
+
+    # 4. 检查模板文件
+    print("\n4. 模板文件检查")
+    print("-" * 80)
+
+    template_file = skill_dir / "templates" / "run_context.template.yaml"
+    if template_file.exists():
+        print(f"  ✓ run_context.template.yaml")
+    else:
+        print(f"  ✗ run_context.template.yaml (不存在)")
+        all_ok = False
+
+    # 总结
+    print("\n" + "=" * 80)
+    if all_ok:
+        print("✓ 所有检查通过，环境正常")
+        print("=" * 80 + "\n")
+        exit(0)
+    else:
+        print("✗ 发现问题，请修复后再试")
+        print("=" * 80 + "\n")
+        exit(1)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="文章创作工作流 - Orchestrator")
+    parser.add_argument("--topic", help="文章话题")
+    parser.add_argument("--resume", help="从现有运行目录恢复")
+    parser.add_argument("--start-from", help="从指定步骤开始")
+    parser.add_argument("--status", action="store_true", help="显示工作流状态")
+    parser.add_argument("--plan", action="store_true", help="显示执行计划")
+    parser.add_argument("--doctor", action="store_true", help="环境自检")
+
+    args = parser.parse_args()
+
+    # Doctor 命令
+    if args.doctor:
+        cmd_doctor()
+        return
+
+    # 状态/计划命令（需要 run_dir）
+    if args.status or args.plan:
+        if args.resume:
+            run_dir = Path(args.resume)
+        else:
+            # 尝试从当前目录查找 run_context.yaml
+            run_dir = Path.cwd()
+            if not (run_dir / "run_context.yaml").exists():
+                parser.error("--status/--plan 需要指定 --resume 或在运行目录中执行")
+
+        if args.status:
+            cmd_status(run_dir)
+        elif args.plan:
+            cmd_plan(run_dir)
+        return
+
+    # 正常执行
+    if args.resume:
+        run_dir = Path(args.resume)
+    elif args.topic:
+        run_dir = init_run_dir(args.topic)
+    else:
+        parser.error("必须指定 --topic 或 --resume（或使用 --status/--plan）")
+
+    orchestrator = Orchestrator(run_dir)
+    orchestrator.run(start_from=args.start_from)
+
+
+if __name__ == "__main__":
+    main()

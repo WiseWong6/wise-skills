@@ -1,0 +1,143 @@
+run_id: ""
+topic: ""
+platforms: ["wechat"]   # ["wechat"] or ["wechat","xhs"]
+
+# Workflow 元数据
+workflow:
+  name: "article-creator"
+  version: "3.0.0"
+  created_at: "2026-01-14"
+  skills:
+    - name: "research-workflow"
+      version: "1.0.0"
+      entry_skill: "research-workflow"
+    - name: "article-rewrite"
+      version: "1.0.0"
+      entry_skill: "article-rewrite"
+    - name: "article-plug-classicLines"
+      version: "1.0.0"
+      entry_skill: "article-plug-classicLines"
+    - name: "article-humanizer"
+      version: "1.0.0"
+      entry_skill: "article-humanizer"
+    - name: "image-prompter"
+      version: "1.0.0"
+      entry_skill: "image-prompter"
+    - name: "image-gen"
+      version: "1.0.0"
+      entry_skill: "image-gen"
+    - name: "md-to-wxhtml"
+      version: "1.0.0"
+      entry_skill: "md-to-wxhtml"
+    - name: "wechat-draftbox"
+      version: "1.0.0"
+      entry_skill: "wechat-draftbox"
+
+# 步骤定义（步骤名称映射到技能）
+steps:
+  00_init:
+    id: "00_init"
+    depends_on: []
+    runner: {type: "skill", name: "research-workflow"}
+    outputs: ["run_context.yaml", "00_handoff.yaml"]
+    status: "PENDING"
+
+  01_research:
+    id: "01_research"
+    depends_on: ["00_init"]
+    runner: {type: "skill", name: "research-workflow"}
+    outputs: ["wechat/00_research.md", "wechat/00_handoff.yaml"]
+    status: "PENDING"
+
+  02_draft:
+    id: "02_draft"
+    depends_on: ["01_research"]
+    runner: {type: "skill", name: "article-rewrite"}
+    outputs: ["wechat/01_draft.md", "wechat/01_handoff.yaml"]
+    status: "PENDING"
+
+  03_polish:
+    id: "03_polish"
+    depends_on: ["02_draft"]
+    runner: {type: "skill", name: "article-plug-classicLines"}
+    outputs: ["wechat/03_polished.md", "wechat/03_handoff.yaml"]
+    status: "PENDING"
+
+  04_humanize:
+    id: "04_humanize"
+    depends_on: ["03_polish"]
+    runner: {type: "skill", name: "article-humanizer"}
+    outputs: ["wechat/04_final.md", "wechat/04_handoff.yaml"]
+    status: "PENDING"
+
+  05_prompts:
+    id: "05_prompts"
+    depends_on: ["04_humanize"]
+    runner: {type: "skill", name: "image-prompter"}
+    outputs: ["wechat/05_prompts.md", "wechat/05_handoff.yaml"]
+    status: "PENDING"
+
+  06_images:
+    id: "06_images"
+    depends_on: ["05_prompts"]
+    runner: {type: "script", path: "ark-image-gen/scripts/generate_image_v2.py"}
+    outputs: ["wechat/06_images/*", "wechat/06_handoff.yaml"]
+    status: "PENDING"
+
+  07_wx_html:
+    id: "07_wx_html"
+    depends_on: ["06_images"]
+    runner: {type: "script", path: "md-to-wx-html/scripts/convert_md_to_wx_html.py"}
+    outputs: ["wechat/07_article.html", "wechat/07_handoff.yaml"]
+    status: "PENDING"
+
+  08_draftbox:
+    id: "08_draftbox"
+    depends_on: ["07_wx_html"]
+    runner: {type: "script", path: "wechat-draftbox/scripts/wechat_draftbox_v2.py"}
+    outputs: ["wechat/09_draft.json", "wechat/09_handoff.yaml"]
+    status: "PENDING"
+
+# 步骤执行顺序
+steps_index:
+  - 00_init
+  - 01_research
+  - 02_draft
+  - 03_polish
+  - 04_humanize
+  - 05_prompts
+  - 06_images
+  - 07_wx_html
+  - 08_draftbox
+
+status: "RUNNING"       # RUNNING | WAITING_FOR_USER | DONE | FAILED
+current_step: "00_init"
+
+decisions:
+  wechat:
+    account: null       # main/sub/alias；缺失则必须确认
+    title: null
+  image:
+    confirmed: false       # Gate B 确认状态（默认 false，确认后设为 true）
+    count: null              # 总张数（含封面），默认 4；count-1 为正文张数
+    orientation: "landscape"              # landscape/portrait，默认横屏
+    poster_ratio_landscape: "16:9"        # 横屏默认比例
+    poster_ratio_portrait: "3:4"          # 竖屏默认比例
+    cover_ratio: "16:9"                  # 封面比例，默认横屏
+    # 以下字段由 orientation 派生（运行时写入）
+    poster_ratio: "16:9"                 # 根据 orientation 选择：landscape=16:9: portrait=3:4
+    model: "doubao-seedream-4-5-251128"
+    resolution: "2k"
+
+pending_questions: []   # 非空 => status=WAITING_FOR_USER 并停止
+
+steps:
+  00_init:     { state: "PENDING", artifacts: [] }
+  01_research: { state: "PENDING", artifacts: [] }
+  02_draft:    { state: "PENDING", artifacts: [] }
+  03_polish:   { state: "PENDING", artifacts: [] }
+  04_humanize: { state: "PENDING", artifacts: [] }
+  05_prompts:  { state: "PENDING", artifacts: [] }
+  06_images:   { state: "PENDING", artifacts: [] }
+  07_wx_html:  { state: "PENDING", artifacts: [] }
+  08_draftbox: { state: "PENDING", artifacts: [] }

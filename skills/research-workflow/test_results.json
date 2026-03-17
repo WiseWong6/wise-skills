@@ -1,0 +1,25 @@
+{
+  "skill_config": {
+    "skill_dir_exists": true,
+    "skill_md_exists": true,
+    "scripts_dir_exists": true
+  },
+  "mcp_servers": {
+    "servers": [
+      "context7: npx -y @upstash/context7-mcp - ✓ Connected",
+      "spec-workflow: npx -y @pimzino/spec-workflow-mcp@latest - ✓ Connected",
+      "mcp-deepwiki: npx -y mcp-deepwiki@latest - ✓ Connected",
+      "Playwright: npx -y @playwright/mcp@latest - ✓ Connected"
+    ]
+  },
+  "cli_scripts": {
+    "trend_analysis.py": "exists",
+    "gap_analysis.py": "exists",
+    "research_search.py": "exists",
+    "brief_generator.py": "exists"
+  },
+  "brief_generator": {
+    "output_file": "content_brief.md",
+    "output_size": 2493
+  }
+}

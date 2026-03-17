@@ -1,0 +1,9 @@
+{
+  "name": "article-formatted",
+  "description": "Python 脚本执行 Markdown 格式规范化，处理中英文混排的空格、标点、引号问题",
+  "version": "4.1.0",
+  "entry_skill": "article-formatted",
+  "author": "wisewong",
+  "tags": ["markdown", "format", "text-processing", "chinese"],
+  "requires": ["run_dir", "input_file"]
+}

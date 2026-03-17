@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+"""
+Ark Image Generator - Parameterized Version
+
+Features:
+- Load prompts from markdown file
+- Generate cover and poster images
+- Non-interactive mode
+- Standardized output filenames
+"""
+
+import argparse
+import base64
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+import re
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dotenv import load_dotenv
+
+from openai import OpenAI, OpenAIError
+
+# Load environment variables
+load_dotenv()
+
+FALLBACK_MODEL = "doubao-seedream-4-0-250828"
+
+# Size mapping for Seedream 4.5
+# Ref: https://www.volcengine.com/docs/82379/1541523?lang=zh
+RATIO_SIZE_MAP = {
+    "1:1": "2048x2048",
+    "4:3": "2304x1728",
+    "3:4": "1728x2304",
+    "16:9": "2560x1440",
+    "9:16": "1440x2560",
+    "3:2": "2496x1664",
+    "2:3": "1664x2496",
+    "21:9": "3024x1296",
+}
+
+# Standard output filenames
+COVER_FILENAME = "cover_{ratio}.jpg"
+POSTER_FILENAME = "poster_{index:02d}_{ratio}.jpg"
+
+
+def load_prompts_from_file(prompts_file: str) -> tuple[str, list[str]]:
+    """Load prompts from markdown file
+
+    Returns:
+        tuple: (cover_prompt, poster_prompts_list)
+    """
+    if not prompts_file or not Path(prompts_file).exists():
+        return "", []
+
+    with open(prompts_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    cover_prompt = ""
+    poster_prompts = []
+
+    # Extract cover prompt
+    if "## 封面" in content:
+        cover_section = content.split("## 封面")[-1].split("##")[0]
+        cover_lines = [line.strip() for line in cover_section.split('\n')
+                      if line.strip() and not line.startswith('#')]
+        cover_prompt = '\n'.join(cover_lines).strip()
+    elif "## Cover" in content:
+        cover_section = content.split("## Cover")[-1].split("##")[0]
+        cover_lines = [line.strip() for line in cover_section.split('\n')
+                      if line.strip() and not line.startswith('#')]
+        cover_prompt = '\n'.join(cover_lines).strip()
+
+    # Extract poster prompts
+    if "## 正文配图" in content:
+        poster_section = content.split("## 正文配图")[-1]
+        prompt_matches = re.findall(r'(?:\d+\.|\-)\s*(.+)', poster_section)
+        poster_prompts = [p.strip() for p in prompt_matches if p.strip()]
+    elif "## Posters" in content:
+        poster_section = content.split("## Posters")[-1]
+        prompt_matches = re.findall(r'(?:\d+\.|\-)\s*(.+)', poster_section)
+        poster_prompts = [p.strip() for p in prompt_matches if p.strip()]
+    else:
+        # Fallback: extract all bullet points
+        prompt_matches = re.findall(r'(?:\d+\.|\-)\s*(.+)', content)
+        poster_prompts = [p.strip() for p in prompt_matches if p.strip()]
+
+    return cover_prompt, poster_prompts
+
+
+def generate_image(client: OpenAI, prompt: str, model: str, size: str,
+                  aspect_ratio: str, response_format: str, api_key: str,
+                  base_url: str) -> dict:
+    """Generate a single image"""
+    
+    # Override size if mapping exists for the ratio (required for Seedream 4.5)
+    if aspect_ratio in RATIO_SIZE_MAP:
+        size = RATIO_SIZE_MAP[aspect_ratio]
+
+    try:
+        # Try SDK first
+        resp = client.images.generate(
+            model=model,
+            prompt=prompt,
+            size=size,
+            response_format=response_format,
+            extra_body={
+                "watermark": False,
+                "aspect_ratio": aspect_ratio,
+            },
+        )
+        return ({"data": [{"url": resp.data[0].url}]} if response_format == "url"
+                else {"data": [{"b64_json": resp.data[0].b64_json}]})
+    except OpenAIError as e:
+        # Fallback to HTTP
+        url = f"{base_url}/images/generations"
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "response_format": response_format,
+            "size": size,
+            "watermark": False,
+            "aspect_ratio": aspect_ratio,
+        }
+        body = json.dumps(payload).encode()
+
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+            },
+        )
+        with urllib.request.urlopen(req) as resp:
+            return json.load(resp)
+
+
+def download_image(url: str, output_path: str) -> None:
+    """Download image from URL"""
+    import ssl
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
+    with urllib.request.urlopen(url, context=ssl_context) as response:
+        content = response.read()
+    with open(output_path, "wb") as handle:
+        handle.write(content)
+
+
+def save_base64(data: str, output_path: str) -> None:
+    """Save base64 encoded image"""
+    with open(output_path, "wb") as handle:
+        handle.write(base64.b64decode(data))
+
+
+def generate_poster_batch(client: OpenAI, poster_prompts: list[str],
+                          args: argparse.Namespace, api_key: str,
+                          out_dir: Path) -> int:
+    """并行生成正文图片
+
+    Returns:
+        int: 成功生成的数量
+    """
+    max_workers = min(args.count, 5)  # 最多5个并发
+    print(f"  使用 {max_workers} 个线程并行生成...")
+
+    successful = 0
+    failed = 0
+
+    # 准备所有任务
+    tasks = []
+    for i in range(min(args.count, len(poster_prompts))):
+        tasks.append((i, poster_prompts[i]))
+
+    # 并行执行
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # 提交所有任务
+        futures = {}
+        for i, prompt in tasks:
+            future = executor.submit(
+                generate_and_save_single,
+                client, prompt, args, api_key, out_dir, i
+            )
+            futures[future] = i
+
+        # 收集结果
+        for future in as_completed(futures):
+            i = futures[future]
+            try:
+                result_path = future.result()
+                print(f"    ✓ [{i+1}/{args.count}] {result_path}")
+                successful += 1
+            except Exception as e:
+                print(f"    ✗ [{i+1}/{args.count}] {e}")
+                failed += 1
+
+    print(f"\n生成完成: 成功 {successful} 张, 失败 {failed} 张")
+    return successful
+
+
+def generate_and_save_single(client: OpenAI, prompt: str,
+                              args: argparse.Namespace, api_key: str,
+                              out_dir: Path, index: int) -> str:
+    """生成单张图片并保存
+
+    Returns:
+        str: 保存的文件路径
+    """
+    result = generate_image(client, prompt, args.model,
+                            args.size, args.poster_ratio,
+                            args.response_format, api_key, args.base_url)
+
+    poster_filename = POSTER_FILENAME.format(
+        index=index + 1,
+        ratio=args.poster_ratio.replace(':', 'x'))
+    poster_path = out_dir / poster_filename
+
+    if args.response_format == "url":
+        download_image(result["data"][0]["url"], str(poster_path))
+    else:
+        save_base64(result["data"][0]["b64_json"], str(poster_path))
+
+    return poster_path.name
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Generate images via Ark (OpenAI-compatible) API"
+    )
+    parser.add_argument("--prompts-file",
+                       help="Path to markdown file containing prompts")
+    parser.add_argument("--prompt",
+                       help="Direct prompt text (alternative to --prompts-file)")
+    parser.add_argument("--model",
+                       default="doubao-seedream-4-5-251128",
+                       help="Model ID to use")
+    parser.add_argument("--size",
+                       default="2K",
+                       help="Image size, e.g. 2K")
+    parser.add_argument("--cover-ratio",
+                       choices=["16:9", "4:3", "1:1"],
+                       default="16:9",
+                       help="Cover image aspect ratio")
+    parser.add_argument("--poster-ratio",
+                       choices=["3:4", "4:3", "1:1"],
+                       default="3:4",
+                       help="Poster image aspect ratio")
+    parser.add_argument("--response-format",
+                       choices=["url", "b64_json"],
+                       default="url",
+                       help="Response format")
+    parser.add_argument("--out-dir",
+                       required=True,
+                       help="Output directory for generated images")
+    parser.add_argument("--count",
+                       type=int,
+                       default=4,
+                       help="Number of poster images to generate")
+    parser.add_argument("--base-url",
+                       default="https://ark.cn-beijing.volces.com/api/v3",
+                       help="Ark API base URL")
+    parser.add_argument("--api-key",
+                       default=None,
+                       help="API key override (defaults to ARK_API_KEY env var)")
+    parser.add_argument("--non-interactive",
+                       action="store_true",
+                       help="Non-interactive mode (no prompts)")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+
+    # Get API key
+    api_key = args.api_key or os.getenv("ARK_API_KEY")
+    if not api_key:
+        print("Error: ARK_API_KEY environment variable or --api-key required",
+              file=sys.stderr)
+        return 1
+
+    # Initialize client
+    client = OpenAI(base_url=args.base_url, api_key=api_key)
+
+    # Create output directory
+    out_dir = Path(args.out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load prompts
+    if args.prompts_file:
+        cover_prompt, poster_prompts = load_prompts_from_file(args.prompts_file)
+        print(f"Loaded {len(poster_prompts)} poster prompts from {args.prompts_file}")
+    elif args.prompt:
+        cover_prompt = args.prompt
+        poster_prompts = [args.prompt] * args.count
+    else:
+        print("Error: Either --prompts-file or --prompt required", file=sys.stderr)
+        return 1
+
+    # Generate cover image
+    if cover_prompt:
+        print(f"\nGenerating cover image (ratio: {args.cover_ratio})...")
+        try:
+            result = generate_image(client, cover_prompt, args.model,
+                                  args.size, args.cover_ratio,
+                                  args.response_format, api_key, args.base_url)
+
+            cover_filename = COVER_FILENAME.format(
+                ratio=args.cover_ratio.replace(':', 'x'))
+            cover_path = out_dir / cover_filename
+
+            if args.response_format == "url":
+                download_image(result["data"][0]["url"], str(cover_path))
+            else:
+                save_base64(result["data"][0]["b64_json"], str(cover_path))
+
+            print(f"✓ Cover saved: {cover_path}")
+
+        except Exception as e:
+            print(f"✗ Cover generation failed: {e}", file=sys.stderr)
+            return 1
+
+    # Generate poster images (并行)
+    print(f"\nGenerating {args.count} poster images (ratio: {args.poster_ratio})...")
+    successful = generate_poster_batch(client, poster_prompts, args, api_key, out_dir)
+    return 0 if successful > 0 else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

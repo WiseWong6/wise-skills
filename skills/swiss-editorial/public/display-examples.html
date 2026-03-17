@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>展示类布局示例 - Swiss Editorial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: #1a1a1a;
+            padding: 40px;
+        }
+        .demo-container {
+            max-width: 680px;
+            margin: 0 auto;
+        }
+        .demo-section {
+            margin-bottom: 40px;
+        }
+        .demo-title {
+            color: #d95e00;
+            font-size: 14px;
+            margin-bottom: 16px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        /* 基础卡片样式 */
+        .swiss-card {
+            width: 600px;
+            background: #ffffff;
+            padding: 60px;
+            margin: 0 auto 24px;
+        }
+    </style>
+    <link rel="stylesheet" href="display-components.css">
+</head>
+<body>
+    <div class="demo-container">
+
+        <!-- 1. 指标卡片示例 -->
+        <div class="demo-section">
+            <div class="demo-title">1. 指标卡片 (Stat Card)</div>
+            <div class="swiss-card">
+
+                <!-- 单个指标卡片 -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-label">年度营收</span>
+                        <span class="stat-card-trend up">+23.5%</span>
+                    </div>
+                    <div class="stat-card-value">
+                        2,847<span class="stat-card-unit">万</span>
+                    </div>
+                    <div class="stat-card-footer">
+                        同比去年 <span class="stat-card-comparison">+540万</span>
+                    </div>
+                </div>
+
+                <!-- 双列指标网格 -->
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-label">用户增长</span>
+                            <span class="stat-card-trend up">+18%</span>
+                        </div>
+                        <div class="stat-card-value">12.5K</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-card-label">流失率</span>
+                            <span class="stat-card-trend down">-2.3%</span>
+                        </div>
+                        <div class="stat-card-value">5.2%</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 2. 雷达图示例 -->
+        <div class="demo-section">
+            <div class="demo-title">2. 雷达图 (Radar Chart)</div>
+            <div class="swiss-card">
+
+                <div class="radar">
+                    <div class="radar-title">产品能力评估模型</div>
+                    <div class="radar-container">
+                        <svg class="radar-svg" viewBox="0 0 260 260">
+                            <!-- 背景网格 - 5层 -->
+                            <polygon class="radar-grid" points="130,30 190,65 190,135 130,170 70,135 70,65"/>
+                            <polygon class="radar-grid" points="130,50 174,75 174,125 130,150 86,125 86,75"/>
+                            <polygon class="radar-grid" points="130,70 158,85 158,115 130,130 102,115 102,85"/>
+                            <polygon class="radar-grid" points="130,90 142,97 142,105 130,110 118,105 118,97"/>
+
+                            <!-- 轴线 -->
+                            <line class="radar-axis" x1="130" y1="30" x2="130" y2="170"/>
+                            <line class="radar-axis" x1="190" y1="65" x2="70" y2="135"/>
+                            <line class="radar-axis" x1="190" y1="135" x2="70" y2="65"/>
+
+                            <!-- 数据区域 - 6个维度 -->
+                            <polygon class="radar-data" points="130,45 178,72 185,125 130,155 78,128 72,70"/>
+
+                            <!-- 数据点 -->
+                            <circle class="radar-point" cx="130" cy="45" r="4"/>
+                            <circle class="radar-point" cx="178" cy="72" r="4"/>
+                            <circle class="radar-point" cx="185" cy="125" r="4"/>
+                            <circle class="radar-point" cx="130" cy="155" r="4"/>
+                            <circle class="radar-point" cx="78" cy="128" r="4"/>
+                            <circle class="radar-point" cx="72" cy="70" r="4"/>
+
+                            <!-- 标签 -->
+                            <text class="radar-label" x="130" y="20">创新性</text>
+                            <text class="radar-label" x="205" y="60">性能</text>
+                            <text class="radar-label" x="205" y="145">易用性</text>
+                            <text class="radar-label" x="130" y="185">稳定性</text>
+                            <text class="radar-label" x="55" y="145">安全性</text>
+                            <text class="radar-label" x="55" y="60">扩展性</text>
+                        </svg>
+                    </div>
+                    <div class="radar-legend">
+                        <div class="radar-legend-item">
+                            <div class="radar-legend-color"></div>
+                            <span>当前产品</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 3. 列表卡片示例 -->
+        <div class="demo-section">
+            <div class="demo-title">3. 列表卡片 (List Card)</div>
+            <div class="swiss-card">
+
+                <!-- 有序列表卡片 -->
+                <div class="list-card">
+                    <div class="list-card-header">核心优先级</div>
+                    <ol>
+                        <li>完成用户认证系统的重构与性能优化</li>
+                        <li>部署新的数据分析平台</li>
+                        <li>优化移动端响应式体验</li>
+                        <li>完善自动化测试覆盖率达到85%</li>
+                    </ol>
+                </div>
+
+                <!-- 无序列表卡片 -->
+                <div class="list-card">
+                    <div class="list-card-header">技术栈</div>
+                    <ul>
+                        <li>React 18 + TypeScript 5.0</li>
+                        <li>Node.js + Express 后端服务</li>
+                        <li>PostgreSQL 主数据库</li>
+                        <li>Redis 缓存层</li>
+                    </ul>
+                </div>
+
+                <!-- 带层级的列表 -->
+                <div class="list-card">
+                    <div class="list-card-header">项目结构</div>
+                    <ol>
+                        <li>前端应用层</li>
+                        <li class="level-2">组件库</li>
+                        <li class="level-2">状态管理</li>
+                        <li class="level-3">Redux Store</li>
+                        <li class="level-3">本地缓存</li>
+                        <li>后端API层</li>
+                    </ol>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4. 三栏布局示例 -->
+        <div class="demo-section">
+            <div class="demo-title">4. 三栏布局 (Three Column)</div>
+            <div class="swiss-card">
+
+                <!-- 数字三栏 -->
+                <div class="three-col">
+                    <div class="three-col-item">
+                        <div class="three-col-number">98%</div>
+                        <div class="three-col-label">客户满意度</div>
+                        <div class="three-col-desc">基于季度调研数据</div>
+                    </div>
+                    <div class="three-col-item">
+                        <div class="three-col-number">24h</div>
+                        <div class="three-col-label">平均响应</div>
+                        <div class="three-col-desc">技术支持响应时间</div>
+                    </div>
+                    <div class="three-col-item">
+                        <div class="three-col-number">99.9%</div>
+                        <div class="three-col-label">系统可用性</div>
+                        <div class="three-col-desc">年度服务可用率</div>
+                    </div>
+                </div>
+
+                <!-- 带图标的三栏 -->
+                <div class="three-col">
+                    <div class="three-col-item">
+                        <div class="three-col-icon">★</div>
+                        <div class="three-col-label">专业版</div>
+                        <div class="three-col-desc">适合小型团队</div>
+                    </div>
+                    <div class="three-col-item">
+                        <div class="three-col-icon">◆</div>
+                        <div class="three-col-label">企业版</div>
+                        <div class="three-col-desc">适合中大型企业</div>
+                    </div>
+                    <div class="three-col-item">
+                        <div class="three-col-icon">●</div>
+                        <div class="three-col-label">定制版</div>
+                        <div class="three-col-desc">私有化部署方案</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 5. 上下分层示例 -->
+        <div class="demo-section">
+            <div class="demo-title">5. 上下分层 (Split Vertical)</div>
+            <div class="swiss-card">
+
+                <!-- 基础上下分层 -->
+                <div class="split-v">
+                    <div class="split-v-header">
+                        <div class="split-v-title">Q4 战略规划</div>
+                        <div class="split-v-subtitle">2024年第四季度核心目标与执行方案</div>
+                    </div>
+                    <div class="split-v-body">
+                        <p>本季度我们将聚焦于产品核心功能的打磨与用户体验的提升。通过数据驱动的迭代方式，确保每一个功能点都能为用户创造实际价值。</p>
+                        <p>关键成果指标包括：用户留存率提升至65%，NPS评分达到50以上，以及核心功能使用率增长30%。</p>
+                    </div>
+                </div>
+
+                <!-- 强调色上下分层 -->
+                <div class="split-v accent">
+                    <div class="split-v-header">
+                        <div class="split-v-title">重要提醒</div>
+                        <div class="split-v-subtitle">系统升级维护通知</div>
+                    </div>
+                    <div class="split-v-body">
+                        <p>我们将于本周六凌晨2:00-6:00进行系统升级维护。期间服务将暂时不可用，请提前保存您的工作内容。</p>
+                        <p>升级完成后，您将体验到更快的响应速度和全新的协作功能。</p>
+                    </div>
+                </div>
+
+                <!-- 带编号的上下分层 -->
+                <div class="split-v split-v-numbered">
+                    <div class="split-v-header">
+                        <div class="split-v-number">01</div>
+                        <div class="split-v-title">需求分析阶段</div>
+                        <div class="split-v-subtitle">深入理解用户痛点与业务场景</div>
+                    </div>
+                    <div class="split-v-body">
+                        <p>通过用户访谈、数据分析、竞品研究等方式，全面收集需求信息。输出用户画像、用户旅程图、需求优先级列表等关键文档。</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

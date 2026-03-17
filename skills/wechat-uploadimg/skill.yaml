@@ -1,0 +1,57 @@
+name: wechat-uploadimg
+description: 上传图片到微信 CDN 获取 URL，用于 article-workflow 集成
+
+inputs:
+  account:
+    type: choice
+    choices: [main, sub]
+    description: 公众号账号：main=歪斯Wise, sub=人类
+    required: true
+
+  images_dir:
+    type: string
+    description: 图片目录路径（批量上传所有图片）
+    required: false
+
+  cover_image:
+    type: string
+    description: 封面图片路径（单独上传）
+    required: false
+
+  output:
+    type: string
+    description: 输出文件路径（JSON格式）
+    required: true
+
+outputs:
+  type: json
+  description: 输出图片映射 JSON 文件
+  format: |
+    单独上传封面:
+    {
+      "cover_url": "http://mmbiz.qpic.cn/...",
+      "cover_filename": "cover.jpg"
+    }
+
+    批量上传:
+    {
+      "cover_urls": {
+        "cover_16_9.jpg": "http://mmbiz.qpic.cn/..."
+      },
+      "poster_urls": {
+        "poster_01_16_9.jpg": "http://mmbiz.qpic.cn/..."
+      },
+      "total": 5
+    }
+
+usage_examples:
+  - 批量上传所有图片:
+      wechat-uploadimg --account main --images-dir /path/to/images/ --output image_mapping.json
+  - 单独上传封面:
+      wechat-uploadimg --account main --cover-image /path/to/cover.jpg --output cover_url.json
+
+environment_variables:
+  WECHAT_APPID_MAIN: 主公众号 AppID（歪斯Wise）
+  WECHAT_APPSECRET_MAIN: 主公众号 AppSecret
+  WECHAT_APPID_SUB: 副业公众号 AppID（人类）
+  WECHAT_APPSECRET_SUB: 副业公众号 AppSecret

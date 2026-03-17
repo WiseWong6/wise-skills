@@ -1,0 +1,9 @@
+{
+  "name": "article-create-rag",
+  "description": "基于本地文章库进行 RAG 增强和文章创作。支持主题生成、基于调研内容生成、RAG增强已有草稿",
+  "version": "3.0.0",
+  "entry_skill": "article-create-rag",
+  "author": "wisewong",
+  "tags": ["rag", "article", "knowledge-base", "writing"],
+  "requires": ["topic"]
+}

@@ -1,0 +1,22 @@
+# 不需要同步的目录
+sessions/
+file-history/
+shell-snapshots/
+paste-cache/
+backups/
+tasks/
+plans/
+projects/
+
+# 插件缓存和市场（会自动下载）
+plugins/cache/
+plugins/marketplaces/
+plugins/blocklist.json
+
+# 系统文件
+.DS_Store
+*.log
+
+# 敏感信息
+settings.json
+history.jsonl

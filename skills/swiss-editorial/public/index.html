@@ -1,0 +1,4814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swiss Editorial - 社论风排版工具</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif;
+            background: #1a1a1a;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 右侧编辑器 */
+        .editor-panel {
+            width: 35%;
+            background: #252525;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #333;
+        }
+
+        /* 左侧目录面板 */
+        .toc-panel {
+            width: 15%;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #333;
+            min-width: 180px;
+        }
+
+        .toc-header {
+            padding: 16px 20px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+        }
+
+        .toc-header h2 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            letter-spacing: 0.05em;
+        }
+
+        .toc-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .toc-page {
+            margin-bottom: 4px;
+        }
+
+        .toc-page-header {
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ccc;
+            font-size: 13px;
+            transition: all 0.2s;
+            border-left: 2px solid transparent;
+        }
+
+        .toc-page-header:hover {
+            background: #252525;
+            color: #d95e00;
+        }
+
+        .toc-page.active .toc-page-header {
+            background: #252525;
+            border-left-color: #d95e00;
+            color: #d95e00;
+        }
+
+        .toc-page-number {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            min-width: 32px;
+        }
+
+        .toc-page.active .toc-page-number {
+            color: #d95e00;
+        }
+
+        .toc-page-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .toc-page-preview {
+            font-size: 10px;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .toc-elements {
+            padding: 4px 0 8px 62px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .toc-element {
+            padding: 4px 12px;
+            color: #666;
+            cursor: pointer;
+            font-size: 11px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .toc-element:hover {
+            color: #d95e00;
+            background: #252525;
+        }
+
+        .toc-element.active {
+            color: #d95e00;
+            background: rgba(217, 94, 0, 0.15);
+            font-weight: 500;
+        }
+
+        .editor-header {
+            padding: 16px 20px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-header h1 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #888;
+            letter-spacing: 0.05em;
+        }
+
+        .editor-header span {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 编辑器工具栏 */
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+        }
+
+        .editor-toolbar button {
+            background: #333;
+            border: 1px solid #444;
+            color: #ccc;
+            padding: 6px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .editor-toolbar button:hover {
+            background: #444;
+            border-color: #d95e00;
+            color: #d95e00;
+        }
+
+        .editor-toolbar button.primary {
+            background: #d95e00;
+            border-color: #d95e00;
+            color: #fff;
+        }
+
+        .editor-toolbar button.primary:hover {
+            background: #e86d0f;
+        }
+
+        .editor-toolbar .filename {
+            flex: 1;
+            text-align: right;
+            color: #888;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .editor-toolbar .filename .unsaved {
+            color: #d95e00;
+        }
+
+        /* 保存状态指示器 */
+        .save-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #666;
+        }
+
+        .save-status.saved {
+            color: #28a745;
+        }
+
+        .save-status.unsaved {
+            color: #d95e00;
+        }
+
+        /* 隐藏的文件输入 */
+        #fileInput {
+            display: none;
+        }
+
+
+        #editor {
+            flex: 1;
+            width: 100%;
+            padding: 24px;
+            background: #252525;
+            color: #e0e0e0;
+            border: none;
+            resize: none;
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            outline: none;
+        }
+
+        #editor::placeholder {
+            color: #555;
+        }
+
+        /* 中间预览 */
+        .preview-panel {
+            width: 50%;
+            background: #0d0d0d;
+            overflow-y: auto;
+            padding: 40px;
+            border-right: 1px solid #333;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .preview-header h2 {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+            letter-spacing: 0.05em;
+        }
+
+        .page-count {
+            font-size: 12px;
+            color: #d95e00;
+            font-weight: 500;
+        }
+
+        /* 搜索框样式 */
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #333;
+            margin-right: auto;
+        }
+
+        .search-container input {
+            background: transparent;
+            border: none;
+            color: #e0e0e0;
+            font-size: 12px;
+            width: 100px;
+            outline: none;
+        }
+
+        .search-container input::placeholder {
+            color: #666;
+        }
+
+        .search-container button {
+            background: #333;
+            border: 1px solid #444;
+            color: #888;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .search-container button:hover {
+            color: #d95e00;
+            border-color: #d95e00;
+        }
+
+        .search-results {
+            font-size: 10px;
+            color: #888;
+            margin-left: 4px;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* 高亮搜索结果 */
+        .search-highlight {
+            background: #d95e00 !important;
+            color: #fff !important;
+            padding: 2px 4px;
+            border-radius: 2px;
+        }
+
+        /* 当前搜索结果高亮 */
+        .search-highlight-current {
+            background: #ff8c00 !important;
+            color: #fff !important;
+            box-shadow: 0 0 0 2px #ff8c00;
+        }
+
+        /* 卡片容器 */
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            align-items: center;
+        }
+
+        /* Swiss Card 样式 */
+        .swiss-card {
+            width: 600px;
+            min-height: 800px;
+            border-radius: 0 !important;
+            overflow: hidden;
+            position: relative;
+            font-family: 'Noto Sans SC', 'Noto Serif SC', -apple-system, sans-serif;
+            flex-shrink: 0;
+        }
+
+        .swiss-card--cover {
+            background: #f2efe9;
+            color: #1a1a1a;
+        }
+
+        .swiss-card--body {
+            background: #ffffff;
+            color: #1a1a1a;
+        }
+
+        .swiss-card__content {
+            padding: 60px;
+            min-height: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .swiss-card--cover .swiss-card__content {
+            justify-content: center;
+        }
+
+        /* 标题 - 封面 */
+        .swiss-card h1 {
+            font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif !important;
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+        }
+
+        /* H2 - 章节标题，带底部边框 */
+        .swiss-card h2 {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif !important;
+            font-size: 34px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #d95e00;
+            color: #d95e00;
+        }
+
+        /* H3 */
+        .swiss-card h3 {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif !important;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+            color: #d95e00;
+        }
+
+        /* H4 */
+        .swiss-card h4 {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif !important;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 14px;
+            color: #d95e00;
+        }
+
+        /* H5 */
+        .swiss-card h5 {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif !important;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 12px;
+            color: #d95e00;
+        }
+
+        /* H6 */
+        .swiss-card h6 {
+            font-family: 'Noto Sans SC', -apple-system, sans-serif !important;
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            color: #d95e00;
+        }
+
+        /* 正文 */
+        .swiss-card p {
+            font-size: 17px;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 16px;
+            text-align: justify;
+            color: #1a1a1a;
+        }
+
+        /* 加粗 */
+        .swiss-card strong {
+            font-weight: 700;
+            color: #d95e00;
+        }
+
+        /* 强调 */
+        .swiss-card em {
+            font-style: italic;
+            color: #d95e00;
+        }
+
+        /* 引用 */
+        .swiss-card blockquote {
+            margin: 32px 0;
+            padding: 0 0 0 24px;
+            border-left: 3px solid #d95e00;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.8;
+            color: #444;
+            letter-spacing: 0.02em;
+        }
+
+        .swiss-card blockquote p {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+
+        .swiss-card blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 代码块 - macOS 窗口风格 */
+        .swiss-card .code-block {
+            background: #1a1a2e;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 24px 0;
+        }
+
+        .swiss-card .code-header {
+            background: #2b2b43;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        .swiss-card .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .swiss-card .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .swiss-card .code-dot.red { background: #ff5f56; }
+        .swiss-card .code-dot.yellow { background: #ffbd2e; }
+        .swiss-card .code-dot.green { background: #27c93f; }
+
+        .swiss-card .code-lang {
+            margin-left: auto;
+            font-size: 12px;
+            color: #a9afc5;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .swiss-card pre {
+            background: #1a1a2e;
+            color: #e4e4e7;
+            padding: 16px 20px;
+            margin: 0;
+            font-family: 'SF Mono', 'JetBrains Mono', Monaco, monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            overflow-x: auto;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .swiss-card code {
+            font-family: 'SF Mono', 'JetBrains Mono', Monaco, monospace;
+        }
+
+        .swiss-card pre code {
+            background: none;
+            padding: 0;
+        }
+
+        .swiss-card p code {
+            background: rgba(217, 94, 0, 0.1);
+            color: #d95e00;
+            padding: 3px 10px;
+            font-size: 15px;
+            border-radius: 4px;
+        }
+
+        /* 链接 */
+        .swiss-card a {
+            color: #d95e00;
+            text-decoration: none;
+            border-bottom: 1px solid #d95e00;
+        }
+
+        /* 列表 */
+        .swiss-card ul, .swiss-card ol {
+            margin: 24px 0;
+            padding-left: 32px;
+        }
+
+        .swiss-card li {
+            font-size: 17px;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .swiss-card ul li::marker {
+            color: #d95e00;
+        }
+
+        /* 分割线 */
+        .swiss-card hr {
+            border: none;
+            height: 2px;
+            background: #d95e00;
+            margin: 36px 0;
+            width: 80px;
+            margin-left: 0;
+        }
+
+        /* 图片 */
+        .swiss-card img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 24px auto;
+        }
+
+        /* 表格 */
+        .swiss-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 15px;
+        }
+
+        .swiss-card th, .swiss-card td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+        }
+
+        .swiss-card th {
+            font-weight: 700;
+            color: #d95e00;
+            background: rgba(217, 94, 0, 0.05);
+        }
+
+        /* 极简表格样式 - 可通过 table.alt 类使用 */
+        .swiss-card table.alt {
+            border-top: 2px solid #1a1a1a;
+            border-bottom: 2px solid #1a1a1a;
+        }
+
+        .swiss-card table.alt th {
+            color: #1a1a1a;
+            background: none;
+            border-bottom: 1px solid #1a1a1a;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+        .swiss-card table.alt td {
+            border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+        }
+
+        .swiss-card table.alt tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 封面元信息 */
+        .cover-meta {
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #d95e00;
+            margin-top: auto;
+        }
+
+        .cover-date {
+            font-size: 13px;
+            color: #666;
+            margin-top: 16px;
+        }
+
+        /* 分隔提示 */
+        .divider-hint {
+            text-align: center;
+            color: #444;
+            font-size: 12px;
+            padding: 8px;
+        }
+
+        /* ===== PPT 布局样式 ===== */
+        .swiss-card .layout-grid {
+            display: grid;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        /* 2列布局 */
+        .swiss-card .two-col {
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* 3列布局 */
+        .swiss-card .three-col {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        /* 左右对比布局 */
+        .swiss-card .vs-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 16px;
+        }
+        .swiss-card .vs-grid .vs-divider {
+            font-size: 24px;
+            color: #d95e00;
+            font-weight: 700;
+        }
+
+        /* 流程链 */
+        .swiss-card .process-chain {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 20px 0;
+        }
+        .swiss-card .process-chain .step {
+            flex: 1;
+            text-align: center;
+            padding: 16px 8px;
+            background: rgba(217,94,0,0.05);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .swiss-card .process-chain .arrow {
+            color: #d95e00;
+            font-size: 20px;
+        }
+        /* 6步骤双行布局 - 顺时针环绕 */
+        .swiss-card .process-chain[data-type="wrap"] {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, auto);
+            grid-template-areas:
+                "s1 s2 s3"
+                "s6 s5 s4";
+            gap: 24px 32px;
+            position: relative;
+            padding: 10px 20px;
+            overflow: visible;
+        }
+        .swiss-card .process-chain[data-type="wrap"] .step {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 12px;
+            background: rgba(217,94,0,0.08);
+            border: 2px solid #d95e00;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .swiss-card .process-chain[data-type="wrap"] .arrow {
+            display: none;
+        }
+        /* 步骤定位 - 顺时针环绕 */
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(1) { grid-area: s1; }
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(3) { grid-area: s2; }
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(5) { grid-area: s3; }
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(7) { grid-area: s4; }
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(9) { grid-area: s5; }
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(11) { grid-area: s6; }
+
+        /* 第一行右箭头：1→2, 2→3 */
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(1)::after,
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(3)::after {
+            content: '→';
+            position: absolute;
+            right: -26px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d95e00;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        /* 3→4 向下箭头（设计→开发） */
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(5)::after {
+            content: '↓';
+            position: absolute;
+            right: 50%;
+            bottom: -26px;
+            transform: translateX(50%);
+            color: #d95e00;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        /* 第二行左箭头：开发(s4)←测试(s5), 测试(s5)←上线(s6) */
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(7)::after,
+        .swiss-card .process-chain[data-type="wrap"] .step:nth-child(9)::after {
+            content: '←';
+            position: absolute;
+            left: -26px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d95e00;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        /* 流程链 - 彩色箭头形状变体 */
+        .swiss-card .process-chain[data-type="arrow"] {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin: 20px 0;
+        }
+        .swiss-card .process-chain[data-type="arrow"] .arrow {
+            display: none;
+        }
+        .swiss-card .process-chain[data-type="arrow"] .step {
+            flex: 1;
+            text-align: center;
+            padding: 16px 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            position: relative;
+            margin-right: 8px;
+            border-radius: 0 !important;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 52px;
+            overflow: hidden;
+        }
+        .swiss-card .process-chain[data-type="arrow"] .step:first-child {
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+            border-radius: 0 !important;
+            padding-left: 12px;
+        }
+        .swiss-card .process-chain[data-type="arrow"] .step:last-child {
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+            margin-right: 0;
+            border-radius: 0 !important;
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+        /* 步骤颜色 - 彩虹渐变 */
+        .swiss-card .process-chain[data-type="arrow"] .step:nth-child(1) { background: rgb(181, 135, 255); }
+        .swiss-card .process-chain[data-type="arrow"] .step:nth-child(3) { background: rgb(76, 181, 249); }
+        .swiss-card .process-chain[data-type="arrow"] .step:nth-child(5) { background: rgb(83, 184, 219); }
+        .swiss-card .process-chain[data-type="arrow"] .step:nth-child(7) { background: rgb(85, 186, 124); }
+        .swiss-card .process-chain[data-type="arrow"] .step:nth-child(9) { background: rgb(245, 166, 35); }
+
+        /* 5步骤变体 - 缩小字体和padding以适应宽度 */
+        .swiss-card .process-chain[data-type="arrow"]:has(.step:nth-child(9)) .step {
+            font-size: 11px;
+            padding: 12px 4px;
+            min-height: 44px;
+        }
+        .swiss-card .process-chain[data-type="arrow"]:has(.step:nth-child(9)) .step:first-child {
+            padding-left: 8px;
+        }
+        .swiss-card .process-chain[data-type="arrow"]:has(.step:nth-child(9)) .step:last-child {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        /* 循环流程 */
+        .swiss-card .process-loop {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .swiss-card .process-loop .loop-item {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(217,94,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            text-align: center;
+            border: 2px solid #d95e00;
+        }
+
+        /* 维度矩阵 */
+        .swiss-card .matrix-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .swiss-card .matrix-grid .cell {
+            padding: 16px;
+            background: rgba(217,94,0,0.05);
+            border-left: 3px solid #d95e00;
+        }
+        .swiss-card .matrix-grid .cell h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .swiss-card .matrix-grid .cell p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        /* 时间轴 - 基础样式 */
+        .swiss-card .timeline {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        /* 竖版时间轴 - 点线在左，时间和内容在右 */
+        .swiss-card .timeline[data-type="vertical"] {
+            padding-left: 30px;
+        }
+        .swiss-card .timeline[data-type="vertical"]::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #d95e00;
+        }
+        .swiss-card .timeline[data-type="vertical"] .item {
+            position: relative;
+            padding-bottom: 24px;
+            padding-left: 24px;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 16px;
+        }
+        .swiss-card .timeline[data-type="vertical"] .item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d95e00;
+        }
+        .swiss-card .timeline[data-type="vertical"] .item .year {
+            font-size: 12px;
+            color: #d95e00;
+            font-weight: 600;
+            min-width: 70px;
+            flex-shrink: 0;
+        }
+        .swiss-card .timeline[data-type="vertical"] .item p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1a1a1a;
+            flex: 0 0 auto;
+            width: 80px;
+        }
+        .swiss-card .timeline[data-type="vertical"] .item .desc {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #666;
+            flex: 1;
+            font-style: italic;
+        }
+
+        /* 横版时间轴 */
+        .swiss-card .timeline[data-type="horizontal"] {
+            display: flex;
+            justify-content: space-between;
+            padding-left: 0;
+            padding-top: 24px;
+        }
+        .swiss-card .timeline[data-type="horizontal"]::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 8px;
+            height: 2px;
+            background: #d95e00;
+        }
+        .swiss-card .timeline[data-type="horizontal"] .item {
+            position: relative;
+            padding-bottom: 0;
+            padding-left: 0;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .swiss-card .timeline[data-type="horizontal"] .item::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: -20px;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d95e00;
+        }
+        .swiss-card .timeline[data-type="horizontal"] .item .year {
+            font-size: 11px;
+            color: #d95e00;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-align: center;
+            width: 100%;
+        }
+        .swiss-card .timeline[data-type="horizontal"] .item p {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.4;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* 同心层 - 圆叠加 */
+        .swiss-card .concentric {
+            position: relative;
+            height: 260px;
+            margin: 12px 0;
+        }
+        .swiss-card .concentric .layer {
+            position: absolute;
+            left: 50%;
+            border-radius: 50%;
+            border: 2px solid #d95e00;
+            background: rgba(217,94,0,0.05);
+            font-size: 12px;
+            font-weight: 600;
+            color: #d95e00;
+            transform: translateX(-50%);
+        }
+        /* 圆环尺寸 */
+        .swiss-card .concentric .layer-1 { width: 100px; height: 100px; z-index: 3; }
+        .swiss-card .concentric .layer-2 { width: 180px; height: 180px; z-index: 2; }
+        .swiss-card .concentric .layer-3 { width: 260px; height: 260px; z-index: 1; }
+
+        /* 文字基础样式 - 水平居中 */
+        .swiss-card .concentric .layer-text {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d95e00;
+        }
+
+        /* ========== 中心对齐 ========== */
+        /* 所有圆心重合在容器中心 */
+        .swiss-card .concentric.align-center .layer { top: 50%; transform: translate(-50%, -50%); }
+        /* 文字在各自圆环的中间位置:
+         * layer-1: 在圆心 (0px 从圆心，因为是内圈中心)
+         * layer-2: 在 layer-1 和 layer-2 中间 = (50+90)/2 = 70px 从圆心
+         * layer-3: 在 layer-2 和 layer-3 中间 = (90+130)/2 = 110px 从圆心
+         */
+        .swiss-card .concentric.align-center .layer-1 .layer-text { top: 50%; transform: translate(-50%, -50%); }
+        .swiss-card .concentric.align-center .layer-2 .layer-text { top: calc(50% - 70px); transform: translate(-50%, -50%); }
+        .swiss-card .concentric.align-center .layer-3 .layer-text { top: calc(50% - 110px); transform: translate(-50%, -50%); }
+
+        /* ========== 顶部对齐 ========== */
+        /* 圆顶对齐 */
+        .swiss-card .concentric.align-top .layer { top: 0; transform: translateX(-50%); }
+        /* 文字在各自圆环的中间:
+         * layer-1: 在 100px 圆的中心 = 50px 从顶部
+         * layer-2: 在 layer-1(100px) 和 layer-2(180px) 中间 = 50 + 40/2 = 70px 从顶部
+         * layer-3: 在 layer-2(180px) 和 layer-3(260px) 中间 = 90 + 40/2 = 110px 从顶部
+         */
+        .swiss-card .concentric.align-top .layer-1 .layer-text { top: 50px; transform: translate(-50%, -50%); }
+        .swiss-card .concentric.align-top .layer-2 .layer-text { top: 140px; transform: translate(-50%, -50%); }
+        .swiss-card .concentric.align-top .layer-3 .layer-text { top: 220px; transform: translate(-50%, -50%); }
+
+        /* ========== 底部对齐 ========== */
+        /* 圆底对齐 - 整体旋转180度，与顶部对齐对应 */
+        .swiss-card .concentric.align-bottom .layer { bottom: 0; top: auto; transform: translateX(-50%); }
+        /* 文字位置与顶部对齐对应（容器高260px，260-top=bottom）:
+         * 顶部对齐: layer-1=50px, layer-2=140px, layer-3=220px
+         * 底部对齐: layer-1=210px, layer-2=120px, layer-3=40px
+         */
+        .swiss-card .concentric.align-bottom .layer-1 .layer-text { bottom: 210px; transform: translate(-50%, -50%); z-index: 10; }
+        .swiss-card .concentric.align-bottom .layer-2 .layer-text { bottom: 120px; transform: translate(-50%, -50%); z-index: 10; }
+        .swiss-card .concentric.align-bottom .layer-3 .layer-text { bottom: 40px; transform: translate(-50%, -50%); z-index: 10; }
+
+        /* ========== 中心对齐 + 文字在圆环下方 ========== */
+        /* 圆环中心对齐 */
+        .swiss-card .concentric.align-center-text-bottom .layer { top: 50%; transform: translate(-50%, -50%); }
+        /* 文字在各自圆环的中间位置（与变体1a相同计算，只是方向在下方）:
+         * layer-1 (数据层): 在圆心正中
+         * layer-2 (服务层): 在 layer-1 和 layer-2 中间 = (50+90)/2 = 70px，现在在下方
+         * layer-3 (应用层): 在 layer-2 和 layer-3 中间 = (90+130)/2 = 110px，现在在下方
+         */
+        .swiss-card .concentric.align-center-text-bottom .layer-1 .layer-text { top: 50%; transform: translate(-50%, -50%); }
+        .swiss-card .concentric.align-center-text-bottom .layer-2 .layer-text { top: calc(50% + 70px); transform: translate(-50%, -50%); }
+        .swiss-card .concentric.align-center-text-bottom .layer-3 .layer-text { top: calc(50% + 110px); transform: translate(-50%, -50%); }
+
+        /* 金字塔 - ECharts 漏斗图风格 (正三角) */
+        .swiss-card .pyramid {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 32px 0;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08));
+        }
+        .swiss-card .pyramid .level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.02em;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+            position: relative;
+        }
+        .swiss-card .pyramid .level:hover {
+            filter: brightness(1.1);
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        /* 正三角金字塔 - 宽度递增：108, 216, 324, 432, 540 (每层增加108px，保持斜率一致) */
+        .swiss-card .pyramid .level-1 {
+            width: 108px;
+            height: 72px;
+            background: #5470c6;
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            padding-top: 12px;
+        }
+        .swiss-card .pyramid .level-2 {
+            width: 216px;
+            height: 72px;
+            background: #91cc75;
+            /* 顶部108, 底部216 -> 54/216 = 25% */
+            clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
+            margin-top: -1px;
+        }
+        .swiss-card .pyramid .level-3 {
+            width: 324px;
+            height: 72px;
+            background: #fac858;
+            /* 顶部216, 底部324 -> 54/324 = 16.67% */
+            clip-path: polygon(16.67% 0%, 83.33% 0%, 100% 100%, 0% 100%);
+            margin-top: -1px;
+        }
+        .swiss-card .pyramid .level-4 {
+            width: 432px;
+            height: 72px;
+            background: #ee6666;
+            /* 顶部324, 底部432 -> 54/432 = 12.5% */
+            clip-path: polygon(12.5% 0%, 87.5% 0%, 100% 100%, 0% 100%);
+            margin-top: -1px;
+        }
+        .swiss-card .pyramid .level-5 {
+            width: 540px;
+            height: 72px;
+            background: #73c0de;
+            /* 顶部432, 底部540 -> 54/540 = 10% */
+            clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+            margin-top: -1px;
+        }
+
+        /* 倒金字塔 (顶层大底层小) - 宽度递减：540, 432, 324, 216, 108 */
+        .swiss-card .pyramid[data-type="inverted"] .level-1 {
+            width: 540px;
+            height: 72px;
+            background: #5470c6;
+            clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 10% 100%);
+        }
+        .swiss-card .pyramid[data-type="inverted"] .level-2 {
+            width: 432px;
+            height: 72px;
+            background: #91cc75;
+            clip-path: polygon(0% 0%, 100% 0%, 87.5% 100%, 12.5% 100%);
+            margin-top: -1px;
+        }
+        .swiss-card .pyramid[data-type="inverted"] .level-3 {
+            width: 324px;
+            height: 72px;
+            background: #fac858;
+            clip-path: polygon(0% 0%, 100% 0%, 83.33% 100%, 16.67% 100%);
+            margin-top: -1px;
+        }
+        .swiss-card .pyramid[data-type="inverted"] .level-4 {
+            width: 216px;
+            height: 72px;
+            background: #ee6666;
+            clip-path: polygon(0% 0%, 100% 0%, 75% 100%, 25% 100%);
+            margin-top: -1px;
+        }
+        .swiss-card .pyramid[data-type="inverted"] .level-5 {
+            width: 108px;
+            height: 72px;
+            background: #73c0de;
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+            margin-top: -1px;
+            padding-bottom: 12px;
+        }
+
+
+        /* 鱼骨图 - 简约瑞士风格 */
+        /* 鱼骨图 - 经典鱼骨结构 */
+        .swiss-card .fishbone {
+            margin: 40px 0;
+            position: relative;
+            padding: 60px 20px 20px;
+            min-height: 200px;
+        }
+        /* 鱼头 - 问题结果 */
+        .swiss-card .fishbone .head {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 16px 24px;
+            background: #d95e00;
+            color: #fff;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 0 8px 8px 0;
+            z-index: 10;
+        }
+        /* 主骨 - 水平主线 */
+        .swiss-card .fishbone .spine {
+            position: absolute;
+            left: 0;
+            right: 80px;
+            top: 50%;
+            height: 3px;
+            background: #d95e00;
+            transform: translateY(-50%);
+        }
+        /* 上分支容器 */
+        .swiss-card .fishbone .ribs-top {
+            position: absolute;
+            left: 40px;
+            right: 100px;
+            top: 0;
+            height: 50%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+        }
+        /* 下分支容器 */
+        .swiss-card .fishbone .ribs-bottom {
+            position: absolute;
+            left: 40px;
+            right: 100px;
+            bottom: 0;
+            height: 50%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+        }
+        /* 肋骨 - 斜线 */
+        .swiss-card .fishbone .rib {
+            position: relative;
+            font-size: 11px;
+            color: #1a1a1a;
+            padding: 6px 10px;
+            background: rgba(217,94,0,0.08);
+            border-left: 2px solid #d95e00;
+            line-height: 1.3;
+            white-space: nowrap;
+        }
+        /* 上肋骨 - 斜向下 */
+        .swiss-card .fishbone .ribs-top .rib {
+            transform-origin: bottom left;
+            margin-top: 20px;
+        }
+        .swiss-card .fishbone .ribs-top .rib::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            bottom: -30px;
+            width: 2px;
+            height: 35px;
+            background: #d95e00;
+            transform: rotate(-35deg);
+            transform-origin: top;
+        }
+        /* 下肋骨 - 斜向上 */
+        .swiss-card .fishbone .ribs-bottom .rib {
+            transform-origin: top left;
+            margin-bottom: 20px;
+        }
+        .swiss-card .fishbone .ribs-bottom .rib::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: -30px;
+            width: 2px;
+            height: 35px;
+            background: #d95e00;
+            transform: rotate(35deg);
+            transform-origin: bottom;
+        }
+
+        /* 冰山 - 真正的冰山形状 */
+        .swiss-card .iceberg {
+            margin: 24px 0;
+            position: relative;
+        }
+        /* 水面线 */
+        .swiss-card .iceberg .waterline {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #d95e00, transparent);
+            position: relative;
+            z-index: 2;
+        }
+        .swiss-card .iceberg .waterline::before,
+        .swiss-card .iceberg .waterline::after {
+            content: '〰';
+            position: absolute;
+            top: -10px;
+            color: #d95e00;
+            font-size: 16px;
+        }
+        .swiss-card .iceberg .waterline::before { left: 20%; }
+        .swiss-card .iceberg .waterline::after { right: 20%; }
+        /* 水面之上 - 小三角形 */
+        .swiss-card .iceberg .above {
+            padding: 30px 20px 40px;
+            background: rgba(217,94,0,0.12);
+            clip-path: polygon(20% 100%, 50% 0%, 80% 100%);
+            text-align: center;
+            font-size: 13px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: -20px;
+        }
+        .swiss-card .iceberg .above strong {
+            color: #d95e00;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+        /* 水面之下 - 大倒三角形 */
+        .swiss-card .iceberg .below {
+            padding: 40px 20px 30px;
+            background: rgba(26,26,26,0.06);
+            clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: -2px;
+        }
+        .swiss-card .iceberg .below strong {
+            color: #1a1a1a;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 4px;
+        }
+
+        /* 旅程 - 客户购买旅程风格 */
+        .swiss-card .journey {
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .swiss-card .journey .path {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            padding: 40px 20px 20px;
+            min-height: 120px;
+        }
+
+        .swiss-card .journey .path::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50px;
+            right: 50px;
+            height: 70px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 80' preserveAspectRatio='none'%3E%3Cpath d='M0 60 Q 60 60, 90 40 T 180 35 T 270 20 T 360 45 T 450 30 T 500 35' fill='none' stroke='%23d95e00' stroke-width='2.5' stroke-dasharray='8 4' opacity='0.5'/%3E%3C/svg%3E") no-repeat center;
+            background-size: 100% 100%;
+            z-index: 0;
+        }
+
+        .swiss-card .journey .point {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .swiss-card .journey .point:nth-child(1) { margin-top: 20px; }
+        .swiss-card .journey .point:nth-child(2) { margin-top: 5px; }
+        .swiss-card .journey .point:nth-child(3) { margin-top: -5px; }
+        .swiss-card .journey .point:nth-child(4) { margin-top: 10px; }
+        .swiss-card .journey .point:nth-child(5) { margin-top: 0px; }
+
+        .swiss-card .journey .dot {
+            width: 16px;
+            height: 16px;
+            background: #d95e00;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px #d95e00;
+        }
+
+        .swiss-card .journey .point[data-milestone] .dot {
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 4px solid #d95e00;
+            box-shadow: 0 0 0 2px #d95e00, 0 4px 12px rgba(217, 94, 0, 0.3);
+        }
+
+        .swiss-card .journey .point[data-milestone]::before {
+            content: attr(data-milestone);
+            position: absolute;
+            top: -28px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #d95e00;
+            background: rgba(217, 94, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .swiss-card .journey .label {
+            font-size: 11px;
+            font-weight: 500;
+            color: #1a1a1a;
+            max-width: 80px;
+            line-height: 1.3;
+        }
+
+        /* 维恩图 - 逻辑关联风格 */
+        .swiss-card .venn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            position: relative;
+        }
+        .swiss-card .venn .v-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            border: 2px solid #d95e00;
+            opacity: 0.8;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .swiss-card .venn .v-a {
+            background: rgba(217,94,0,0.1);
+            left: calc(50% - 90px - 40px);
+        }
+        .swiss-card .venn .v-b {
+            background: rgba(0,0,0,0.1);
+            left: calc(50% - 90px + 40px);
+            border-color: #1a1a1a;
+        }
+
+        /* 三圆维恩图 */
+        .swiss-card .venn-three {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            position: relative;
+            height: 200px;
+        }
+        .swiss-card .venn-three .circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            position: absolute;
+            border: 2px solid;
+            opacity: 0.85;
+        }
+        .swiss-card .venn-three .circle-a {
+            background: rgba(217,94,0,0.1);
+            border-color: #d95e00;
+            color: #d95e00;
+            top: 10px;
+            left: calc(50% - 60px);
+        }
+        .swiss-card .venn-three .circle-b {
+            background: rgba(0,0,0,0.05);
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+            bottom: 10px;
+            left: calc(50% - 120px);
+        }
+        .swiss-card .venn-three .circle-c {
+            background: rgba(100,100,100,0.1);
+            border-color: #666;
+            color: #666;
+            bottom: 10px;
+            right: calc(50% - 120px);
+        }
+
+        /* 思维导图 - 树状发散 */
+        .swiss-card .mind-map {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+            position: relative;
+        }
+        .swiss-card .mind-map .root-node {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 16px;
+            position: relative;
+            z-index: 5;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .swiss-card .mind-map .branches {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            margin-top: 50px;
+            position: relative;
+        }
+        .swiss-card .mind-map .branches::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            width: 2px;
+            height: 50px;
+            background: #d95e00;
+        }
+        .swiss-card .mind-map .branches::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: calc(100% - 100px);
+            height: 2px;
+            background: #d95e00;
+            transform: translateX(-50%);
+        }
+        .swiss-card .mind-map .branch {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .swiss-card .mind-map .branch::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: #d95e00;
+        }
+        .swiss-card .mind-map .node {
+            background: #fff;
+            border: 2px solid #d95e00;
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 18px;
+            min-width: 100px;
+            text-align: center;
+            position: relative;
+            box-shadow: 4px 4px 0 rgba(217,94,0,0.1);
+        }
+
+        /* 架构图 - 垂直分层 */
+        .swiss-card .architecture {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .swiss-card .arch-layer {
+            background: rgba(26,26,26,0.03);
+            border: 2px solid #1a1a1a;
+            padding: 16px;
+            position: relative;
+        }
+        .swiss-card .arch-layer::after {
+            content: attr(data-layer);
+            position: absolute;
+            right: 12px;
+            top: -10px;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .swiss-card .arch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 12px;
+        }
+        .swiss-card .arch-item {
+            background: #fff;
+            border: 1px solid #d95e00;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1a1a1a;
+            box-shadow: 2px 2px 0 #d95e00;
+        }
+
+        /* 引用页 - 过渡页大字 */
+        .swiss-card .quote-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px;
+            background: #f2efe9;
+            position: relative;
+            min-height: 400px;
+            width: 100%;
+        }
+        .swiss-card .quote-page::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 200px;
+            color: rgba(217,94,0,0.08);
+            line-height: 1;
+        }
+        .swiss-card .quote-page h1 {
+            font-size: 36px;
+            line-height: 1.4;
+            color: #1a1a1a;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+        .swiss-card .quote-page .cite {
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #d95e00;
+        }
+
+        /* 多因素对比表 */
+        .swiss-card .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 12px;
+            border: 2px solid #1a1a1a;
+        }
+        .swiss-card .comparison-table th {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 12px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .swiss-card .comparison-table td {
+            border-bottom: 1px solid #eee;
+            padding: 12px;
+        }
+        .swiss-card .comparison-table tr:hover {
+            background: rgba(217,94,0,0.03);
+        }
+        .swiss-card .comparison-table .score {
+            color: #d95e00;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* SWOT - 2x2 矩阵，Swiss Style 极简设计 */
+        .swiss-card .swot {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .swiss-card .swot .cell {
+            padding: 24px 20px;
+            font-size: 13px;
+            background: #fff;
+            position: relative;
+            min-height: 140px;
+        }
+        /* 字母标识 - 大号衬线体 */
+        .swiss-card .swot .cell::before {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+            opacity: 0.12;
+        }
+        .swiss-card .swot .strengths::before { content: 'S'; color: #28a745; }
+        .swiss-card .swot .weaknesses::before { content: 'W'; color: #dc3545; }
+        .swiss-card .swot .opportunities::before { content: 'O'; color: #007bff; }
+        .swiss-card .swot .threats::before { content: 'T'; color: #ffc107; }
+
+        /* 优势 - 绿色系 */
+        .swiss-card .swot .strengths {
+            background: #fff;
+            border-left: 4px solid #28a745;
+        }
+        .swiss-card .swot .strengths h4 {
+            color: #28a745;
+            font-family: 'Noto Serif SC', serif;
+        }
+        /* 劣势 - 红色系 */
+        .swiss-card .swot .weaknesses {
+            background: #fff;
+            border-left: 4px solid #dc3545;
+        }
+        .swiss-card .swot .weaknesses h4 {
+            color: #dc3545;
+            font-family: 'Noto Serif SC', serif;
+        }
+        /* 机会 - 蓝色系 */
+        .swiss-card .swot .opportunities {
+            background: #fff;
+            border-left: 4px solid #007bff;
+        }
+        .swiss-card .swot .opportunities h4 {
+            color: #007bff;
+            font-family: 'Noto Serif SC', serif;
+        }
+        /* 威胁 - 橙黄色系 */
+        .swiss-card .swot .threats {
+            background: #fff;
+            border-left: 4px solid #ffc107;
+        }
+        .swiss-card .swot .threats h4 {
+            color: #c9a227;
+            font-family: 'Noto Serif SC', serif;
+        }
+        /* 标题样式 */
+        .swiss-card .swot .cell h4 {
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .swiss-card .swot .cell p {
+            color: #444;
+            line-height: 1.6;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        /* ===== 引用页 ===== */
+        .swiss-card .quote {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 48px 40px;
+            position: relative;
+            text-align: center;
+        }
+
+        /* 大号装饰引号 */
+        .swiss-card .quote::before {
+            content: '"';
+            font-family: 'Noto Serif SC', serif;
+            font-size: 120px;
+            color: #d95e00;
+            opacity: 0.12;
+            line-height: 1;
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            pointer-events: none;
+        }
+
+        .swiss-card .quote::after {
+            content: '"';
+            font-family: 'Noto Serif SC', serif;
+            font-size: 120px;
+            color: #d95e00;
+            opacity: 0.12;
+            line-height: 1;
+            position: absolute;
+            bottom: 10px;
+            right: 30px;
+            pointer-events: none;
+            transform: rotate(180deg);
+        }
+
+        /* 装饰分隔线 */
+        .swiss-card .quote .divider {
+            width: 40px;
+            height: 2px;
+            background: #d95e00;
+            margin-bottom: 24px;
+        }
+
+        /* 引用内容 */
+        .swiss-card .quote blockquote {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 26px;
+            font-weight: 400;
+            line-height: 1.7;
+            color: #1a1a1a;
+            margin: 0 0 32px 0;
+            padding: 0;
+            border: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 作者信息 */
+        .swiss-card .quote .author {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .swiss-card .quote .author-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            font-style: normal;
+        }
+
+        .swiss-card .quote .author-title {
+            font-size: 13px;
+            color: #888;
+            font-weight: 300;
+        }
+
+        /* 来源标注 */
+        .swiss-card .quote .source {
+            margin-top: 16px;
+            font-size: 11px;
+            color: #d95e00;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* 前后对比 */
+        .swiss-card .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .swiss-card .before-after .side {
+            padding: 20px;
+            text-align: left;
+            border-radius: 8px;
+        }
+        .swiss-card .before-after .before {
+            background: rgba(40,167,69,0.1);
+            border: 1px solid #28a745;
+        }
+        .swiss-card .before-after .after {
+            background: rgba(220,53,69,0.1);
+            border: 1px solid #dc3545;
+        }
+        .swiss-card .before-after .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        /* Before/After 默认：Before绿色，After红色 */
+        .swiss-card .before-after .before .badge { background: #28a745; color: #fff; }
+        .swiss-card .before-after .after .badge { background: #dc3545; color: #fff; }
+
+        /* 变体：带箭头的 before-after（现状→目标） */
+        .swiss-card .before-after.with-arrow {
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+        }
+        .swiss-card .before-after.with-arrow .arrow {
+            font-size: 24px;
+            color: #d95e00;
+            font-weight: 700;
+            padding: 0 12px;
+        }
+        /* 现状→目标：现状绿色，目标红色 */
+        .swiss-card .before-after.with-arrow .before .badge { background: #28a745; color: #fff; }
+        .swiss-card .before-after.with-arrow .after .badge { background: #dc3545; color: #fff; }
+
+        /* 无背景色变体 */
+        .swiss-card .before-after.no-bg .side {
+            background: transparent;
+            border: 1px solid #ddd;
+        }
+        .swiss-card .before-after.no-bg .before {
+            border-color: #28a745;
+        }
+        .swiss-card .before-after.no-bg .after {
+            border-color: #dc3545;
+        }
+        .swiss-card .before-after.no-bg .before .badge { background: transparent; color: #28a745; padding: 0; }
+        .swiss-card .before-after.no-bg .after .badge { background: transparent; color: #dc3545; padding: 0; }
+
+        /* 甘特图 - 带时间轴 */
+        .swiss-card .gantt {
+            margin: 20px 0;
+        }
+        /* 时间轴头部 */
+        .swiss-card .gantt-header {
+            display: flex;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(217,94,0,0.3);
+        }
+        .swiss-card .gantt-header .label {
+            width: 80px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+        }
+        .swiss-card .gantt-header .timeline {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #666;
+        }
+        .swiss-card .gantt-header .timeline span {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .swiss-card .gantt-header .timeline span::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -8px;
+            width: 1px;
+            height: 4px;
+            background: rgba(217,94,0,0.3);
+        }
+        /* 任务行 */
+        .swiss-card .gantt .task {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .swiss-card .gantt .task-name {
+            width: 80px;
+            font-size: 11px;
+            flex-shrink: 0;
+            color: #1a1a1a;
+        }
+        .swiss-card .gantt .task-bar {
+            flex: 1;
+            height: 18px;
+            background: rgba(217,94,0,0.08);
+            position: relative;
+        }
+        .swiss-card .gantt .task-bar .fill {
+            position: absolute;
+            height: 100%;
+            background: #d95e00;
+        }
+
+        /* ===== 警告框 ===== */
+        .swiss-card .alert-box {
+            padding: 20px 24px;
+            margin: 20px 0;
+            border-radius: 0;
+            position: relative;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        /* 左侧彩色边框 */
+        .swiss-card .alert-box::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+        }
+
+        /* 图标样式 */
+        .swiss-card .alert-box .icon {
+            font-size: 22px;
+            line-height: 1;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* 内容区域 */
+        .swiss-card .alert-box .content {
+            flex: 1;
+        }
+
+        .swiss-card .alert-box .content .title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .swiss-card .alert-box .content p {
+            font-size: 14px;
+            line-height: 1.7;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        /* 错误/危险 (红色) */
+        .swiss-card .alert-box.error,
+        .swiss-card .alert-box.danger {
+            background: rgba(220, 53, 69, 0.08);
+        }
+        .swiss-card .alert-box.error::before,
+        .swiss-card .alert-box.danger::before {
+            background: #dc3545;
+        }
+        .swiss-card .alert-box.error .icon,
+        .swiss-card .alert-box.danger .icon {
+            color: #dc3545;
+        }
+        .swiss-card .alert-box.error .content .title,
+        .swiss-card .alert-box.danger .content .title {
+            color: #c82333;
+        }
+        .swiss-card .alert-box.error .content p,
+        .swiss-card .alert-box.danger .content p {
+            color: #721c24;
+        }
+
+        /* 警告 (黄色) */
+        .swiss-card .alert-box.warning {
+            background: rgba(255, 193, 7, 0.12);
+        }
+        .swiss-card .alert-box.warning::before {
+            background: #ffc107;
+        }
+        .swiss-card .alert-box.warning .icon {
+            color: #e0a800;
+        }
+        .swiss-card .alert-box.warning .content .title {
+            color: #856404;
+        }
+        .swiss-card .alert-box.warning .content p {
+            color: #533f03;
+        }
+
+        /* 信息 (蓝色) */
+        .swiss-card .alert-box.info {
+            background: rgba(0, 123, 255, 0.08);
+        }
+        .swiss-card .alert-box.info::before {
+            background: #007bff;
+        }
+        .swiss-card .alert-box.info .icon {
+            color: #007bff;
+        }
+        .swiss-card .alert-box.info .content .title {
+            color: #004085;
+        }
+        .swiss-card .alert-box.info .content p {
+            color: #0c5460;
+        }
+
+        /* 成功 (绿色) */
+        .swiss-card .alert-box.success {
+            background: rgba(40, 167, 69, 0.08);
+        }
+        .swiss-card .alert-box.success::before {
+            background: #28a745;
+        }
+        .swiss-card .alert-box.success .icon {
+            color: #28a745;
+        }
+        .swiss-card .alert-box.success .content .title {
+            color: #155724;
+        }
+        .swiss-card .alert-box.success .content p {
+            color: #0b2e13;
+        }
+
+        /* 默认警告 (橙色/主色) */
+        .swiss-card .alert-box:not(.error):not(.danger):not(.warning):not(.info):not(.success) {
+            background: rgba(217, 94, 0, 0.08);
+        }
+        .swiss-card .alert-box:not(.error):not(.danger):not(.warning):not(.info):not(.success)::before {
+            background: #d95e00;
+        }
+        .swiss-card .alert-box:not(.error):not(.danger):not(.warning):not(.info):not(.success) .icon {
+            color: #d95e00;
+        }
+        .swiss-card .alert-box:not(.error):not(.danger):not(.warning):not(.info):not(.success) .content .title {
+            color: #d95e00;
+        }
+
+        /* ===== 术语框 ===== */
+        .swiss-card .terminal-box {
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        /* 术语标签头部 */
+        .swiss-card .terminal-box .term-header {
+            background: #1a1a1a;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .swiss-card .terminal-box .term-header::before {
+            content: '💡';
+            font-size: 14px;
+        }
+
+        .swiss-card .terminal-box .term-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .swiss-card .terminal-box .term-tag {
+            font-size: 12px;
+            font-weight: 700;
+            color: #d95e00;
+            margin-left: 4px;
+        }
+
+        /* 定义区域 */
+        .swiss-card .terminal-box .term-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .swiss-card .terminal-box .term-section:last-child {
+            border-bottom: none;
+        }
+
+        .swiss-card .terminal-box .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .swiss-card .terminal-box .section-content {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #444;
+            margin: 0;
+        }
+
+        /* 用法：场景 → 动作 */
+        .swiss-card .terminal-box .usage-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #444;
+        }
+
+        .swiss-card .terminal-box .usage-arrow {
+            color: #d95e00;
+            font-weight: 700;
+        }
+
+        /* 示例列表 */
+        .swiss-card .terminal-box .example-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .swiss-card .terminal-box .example-list li {
+            position: relative;
+            padding-left: 16px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #444;
+            margin-bottom: 4px;
+        }
+
+        .swiss-card .terminal-box .example-list li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #d95e00;
+            font-weight: 700;
+        }
+
+        /* ===== 标题卡 ===== */
+        .swiss-card .title-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            padding: 48px 40px;
+            position: relative;
+        }
+
+        /* 顶部装饰线 */
+        .swiss-card .title-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: #d95e00;
+        }
+
+        /* 主标题区域 */
+        .swiss-card .title-card .main-title {
+            margin-top: auto;
+            margin-bottom: auto;
+            text-align: left;
+        }
+
+        .swiss-card .title-card .main-title h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 40px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            padding: 0;
+            border: none;
+            letter-spacing: -0.02em;
+        }
+
+        /* 副标题 */
+        .swiss-card .title-card .main-title .subtitle {
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 17px;
+            font-weight: 300;
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 装饰分隔线 */
+        .swiss-card .title-card .divider {
+            width: 60px;
+            height: 3px;
+            background: #d95e00;
+            margin: 32px 0;
+        }
+
+        /* 底部元信息区域 */
+        .swiss-card .title-card .meta {
+            margin-top: auto;
+            padding-top: 32px;
+            border-top: 1px solid rgba(26, 26, 26, 0.1);
+        }
+
+        .swiss-card .title-card .meta .category {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #d95e00;
+            margin-bottom: 8px;
+        }
+
+        .swiss-card .title-card .meta .info {
+            font-size: 12px;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .swiss-card .title-card .meta .info span {
+            margin-right: 16px;
+        }
+
+        /* ============================================
+           展示类布局组件 - Display Components
+           ============================================ */
+
+        /* 1. 指标卡片 - Stat Card */
+        .swiss-card .stat-card {
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            padding: 24px 28px;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .swiss-card .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #d95e00;
+        }
+
+        .swiss-card .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .swiss-card .stat-card-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .swiss-card .stat-card-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+        }
+
+        .swiss-card .stat-card-trend.up {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .swiss-card .stat-card-trend.down {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .swiss-card .stat-card-trend::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+
+        .swiss-card .stat-card-trend.up::before {
+            border-width: 0 5px 8px 5px;
+            border-color: transparent transparent #2e7d32 transparent;
+        }
+
+        .swiss-card .stat-card-trend.down::before {
+            border-width: 8px 5px 0 5px;
+            border-color: #c62828 transparent transparent transparent;
+        }
+
+        .swiss-card .stat-card-value {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .swiss-card .stat-card-unit {
+            font-size: 18px;
+            font-weight: 400;
+            color: #666;
+            margin-left: 4px;
+        }
+
+        .swiss-card .stat-card-footer {
+            font-size: 11px;
+            color: #888;
+            margin-top: 8px;
+        }
+
+        .swiss-card .stat-card-comparison {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        /* 指标卡片网格布局 */
+        .swiss-card .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .swiss-card .stat-grid .stat-card {
+            margin: 0;
+        }
+
+        .swiss-card .stat-grid .stat-card-value {
+            font-size: 32px;
+        }
+
+        /* 2. 雷达图 - Radar Chart (无外部边框) */
+        .swiss-card .radar {
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            padding: 28px;
+            margin: 16px 0;
+            position: relative;
+        }
+
+        .swiss-card .radar-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .swiss-card .radar-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .swiss-card .radar-svg {
+            width: 260px;
+            height: 260px;
+        }
+
+        .swiss-card .radar-grid {
+            fill: none;
+            stroke: #e0e0e0;
+            stroke-width: 1;
+        }
+
+        .swiss-card .radar-axis {
+            stroke: #ccc;
+            stroke-width: 1;
+        }
+
+        .swiss-card .radar-data {
+            fill: rgba(217, 94, 0, 0.25);
+            stroke: #d95e00;
+            stroke-width: 2;
+        }
+
+        .swiss-card .radar-point {
+            fill: #d95e00;
+            stroke: #fff;
+            stroke-width: 2;
+        }
+
+        .swiss-card .radar-label {
+            font-size: 10px;
+            font-weight: 600;
+            fill: #1a1a1a;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .swiss-card .radar-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            font-size: 11px;
+        }
+
+        .swiss-card .radar-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .swiss-card .radar-legend-color {
+            width: 12px;
+            height: 12px;
+            background: #d95e00;
+            border: 2px solid #d95e00;
+        }
+
+        /* 3. 列表卡片 - List Card */
+        .swiss-card .list-card {
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            margin: 16px 0;
+            padding: 0;
+        }
+
+        .swiss-card .list-card-header {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 14px 20px;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .swiss-card .list-card ul,
+        .swiss-card .list-card ol {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .swiss-card .list-card li {
+            padding: 14px 20px;
+            border-bottom: 1px solid #e5e5e5;
+            position: relative;
+            font-size: 12px;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .swiss-card .list-card li:last-child {
+            border-bottom: none;
+        }
+
+        .swiss-card .list-card li:hover {
+            background: #fafafa;
+        }
+
+        /* 编号样式 */
+        .swiss-card .list-card ol li::before {
+            content: counter(list-counter, decimal-leading-zero);
+            counter-increment: list-counter;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #d95e00;
+            min-width: 24px;
+            text-align: right;
+        }
+
+        .swiss-card .list-card ol {
+            counter-reset: list-counter;
+        }
+
+        /* 无序列表图标 */
+        .swiss-card .list-card ul li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #d95e00;
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
+        /* 层级缩进 */
+        .swiss-card .list-card li.level-2 {
+            padding-left: 44px;
+            background: #fafafa;
+        }
+
+        .swiss-card .list-card li.level-2::before {
+            content: '›';
+            font-size: 14px;
+            color: #888;
+        }
+
+        .swiss-card .list-card li.level-3 {
+            padding-left: 68px;
+            background: #f5f5f5;
+            font-size: 11px;
+        }
+
+        .swiss-card .list-card li.level-3::before {
+            content: '»';
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* 带图标的列表项 */
+        .swiss-card .list-card li.with-icon::before {
+            content: attr(data-icon);
+            font-size: 14px;
+        }
+
+        /* 4. 三栏布局 - Three Column */
+        .swiss-card .three-col {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 16px 0;
+        }
+
+        .swiss-card .three-col-item {
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .swiss-card .three-col-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .swiss-card .three-col-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #d95e00;
+        }
+
+        .swiss-card .three-col-number {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #d95e00;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .swiss-card .three-col-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .swiss-card .three-col-desc {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* 三栏带图标 */
+        .swiss-card .three-col-icon {
+            width: 48px;
+            height: 48px;
+            background: #1a1a1a;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 16px;
+        }
+
+        /* 5. 上下分层 - Split Vertical */
+        .swiss-card .split-v {
+            border: 2px solid #1a1a1a;
+            margin: 16px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .swiss-card .split-v-header {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 24px 28px;
+            position: relative;
+        }
+
+        .swiss-card .split-v-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 28px;
+            width: 60px;
+            height: 3px;
+            background: #d95e00;
+        }
+
+        .swiss-card .split-v-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .swiss-card .split-v-subtitle {
+            font-size: 12px;
+            color: #888;
+            font-weight: 400;
+        }
+
+        .swiss-card .split-v-body {
+            background: #fff;
+            padding: 24px 28px;
+            flex: 1;
+        }
+
+        .swiss-card .split-v-body p {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .swiss-card .split-v-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 带强调的头部 */
+        .swiss-card .split-v.accent .split-v-header {
+            background: #d95e00;
+        }
+
+        .swiss-card .split-v.accent .split-v-header::after {
+            background: #fff;
+        }
+
+        .swiss-card .split-v.accent .split-v-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 带编号的头部 */
+        .swiss-card .split-v-numbered .split-v-header {
+            padding-left: 72px;
+        }
+
+        .swiss-card .split-v-number {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 36px;
+            font-weight: 700;
+            color: #d95e00;
+            line-height: 1;
+        }
+
+        .swiss-card .split-v.accent .split-v-number {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 网格式 */
+        .swiss-card .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+        .swiss-card .grid .cell {
+            padding: 16px;
+            background: rgba(217,94,0,0.05);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* 布局标签 */
+        .layout-label {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #d95e00;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ===== Process Loop 变体样式 ===== */
+        /* 三角循环 */
+        .swiss-card .process-loop[data-type="triangle"] {
+            position: relative;
+            width: 260px;
+            height: 240px;
+            margin: 20px auto;
+        }
+        .swiss-card .process-loop[data-type="triangle"] .loop-item {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(217,94,0,0.1);
+            border: 2px solid #d95e00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d95e00;
+        }
+        .swiss-card .process-loop[data-type="triangle"] .loop-item:nth-child(1) {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .swiss-card .process-loop[data-type="triangle"] .loop-item:nth-child(2) {
+            bottom: 20px;
+            left: 20px;
+        }
+        .swiss-card .process-loop[data-type="triangle"] .loop-item:nth-child(3) {
+            bottom: 20px;
+            right: 20px;
+        }
+        /* 三角连接线 */
+        .swiss-card .process-loop[data-type="triangle"]::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 180px;
+            height: 180px;
+            border: 2px dashed rgba(217,94,0,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -40%);
+        }
+
+        /* 四角循环 - 菱形布局（上、右、下、左） */
+        .swiss-card .process-loop[data-type="quad"] {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            margin: 20px auto;
+        }
+        .swiss-card .process-loop[data-type="quad"] .loop-item {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(217,94,0,0.1);
+            border: 2px solid #d95e00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d95e00;
+            text-align: center;
+        }
+        /* 上 */
+        .swiss-card .process-loop[data-type="quad"] .loop-item:nth-child(1) {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        /* 右 */
+        .swiss-card .process-loop[data-type="quad"] .loop-item:nth-child(2) {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+        /* 下 */
+        .swiss-card .process-loop[data-type="quad"] .loop-item:nth-child(3) {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        /* 左 */
+        .swiss-card .process-loop[data-type="quad"] .loop-item:nth-child(4) {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        /* 四角连接线 - 虚线圆 */
+        .swiss-card .process-loop[data-type="quad"]::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 170px;
+            height: 170px;
+            border: 2px dashed rgba(217,94,0,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* 五角循环 - 五等分圆形 */
+        .swiss-card .process-loop[data-type="pentagon"] {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 20px auto;
+        }
+        .swiss-card .process-loop[data-type="pentagon"] .loop-item {
+            position: absolute;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(217,94,0,0.1);
+            border: 2px solid #d95e00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: #d95e00;
+            text-align: center;
+            transform: translate(-50%, -50%);
+        }
+        /* 五等分圆形 - 精确三角函数计算，圆心在圆周上
+           中心(130px,130px), 半径90px, 角度: -90°, -18°, 54°, 126°, 198° */
+        .swiss-card .process-loop[data-type="pentagon"] .loop-item:nth-child(1) { top: calc(50% - 90px); left: 50%; }
+        .swiss-card .process-loop[data-type="pentagon"] .loop-item:nth-child(2) { top: calc(50% - 28px); left: calc(50% + 86px); }
+        .swiss-card .process-loop[data-type="pentagon"] .loop-item:nth-child(3) { top: calc(50% + 73px); left: calc(50% + 53px); }
+        .swiss-card .process-loop[data-type="pentagon"] .loop-item:nth-child(4) { top: calc(50% + 73px); left: calc(50% - 53px); }
+        .swiss-card .process-loop[data-type="pentagon"] .loop-item:nth-child(5) { top: calc(50% - 28px); left: calc(50% - 86px); }
+        /* 五边形连接线 - 虚线圆 */
+        .swiss-card .process-loop[data-type="pentagon"]::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 180px;
+            height: 180px;
+            border: 2px dashed rgba(217,94,0,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* ===== 架构图样式 ===== */
+        .swiss-card .architecture {
+            margin: 20px 0;
+            padding: 24px;
+            background: #fff;
+            border: 2px solid #1a1a1a;
+        }
+        .swiss-card .architecture .layer {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .swiss-card .architecture .layer:last-child {
+            margin-bottom: 0;
+        }
+        .swiss-card .architecture .layer-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #d95e00;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(217,94,0,0.3);
+        }
+        .swiss-card .architecture .modules {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .swiss-card .architecture .module {
+            padding: 10px 16px;
+            background: rgba(217,94,0,0.08);
+            border: 2px solid #d95e00;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            text-align: center;
+            min-width: 80px;
+        }
+        .swiss-card .architecture .module.primary {
+            background: #d95e00;
+            color: #fff;
+        }
+        .swiss-card .architecture .module.secondary {
+            background: rgba(217,94,0,0.15);
+            border-style: dashed;
+        }
+        /* 层级连接线 */
+        .swiss-card .architecture .layer:not(:last-child)::after {
+            content: '▼';
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            color: #d95e00;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- 左侧目录面板 -->
+        <div class="toc-panel">
+            <div class="toc-header">
+                <h2>页面大纲</h2>
+            </div>
+            <div class="toc-body">
+                <div id="tocTree"></div>
+            </div>
+        </div>
+
+        <!-- 中间预览 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h2>PREVIEW</h2>
+                <span class="page-count" id="pageCount">3 页</span>
+            </div>
+            <div class="cards-container" id="cardsContainer"></div>
+        </div>
+
+        <div class="editor-panel">
+            <div class="editor-header">
+                <h1>MARKDOWN</h1>
+                <span id="saveStatus">就绪</span>
+            </div>
+            <div class="editor-toolbar">
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="搜索内容 (Ctrl+F)" onkeydown="handleSearchKeydown(event)">
+                    <button onclick="findPrev()" title="上一个">▲</button>
+                    <button onclick="findNext()" title="下一个">▼</button>
+                    <span class="search-results" id="searchResults"></span>
+                </div>
+                <button onclick="newFile()" title="新建 (Ctrl+N)">
+                    <span>📄</span> 新建
+                </button>
+                <button onclick="document.getElementById('fileInput').click()" title="打开 (Ctrl+O)">
+                    <span>📂</span> 打开
+                </button>
+                <button class="primary" onclick="saveFile()" title="保存 (Ctrl+S)">
+                    <span>💾</span> 保存
+                </button>
+                <div class="filename">
+                    <span id="currentFilename">untitled.md</span>
+                    <span id="unsavedIndicator" class="unsaved" style="display:none">●</span>
+                </div>
+            </div>
+            <input type="file" id="fileInput" accept=".md,.markdown,.txt" onchange="openFile(this)">
+            <textarea id="editor" placeholder="# 标题
+
+---
+
+## 正文内容
+
+开始编写你的社论风内容...
+
+支持 **加粗**、*强调*、`代码`、引用、列表等"># Swiss Editorial
+社论风排版工具
+
+---
+
+## 基础排版
+
+### 标题层级
+
+这是正文内容，使用 17px 字号，行高 1.8。两端对齐带来整洁的视觉效果。
+
+**加粗文本** 使用爱马仕橙强调，*斜体文本* 同样如此。
+
+&gt; 引用块示例：设计不是为了填充，而是为了表达。
+
+---
+
+## 对比布局 .vs-grid
+
+&lt;span class=&quot;layout-label&quot;&gt;变体1：VS对比&lt;/span&gt;
+
+&lt;div class=&quot;vs-grid&quot;&gt;
+&lt;div&gt;
+
+**传统方式**
+
+- 流程繁琐
+- 效率低下
+- 成本高昂
+
+&lt;/div&gt;
+&lt;div class=&quot;vs-divider&quot;&gt;VS&lt;/div&gt;
+&lt;div&gt;
+
+**我们的方案**
+
+- 自动化处理
+- 提效 300%
+- 成本降低 50%
+
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 对比布局 .vs-grid（续）
+
+&lt;span class=&quot;layout-label&quot;&gt;变体2：现状→目标&lt;/span&gt;
+
+&lt;div class=&quot;before-after with-arrow no-bg&quot;&gt;
+&lt;div class=&quot;side before&quot;&gt;
+&lt;span class=&quot;badge&quot;&gt;现状&lt;/span&gt;
+&lt;p&gt;日活：1万&lt;br/&gt;留存：30%&lt;br/&gt;收入：10万&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;side after&quot;&gt;
+&lt;span class=&quot;badge&quot;&gt;目标&lt;/span&gt;
+&lt;p&gt;日活：10万&lt;br/&gt;留存：60%&lt;br/&gt;收入：100万&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体3：Before/After&lt;/span&gt;
+
+&lt;div class=&quot;before-after&quot;&gt;
+&lt;div class=&quot;side before&quot;&gt;
+&lt;span class=&quot;badge&quot;&gt;BEFORE&lt;/span&gt;
+&lt;p&gt;手动操作&lt;br/&gt;耗时 2 小时&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;side after&quot;&gt;
+&lt;span class=&quot;badge&quot;&gt;AFTER&lt;/span&gt;
+&lt;p&gt;自动处理&lt;br/&gt;仅需 5 分钟&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 对比布局 .vs-grid（续）
+
+&lt;span class=&quot;layout-label&quot;&gt;变体4：SWOT四象限&lt;/span&gt;
+
+&lt;div class=&quot;swot&quot;&gt;
+&lt;div class=&quot;cell strengths&quot;&gt;
+&lt;h4&gt;S 优势&lt;/h4&gt;
+&lt;p&gt;技术强、团队稳&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cell weaknesses&quot;&gt;
+&lt;h4&gt;W 劣势&lt;/h4&gt;
+&lt;p&gt;资金少、品牌弱&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cell opportunities&quot;&gt;
+&lt;h4&gt;O 机会&lt;/h4&gt;
+&lt;p&gt;市场大、政策好&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cell threats&quot;&gt;
+&lt;h4&gt;T 威胁&lt;/h4&gt;
+&lt;p&gt;竞品多、成本涨&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 指标卡片 .stat-card
+
+&lt;span class=&quot;layout-label&quot;&gt;带趋势指示&lt;/span&gt;
+
+&lt;div class=&quot;stat-grid&quot;&gt;
+&lt;div class=&quot;stat-card&quot;&gt;
+&lt;div class=&quot;stat-card-header&quot;&gt;
+&lt;span class=&quot;stat-card-label&quot;&gt;活跃用户&lt;/span&gt;
+&lt;span class=&quot;stat-card-trend up&quot;&gt;+25%&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class=&quot;stat-card-value&quot;&gt;12.5&lt;span class=&quot;stat-card-unit&quot;&gt;万&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;stat-card-footer&quot;&gt;较上月 &lt;span class=&quot;stat-card-comparison&quot;&gt;+2.5万&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;stat-card&quot;&gt;
+&lt;div class=&quot;stat-card-header&quot;&gt;
+&lt;span class=&quot;stat-card-label&quot;&gt;获客成本&lt;/span&gt;
+&lt;span class=&quot;stat-card-trend down&quot;&gt;-15%&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class=&quot;stat-card-value&quot;&gt;85&lt;span class=&quot;stat-card-unit&quot;&gt;元&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;stat-card-footer&quot;&gt;较上月 &lt;span class=&quot;stat-card-comparison&quot;&gt;-15元&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 流程链 .process-chain
+
+&lt;span class=&quot;layout-label&quot;&gt;变体1：3步骤&lt;/span&gt;
+
+&lt;div class=&quot;process-chain&quot;&gt;
+&lt;div class=&quot;step&quot;&gt;需求&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;设计&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;开发&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体2：4步骤&lt;/span&gt;
+
+&lt;div class=&quot;process-chain&quot;&gt;
+&lt;div class=&quot;step&quot;&gt;分析&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;设计&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;开发&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;上线&lt;/div&gt;
+&lt;/div&gt;
+
+
+&lt;span class=&quot;layout-label&quot;&gt;变体3：5步骤&lt;/span&gt;
+
+&lt;div class=&quot;process-chain&quot;&gt;
+&lt;div class=&quot;step&quot;&gt;规划&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;需求&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;设计&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;开发&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;发布&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+&lt;span class=&quot;layout-label&quot;&gt;变体4：彩色箭头形状（3步骤）&lt;/span&gt;
+
+&lt;div class=&quot;process-chain&quot; data-type=&quot;arrow&quot;&gt;
+&lt;div class=&quot;step&quot;&gt;需求分析&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;方案设计&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;开发实现&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体5：彩色箭头形状（4步骤）&lt;/span&gt;
+
+&lt;div class=&quot;process-chain&quot; data-type=&quot;arrow&quot;&gt;
+&lt;div class=&quot;step&quot;&gt;需求&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;设计&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;开发&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;上线&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体6：彩色箭头形状（5步骤）&lt;/span&gt;
+
+&lt;div class=&quot;process-chain&quot; data-type=&quot;arrow&quot;&gt;
+&lt;div class=&quot;step&quot;&gt;智能客服&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;规划顾问&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;核保专家&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;理赔助手&lt;/div&gt;
+&lt;div class=&quot;arrow&quot;&gt;→&lt;/div&gt;
+&lt;div class=&quot;step&quot;&gt;保险智能体&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 循环流程 .process-loop
+
+&lt;span class=&quot;layout-label&quot;&gt;变体1：三角循环（3步骤）&lt;/span&gt;
+
+&lt;div class=&quot;process-loop&quot; data-type=&quot;triangle&quot;&gt;
+&lt;div class=&quot;loop-item&quot;&gt;计划&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;执行&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;检查&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 循环流程 .process-loop（续）
+
+&lt;span class=&quot;layout-label&quot;&gt;变体2：四角循环（4步骤）&lt;/span&gt;
+
+&lt;div class=&quot;process-loop&quot; data-type=&quot;quad&quot;&gt;
+&lt;div class=&quot;loop-item&quot;&gt;需求&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;开发&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;测试&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;上线&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 循环流程 .process-loop（续）
+
+&lt;span class=&quot;layout-label&quot;&gt;变体3：五角循环（5步骤）&lt;/span&gt;
+
+&lt;div class=&quot;process-loop&quot; data-type=&quot;pentagon&quot;&gt;
+&lt;div class=&quot;loop-item&quot;&gt;共情&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;定义&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;构思&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;原型&lt;/div&gt;
+&lt;div class=&quot;loop-item&quot;&gt;测试&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 维度矩阵 .matrix-grid
+
+&lt;span class=&quot;layout-label&quot;&gt;2×2矩阵&lt;/span&gt;
+
+&lt;div class=&quot;matrix-grid&quot;&gt;
+&lt;div class=&quot;cell&quot;&gt;
+&lt;h4&gt;高价值 / 高可行&lt;/h4&gt;
+&lt;p&gt;优先执行&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cell&quot;&gt;
+&lt;h4&gt;高价值 / 低可行&lt;/h4&gt;
+&lt;p&gt;技术突破&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cell&quot;&gt;
+&lt;h4&gt;低价值 / 高可行&lt;/h4&gt;
+&lt;p&gt;快速实现&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cell&quot;&gt;
+&lt;h4&gt;低价值 / 低可行&lt;/h4&gt;
+&lt;p&gt;暂不处理&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 时间轴 .timeline
+
+&lt;span class=&quot;layout-label&quot;&gt;变体1：竖版（日期在左，内容在右）&lt;/span&gt;
+
+&lt;div class=&quot;timeline&quot; data-type=&quot;vertical&quot;&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;2024 Q1&lt;/div&gt;
+&lt;p&gt;产品规划&lt;/p&gt;
+&lt;p class=&quot;desc&quot;&gt;明确核心功能与目标用户群体&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;2024 Q2&lt;/div&gt;
+&lt;p&gt;核心开发&lt;/p&gt;
+&lt;p class=&quot;desc&quot;&gt;完成 MVP 版本开发与内部测试&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;2024 Q3&lt;/div&gt;
+&lt;p&gt;测试优化&lt;/p&gt;
+&lt;p class=&quot;desc&quot;&gt;收集用户反馈，迭代优化体验&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;2024 Q4&lt;/div&gt;
+&lt;p&gt;正式发布&lt;/p&gt;
+&lt;p class=&quot;desc&quot;&gt;全渠道上线推广运营&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体2：横版&lt;/span&gt;
+
+&lt;div class=&quot;timeline&quot; data-type=&quot;horizontal&quot;&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;Q1&lt;/div&gt;
+&lt;p&gt;规划&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;Q2&lt;/div&gt;
+&lt;p&gt;开发&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;Q3&lt;/div&gt;
+&lt;p&gt;测试&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;item&quot;&gt;
+&lt;div class=&quot;year&quot;&gt;Q4&lt;/div&gt;
+&lt;p&gt;发布&lt;/p&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 同心层 .concentric
+
+&lt;span class=&quot;layout-label&quot;&gt;变体1：中心对齐（靶心式）&lt;/span&gt;
+
+&lt;div class=&quot;concentric align-center&quot;&gt;
+&lt;div class=&quot;layer layer-3&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;应用层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-2&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;服务层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-1&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;数据层&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+---
+
+## 同心层 .concentric
+&lt;span class=&quot;layout-label&quot;&gt;变体1b：中心对齐 + 文字在圆环下方&lt;/span&gt;
+
+&lt;div class=&quot;concentric align-center-text-bottom&quot;&gt;
+&lt;div class=&quot;layer layer-3&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;应用层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-2&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;服务层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-1&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;数据层&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 同心层 .concentric（续）
+
+&lt;span class=&quot;layout-label&quot;&gt;变体2：顶部对齐（层叠式）&lt;/span&gt;
+
+&lt;div class=&quot;concentric align-top&quot;&gt;
+&lt;div class=&quot;layer layer-3&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;应用层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-2&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;服务层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-1&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;数据层&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 同心层 .concentric
+&lt;span class=&quot;layout-label&quot;&gt;变体2b：底部对齐（层叠式）&lt;/span&gt;
+
+&lt;div class=&quot;concentric align-bottom&quot;&gt;
+&lt;div class=&quot;layer layer-3&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;应用层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-2&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;服务层&lt;/span&gt;&lt;/div&gt;
+&lt;div class=&quot;layer layer-1&quot;&gt;&lt;span class=&quot;layer-text&quot;&gt;数据层&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 金字塔 .pyramid (正三角)
+
+&lt;div class=&quot;pyramid&quot;&gt;
+    &lt;div class=&quot;level level-1&quot;&gt;愿景核心&lt;/div&gt;
+    &lt;div class=&quot;level level-2&quot;&gt;策略层&lt;/div&gt;
+    &lt;div class=&quot;level level-3&quot;&gt;运营层&lt;/div&gt;
+    &lt;div class=&quot;level level-4&quot;&gt;业务逻辑&lt;/div&gt;
+    &lt;div class=&quot;level level-5&quot;&gt;数字化底座&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 倒金字塔 .pyramid data-type=&quot;inverted&quot;
+
+&lt;div class=&quot;pyramid&quot; data-type=&quot;inverted&quot;&gt;
+    &lt;div class=&quot;level level-1&quot;&gt;广泛触达&lt;/div&gt;
+    &lt;div class=&quot;level level-2&quot;&gt;意向线索&lt;/div&gt;
+    &lt;div class=&quot;level level-3&quot;&gt;深度洽谈&lt;/div&gt;
+    &lt;div class=&quot;level level-4&quot;&gt;方案确认&lt;/div&gt;
+    &lt;div class=&quot;level level-5&quot;&gt;最终交付&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 鱼骨图 .fishbone
+
+&lt;div class=&quot;fishbone&quot;&gt;
+&lt;div class=&quot;head&quot;&gt;问题结果&lt;/div&gt;
+&lt;div class=&quot;spine&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;ribs ribs-top&quot;&gt;
+&lt;div class=&quot;rib&quot;&gt;人员不足&lt;/div&gt;
+&lt;div class=&quot;rib&quot;&gt;需求变更&lt;/div&gt;
+&lt;div class=&quot;rib&quot;&gt;沟通不畅&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;ribs ribs-bottom&quot;&gt;
+&lt;div class=&quot;rib&quot;&gt;技术难题&lt;/div&gt;
+&lt;div class=&quot;rib&quot;&gt;资源受限&lt;/div&gt;
+&lt;div class=&quot;rib&quot;&gt;进度压力&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 冰山 .iceberg
+
+&lt;div class=&quot;iceberg&quot;&gt;
+&lt;div class=&quot;above&quot;&gt;
+&lt;strong&gt;表面问题&lt;/strong&gt;
+&lt;span&gt;系统响应慢、界面卡顿&lt;/span&gt;
+&lt;/div&gt;
+&lt;div class=&quot;waterline&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;below&quot;&gt;
+&lt;strong&gt;深层根因&lt;/strong&gt;
+&lt;span&gt;架构设计缺陷、代码质量、技术债&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 旅程 .journey
+
+&lt;div class=&quot;journey&quot;&gt;
+&lt;div class=&quot;path&quot;&gt;
+&lt;div class=&quot;point&quot; data-milestone=&quot;开始&quot;&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;label&quot;&gt;认知&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot;&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;label&quot;&gt;兴趣&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot; data-milestone=&quot;决策&quot;&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;label&quot;&gt;考虑&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot;&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;label&quot;&gt;购买&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot; data-milestone=&quot;忠诚&quot;&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;div class=&quot;label&quot;&gt;复购&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot;&gt;
+&lt;div class=&quot;label&quot;&gt;考虑&lt;/div&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot;&gt;
+&lt;div class=&quot;label&quot;&gt;购买&lt;/div&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot;&gt;
+&lt;div class=&quot;label&quot;&gt;使用&lt;/div&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;point&quot;&gt;
+&lt;div class=&quot;label&quot;&gt;推荐&lt;/div&gt;
+&lt;div class=&quot;dot&quot;&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 韦恩图 .venn
+
+&lt;div class=&quot;swiss-card&quot;&gt;
+&lt;div class=&quot;swiss-card__content&quot;&gt;
+&lt;h2&gt;逻辑关联&lt;/h2&gt;
+&lt;div class=&quot;venn-container&quot; style=&quot;height: 200px;&quot;&gt;
+&lt;div class=&quot;v-circle v-a&quot; style=&quot;left: 100px;&quot;&gt;A&lt;/div&gt;
+&lt;div class=&quot;v-circle v-b&quot; style=&quot;left: 200px;&quot;&gt;B&lt;/div&gt;
+&lt;/div&gt;
+&lt;div style=&quot;margin-top: 40px; border: 1px solid #eee; padding: 40px; text-align: center;&quot;&gt;思维导图 (Mind Map) 概览&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 雷达图 .radar
+
+&lt;div class=&quot;radar&quot;&gt;
+&lt;div class=&quot;radar-title&quot;&gt;产品能力评估模型&lt;/div&gt;
+&lt;div class=&quot;radar-container&quot;&gt;
+&lt;svg class=&quot;radar-svg&quot; viewBox=&quot;0 0 260 260&quot;&gt;
+&lt;polygon class=&quot;radar-grid&quot; points=&quot;130,30 190,65 190,135 130,170 70,135 70,65&quot;/&gt;
+&lt;polygon class=&quot;radar-grid&quot; points=&quot;130,50 174,75 174,125 130,150 86,125 86,75&quot;/&gt;
+&lt;polygon class=&quot;radar-grid&quot; points=&quot;130,70 158,85 158,115 130,130 102,115 102,85&quot;/&gt;
+&lt;polygon class=&quot;radar-grid&quot; points=&quot;130,90 142,97 142,105 130,110 118,105 118,97&quot;/&gt;
+&lt;line class=&quot;radar-axis&quot; x1=&quot;130&quot; y1=&quot;30&quot; x2=&quot;130&quot; y2=&quot;170&quot;/&gt;
+&lt;line class=&quot;radar-axis&quot; x1=&quot;190&quot; y1=&quot;65&quot; x2=&quot;70&quot; y2=&quot;135&quot;/&gt;
+&lt;line class=&quot;radar-axis&quot; x1=&quot;190&quot; y1=&quot;135&quot; x2=&quot;70&quot; y2=&quot;65&quot;/&gt;
+&lt;polygon class=&quot;radar-data&quot; points=&quot;130,45 178,72 185,125 130,155 78,128 72,70&quot;/&gt;
+&lt;circle class=&quot;radar-point&quot; cx=&quot;130&quot; cy=&quot;45&quot; r=&quot;4&quot;/&gt;
+&lt;circle class=&quot;radar-point&quot; cx=&quot;178&quot; cy=&quot;72&quot; r=&quot;4&quot;/&gt;
+&lt;circle class=&quot;radar-point&quot; cx=&quot;185&quot; cy=&quot;125&quot; r=&quot;4&quot;/&gt;
+&lt;circle class=&quot;radar-point&quot; cx=&quot;130&quot; cy=&quot;155&quot; r=&quot;4&quot;/&gt;
+&lt;circle class=&quot;radar-point&quot; cx=&quot;78&quot; cy=&quot;128&quot; r=&quot;4&quot;/&gt;
+&lt;circle class=&quot;radar-point&quot; cx=&quot;72&quot; cy=&quot;70&quot; r=&quot;4&quot;/&gt;
+&lt;text class=&quot;radar-label&quot; x=&quot;130&quot; y=&quot;20&quot;&gt;创新性&lt;/text&gt;
+&lt;text class=&quot;radar-label&quot; x=&quot;205&quot; y=&quot;60&quot;&gt;性能&lt;/text&gt;
+&lt;text class=&quot;radar-label&quot; x=&quot;205&quot; y=&quot;145&quot;&gt;易用性&lt;/text&gt;
+&lt;text class=&quot;radar-label&quot; x=&quot;130&quot; y=&quot;185&quot;&gt;稳定性&lt;/text&gt;
+&lt;text class=&quot;radar-label&quot; x=&quot;55&quot; y=&quot;145&quot;&gt;安全性&lt;/text&gt;
+&lt;text class=&quot;radar-label&quot; x=&quot;55&quot; y=&quot;60&quot;&gt;扩展性&lt;/text&gt;
+&lt;/svg&gt;
+&lt;/div&gt;
+&lt;div class=&quot;radar-legend&quot;&gt;
+&lt;div class=&quot;radar-legend-item&quot;&gt;
+&lt;div class=&quot;radar-legend-color&quot;&gt;&lt;/div&gt;
+&lt;span&gt;当前产品&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 甘特图 .gantt
+
+&lt;div class=&quot;gantt&quot;&gt;
+&lt;div class=&quot;gantt-header&quot;&gt;
+&lt;div class=&quot;label&quot;&gt;任务&lt;/div&gt;
+&lt;div class=&quot;timeline&quot;&gt;
+&lt;span&gt;1月&lt;/span&gt;
+&lt;span&gt;2月&lt;/span&gt;
+&lt;span&gt;3月&lt;/span&gt;
+&lt;span&gt;4月&lt;/span&gt;
+&lt;span&gt;5月&lt;/span&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;task&quot;&gt;
+&lt;span class=&quot;task-name&quot;&gt;需求分析&lt;/span&gt;
+&lt;div class=&quot;task-bar&quot;&gt;&lt;div class=&quot;fill&quot; style=&quot;left:0%;width:20%&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;task&quot;&gt;
+&lt;span class=&quot;task-name&quot;&gt;UI设计&lt;/span&gt;
+&lt;div class=&quot;task-bar&quot;&gt;&lt;div class=&quot;fill&quot; style=&quot;left:15%;width:25%&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;task&quot;&gt;
+&lt;span class=&quot;task-name&quot;&gt;开发实现&lt;/span&gt;
+&lt;div class=&quot;task-bar&quot;&gt;&lt;div class=&quot;fill&quot; style=&quot;left:30%;width:50%&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;task&quot;&gt;
+&lt;span class=&quot;task-name&quot;&gt;测试验收&lt;/span&gt;
+&lt;div class=&quot;task-bar&quot;&gt;&lt;div class=&quot;fill&quot; style=&quot;left:70%;width:30%&quot;&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 代码块 .code-block
+
+&lt;div class=&quot;code-block&quot;&gt;
+&lt;div class=&quot;code-header&quot;&gt;
+&lt;div class=&quot;code-dots&quot;&gt;&lt;span class=&quot;code-dot red&quot;&gt;&lt;/span&gt;&lt;span class=&quot;code-dot yellow&quot;&gt;&lt;/span&gt;&lt;span class=&quot;code-dot green&quot;&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;span class=&quot;code-lang&quot;&gt;bash&lt;/span&gt;
+&lt;/div&gt;
+&lt;pre&gt;&lt;code&gt;npm install package-name
+npm run build
+npm start&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+---
+
+## 架构图 .architecture
+
+&lt;div class=&quot;architecture&quot;&gt;
+&lt;div class=&quot;layer&quot;&gt;
+&lt;div class=&quot;layer-title&quot;&gt;应用层&lt;/div&gt;
+&lt;div class=&quot;modules&quot;&gt;
+&lt;div class=&quot;module&quot;&gt;管理后台&lt;/div&gt;
+&lt;div class=&quot;module&quot;&gt;用户端&lt;/div&gt;
+&lt;div class=&quot;module&quot;&gt;运营端&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;layer&quot;&gt;
+&lt;div class=&quot;layer-title&quot;&gt;服务层&lt;/div&gt;
+&lt;div class=&quot;modules&quot;&gt;
+&lt;div class=&quot;module&quot;&gt;用户服务&lt;/div&gt;
+&lt;div class=&quot;module&quot;&gt;订单服务&lt;/div&gt;
+&lt;div class=&quot;module&quot;&gt;消息服务&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;layer&quot;&gt;
+&lt;div class=&quot;layer-title&quot;&gt;数据层&lt;/div&gt;
+&lt;div class=&quot;modules&quot;&gt;
+&lt;div class=&quot;module&quot;&gt;MySQL&lt;/div&gt;
+&lt;div class=&quot;module&quot;&gt;Redis&lt;/div&gt;
+&lt;div class=&quot;module&quot;&gt;ES&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 警告框 .alert-box
+
+&lt;div class=&quot;alert-box&quot;&gt;
+&lt;div class=&quot;icon&quot;&gt;⚠️&lt;/div&gt;
+&lt;p&gt;请在操作前备份重要数据，此操作不可撤销&lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+## 术语框 .terminal-box
+
+&lt;div class=&quot;terminal-box&quot;&gt;
+  &lt;div class=&quot;term-header&quot;&gt;
+    &lt;span class=&quot;term-icon&quot;&gt;💡&lt;/span&gt; 核心概念：&lt;span class=&quot;term-title&quot;&gt;XXX&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;term-body&quot;&gt;
+    &lt;div class=&quot;term-section&quot;&gt;
+      &lt;div class=&quot;section-label&quot;&gt;定义：&lt;/div&gt;
+      &lt;div class=&quot;section-content&quot;&gt;一句话解释这个概念&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;term-section&quot;&gt;
+      &lt;div class=&quot;section-label&quot;&gt;用法：&lt;/div&gt;
+      &lt;div class=&quot;section-content&quot;&gt;场景 → 动作&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;term-section&quot;&gt;
+      &lt;div class=&quot;section-label&quot;&gt;示例：&lt;/div&gt;
+      &lt;div class=&quot;section-content&quot;&gt;
+        &lt;ul class=&quot;example-list&quot;&gt;
+          &lt;li&gt;示例1&lt;/li&gt;
+          &lt;li&gt;示例2&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;cmd&quot;&gt;&lt;span class=&quot;prompt&quot;&gt;$&lt;/span&gt; SDK - Software Development Kit&lt;/div&gt;
+&lt;div class=&quot;cmd&quot;&gt;&lt;span class=&quot;prompt&quot;&gt;$&lt;/span&gt; CI/CD - Continuous Integration/Deployment&lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 标题页 .title-card
+
+&lt;div class=&quot;title-card&quot;&gt;
+&lt;h2&gt;项目总结报告&lt;/h2&gt;
+&lt;p&gt;2024 年度成果与展望&lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+## 列表 .list-card
+
+&lt;span class=&quot;layout-label&quot;&gt;无序列表&lt;/span&gt;
+
+&lt;div class=&quot;list-card&quot;&gt;
+  &lt;div class=&quot;list-card-header&quot;&gt;技术栈&lt;/div&gt;
+  &lt;ul&gt;
+      &lt;li&gt;React 18 + TypeScript 5.0&lt;/li&gt;
+      &lt;li&gt;Node.js + Express 后端服务&lt;/li&gt;
+      &lt;li&gt;PostgreSQL 主数据库&lt;/li&gt;
+      &lt;li&gt;Redis 缓存层&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;有序列表&lt;/span&gt;
+
+&lt;div class=&quot;list-card&quot;&gt;
+  &lt;div class=&quot;list-card-header&quot;&gt;核心优先级&lt;/div&gt;
+  &lt;ol&gt;
+      &lt;li&gt;完成用户认证系统的重构与性能优化&lt;/li&gt;
+      &lt;li&gt;部署新的数据分析平台&lt;/li&gt;
+      &lt;li&gt;优化移动端响应式体验&lt;/li&gt;
+      &lt;li&gt;完善自动化测试覆盖率达到85%&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/div&gt;
+
+---
+
+## 多栏布局
+
+&lt;span class=&quot;layout-label&quot;&gt;三栏 .three-col&lt;/span&gt;
+
+&lt;div class=&quot;three-col&quot;&gt;
+    &lt;div class=&quot;three-col-item&quot;&gt;
+        &lt;div class=&quot;three-col-number&quot;&gt;98%&lt;/div&gt;
+        &lt;div class=&quot;three-col-label&quot;&gt;客户满意度&lt;/div&gt;
+        &lt;div class=&quot;three-col-desc&quot;&gt;基于季度调研数据&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;three-col-item&quot;&gt;
+        &lt;div class=&quot;three-col-number&quot;&gt;24h&lt;/div&gt;
+        &lt;div class=&quot;three-col-label&quot;&gt;平均响应&lt;/div&gt;
+        &lt;div class=&quot;three-col-desc&quot;&gt;技术支持响应时间&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;three-col-item&quot;&gt;
+        &lt;div class=&quot;three-col-number&quot;&gt;99.9%&lt;/div&gt;
+        &lt;div class=&quot;three-col-label&quot;&gt;系统可用性&lt;/div&gt;
+        &lt;div class=&quot;three-col-desc&quot;&gt;年度服务可用率&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;带图标三栏 .three-col&lt;/span&gt;
+
+&lt;div class=&quot;three-col&quot;&gt;
+    &lt;div class=&quot;three-col-item&quot;&gt;
+        &lt;div class=&quot;three-col-icon&quot;&gt;★&lt;/div&gt;
+        &lt;div class=&quot;three-col-label&quot;&gt;专业版&lt;/div&gt;
+        &lt;div class=&quot;three-col-desc&quot;&gt;适合小型团队&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;three-col-item&quot;&gt;
+        &lt;div class=&quot;three-col-icon&quot;&gt;◆&lt;/div&gt;
+        &lt;div class=&quot;three-col-label&quot;&gt;企业版&lt;/div&gt;
+        &lt;div class=&quot;three-col-desc&quot;&gt;适合中大型企业&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;three-col-item&quot;&gt;
+        &lt;div class=&quot;three-col-icon&quot;&gt;●&lt;/div&gt;
+        &lt;div class=&quot;three-col-label&quot;&gt;定制版&lt;/div&gt;
+        &lt;div class=&quot;three-col-desc&quot;&gt;私有化部署方案&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 上下分层 .split-v
+
+&lt;span class=&quot;layout-label&quot;&gt;变体1：基础&lt;/span&gt;
+
+&lt;div class=&quot;split-v&quot;&gt;
+    &lt;div class=&quot;split-v-header&quot;&gt;
+        &lt;div class=&quot;split-v-title&quot;&gt;Q4 战略规划&lt;/div&gt;
+        &lt;div class=&quot;split-v-subtitle&quot;&gt;2024年第四季度核心目标与执行方案&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;split-v-body&quot;&gt;
+        &lt;p&gt;本季度我们将聚焦于产品核心功能的打磨与用户体验的提升。通过数据驱动的迭代方式，确保每一个功能点都能为用户创造实际价值。&lt;/p&gt;
+        &lt;p&gt;关键成果指标包括：用户留存率提升至65%，NPS评分达到50以上，以及核心功能使用率增长30%。&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体2：强调&lt;/span&gt;
+
+&lt;div class=&quot;split-v accent&quot;&gt;
+    &lt;div class=&quot;split-v-header&quot;&gt;
+        &lt;div class=&quot;split-v-title&quot;&gt;重要提醒&lt;/div&gt;
+        &lt;div class=&quot;split-v-subtitle&quot;&gt;系统升级维护通知&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;split-v-body&quot;&gt;
+        &lt;p&gt;我们将于本周六凌晨2:00-6:00进行系统升级维护。期间服务将暂时不可用，请提前保存您的工作内容。&lt;/p&gt;
+        &lt;p&gt;升级完成后，您将体验到更快的响应速度和全新的协作功能。&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;span class=&quot;layout-label&quot;&gt;变体3：带编号&lt;/span&gt;
+
+&lt;div class=&quot;split-v split-v-numbered&quot;&gt;
+    &lt;div class=&quot;split-v-header&quot;&gt;
+        &lt;div class=&quot;split-v-number&quot;&gt;01&lt;/div&gt;
+        &lt;div class=&quot;split-v-title&quot;&gt;需求分析阶段&lt;/div&gt;
+        &lt;div class=&quot;split-v-subtitle&quot;&gt;深入理解用户痛点与业务场景&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;split-v-body&quot;&gt;
+        &lt;p&gt;通过用户访谈、数据分析、竞品研究等方式，全面收集需求信息。输出用户画像、用户旅程图、需求优先级列表等关键文档。&lt;/p&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+---
+
+## 引用页 .quote
+
+&lt;div class=&quot;quote&quot;&gt;
+&lt;blockquote&gt;&quot;简洁是智慧的灵魂&quot;&lt;br/&gt;—— 莎士比亚&lt;/blockquote&gt;
+&lt;cite&gt;— 《哈姆雷特》&lt;/cite&gt;
+&lt;/div&gt;
+
+---
+
+## 综合示例
+
+&lt;span class=&quot;layout-label&quot;&gt;对比 + 指标卡片&lt;/span&gt;
+
+&lt;div class=&quot;vs-grid&quot;&gt;
+&lt;div&gt;
+&lt;div class=&quot;stat-card&quot;&gt;
+&lt;div class=&quot;stat-card-value&quot;&gt;85&lt;/div&gt;
+&lt;div class=&quot;stat-card-label&quot;&gt;用户满意度&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;vs-divider&quot;&gt;VS&lt;/div&gt;
+&lt;div&gt;
+&lt;div class=&quot;stat-card&quot;&gt;
+&lt;div class=&quot;stat-card-value&quot;&gt;62&lt;/div&gt;
+&lt;div class=&quot;stat-card-label&quot;&gt;行业平均&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+</textarea>
+        </div>
+
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const cardsContainer = document.getElementById('cardsContainer');
+        const pageCount = document.getElementById('pageCount');
+        const preview = document.querySelector('.preview-panel');
+        const saveStatus = document.getElementById('saveStatus');
+        const currentFilename = document.getElementById('currentFilename');
+        const unsavedIndicator = document.getElementById('unsavedIndicator');
+        const fileInput = document.getElementById('fileInput');
+
+        // 文件状态管理
+        let currentFileName = 'untitled.md';
+        let isModified = false;
+        let autoSaveTimer = null;
+        const AUTO_SAVE_DELAY = 1000; // 1秒后自动保存到 localStorage
+
+        // 初始化时加载上次的内容
+        function loadLastSession() {
+            const savedContent = localStorage.getItem('swiss-editorial-content');
+            const savedFileName = localStorage.getItem('swiss-editorial-filename');
+            if (savedContent) {
+                editor.value = savedContent;
+                if (savedFileName) {
+                    currentFileName = savedFileName;
+                    currentFilename.textContent = currentFileName;
+                }
+                updateSaveStatus('已恢复上次会话');
+            }
+        }
+
+        // 更新保存状态显示
+        function updateSaveStatus(status, isUnsaved = false) {
+            saveStatus.textContent = status;
+            isModified = isUnsaved;
+            if (isUnsaved) {
+                unsavedIndicator.style.display = 'inline';
+                saveStatus.className = 'unsaved';
+            } else {
+                unsavedIndicator.style.display = 'none';
+                saveStatus.className = 'saved';
+            }
+        }
+
+        // 标记为已修改
+        function markAsModified() {
+            if (!isModified) {
+                updateSaveStatus('未保存', true);
+            }
+            // 清除之前的定时器
+            clearTimeout(autoSaveTimer);
+            // 设置新的自动保存定时器
+            autoSaveTimer = setTimeout(() => {
+                autoSave();
+            }, AUTO_SAVE_DELAY);
+        }
+
+        // 自动保存到 localStorage
+        function autoSave() {
+            localStorage.setItem('swiss-editorial-content', editor.value);
+            localStorage.setItem('swiss-editorial-filename', currentFileName);
+            localStorage.setItem('swiss-editorial-autosave-time', new Date().toLocaleString());
+            updateSaveStatus('自动保存于 ' + new Date().toLocaleTimeString());
+        }
+
+        // 新建文件
+        function newFile() {
+            if (isModified) {
+                if (!confirm('当前文件有未保存的更改，确定要新建文件吗？')) {
+                    return;
+                }
+            }
+            editor.value = '# 新建文档\n\n开始编写内容...';
+            currentFileName = 'untitled.md';
+            currentFilename.textContent = currentFileName;
+            updateSaveStatus('新文件');
+            renderCards();
+            // 保存新状态
+            autoSave();
+        }
+
+        // 打开文件
+        function openFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (isModified) {
+                if (!confirm('当前文件有未保存的更改，确定要打开新文件吗？')) {
+                    input.value = '';
+                    return;
+                }
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                editor.value = e.target.result;
+                currentFileName = file.name;
+                currentFilename.textContent = currentFileName;
+                updateSaveStatus('已打开');
+                renderCards();
+                autoSave();
+            };
+            reader.readAsText(file);
+            input.value = ''; // 清空input，允许重复选择同一文件
+        }
+
+        // 保存文件
+        function saveFile() {
+            const content = editor.value;
+            const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentFileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            updateSaveStatus('已保存');
+            autoSave(); // 同时保存到 localStorage
+        }
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + S = 保存
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveFile();
+            }
+            // Ctrl/Cmd + O = 打开
+            if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+                e.preventDefault();
+                fileInput.click();
+            }
+            // Ctrl/Cmd + N = 新建
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                newFile();
+            }
+        });
+
+        // 监听编辑器输入，标记修改状态
+        editor.addEventListener('input', function() {
+            markAsModified();
+        });
+
+        // ========== 搜索功能 ==========
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        let searchMatches = [];
+        let currentMatchIndex = -1;
+
+        // 处理搜索框键盘事件
+        function handleSearchKeydown(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    findPrev();
+                } else {
+                    findNext();
+                }
+            } else if (e.key === 'Escape') {
+                clearSearch();
+                searchInput.blur();
+            }
+        }
+
+        // 劫持原生的 Ctrl+F
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+            }
+        });
+
+        // 执行搜索
+        function performSearch() {
+            const query = searchInput.value.trim().toLowerCase();
+            clearHighlights();
+            
+            if (!query) {
+                searchMatches = [];
+                currentMatchIndex = -1;
+                updateSearchResults();
+                return;
+            }
+
+            searchMatches = [];
+            const cards = document.querySelectorAll('.swiss-card');
+            
+            cards.forEach((card, cardIndex) => {
+                const walker = document.createTreeWalker(
+                    card,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+
+                const textNodes = [];
+                let node;
+                while (node = walker.nextNode()) {
+                    if (node.parentElement.tagName !== 'SCRIPT' && 
+                        node.parentElement.tagName !== 'STYLE') {
+                        textNodes.push(node);
+                    }
+                }
+
+                textNodes.forEach(textNode => {
+                    const text = textNode.textContent.toLowerCase();
+                    let index = text.indexOf(query);
+                    
+                    while (index !== -1) {
+                        searchMatches.push({
+                            cardIndex: cardIndex,
+                            textNode: textNode,
+                            startOffset: index,
+                            endOffset: index + query.length,
+                            text: textNode.textContent.substring(index, index + query.length)
+                        });
+                        index = text.indexOf(query, index + 1);
+                    }
+                });
+            });
+
+            // 高亮所有匹配
+            highlightMatches();
+            
+            if (searchMatches.length > 0) {
+                currentMatchIndex = 0;
+                navigateToMatch(0);
+            }
+            
+            updateSearchResults();
+        }
+
+        // 高亮所有匹配
+        function highlightMatches() {
+            searchMatches.forEach((match, index) => {
+                const range = document.createRange();
+                range.setStart(match.textNode, match.startOffset);
+                range.setEnd(match.textNode, match.endOffset);
+
+                const span = document.createElement('span');
+                span.className = 'search-highlight';
+                span.dataset.matchIndex = index;
+                
+                try {
+                    range.surroundContents(span);
+                    match.element = span;
+                } catch (e) {
+                    // 跨元素匹配时跳过
+                }
+            });
+        }
+
+        // 清除高亮
+        function clearHighlights() {
+            document.querySelectorAll('.search-highlight, .search-highlight-current').forEach(el => {
+                const parent = el.parentNode;
+                parent.replaceChild(document.createTextNode(el.textContent), el);
+                parent.normalize();
+            });
+        }
+
+        // 清除搜索
+        function clearSearch() {
+            searchInput.value = '';
+            clearHighlights();
+            searchMatches = [];
+            currentMatchIndex = -1;
+            updateSearchResults();
+        }
+
+        // 跳转到指定匹配
+        function navigateToMatch(index) {
+            if (index < 0 || index >= searchMatches.length) return;
+
+            // 移除之前的高亮
+            document.querySelectorAll('.search-highlight-current').forEach(el => {
+                el.classList.remove('search-highlight-current');
+            });
+
+            const match = searchMatches[index];
+            if (match && match.element) {
+                match.element.classList.add('search-highlight-current');
+                
+                // 滚动到对应卡片
+                const cards = document.querySelectorAll('.swiss-card');
+                if (cards[match.cardIndex]) {
+                    const card = cards[match.cardIndex];
+                    const cardTop = card.offsetTop;
+                    preview.scrollTo({ top: cardTop - 40, behavior: 'smooth' });
+                    
+                    // 更新目录高亮
+                    updateTocActiveState(match.cardIndex);
+                    
+                    // 滚动匹配元素到视野中央
+                    setTimeout(() => {
+                        match.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }
+                
+                // 同步滚动右侧 Markdown 编辑器到对应位置
+                scrollEditorToMatch(match.text);
+            }
+            
+            currentMatchIndex = index;
+            updateSearchResults();
+        }
+
+        // 在 Markdown 编辑器中滚动到匹配文本
+        function scrollEditorToMatch(searchText) {
+            if (!searchText) return;
+            
+            const editorValue = editor.value;
+            const searchLower = searchText.toLowerCase();
+            const editorLower = editorValue.toLowerCase();
+            
+            // 查找文本在编辑器中的位置
+            let index = editorLower.indexOf(searchLower);
+            
+            // 如果找到多个，尝试找到当前卡片对应的位置
+            // 通过 cardIndex 来大致定位：按 --- 分割后找对应 section
+            if (currentMatchIndex >= 0 && searchMatches[currentMatchIndex]) {
+                const targetCardIndex = searchMatches[currentMatchIndex].cardIndex;
+                const sections = editorValue.split(/^---$/m);
+                
+                if (sections[targetCardIndex]) {
+                    // 计算前面所有 section 的字符数
+                    let charOffset = 0;
+                    for (let i = 0; i < targetCardIndex; i++) {
+                        charOffset += sections[i].length + 4; // 4 for "\n---\n"
+                    }
+                    
+                    // 在当前 section 中查找
+                    const sectionText = sections[targetCardIndex];
+                    const sectionIndex = sectionText.toLowerCase().indexOf(searchLower);
+                    
+                    if (sectionIndex !== -1) {
+                        index = charOffset + sectionIndex;
+                    }
+                }
+            }
+            
+            if (index !== -1) {
+                // 计算行号
+                const linesBefore = editorValue.substring(0, index).split('\n');
+                const lineNumber = linesBefore.length;
+                const lineHeight = 25.2; // 14px font-size * 1.8 line-height
+                
+                // 滚动到对应行（居中显示）
+                const scrollTop = (lineNumber - 5) * lineHeight;
+                editor.scrollTo({ top: Math.max(0, scrollTop), behavior: 'smooth' });
+                
+                // 临时高亮编辑器中的文本
+                highlightEditorText(index, searchText.length);
+            }
+        }
+
+        // 临时高亮编辑器中的文本（通过创建选区）
+        let editorHighlightTimeout;
+        function highlightEditorText(startIndex, length) {
+            clearTimeout(editorHighlightTimeout);
+            
+            try {
+                editor.setSelectionRange(startIndex, startIndex + length);
+                editor.focus();
+            } catch (e) {
+                // 忽略设置选区失败的情况
+            }
+            
+            // 3秒后取消选区
+            editorHighlightTimeout = setTimeout(() => {
+                editor.setSelectionRange(0, 0);
+            }, 3000);
+        }
+
+        // 查找下一个
+        function findNext() {
+            if (searchMatches.length === 0) {
+                performSearch();
+                return;
+            }
+            const nextIndex = (currentMatchIndex + 1) % searchMatches.length;
+            navigateToMatch(nextIndex);
+        }
+
+        // 查找上一个
+        function findPrev() {
+            if (searchMatches.length === 0) {
+                performSearch();
+                return;
+            }
+            const prevIndex = (currentMatchIndex - 1 + searchMatches.length) % searchMatches.length;
+            navigateToMatch(prevIndex);
+        }
+
+        // 更新搜索结果显示
+        function updateSearchResults() {
+            if (searchMatches.length === 0) {
+                if (searchInput.value.trim()) {
+                    searchResults.textContent = '未找到';
+                } else {
+                    searchResults.textContent = '';
+                }
+            } else {
+                searchResults.textContent = `${currentMatchIndex + 1} / ${searchMatches.length}`;
+            }
+        }
+
+        // 监听搜索输入
+        let searchTimeout;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 300);
+        });
+
+        // 目录高亮状态管理
+        let lastActivePage = -1;
+        let isClickScrolling = false;
+        let clickScrollTimeout = null;
+        let cardObserver = null;
+
+        // 跳转到指定页面
+        function scrollToPage(pageIndex) {
+            const cards = document.querySelectorAll('.swiss-card');
+            if (cards[pageIndex]) {
+                isClickScrolling = true;
+                clearTimeout(clickScrollTimeout);
+                // 立即更新高亮，不闪烁
+                updateTocActiveState(pageIndex);
+                // 计算卡片相对于 preview-panel 的偏移量并滚动
+                const card = cards[pageIndex];
+                const cardTop = card.offsetTop;
+                preview.scrollTo({ top: cardTop - 40, behavior: 'smooth' }); // 40px padding
+                // 保存滚动位置
+                localStorage.setItem('swiss-editorial-scroll', (cardTop - 40).toString());
+                localStorage.setItem('swiss-editorial-page', pageIndex.toString());
+                // 滚动结束后恢复监听
+                clickScrollTimeout = setTimeout(() => {
+                    isClickScrolling = false;
+                }, 600);
+            }
+        }
+
+        // 更新目录激活状态（不闪烁）
+        function updateTocActiveState(activePage) {
+            if (activePage === lastActivePage) return;
+            lastActivePage = activePage;
+
+            document.querySelectorAll('.toc-page').forEach((page, idx) => {
+                const shouldActive = idx === activePage;
+                if (page.classList.contains('active') !== shouldActive) {
+                    page.classList.toggle('active', shouldActive);
+                }
+            });
+            document.querySelectorAll('.toc-element').forEach(el => {
+                const shouldActive = parseInt(el.dataset.page) === activePage;
+                if (el.classList.contains('active') !== shouldActive) {
+                    el.classList.toggle('active', shouldActive);
+                }
+            });
+        }
+
+        // 生成页面大纲
+        function updateToc() {
+            const md = editor.value;
+            const pages = md.split(/^---$/m);
+            const tocTree = document.getElementById('tocTree');
+
+            if (!tocTree) return;
+
+            if (pages.length === 0 || (pages.length === 1 && !pages[0].trim())) {
+                tocTree.innerHTML = '<div class="toc-empty">开始编写内容以生成大纲...</div>';
+                return;
+            }
+
+            const layoutPatterns = [
+                { name: '对比网格', pattern: /vs-grid/ },
+                { name: '指标卡片', pattern: /stat-card/ },
+                { name: '雷达图', pattern: /radar/ },
+                { name: '列表卡片', pattern: /list-card/ },
+                { name: '三栏布局', pattern: /three-col/ },
+                { name: '上下分层', pattern: /split-v/ },
+                { name: '流程链', pattern: /process-chain/ },
+                { name: '循环流程', pattern: /process-loop/ },
+                { name: '矩阵网格', pattern: /matrix-grid/ },
+                { name: '时间轴', pattern: /timeline/ },
+                { name: '同心层', pattern: /concentric/ },
+                { name: '金字塔', pattern: /pyramid/ },
+                { name: '鱼骨图', pattern: /fishbone/ },
+                { name: '冰山', pattern: /iceberg/ },
+                { name: '旅程', pattern: /journey/ },
+                { name: '韦恩图', pattern: /venn/ },
+                { name: 'SWOT分析', pattern: /swot/ },
+                { name: '前后对比', pattern: /before-after/ },
+                { name: '甘特图', pattern: /gantt/ },
+                { name: '代码块', pattern: /code-block/ },
+                { name: '警告框', pattern: /alert-box/ },
+                { name: '术语框', pattern: /terminal-box/ },
+                { name: '标题页', pattern: /title-card/ },
+                { name: '左右两栏', pattern: /two-col/ },
+                { name: '网格', pattern: /\.grid[^-]/ },
+                { name: '引用页', pattern: /\.quote/ }
+            ];
+
+            let html = '';
+            pages.forEach((page, index) => {
+                const lines = page.trim().split('\n');
+                let title = '';
+                let elements = [];
+
+                // 提取标题
+                for (const line of lines) {
+                    const h1Match = line.match(/^# (.+)$/);
+                    const h2Match = line.match(/^## (.+)$/);
+                    if (h1Match) {
+                        title = h1Match[1];
+                        break;
+                    } else if (h2Match && !title) {
+                        title = h2Match[1];
+                    }
+                }
+
+                // 识别布局组件
+                for (const { name, pattern } of layoutPatterns) {
+                    if (pattern.test(page)) {
+                        elements.push(name);
+                    }
+                }
+
+                // 识别基础元素
+                if (/^> /m.test(page)) elements.push('引用块');
+                if (/^```/m.test(page)) elements.push('代码块');
+                if (/^\|[^|]+\|[^|]+\|/m.test(page)) elements.push('表格');
+                if (/^\[alt\]/m.test(page)) elements.push('极简表格');
+                if (/- \[x\] /m.test(page)) elements.push('待办列表');
+
+                const displayTitle = title || (index === 0 ? '封面' : `第 ${index} 页`);
+                const elementText = elements.length > 0 ? `${elements.length} 个组件` : '正文';
+
+                html += `
+                    <div class="toc-page" data-page="${index}">
+                        <div class="toc-page-header" onclick="scrollToPage(${index})">
+                            <span class="toc-page-number">${index === 0 ? '封面' : index}</span>
+                            <span class="toc-page-title">${displayTitle}</span>
+                            <span class="toc-page-preview">${elementText}</span>
+                        </div>
+                        ${elements.length > 0 ? `
+                            <div class="toc-elements">
+                                ${elements.map((el, elIndex) => `<div class="toc-element" data-page="${index}" data-el-index="${elIndex}" onclick="scrollToPage(${index})">${el}</div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            tocTree.innerHTML = html;
+        }
+
+        // 配色方案
+        const SCHEME = {
+            cover: { bg: '#f2efe9', text: '#1a1a1a', accent: '#d95e00' },
+            body: { bg: '#ffffff', text: '#1a1a1a', accent: '#d95e00' }
+        };
+
+        // 简单 Markdown 解析器
+        function parseMarkdown(md) {
+            let html = md;
+
+            // 代码块 - macOS 窗口风格
+            html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+                const langLabel = lang || 'text';
+                return `<div class="code-block"><div class="code-header"><div class="code-dots"><span class="code-dot red"></span><span class="code-dot yellow"></span><span class="code-dot green"></span></div><span class="code-lang">${langLabel}</span></div><pre><code>${escapeHtml(code.trim())}</code></pre></div>`;
+            });
+
+            // 处理标题 - 从多到少依次匹配
+            html = html.replace(/^###### (.+)$/gm, '<h6>$1</h6>');
+            html = html.replace(/^##### (.+)$/gm, '<h5>$1</h5>');
+            html = html.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+            // 加粗和强调
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+            // 行内代码
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // 链接
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+            // 分割线
+            html = html.replace(/^---$/gm, '<hr>');
+
+            // 引用块 - 多行引用支持
+            html = html.replace(/(^> .+\n?)+/gm, (match) => {
+                const lines = match.trim().split('\n').map(line => line.replace(/^> /, ''));
+                return `<blockquote><p>${lines.join('</p><p>')}</p></blockquote>`;
+            });
+
+            // 无序列表
+            html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+            html = html.replace(/(<li>.*?<\/li>\n?)+/g, '<ul>$&</ul>');
+
+            // 有序列表
+            html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+            // 图片
+            html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">');
+
+            // 表格 - 支持 [alt] 标记切换极简样式
+            let tableAltMode = false;
+            html = html.replace(/^\[alt\]$/gm, () => {
+                tableAltMode = true;
+                return '';
+            });
+            // 匹配完整的表格块（多行）
+            html = html.replace(/(\|[^\n]+\|\n?)+/g, (match) => {
+                const lines = match.trim().split('\n');
+                let headerRow = '';
+                let bodyRows = [];
+                let foundDivider = false;
+
+                for (const line of lines) {
+                    if (!line.includes('|')) continue;
+                    const cells = line.split('|').map(c => c.trim()).filter(c => c);
+                    // 检测分割线
+                    if (cells.every(c => /^[-:]+$/.test(c))) {
+                        foundDivider = true;
+                        continue;
+                    }
+                    // 构建单元格 HTML
+                    const cellHtml = cells.map(c => `<td>${c}</td>`).join('');
+                    const rowHtml = `<tr>${cellHtml}</tr>`;
+
+                    if (!foundDivider) {
+                        headerRow = rowHtml;
+                    } else {
+                        bodyRows.push(rowHtml);
+                    }
+                }
+
+                if (!headerRow || bodyRows.length === 0) return match;
+
+                // 表头用 th
+                const thead = headerRow.replace(/<td>/g, '<th>').replace(/<\/td>/g, '</th>');
+                const tbody = bodyRows.join('');
+                const altClass = tableAltMode ? ' class="alt"' : '';
+                tableAltMode = false;
+                return `<table${altClass}><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+            });
+
+            // 段落
+            html = html.replace(/\n\n+/g, '</p><p>');
+            html = '<p>' + html + '</p>';
+
+            // 清理空段落
+            html = html.replace(/<p>\s*<\/p>/g, '');
+            html = html.replace(/<p>(<h[1-6]>)/g, '$1');
+            html = html.replace(/(<\/h[1-6]>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<ul>)/g, '$1');
+            html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<ol>)/g, '$1');
+            html = html.replace(/(<\/ol>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<pre>)/g, '$1');
+            html = html.replace(/(<\/pre>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<blockquote>)/g, '$1');
+            html = html.replace(/(<\/blockquote>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<table>)/g, '$1');
+            html = html.replace(/(<\/table>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<hr>)<\/p>/g, '$1');
+            html = html.replace(/<p>(<img>)/g, '$1');
+            html = html.replace(/(<\/img>)<\/p>/g, '$1');
+            // code-block 也不应该被 p 包裹
+            html = html.replace(/<p>(<div class="code-block">)/g, '$1');
+            html = html.replace(/(<\/div>)<\/p>/g, '$1');
+
+            // 布局 div 也不应该被 p 包裹 - 通用匹配
+            // 匹配任何以 vs-, process-, stat-, timeline, concentric, pyramid, fishbone, iceberg, journey, venn, swot, quote, radar, before-after, gantt, alert-box, terminal-box, title-card, list-card, grid-, split-, two-, three- 开头的 class
+            html = html.replace(/<p>(<div class="(vs-grid|process-chain|process-loop|matrix-grid|stat-card|timeline|concentric|pyramid|fishbone|iceberg|journey|venn|swot|quote|radar|before-after|gantt|alert-box|terminal-box|title-card|list-card|grid-layout|split-v|two-col|three-col)">)/g, '$1');
+            // 匹配对应的结束标签
+            html = html.replace(/(<\/div>)<\/p>/g, '$1');
+
+            return html;
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // 页面最大高度 (800px - padding)
+        const PAGE_MAX_HEIGHT = 720;
+
+        // 创建临时测量容器
+        function createMeasureContainer() {
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: absolute;
+                left: -9999px;
+                top: -9999px;
+                width: 600px;
+                padding: 40px;
+                box-sizing: border-box;
+                visibility: hidden;
+                pointer-events: none;
+            `;
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // 按块级元素分割内容
+        function splitContentIntoBlocks(html) {
+            const blocks = [];
+            // 匹配各种块级元素 - 不使用 s 标志，用 [\s\S] 代替 .
+            const blockRegex = /<(h[1-6]|p|ul|ol|pre|blockquote|div|table|hr|img)[^>]*>[\s\S]*?<\/\1>/g;
+
+            let match;
+            let lastIndex = 0;
+
+            while ((match = blockRegex.exec(html)) !== null) {
+                if (match.index > lastIndex) {
+                    const text = html.slice(lastIndex, match.index).trim();
+                    if (text) blocks.push({ type: 'text', content: text });
+                }
+                blocks.push({ type: 'element', content: match[0] });
+                lastIndex = match.index + match[0].length;
+            }
+
+            if (lastIndex < html.length) {
+                const text = html.slice(lastIndex).trim();
+                if (text) blocks.push({ type: 'text', content: text });
+            }
+
+            return blocks;
+        }
+
+        // 测量内容高度
+        function measureContentHeight(content, measureContainer) {
+            measureContainer.innerHTML = `<div class="swiss-card swiss-card--body"><div class="swiss-card__content">${content}</div></div>`;
+            const card = measureContainer.querySelector('.swiss-card');
+            const height = card.offsetHeight;
+            const contentHeight = card.querySelector('.swiss-card__content').offsetHeight;
+            return { cardHeight: height, contentHeight };
+        }
+
+        // 自动分页逻辑
+        function generateCards(md) {
+            // 按 --- 分割sections
+            const sections = md.split(/\n---\n/);
+            const cards = [];
+            const measureContainer = createMeasureContainer();
+
+            try {
+                sections.forEach((section, index) => {
+                    const content = parseMarkdown(section.trim());
+                    const isCover = index === 0 && section.trim().startsWith('#');
+
+                    if (isCover) {
+                        // 封面：标题 + 日期
+                        const titleMatch = content.match(/<h1>([^<]+)<\/h1>/);
+                        const title = titleMatch ? titleMatch[1] : '';
+                        const body = content.replace(/<h1>[^<]+<\/h1>/, '').replace(/<p><\/p>/g, '');
+
+                        cards.push({
+                            type: 'cover',
+                            html: `<h1>${title}</h1>${body}<div class="cover-meta">Swiss Editorial</div><div class="cover-date">${new Date().toLocaleDateString('zh-CN')}</div>`
+                        });
+                    } else if (content.trim()) {
+                        // 检查内容高度
+                        const { cardHeight } = measureContentHeight(content, measureContainer);
+
+                        if (cardHeight <= PAGE_MAX_HEIGHT + 80) {
+                            // 内容未超出限制，直接添加
+                            cards.push({
+                                type: 'body',
+                                html: content
+                            });
+                        } else {
+                            // 需要分页
+                            const blocks = splitContentIntoBlocks(content);
+                            let currentPageContent = '';
+
+                            for (const block of blocks) {
+                                const testContent = currentPageContent + block.content;
+                                const { cardHeight: testHeight } = measureContentHeight(testContent, measureContainer);
+
+                                if (testHeight <= PAGE_MAX_HEIGHT + 80) {
+                                    // 可以加入当前页
+                                    currentPageContent = testContent;
+                                } else {
+                                    // 当前页已满，保存并开始新页
+                                    if (currentPageContent.trim()) {
+                                        cards.push({
+                                            type: 'body',
+                                            html: currentPageContent
+                                        });
+                                    }
+                                    currentPageContent = block.content;
+                                }
+                            }
+
+                            // 添加最后一页
+                            if (currentPageContent.trim()) {
+                                cards.push({
+                                    type: 'body',
+                                    html: currentPageContent
+                                });
+                            }
+                        }
+                    }
+                });
+            } finally {
+                document.body.removeChild(measureContainer);
+            }
+
+            return cards;
+        }
+
+        // 渲染卡片
+        function renderCards() {
+            const md = editor.value;
+            const cards = generateCards(md);
+
+            cardsContainer.innerHTML = cards.map((card, i) => `
+                <div class="swiss-card swiss-card--${card.type}" data-page="${i}">
+                    <div class="swiss-card__content">
+                        ${card.html}
+                    </div>
+                </div>
+            `).join('');
+
+            pageCount.textContent = `${cards.length} 页`;
+
+            // 更新目录
+            updateToc();
+
+            // 初始化 IntersectionObserver
+            initCardObserver();
+
+            // 恢复滚动位置
+            restoreScrollPosition();
+        }
+
+        // 初始化 IntersectionObserver 监听卡片可见性
+        function initCardObserver() {
+            if (cardObserver) {
+                cardObserver.disconnect();
+            }
+            const cards = document.querySelectorAll('.swiss-card');
+            if (cards.length === 0) return;
+
+            // 使用 IntersectionObserver 监听卡片进入视口
+            cardObserver = new IntersectionObserver((entries) => {
+                if (isClickScrolling) return;
+                // 找到最靠近顶部的可见卡片
+                let topmostVisible = null;
+                let minTop = Infinity;
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const rect = entry.target.getBoundingClientRect();
+                        const containerRect = preview.getBoundingClientRect();
+                        const relativeTop = rect.top - containerRect.top;
+                        if (relativeTop < minTop && relativeTop >= -100) {
+                            minTop = relativeTop;
+                            topmostVisible = parseInt(entry.target.dataset.pageIndex);
+                        }
+                    }
+                });
+                if (topmostVisible !== null) {
+                    updateTocActiveState(topmostVisible);
+                    localStorage.setItem('swiss-editorial-page', topmostVisible.toString());
+                }
+            }, {
+                root: preview,
+                rootMargin: '-10% 0px -70% 0px',
+                threshold: 0
+            });
+
+            cards.forEach((card, index) => {
+                card.dataset.pageIndex = index;
+                cardObserver.observe(card);
+            });
+        }
+
+        // 保存滚动位置
+        function saveScrollPosition() {
+            const scrollTop = preview.scrollTop;
+            localStorage.setItem('swiss-editorial-scroll', scrollTop.toString());
+        }
+
+        // 恢复滚动位置
+        function restoreScrollPosition() {
+            const savedPage = localStorage.getItem('swiss-editorial-page');
+            const savedScroll = localStorage.getItem('swiss-editorial-scroll');
+            const cards = document.querySelectorAll('.swiss-card');
+
+            if (savedPage && cards[parseInt(savedPage)]) {
+                // 优先恢复到保存的页面
+                const pageIndex = parseInt(savedPage);
+                cards[pageIndex].scrollIntoView({ behavior: 'instant', block: 'start' });
+                updateTocActiveState(pageIndex);
+            } else if (savedScroll) {
+                preview.scrollTop = parseInt(savedScroll, 10);
+            }
+        }
+
+        // 监听滚动保存位置（节流）
+        let scrollTimeout;
+        preview.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(saveScrollPosition, 150);
+        }, { passive: true });
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            initCardObserver();
+        });
+
+        // 页面加载前保存位置
+        window.addEventListener('beforeunload', saveScrollPosition);
+
+        // 实时预览
+        editor.addEventListener('input', renderCards);
+
+        // 加载上次会话
+        loadLastSession();
+        
+        // 初始渲染
+        renderCards();
+    </script>
+</body>
+</html>

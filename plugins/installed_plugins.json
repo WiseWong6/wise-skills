@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "plugins": {
+    "document-skills@anthropic-agent-skills": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/anthropic-agent-skills/document-skills/b0cbd3df1533",
+        "version": "b0cbd3df1533",
+        "installedAt": "2026-03-15T07:10:04.422Z",
+        "lastUpdated": "2026-03-16T08:05:49.862Z",
+        "gitCommitSha": "b0cbd3df1533b396d281a6886d5132f623393a9c"
+      }
+    ],
+    "example-skills@anthropic-agent-skills": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/anthropic-agent-skills/example-skills/b0cbd3df1533",
+        "version": "b0cbd3df1533",
+        "installedAt": "2026-03-15T07:10:04.422Z",
+        "lastUpdated": "2026-03-16T08:05:49.862Z",
+        "gitCommitSha": "b0cbd3df1533b396d281a6886d5132f623393a9c"
+      }
+    ],
+    "ui-ux-pro-max@ui-ux-pro-max-skill": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.0.1",
+        "version": "2.0.1",
+        "installedAt": "2026-03-15T07:11:49.601Z",
+        "lastUpdated": "2026-03-15T07:11:49.601Z",
+        "gitCommitSha": "07f4ef3ac2568c25a3b0c8ef5165a86abc3e56e4"
+      }
+    ],
+    "superpowers@superpowers-marketplace": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/superpowers-marketplace/superpowers/5.0.2",
+        "version": "5.0.2",
+        "installedAt": "2026-03-15T07:15:28.512Z",
+        "lastUpdated": "2026-03-15T07:15:28.512Z",
+        "gitCommitSha": "363923f74aa9cd7b470c0aaa73dee629a8bfdc90"
+      }
+    ],
+    "code-review@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/claude-plugins-official/code-review/d5c15b861cd2",
+        "version": "d5c15b861cd2",
+        "installedAt": "2026-03-15T07:15:52.082Z",
+        "lastUpdated": "2026-03-15T07:15:52.082Z",
+        "gitCommitSha": "d5c15b861cd23e3102215c26020368ad5134dc47"
+      }
+    ],
+    "code-simplifier@claude-plugins-official": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/claude-plugins-official/code-simplifier/1.0.0",
+        "version": "1.0.0",
+        "installedAt": "2026-03-15T07:17:37.200Z",
+        "lastUpdated": "2026-03-15T07:17:37.200Z",
+        "gitCommitSha": "d5c15b861cd23e3102215c26020368ad5134dc47"
+      }
+    ],
+    "pua@pua-skills": [
+      {
+        "scope": "user",
+        "installPath": "/Users/bmo/.claude/plugins/cache/pua-skills/pua/1.2.0",
+        "version": "1.2.0",
+        "installedAt": "2026-03-16T08:05:49.862Z",
+        "lastUpdated": "2026-03-16T08:05:49.862Z",
+        "gitCommitSha": "8046709b351636d8e73b1e975d7b0d03934f4b5a"
+      }
+    ]
+  }
+}

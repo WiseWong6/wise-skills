@@ -1,0 +1,20 @@
+{
+  "name": "pua-skills",
+  "description": "PUA Motivator for Claude Code -- forces AI to exhaust all solutions before giving up, using corporate PUA rhetoric from Chinese and Western tech giants",
+  "owner": {
+    "name": "探微安全实验室",
+    "url": "https://github.com/tanweai"
+  },
+  "plugins": [
+    {
+      "name": "pua",
+      "description": "PUA Motivator -- forces Claude Code to exhaust all solutions before giving up, using corporate PUA rhetoric (Alibaba, ByteDance, Huawei, Tencent, Netflix, Musk, Jobs)",
+      "version": "1.1.1",
+      "source": "./",
+      "author": {
+        "name": "探微安全实验室",
+        "url": "https://github.com/tanweai"
+      }
+    }
+  ]
+}

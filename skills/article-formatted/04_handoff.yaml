@@ -1,0 +1,12 @@
+step_id: "04_humanize"
+inputs:
+  - "03_polished.md"
+outputs:
+  - "04_humanized_raw.md"
+  - "04_final.md"
+  - "04_handoff.yaml"
+summary: "文本人性化：LLM 风格改写 + Python 格式清洗"
+next_instructions:
+  - "下一步：生成图片提示词"
+  - "保持文章结构和关键信息不变"
+open_questions: []

@@ -1,0 +1,236 @@
+run_id: ""
+topic: ""
+platforms: ["wechat"]
+
+# Workflow 元数据
+workflow:
+  name: "article-creator"
+  version: "4.1.1"
+  created_at: "2026-01-24"
+  skills:
+    - name: "research-workflow"
+      version: "2.4.0"
+      entry_skill: "research-workflow"
+    - name: "article-outliner"
+      version: "1.0.0"
+      entry_skill: "article-outliner"
+    - name: "article-writer"
+      version: "1.0.0"
+      entry_skill: "article-writer"
+    - name: "article-create-rag"
+      version: "2.0.0"
+      entry_skill: "article-create-rag"
+    - name: "title-gen"
+      version: "1.0.0"
+      entry_skill: "title-gen"
+    - name: "article-rewrite"
+      version: "2.1.0"
+      entry_skill: "article-rewrite"
+    - name: "article-plug-classicLines"
+      version: "1.0.0"
+      entry_skill: "article-plug-classicLines"
+    - name: "article-formatted"
+      version: "4.1.0"
+      entry_skill: "article-formatted"
+    - name: "image-prompter"
+      version: "7.0.0"
+      entry_skill: "image-prompter"
+    - name: "image-gen"
+      version: "1.0.0"
+      entry_skill: "image-gen"
+    - name: "wechat-uploadimg"
+      version: "1.0.0"
+      entry_skill: "wechat-uploadimg"
+    - name: "md-to-wxhtml"
+      version: "1.0.0"
+      entry_skill: "md-to-wxhtml"
+    - name: "wechat-draftbox"
+      version: "1.0.0"
+      entry_skill: "wechat-draftbox"
+
+# 步骤定义（新标准流程 v4.1.1）
+steps:
+  00_init:
+    id: "00_init"
+    depends_on: []
+    runner: {type: "builtin"}
+    outputs: ["run_context.yaml", "_log/"]
+    status: "PENDING"
+
+  01_research:
+    id: "01_research"
+    depends_on: ["00_init"]
+    runner: {type: "skill", name: "research-workflow"}
+    outputs: ["wechat/00_research.md", "wechat/00_handoff.yaml"]
+    status: "PENDING"
+
+  02_outliner:
+    id: "02_outliner"
+    depends_on: ["01_research"]
+    runner: {type: "skill", name: "article-outliner"}
+    outputs: ["wechat/02_outlines/", "wechat/02_handoff.yaml"]
+    status: "PENDING"
+
+  03_select_outline:
+    id: "03_select_outline"
+    depends_on: ["02_outliner"]
+    runner: {type: "user"}
+    outputs: ["wechat/03_outline_selected.md", "wechat/03_handoff.yaml"]
+    status: "PENDING"
+
+  04_writer:
+    id: "04_writer"
+    depends_on: ["03_select_outline"]
+    runner: {type: "skill", name: "article-writer"}
+    outputs: ["wechat/04_draft.md", "wechat/04_handoff.yaml"]
+    status: "PENDING"
+
+  05_rag_enhance:
+    id: "05_rag_enhance"
+    depends_on: ["04_writer"]
+    runner: {type: "skill", name: "article-create-rag", args: "--enhance"}
+    outputs: ["wechat/05_enhanced.md", "wechat/05_retrieval_snippets.md", "wechat/05_handoff.yaml"]
+    status: "PENDING"
+
+  06_titles:
+    id: "06_titles"
+    depends_on: ["05_rag_enhance"]
+    runner: {type: "skill", name: "title-gen"}
+    outputs: ["wechat/06_titles.md", "wechat/06_handoff.yaml"]
+    status: "PENDING"
+
+  07_select_title:
+    id: "07_select_title"
+    depends_on: ["06_titles"]
+    runner: {type: "user"}
+    outputs: ["wechat/07_title_selected.md", "wechat/07_handoff.yaml"]
+    status: "PENDING"
+
+  08_apply_title:
+    id: "08_apply_title"
+    depends_on: ["07_select_title", "05_rag_enhance"]
+    runner: {type: "builtin"}
+    outputs: ["wechat/08_with_title.md", "wechat/08_handoff.yaml"]
+    status: "PENDING"
+
+  09_rewrite:
+    id: "09_rewrite"
+    depends_on: ["08_apply_title"]
+    runner: {type: "skill", name: "article-rewrite"}
+    outputs: ["wechat/09_rewritten.md", "wechat/09_handoff.yaml"]
+    status: "PENDING"
+
+  10_polish:
+    id: "10_polish"
+    depends_on: ["09_rewrite"]
+    runner: {type: "skill", name: "article-plug-classicLines"}
+    outputs: ["wechat/10_polished.md", "wechat/10_retrieval_snippets.md", "wechat/10_handoff.yaml"]
+    status: "PENDING"
+
+  11_formatted:
+    id: "11_formatted"
+    depends_on: ["10_polish"]
+    runner: {type: "skill", name: "article-formatted"}
+    outputs: ["wechat/11_final_final.md", "wechat/11_handoff.yaml"]
+    status: "PENDING"
+
+  12_prompts:
+    id: "12_prompts"
+    depends_on: ["09_rewrite"]
+    runner: {type: "skill", name: "image-prompter"}
+    outputs: ["wechat/12_prompts.md", "wechat/12_handoff.yaml"]
+    status: "PENDING"
+
+  13_images:
+    id: "13_images"
+    depends_on: ["12_prompts"]
+    runner: {type: "skill", name: "image-gen"}
+    outputs: ["wechat/13_images/", "wechat/13_handoff.yaml"]
+    status: "PENDING"
+
+  14_upload_images:
+    id: "14_upload_images"
+    depends_on: ["13_images"]
+    runner: {type: "skill", name: "wechat-uploadimg"}
+    outputs: ["wechat/14_image_mapping.json", "wechat/14_image_mapping_flat.json", "wechat/14_handoff.yaml"]
+    status: "PENDING"
+
+  15_wx_html:
+    id: "15_wx_html"
+    depends_on: ["11_formatted", "14_upload_images"]
+    runner: {type: "skill", name: "md-to-wxhtml"}
+    outputs: ["wechat/15_article.html", "wechat/15_handoff.yaml"]
+    status: "PENDING"
+
+  16_draftbox:
+    id: "16_draftbox"
+    depends_on: ["15_wx_html"]
+    runner: {type: "skill", name: "wechat-draftbox"}
+    outputs: ["wechat/16_draft.json", "wechat/16_handoff.yaml"]
+    status: "PENDING"
+
+# 步骤执行顺序
+steps_index:
+  - 00_init
+  - 01_research
+  - 02_outliner
+  - 03_select_outline
+  - 04_writer
+  - 05_rag_enhance
+  - 06_titles
+  - 07_select_title
+  - 08_apply_title
+  - 09_rewrite
+  - 10_polish
+  - 11_formatted
+  - 12_prompts
+  - 13_images
+  - 14_upload_images
+  - 15_wx_html
+  - 16_draftbox
+
+status: "RUNNING"       # RUNNING | WAITING_FOR_USER | DONE | FAILED
+current_step: "00_init"
+
+decisions:
+  llm:
+    provider: claude-code    # 默认使用 Claude Code
+    # 可选值: claude-code | deepseek | kimi
+  wechat:
+    account: null       # main/sub/alias；缺失则必须确认
+    title: null
+  rewrite:
+    style: null            # 重写风格：style1=教练型, style2=机制论证型（null时默认style1）
+    confirmed: false       # 用户是否已确认风格选择
+  image:
+    confirmed: false       # Gate B 确认状态（默认 false，确认后设为 true）
+    count: null              # 总张数（含封面），默认 4；count-1 为正文张数
+    orientation: "landscape"              # landscape/portrait，默认横屏
+    poster_ratio_landscape: "16:9"        # 横屏默认比例
+    poster_ratio_portrait: "3:4"          # 竖屏默认比例
+    cover_ratio: "16:9"                  # 封面比例，默认横屏
+    # 以下字段由 orientation 派生（运行时写入）
+    poster_ratio: "16:9"                 # 根据 orientation 选择：landscape=16:9: portrait=3:4
+    model: "doubao-seedream-4-5-251128"
+    resolution: "2k"
+
+pending_questions: []   # 非空 => status=WAITING_FOR_USER 并停止
+
+steps:
+  00_init:            { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  01_research:        { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  02_outliner:        { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  03_select_outline:  { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  04_writer:          { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  05_rag_enhance:     { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  06_titles:          { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  07_select_title:    { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  08_apply_title:     { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  09_rewrite:         { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  10_polish:          { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  11_formatted:       { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  12_prompts:         { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  13_images:          { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  14_upload_images:   { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  15_wx_html:         { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }
+  16_draftbox:        { state: "PENDING", artifacts: [], started_at: null, ended_at: null, duration_sec: null }

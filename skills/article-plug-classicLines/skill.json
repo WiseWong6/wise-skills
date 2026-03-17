@@ -1,0 +1,9 @@
+{
+  "name": "article-plug-classicLines",
+  "description": "基于知识库（金句库/文章库）润色文章、智能插入高质量金句",
+  "version": "1.0.0",
+  "entry_skill": "article-plug-classicLines",
+  "author": "wisewong",
+  "tags": ["rag", "knowledge-base", "polish", "classic-lines"],
+  "requires": ["file_path"]
+}

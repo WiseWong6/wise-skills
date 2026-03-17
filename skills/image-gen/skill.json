@@ -1,0 +1,9 @@
+{
+  "name": "image-gen",
+  "description": "通过火山 Ark 的 OpenAI 兼容接口生成图片（Doubao Seedream 等模型），可选保存到本地文件",
+  "version": "1.0.0",
+  "entry_skill": "image-gen",
+  "author": "wisewong",
+  "tags": ["image", "generation", "ark", "doubao", "openai"],
+  "requires": ["prompt"]
+}

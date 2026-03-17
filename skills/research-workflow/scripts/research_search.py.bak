@@ -1,0 +1,637 @@
+#!/usr/bin/env python3
+"""
+深度网络搜索与引用脚本 (Research Search with Citations)
+
+基于 MCP 工具进行真实联网搜索，获取带引用和置信度的权威资料。
+
+工具优先级：
+1. Context7 - 技术文档、API 文档
+2. Firecrawl - 网页搜索、爬取、社交媒体搜索、竞品分析
+
+输出格式：JSON + Markdown
+
+**注意：** 此脚本仅用于 CLI 测试，返回模拟数据。
+真实 MCP 集成请在 Claude Code 中调用此技能，AI 将直接使用 MCP 工具。
+"""
+
+import json
+import re
+from datetime import datetime
+from typing import Dict, List, Any, Optional
+
+
+class ResearchSearcher:
+    """研究搜索器"""
+
+    def __init__(self):
+        self.findings = []
+        self.search_timestamp = datetime.now().isoformat()
+        self.tools_used = []
+
+    def is_ambiguous_input(self, user_input: str) -> bool:
+        """
+        判断输入是模糊想法还是明确标题
+
+        模糊输入特征：
+        - 包含 "我想写"、"我想发"、"我想写一篇"
+        - 包含 "感觉...挺有意思"、"最近...都在讨论"
+        - 包含 "能不能...写点"、"想...写点"
+        - 包含 "关于...的文章"、"关于...的内容"
+        """
+        # 模糊输入特征
+        ambiguous_patterns = [
+            "我想写", "我想发", "我想写一篇",
+            "感觉.*挺有意思", "最近.*都在讨论",
+            "能不能.*写点", "想.*写点",
+            "关于.*的文章", "关于.*的内容"
+        ]
+        cleaned_input = re.sub(r'[，。！？]', '', user_input)
+        return any(p in cleaned_input for p in ambiguous_patterns)
+
+    def parse_ambiguous_idea(self, idea: str) -> Dict[str, Any]:
+        """
+        解析模糊想法，提取核心话题和潜在写作角度
+
+        在真实 AI 调用中，这会通过 AI 分析意图。
+        CLI 脚本版本返回模拟结构化数据。
+        """
+        print(f"\n🔍 解析模糊想法: {idea}")
+
+        # 模拟意图解析（真实版本中由 AI 完成）
+        core_topic = self._extract_topic(idea)
+
+        # 生成多个潜在写作角度
+        suggested_angles = self._generate_suggested_angles(core_topic, idea)
+
+        return {
+            "core_topic": core_topic,
+            "suggested_angles": suggested_angles,
+            "target_audience": self._infer_audience(idea),
+            "input_type": "ambiguous"
+        }
+
+    def _generate_suggested_angles(self, topic: str, idea: str) -> List[Dict[str, Any]]:
+        """
+        基于核心话题生成 3-5 个潜在写作角度
+
+        CLI 版本返回模拟数据，真实版本由 AI 动态生成
+        """
+        # 根据话题类型生成角度
+        angles_templates = [
+            {
+                "name": f"{topic} 使用教程",
+                "type": "tutorial",
+                "description": f"详细讲解 {topic} 的使用方法、最佳实践和常见陷阱"
+            },
+            {
+                "name": f"{topic} 案例分析",
+                "type": "case_study",
+                "description": f"通过实际案例展示 {topic} 的应用场景和效果"
+            },
+            {
+                "name": f"{topic} 原理深度解析",
+                "type": "technical_analysis",
+                "description": f"深入分析 {topic} 的技术原理、架构设计和实现细节"
+            },
+            {
+                "name": f"{topic} 对比评测",
+                "type": "comparison",
+                "description": f"对比 {topic} 与其他方案的优劣，提供选择建议"
+            }
+        ]
+
+        # 根据用户想法调整角度
+        if "教程" in idea or "入门" in idea:
+            return [angles_templates[0], angles_templates[1]]
+        elif "案例" in idea or "实践" in idea:
+            return [angles_templates[1], angles_templates[0]]
+        elif "原理" in idea or "机制" in idea:
+            return [angles_templates[2], angles_templates[0]]
+        else:
+            return angles_templates[:3]
+
+    def _infer_audience(self, idea: str) -> str:
+        """
+        从用户想法中推断目标读者群体
+        """
+        if "程序员" in idea or "开发者" in idea or "开发者" in idea:
+            return "程序员/开发者"
+        elif "企业" in idea or "公司" in idea:
+            return "企业决策者"
+        elif "初学者" in idea or "新手" in idea or "入门" in idea:
+            return "初学者/新手"
+        else:
+            return "通用技术读者"
+
+    def search(
+        self,
+        query: str,
+        source_types: List[str] = None,
+        depth: int = 3
+    ) -> Dict[str, Any]:
+        """
+        执行研究搜索
+
+        Args:
+            query: 研究问题/主题
+            source_types: 需要的来源类型（academic, docs, news, social）
+            depth: 搜索深度
+
+        Returns:
+            包含发现、来源、时间戳、新鲜度评分的研究结果
+        """
+        print(f"\n🔍 研究主题: {query}")
+
+        # 确定搜索策略
+        if not source_types:
+            source_types = self._infer_source_types(query)
+
+        # 执行搜索
+        results = self._execute_search(query, source_types, depth)
+
+        # 计算新鲜度评分
+        results["freshness_score"] = self._calculate_freshness(results.get("findings", []))
+
+        return results
+
+    def _infer_source_types(self, query: str) -> List[str]:
+        """推断需要的来源类型"""
+        # 学术相关关键词
+        academic_keywords = [
+            "论文", "研究", "学术", "paper", "study",
+            "机制", "对比", "benchmark", "评测",
+            "实验", "数据", "统计", "临床"
+        ]
+
+        # 技术文档相关
+        doc_keywords = [
+            "API", "文档", "教程", "指南", "reference",
+            "语法", "实现", "代码", "example"
+        ]
+
+        query_lower = query.lower()
+
+        if any(kw in query_lower for kw in academic_keywords):
+            return ["academic", "docs", "news"]
+        elif any(kw in query_lower for kw in doc_keywords):
+            return ["docs", "news"]
+        else:
+            return ["news", "docs", "social"]
+
+    def _execute_search(
+        self,
+        query: str,
+        source_types: List[str],
+        depth: int
+    ) -> Dict[str, Any]:
+        """
+        执行实际搜索（使用 MCP 工具）
+
+        在 Claude Code 中调用此技能时，AI 会直接使用 MCP 工具：
+        1. mcp__context7__query-docs() 获取技术文档
+        2. mcp__firecrawl__firecrawl_search() 搜索网页
+        3. 返回真实研究结果
+
+        **注意：** 此 CLI 脚本仅返回模拟数据，用于测试。
+        """
+        findings = []
+        self.tools_used = []
+
+        print("⚠️  CLI 模式：返回模拟数据")
+        print("💡 提示：在 Claude Code 中调用技能可获取真实数据")
+
+        # 1. 技术文档（使用 Context7 模拟）
+        if "docs" in source_types:
+            print(f"\n📖 模拟：使用 Context7 获取技术文档...")
+            doc_results = self._simulate_context7_search(query)
+            findings.extend(doc_results)
+            self.tools_used.append("Context7")
+
+        # 2. 新闻和网页（使用 Firecrawl 模拟）
+        if "news" in source_types or "social" in source_types or "academic" in source_types:
+            print(f"\n🌐 模拟：使用 Firecrawl 搜索网页内容...")
+            web_results = self._simulate_firecrawl_search(query)
+            findings.extend(web_results)
+            self.tools_used.append("Firecrawl")
+
+        # 3. 交叉验证（模拟）
+        print(f"\n✓ 模拟：交叉验证...")
+        verified_findings = self._cross_verify_with_websearch(findings)
+
+        self.findings = verified_findings
+
+        return {
+            "query": query,
+            "findings": verified_findings,
+            "search_metadata": {
+                "source_types_requested": source_types,
+                "depth": depth,
+                "total_findings": len(verified_findings),
+                "tools_used": list(set(self.tools_used))
+            },
+            "research_timestamp": self.search_timestamp
+        }
+
+    def _simulate_research_lookup(self, query: str) -> List[Dict[str, Any]]:
+        """
+        模拟 research-lookup 调用（实际使用 MCP）
+
+        research-lookup 使用 Perplexity Sonar 模型，自动选择：
+        - Sonar Pro Search: 快速信息检索
+        - Sonar Reasoning Pro: 复杂分析、对比研究
+        """
+        # 提取查询关键词用于示例
+        topic = self._extract_topic(query)
+
+        # 返回模拟的学术资料
+        return [
+            {
+                "claim": f"{topic} 的核心技术机制和实现方式",
+                "sources": [
+                    {
+                        "title": f"{topic} 官方技术文档",
+                        "url": f"https://docs.example.com/{topic.replace(' ', '-').lower()}",
+                        "date": (datetime.now() - datetime(days=30)).strftime("%Y-%m-%d"),
+                        "confidence": "official",
+                        "excerpt": "本文档详细介绍了 {topic} 的核心架构、关键API 和最佳实践。"
+                    },
+                    {
+                        "title": f"{topic} 学术论文综述",
+                        "url": f"https://arxiv.org/abs/xxxx.xxxxx",
+                        "date": (datetime.now() - datetime(days=45)).strftime("%Y-%m-%d"),
+                        "confidence": "high",
+                        "excerpt": f"该论文对 {topic} 进行了系统性分析，提出了改进方案。"
+                    },
+                    {
+                        "title": f"{topic} 性能基准测试报告",
+                        "url": f"https://benchmarks.example.com/{topic.replace(' ', '-')}",
+                        "date": (datetime.now() - datetime(days=15)).strftime("%Y-%m-%d"),
+                        "confidence": "high",
+                        "excerpt": f"基准测试显示 {topic} 在各项指标上表现优异。"
+                    }
+                ],
+                "cross_verified": True,
+                "verification_method": "research-lookup (Sonar Reasoning Pro)",
+                "source_type": "academic"
+            }
+        ]
+
+    def _simulate_context7_search(self, query: str) -> List[Dict[str, Any]]:
+        """
+        模拟 Context7 调用（实际使用 MCP）
+
+        Context7 用于获取库的最新文档和代码示例
+        """
+        topic = self._extract_topic(query)
+
+        return [
+            {
+                "claim": f"{topic} 的最新 API 使用方法",
+                "sources": [
+                    {
+                        "title": f"{topic} v2.0 API Reference",
+                        "url": f"https://api.example.com/docs/{topic.replace(' ', '-').lower()}/",
+                        "date": (datetime.now() - datetime(days=7)).strftime("%Y-%m-%d"),
+                        "confidence": "official",
+                        "excerpt": f"最新的 {topic} API 文档，包含完整的使用示例和参数说明。"
+                    }
+                ],
+                "cross_verified": True,
+                "verification_method": "Context7",
+                "source_type": "docs"
+            },
+            {
+                "claim": f"{topic} 的代码实现示例",
+                "sources": [
+                    {
+                        "title": f"{topic} 社区最佳实践",
+                        "url": f"https://github.com/example/{topic.replace(' ', '-').lower()}/",
+                        "date": (datetime.now() - datetime(days=20)).strftime("%Y-%m-%d"),
+                        "confidence": "high",
+                        "excerpt": f"社区提供的 {topic} 实现示例，包含多个用例场景。"
+                    }
+                ],
+                "cross_verified": True,
+                "verification_method": "Context7",
+                "source_type": "docs"
+            }
+        ]
+
+    def _simulate_firecrawl_search(self, query: str) -> List[Dict[str, Any]]:
+        """
+        模拟 Firecrawl 调用（实际使用 MCP）
+
+        Firecrawl 用于网页抓取、社交媒体搜索、竞品分析
+        """
+        topic = self._extract_topic(query)
+
+        return [
+            {
+                "claim": f"{topic} 在行业中的实际应用案例",
+                "sources": [
+                    {
+                        "title": f"{topic} 企业应用案例分析",
+                        "url": f"https://blog.example.com/case-study/{topic.replace(' ', '-')}",
+                        "date": (datetime.now() - datetime(days=25)).strftime("%Y-%m-%d"),
+                        "confidence": "medium",
+                        "excerpt": f"某知名企业使用 {topic} 后，效率提升了 X%。"
+                    },
+                    {
+                        "title": f"{topic} 社区讨论",
+                        "url": "https://reddit.com/r/example/comments/xxxx",
+                        "date": (datetime.now() - datetime(days=10)).strftime("%Y-%m-%d"),
+                        "confidence": "medium",
+                        "excerpt": f"开发者们对 {topic} 的实际效果进行了深入讨论。"
+                    },
+                    {
+                        "title": f"{topic} 新闻报道",
+                        "url": f"https://news.example.com/tech/{topic.replace(' ', '-')}",
+                        "date": (datetime.now() - datetime(days=5)).strftime("%Y-%m-%d"),
+                        "confidence": "medium",
+                        "excerpt": f"主流媒体报道 {topic} 在科技行业的应用。"
+                    }
+                ],
+                "cross_verified": True,
+                "verification_method": "Firecrawl + WebSearch",
+                "source_type": "news"
+            },
+            {
+                "claim": f"{topic} 的用户反馈和评价",
+                "sources": [
+                    {
+                        "title": f"{topic} 用户评价汇总",
+                        "url": f"https://reviews.example.com/product/{topic.replace(' ', '-')}",
+                        "date": (datetime.now() - datetime(days=14)).strftime("%Y-%m-%d"),
+                        "confidence": "medium",
+                        "excerpt": f"用户对 {topic} 的整体评价积极，尤其在易用性方面。"
+                    }
+                ],
+                "cross_verified": True,
+                "verification_method": "Firecrawl",
+                "source_type": "social"
+            }
+        ]
+
+    def _cross_verify_with_websearch(self, findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        使用 WebSearch 交叉验证发现
+
+        在实际实现中，这将对每个发现进行快速事实核查
+        """
+        print(f"\n🔎 交叉验证 {len(findings)} 个发现...")
+
+        verified_findings = []
+        for i, finding in enumerate(findings, 1):
+            # 模拟交叉验证
+            finding["verification_score"] = finding.get("confidence", "medium")
+
+            # 为高置信度来源添加额外验证标记
+            if finding.get("confidence") == "official":
+                finding["additional_verification"] = {
+                    "method": "WebSearch metadata verification",
+                    "checked_fields": ["publish_date", "author", "URL accessibility"],
+                    "result": "passed"
+                }
+
+            verified_findings.append(finding)
+            print(f"  {i}/{len(findings)} {finding.get('claim', '')[:50]}... ✓")
+
+        return verified_findings
+
+    def _calculate_freshness(self, findings: List[Dict[str, Any]]) -> float:
+        """
+        计算新鲜度评分
+
+        评分规则：
+        - 6 个月内：0.9-1.0
+        - 6-12 个月：0.7-0.9
+        - 12-24 个月：0.5-0.7
+        - 超过 24 个月：0.0-0.5
+        """
+        if not findings:
+            return 0.0
+
+        now = datetime.now()
+        total_freshness = 0
+        count = 0
+
+        for finding in findings:
+            for source in finding.get("sources", []):
+                date_str = source.get("date", "")
+                if not date_str:
+                    continue
+
+                try:
+                    # 解析日期
+                    if re.match(r"\d{4}-\d{2}-\d{2}", date_str):
+                        date = datetime.strptime(date_str, "%Y-%m-%d")
+                    else:
+                        continue
+
+                    # 计算月数差
+                    months_diff = (now.year - date.year) * 12 + (now.month - date.month)
+
+                    # 评分
+                    if months_diff <= 6:
+                        freshness = 1.0
+                    elif months_diff <= 12:
+                        freshness = 0.8
+                    elif months_diff <= 24:
+                        freshness = 0.6
+                    else:
+                        freshness = 0.3
+
+                    total_freshness += freshness
+                    count += 1
+
+                except ValueError:
+                    continue
+
+        return round(total_freshness / count, 2) if count > 0 else 0.0
+
+    def _extract_topic(self, query: str) -> str:
+        """从查询中提取主题"""
+        # 移除常见查询词
+        topic = query
+        for word in ["研究", "调研", "分析", "搜索", "查找", "找", "关于", "的"]:
+            topic = topic.replace(word, "")
+
+        return topic.strip()
+
+    def export_markdown(self, output_path: str) -> None:
+        """
+        将研究结果导出为 Markdown 格式
+
+        Args:
+            output_path: 输出文件路径
+        """
+        md_lines = [
+            f"# 研究报告",
+            f"\n## 查询",
+            f"{self.findings[0].get('query', 'N/A') if self.findings else 'N/A'}",
+            f"\n## 研究时间",
+            f"{self.search_timestamp}",
+            f"\n## 工具使用",
+            f", ".join(f"`{tool}`" for tool in self.tools_used),
+            f"\n## 新鲜度评分",
+            f"{self.findings[0].get('freshness_score', 0.0) if hasattr(self, 'findings') and self.findings else 0.0:.2f}/1.0",
+            f"\n## 研究发现",
+        ]
+
+        for i, finding in enumerate(self.findings, 1):
+            md_lines.extend([
+                f"\n### {i}. {finding.get('claim', '')}",
+                f"\n**来源类型：** {finding.get('source_type', 'unknown')}",
+                f"\n**验证分数：** {finding.get('confidence', 'N/A')}",
+                f"\n**资料来源：**",
+                ""
+            ])
+
+            for j, source in enumerate(finding.get("sources", []), 1):
+                md_lines.extend([
+                    f"{j}. [{source.get('title', 'N/A')}]",
+                    f"   - **URL：** {source.get('url', 'N/A')}",
+                    f"   - **日期：** {source.get('date', 'N/A')}",
+                    f"   - **置信度：** {source.get('confidence', 'N/A')}",
+                    f"   - **摘要：** {source.get('excerpt', '')[:100]}{'...' if len(source.get('excerpt', '')) > 100 else ''}",
+                    ""
+                ])
+
+            if finding.get("additional_verification"):
+                md_lines.extend([
+                    f"\n**额外验证：**",
+                    f"- 方法：{finding['additional_verification']['method']}",
+                    f"- 结果：{finding['additional_verification']['result']}",
+                    ""
+                ])
+
+        # 写入文件
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(md_lines))
+
+        print(f"\n✅ Markdown 报告已保存到: {output_path}")
+
+
+def format_output(results: Dict[str, Any], pretty: bool = True) -> str:
+    """格式化输出"""
+    if pretty:
+        return json.dumps(results, indent=2, ensure_ascii=False)
+    return json.dumps(results, ensure_ascii=False)
+
+
+def main():
+    """主函数"""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="内容创作调研 - 深度网络搜索与引用")
+    parser.add_argument(
+        "--query", "-q",
+        help="研究问题/主题（已被 --idea 替代，保留兼容性）"
+    )
+    parser.add_argument(
+        "--idea", "-i",
+        help="核心参数：接受明确标题或模糊想法"
+    )
+    parser.add_argument(
+        "--source-types", "-s",
+        nargs="*",
+        choices=["academic", "docs", "news", "social"],
+        help="来源类型（默认：自动推断）"
+    )
+    parser.add_argument(
+        "--depth", "-d",
+        type=int,
+        default=3,
+        help="搜索深度（默认: 3）"
+    )
+    parser.add_argument(
+        "--output", "-o",
+        help="输出文件路径（默认: stdout）"
+    )
+    parser.add_argument(
+        "--markdown", "-m",
+        action="store_true",
+        help="导出 Markdown 格式报告"
+    )
+    parser.add_argument(
+        "--no-pretty",
+        action="store_true",
+        help="不格式化 JSON 输出"
+    )
+    parser.add_argument(
+        "--check-ambiguous",
+        action="store_true",
+        help="仅检测输入是否为模糊想法（用于测试）"
+    )
+
+    args = parser.parse_args()
+
+    # 兼容性：支持 --query 作为 --idea 的别名
+    query = args.idea if args.idea else args.query
+    if not query:
+        parser.error("必须提供 --idea 参数（或使用 --query 保持兼容性）")
+
+    # 创建搜索器实例
+    searcher = ResearchSearcher()
+
+    # 检测模糊输入（如果请求）
+    if hasattr(args, 'check_ambiguous') and args.check_ambiguous:
+        is_ambig = searcher.is_ambiguous_input(query)
+        print(f"\n输入: {query}")
+        print(f"模糊输入: {'是' if is_ambig else '否'}")
+        return
+
+    # 如果检测到模糊输入，执行意图解析
+    if searcher.is_ambiguous_input(query):
+        print(f"\n🔍 检测到模糊输入，执行意图解析...")
+        intent_result = searcher.parse_ambiguous_idea(query)
+
+        print(f"\n✓ 解析完成:")
+        print(f"  - 核心话题: {intent_result['core_topic']}")
+        print(f"  - 目标读者: {intent_result['target_audience']}")
+        print(f"  - 建议角度数量: {len(intent_result['suggested_angles'])}")
+
+        for i, angle in enumerate(intent_result['suggested_angles'], 1):
+            print(f"\n{ i}. 角度: {angle['name']}")
+            print(f"   类型: {angle['type']}")
+            print(f"   描述: {angle['description']}")
+
+        # 导出 JSON 格式
+        if args.output or not args.markdown:
+            import sys
+            output = json.dumps(intent_result, indent=2, ensure_ascii=False)
+            if args.output:
+                with open(args.output, args.mode, encoding="utf-8") as f:
+                    f.write(output)
+                print(f"\n✅ 意图解析结果已保存到: {args.output}")
+            else:
+                print(output)
+        return
+
+    # 执行标准搜索（明确标题输入）
+    print(f"\n🔍 执行标准研究搜索: {query}")
+    results = searcher.search(
+        query=query,
+        source_types=args.source_types,
+        depth=args.depth
+    )
+
+    # 如果需要，导出 Markdown
+    if args.markdown and hasattr(searcher, 'findings') and searcher.findings:
+        output_path = args.output if args.output else "research_report.md"
+        searcher.export_markdown(output_path)
+        return
+
+    # 输出 JSON 结果
+    output = format_output(results, pretty=not args.no_pretty)
+
+    if args.output and not args.markdown:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(output)
+        print(f"\n✅ 结果已保存到: {args.output}")
+    elif not args.markdown:
+        print(output)
+
+
+if __name__ == "__main__":
+    main()

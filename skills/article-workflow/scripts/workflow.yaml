@@ -1,0 +1,137 @@
+# article-workflow 步骤定义与依赖关系
+# 这是 SSOT (Single Source of Truth) - 所有步骤定义的唯一定义处
+workflow:
+  name: "article-creator"
+  version: "4.2.0"
+
+# 步骤定义
+steps:
+  init:
+    id: "00_init"
+    fn: "step_init"
+    deps: []
+    gate: false
+
+  research:
+    id: "01_research"
+    fn: "step_research"
+    deps: ["init"]
+    gate: false
+
+  review:
+    id: "01b_review"
+    fn: "step_review"
+    deps: ["research"]
+    gate: false
+
+  # 新流程：提纲生成
+  outliner:
+    id: "02_outliner"
+    fn: "step_outliner"
+    deps: ["review"]
+    gate: false
+
+  # 新流程：并行写作（article-writer）
+  writer_parallel:
+    id: "03_writer_parallel"
+    fn: "step_writer_parallel"
+    deps: ["outliner"]
+    gate: false
+
+  # 新流程：用户选择初稿
+  select_draft:
+    id: "04_select_draft"
+    fn: "step_select_draft"
+    deps: ["writer_parallel"]
+    gate: false
+
+  # 新流程：RAG 增强选中的初稿
+  rag_enhance:
+    id: "05_rag_enhance"
+    fn: "step_rag_enhance"
+    deps: ["select_draft"]
+    gate: false
+
+  # 标题生成
+  titles:
+    id: "06_titles"
+    fn: "step_titles"
+    deps: ["rag_enhance"]
+    gate: false
+
+  # 用户选择标题
+  select_title:
+    id: "07_select_title"
+    fn: "step_select_title"
+    deps: ["titles"]
+    gate: false
+
+  # 应用标题到文章
+  apply_title:
+    id: "08_apply_title"
+    fn: "step_apply_title"
+    deps: ["select_title"]
+    gate: false
+
+  # 专业重写（HKR + 四步爆款法 + 反AI写作）
+  rewrite:
+    id: "09_rewrite"
+    fn: "step_rewrite"
+    deps: ["apply_title"]
+    gate: false
+
+  # 文章事实核查（research-review --article）
+  fact_check:
+    id: "09b_fact_check"
+    fn: "step_fact_check"
+    deps: ["rewrite"]
+    gate: false
+
+  # 知识库润色（article-plug-classicLines）
+  polish:
+    id: "10_polish"
+    fn: "step_polish"
+    deps: ["fact_check"]
+    gate: false
+
+  # 文本去机械化（article-formatted）
+  humanize:
+    id: "11_humanize"
+    fn: "step_humanize"
+    deps: ["polish"]
+    gate: false
+
+  # 图片提示词生成（image-prompter）
+  prompts:
+    id: "12_prompts"
+    fn: "step_prompts"
+    deps: ["rewrite"]
+    gate: false
+
+  # 图片生成（image-gen）
+  images:
+    id: "13_images"
+    fn: "step_images"
+    deps: ["prompts"]
+    gate: false
+
+  # 上传图片到微信 CDN
+  upload_images:
+    id: "14_upload_images"
+    fn: "step_upload_images"
+    deps: ["images"]
+    gate: false
+
+  # Markdown → 微信 HTML
+  wx_html:
+    id: "15_wx_html"
+    fn: "step_wx_html"
+    deps: ["upload_images", "humanize"]
+    gate: false
+
+  # 草稿箱入库
+  draftbox:
+    id: "16_draftbox"
+    fn: "step_draftbox"
+    deps: ["wx_html"]
+    gate: false

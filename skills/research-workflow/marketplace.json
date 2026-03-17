@@ -1,0 +1,10 @@
+{
+  "name": "research-workflow",
+  "description": "全流程内容创作调研技能，集成 Firecrawl、WebSearch、research-lookup，实现趋势分析、竞品缺口、深度搜索和 Brief 生成",
+  "author": "Wise Wong",
+  "repository": "wisewong/research-workflow",
+  "version": "2.2.0",
+  "category": "Content & Media",
+  "tags": ["research", "content-creation", "trends", "seo", "brief-generator"],
+  "license": "MIT"
+}

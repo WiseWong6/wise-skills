@@ -1,0 +1,9 @@
+{
+  "name": "wechat-draftbox",
+  "description": "将 HTML 图文写入微信公众号订阅号草稿箱（含永久封面素材与可选图文内图片上传）",
+  "version": "1.0.0",
+  "entry_skill": "wechat-draftbox",
+  "author": "wisewong",
+  "tags": ["wechat", "draft", "publish", "cms"],
+  "requires": ["html_file", "cover_image"]
+}

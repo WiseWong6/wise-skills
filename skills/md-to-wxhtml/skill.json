@@ -1,0 +1,9 @@
+{
+  "name": "md-to-wxhtml",
+  "description": "将 Markdown 转换为微信编辑器/富文本平台兼容的 HTML（保留 data-* 属性与原始 HTML 片段）",
+  "version": "1.1.0",
+  "entry_skill": "md-to-wxhtml",
+  "author": "wisewong",
+  "tags": ["markdown", "html", "wechat", "conversion"],
+  "requires": ["markdown_file"]
+}

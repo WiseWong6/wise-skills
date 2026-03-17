@@ -1,0 +1,9 @@
+{
+  "name": "wechat-uploadimg",
+  "description": "上传图片到微信 CDN 获取 URL。支持批量上传和封面单独上传，自动分类封面和正文图片",
+  "version": "1.0.0",
+  "entry_skill": "wechat-uploadimg",
+  "author": "wisewong",
+  "tags": ["wechat", "image", "upload", "cdn"],
+  "requires": ["image_dir"]
+}

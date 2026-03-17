@@ -1,0 +1,6 @@
+relay:
+  enabled: true
+  host: "115.191.35.152"
+  user: "root"
+  key_path: "~/Desktop/wise.pem"
+  work_dir: "/tmp/wechat_relay"
