@@ -184,23 +184,17 @@ pip install google-genai pillow
 
 ---
 
-## 关于作者
+## 社交媒体
 
-**全网同名：@歪斯Wise**
-
-专注分享：
-- 🛠️ **AI 编程实践** - Claude Code 效率技巧、开发工作流
-- 🤖 **Agent/Skills 应用** - 用 AI 编程的方式写提示词，知识资产化
-- ⚡ **多模型协作** - GPT 当架构师、GLM 当码农，让 Token 更高效
-- 📊 **AI 工程化思维** - 产品经理的 AI 护城河
-
-**社交媒体：**
-- 小红书：[@歪斯Wise](https://www.xiaohongshu.com/user/profile/wise)
-- Twitter/X：[@wise_wong](https://twitter.com/wise_wong)
-
-<img src="qrcode.jpg" width="200" alt="公众号二维码">
-
-**扫码关注公众号 @歪斯Wise**，一起探索「用 AI 编程，早点下班」的实战技巧。
+<div align="center">
+  <p>全网同名：<code>@歪斯Wise</code></p>
+  <p>
+    <a href="https://www.xiaohongshu.com/user/profile/61f3ea4f000000001000db73">小红书</a> /
+    <a href="https://x.com/killthewhys">Twitter(X)</a> /
+    扫码关注公众号
+  </p>
+  <img src="qrcode.jpg" alt="公众号歪斯二维码" width="220" />
+</div>
 
 ---
 
