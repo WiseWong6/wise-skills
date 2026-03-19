@@ -1,0 +1,9 @@
+{
+  "name": "image-gen",
+  "description": "多提供商图片生成：火山 Ark (Doubao Seedream) 或 Gemini 3 Pro Image。支持批量生成、图片编辑、多图合成、自动保存和 Markdown 插入。",
+  "version": "1.0.0",
+  "entry_skill": "image-gen",
+  "author": "wisewong",
+  "tags": ["image", "generation", "ark", "doubao", "gemini", "openai"],
+  "requires": ["prompt"]
+}
