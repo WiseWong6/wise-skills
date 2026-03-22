@@ -1,5 +1,5 @@
 ---
-name: omega-prompt-forge
+name: prompt-creator
 description: Create new prompts from scratch by analyzing user needs, selecting suitable prompt frameworks, and fusing OmegaPromptForge. Use when the user asks to 创建提示词/生成提示词, 设计 prompt 框架, or output a Markdown...
 ---
 

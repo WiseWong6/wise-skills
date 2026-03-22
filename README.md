@@ -27,9 +27,9 @@ npx skills add WiseWong6/wise-skills
 git clone https://github.com/WiseWong6/wise-skills.git
 
 # 复制需要的 skill 到 Claude Code skills 目录
-cp -r wise-skills/omega-prompt-forge ~/.claude/skills/
+cp -r wise-skills/prompt-creator ~/.claude/skills/
 cp -r wise-skills/ppt-speech-creator ~/.claude/skills/
-cp -r wise-skills/prompt-version-editor ~/.claude/skills/
+cp -r wise-skills/prompt-optimizer ~/.claude/skills/
 cp -r wise-skills/image-gen ~/.claude/skills/
 ```
 
@@ -81,7 +81,7 @@ python scripts/generate_image.py \
 
 ---
 
-### 🎯 omega-prompt-forge
+### 🎯 prompt-creator
 
 **从零创建高质量 AI 提示词**
 
@@ -121,7 +121,7 @@ python scripts/generate_image.py \
 
 ---
 
-### ✏️ prompt-version-editor
+### ✏️ prompt-optimizer
 
 **严格变更控制下的提示词版本管理**
 
@@ -134,8 +134,8 @@ python scripts/generate_image.py \
 
 | 场景 | 使用工具 |
 |-----|---------|
-| 局部修订、补丁修复 | prompt-version-editor |
-| 大改重写、结构重构 | omega-prompt-forge |
+| 局部修订、补丁修复 | prompt-optimizer |
+| 大改重写、结构重构 | prompt-creator |
 
 ---
 
@@ -178,7 +178,7 @@ pip install google-genai pillow
 
 ```bash
 /image-gen 生成一张星际穿越主题的图片
-/omega-prompt-forge 帮我创建一个代码审查提示词
+/prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
 ```
 
