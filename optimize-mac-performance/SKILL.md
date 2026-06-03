@@ -26,6 +26,7 @@ If the cross-platform folder is missing, fall back to this folder's legacy scrip
 - Do not kill `mds`, `mds_stores`, `mdworker`, `syspolicyd`, `trustd`, `WindowServer`, or `kernel_task`.
 - A listening port is evidence, not proof that a service is unused. Only propose cleanup after correlating PID, command, PPID, age, protected keywords, and user context.
 - When cleanup is confirmed, use only `kill -TERM <pid>`. Do not escalate to `kill -9` without explicit confirmation.
+- Treat process stops, startup changes, cache deletion, deep forensics, Docker/browser/IDE cleanup, and any config change as dangerous actions. A broad phrase like `清理吧` is not confirmation; require an explicit target and action such as `确认停止 PID 12345`.
 
 ## Report Contract
 
