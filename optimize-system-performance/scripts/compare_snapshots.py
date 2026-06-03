@@ -510,6 +510,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("- 收益只在候选确实无用时成立；不确定用途时宁可先保留。")
         lines.append("- 低风险用户态临时进程可以批量确认；禁用启动项、改服务/注册表/plist/config、删缓存、深度取证、强杀和高风险进程必须单独确认。")
         lines.append("- 深度取证未执行；如需执行，必须先说明用途、风险、权限、耗时、临时产物和替代方案。")
+        lines.append("- macOS 调用栈取证要使用 `/usr/bin/sample` 和 `/usr/sbin/spindump`；裸 `sample` 可能被 Python/Homebrew 命令覆盖，报错时先解释 PATH 冲突。")
         lines.append("")
         lines.append("## 临时产物")
         lines.append(f"- Snapshot: `{before.get('snapshot_dir', '不可用')}`")
@@ -523,6 +524,7 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append("怎么决定：复测结果只说明指标变化；后续可以回复“清理低风险项”或“只观察”。")
     lines.append("安全门槛：高风险、深度取证、启动项、服务、删除和强杀仍需单独确认。")
     lines.append("隐私边界：默认不采集完整进程参数；如果需要完整命令行排查同名服务，必须单独确认。")
+    lines.append("macOS 取证提示：`sample/spindump` 属于深度取证；必须先做路径预检并使用系统绝对路径。")
     lines.append("")
     lines.append("## 这次有没有效果")
     for item in notes:
