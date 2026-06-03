@@ -5,7 +5,7 @@ description: Diagnose Mac or Windows CPU, memory, heat or energy symptoms, disk 
 
 # Optimize System Performance
 
-Use a diagnose-first workflow. The default mode is read-only: capture a baseline, explain the causes in plain Chinese, produce a per-PID confirmation plan, then wait for the user before any cleanup. Treat this as a diagnosis and decision skill, not an automatic cleaner.
+Use a diagnose-first workflow. The default mode is read-only: capture a baseline, explain the causes in plain Chinese, produce a per-PID confirmation plan with risk, benefit, and recovery, then wait for the user before any cleanup. Treat this as a diagnosis and decision skill, not an automatic cleaner.
 
 ## Safety Rules
 
@@ -16,6 +16,7 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
 - When cleanup is confirmed, use only gentle user-process termination: macOS `kill -TERM <pid>`; Windows `Stop-Process -Id <pid>` without `-Force`. If it fails, report it and stop.
 - Deep forensics are opt-in only. Before any high-risk tool, read the relevant reference and explain use, risk, permissions, duration, artifacts, and low-permission alternatives.
 - Redact sensitive command text in user-facing reports. Keep raw snapshot paths visible so the user can decide whether to delete them.
+- Make decision ownership explicit: the agent explains evidence and tradeoffs; the user decides whether a specific PID should be stopped.
 
 ## Platform Selection
 
@@ -42,7 +43,13 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
    - observe only
    - confirm before cleanup
    - deep forensic option, user-confirmed only
-5. If the user confirms a specific PID, record a cleanup ledger:
+5. For every cleanup candidate, explain in plain language:
+   - what is consuming CPU, memory, disk, network, or local ports
+   - why it is suspicious
+   - what the likely benefit would be if it is truly unused
+   - what could break if it is stopped
+   - how to recover or restart it
+6. If the user confirms a specific PID, record a cleanup ledger:
 
 ```json
 [
@@ -58,8 +65,8 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
 ]
 ```
 
-6. Capture after and compare. If there was no cleanup ledger, explicitly say this was only a retest and any small movement may be natural fluctuation.
-7. Confirm no temporary helper processes remain, then list snapshot/log artifacts and ask whether to delete them.
+7. Capture after and compare. If there was no cleanup ledger, explicitly say this was only a retest and any small movement may be natural fluctuation.
+8. Confirm no temporary helper processes remain, then list snapshot/log artifacts and ask whether to delete them.
 
 ## Low-Permission Detection Upgrades
 

@@ -146,7 +146,7 @@ snapshot_dir, label, timestamp_utc = sys.argv[1:4]
 raw_dir = os.path.join(snapshot_dir, "raw")
 
 DEV_KEYWORDS = re.compile(r"codex|claude|mcp|node_repl|playwright|browser automation|node|python|java|bun|deno|vite|next|webpack|http-server", re.I)
-PROTECTED_KEYWORDS = re.compile(r"chrome|safari|firefox|todesk|clash|surge|vpn|dropbox|google drive|onedrive|docker|cursor|visual studio code|code helper|zoom|teams|feishu|lark|wechat|企业微信|doubaoime|input|security|sentinel|falcon", re.I)
+PROTECTED_KEYWORDS = re.compile(r"chrome|safari|firefox|todesk|clash|surge|vpn|dropbox|google drive|onedrive|docker|cursor|visual studio code|code helper|zoom|teams|feishu|lark|wechat|企业微信|doubaoime|input|security|sentinel|falcon|rapportd|sharingd|bluetoothd|mdnsresponder|configd|airportd|systemuiserver|controlcenter|loginwindow", re.I)
 
 def read_raw(name):
     path = os.path.join(raw_dir, f"{name}.txt")
