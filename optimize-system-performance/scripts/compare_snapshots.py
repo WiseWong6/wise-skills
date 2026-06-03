@@ -187,7 +187,7 @@ def cleanup_candidates(snapshot):
         ports = sorted({item.get("port") for item in listener_map.get(int(pid), []) if item.get("port")})
         score = 0
         reasons = []
-        risk = "可能打断当前任务；停止前必须确认不是远控、代理、同步、会议、IDE、Docker 或业务服务。恢复方式：重开应用或重新运行对应命令。"
+        risk = "可能打断当前任务；停止前必须确认不是远控、代理、同步、会议、IDE、Docker 或业务服务。恢复方式：重开应用或重新运行对应命令。只有明确回复“确认停止 PID”才算授权。"
 
         if is_system_burst(proc):
             keep.append((proc, "系统/安全/索引类进程；高占用通常应观察，不强杀。", "收益很小，风险高；不要处理。", ports))
@@ -465,6 +465,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("")
         lines.append("一句话结论：当前只做低权限诊断和决策建议；未清理任何进程，不能宣称已经优化。")
         lines.append("决策提示：下面是确认单，不是自动清理清单；我只解释证据、收益和风险，是否停止某个 PID 由你决定。")
+        lines.append("安全门槛：只有类似“确认停止 PID 12345”的明确回复才算授权；“清理吧 / 继续 / 都处理”都不算。")
         lines.append("")
         lines.append("## 为什么可能卡、热、占用高")
         for item in explain_state(before):
@@ -492,6 +493,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("- 默认未停止、未禁用、未删除、未修改配置。")
         lines.append("- 端口和开发关键词只是证据，不等于可以直接清理。")
         lines.append("- 收益只在候选确实无用时成立；不确定用途时宁可先保留。")
+        lines.append("- 停进程、禁用启动项、改服务/注册表/plist/config、删缓存、深度取证都属于危险动作，必须逐项确认。")
         lines.append("- 深度取证未执行；如需执行，必须先说明用途、风险、权限、耗时、临时产物和替代方案。")
         lines.append("")
         lines.append("## 临时产物")
@@ -504,6 +506,7 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append("")
     lines.append(f"一句话结论：{notes[0]}")
     lines.append("决策提示：复测结果只说明指标变化；后续是否继续处理某个 PID，仍由你逐项确认。")
+    lines.append("安全门槛：只有明确写出具体动作和目标才算授权；泛泛说“继续/都处理”不执行危险动作。")
     lines.append("")
     lines.append("## 这次有没有效果")
     for item in notes:

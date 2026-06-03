@@ -18,6 +18,18 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
 - Redact sensitive command text in user-facing reports. Keep raw snapshot paths visible so the user can decide whether to delete them.
 - Make decision ownership explicit: the agent explains evidence and tradeoffs; the user decides whether a specific PID should be stopped.
 
+## Dangerous Action Gate
+
+Treat these as dangerous actions: stopping any process, disabling or unloading startup/background items, changing services or scheduled tasks, editing registry/plists/configs, deleting files/caches, force-killing, Docker/VM/browser/IDE cleanup, and any deep forensic command that may require permissions or expose sensitive data.
+
+Before any dangerous action:
+
+1. Show the exact target, action, likely benefit, risk, and recovery path in Chinese.
+2. Require explicit per-item confirmation. Accept only a message that names the action and concrete target, such as `确认停止 PID 12345`.
+3. A broad phrase such as `清理吧`, `都处理`, `优化一下`, or `继续` is not enough. Ask again instead of acting.
+4. If the process, port, service, or startup item changed since the report, re-audit before acting.
+5. Never escalate from a failed gentle stop to force kill or config changes without a new explicit confirmation.
+
 ## Platform Selection
 
 1. Detect the platform with `uname` on POSIX shells or `$PSVersionTable`/`$env:OS` on Windows.
@@ -49,7 +61,7 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
    - what the likely benefit would be if it is truly unused
    - what could break if it is stopped
    - how to recover or restart it
-6. If the user confirms a specific PID, record a cleanup ledger:
+6. If the user explicitly confirms a specific PID and action, record a cleanup ledger:
 
 ```json
 [
