@@ -12,12 +12,15 @@ PROTECTED_KEYWORDS = (
     "google drive", "docker", "cursor", "visual studio code", "code helper",
     "webstorm", "idea", "zoom", "teams", "feishu", "lark", "wechat",
     "企业微信", "input", "ime", "security", "defender", "sentinel", "falcon",
+    "rapportd", "sharingd", "bluetoothd", "mdnsresponder", "configd",
+    "airportd", "systemuiserver", "controlcenter", "loginwindow",
 )
 
 SYSTEM_BURST_KEYWORDS = (
     "syspolicyd", "trustd", "mds", "mdworker", "mds_stores", "windowserver",
     "kernel_task", "metadata.framework", "system idle process", "system",
     "registry", "csrss.exe", "wininit.exe", "services.exe", "lsass.exe",
+    "launchd", "notifyd", "distnoted",
 )
 
 DEV_KEYWORDS = (
@@ -184,13 +187,13 @@ def cleanup_candidates(snapshot):
         ports = sorted({item.get("port") for item in listener_map.get(int(pid), []) if item.get("port")})
         score = 0
         reasons = []
-        risk = "停止前必须确认不是当前工作、远控、代理、同步、会议、IDE、Docker 或业务服务。"
+        risk = "可能打断当前任务；停止前必须确认不是远控、代理、同步、会议、IDE、Docker 或业务服务。恢复方式：重开应用或重新运行对应命令。"
 
         if is_system_burst(proc):
-            keep.append((proc, "系统/安全/索引类进程；高占用通常应观察，不强杀。", "不要处理。", ports))
+            keep.append((proc, "系统/安全/索引类进程；高占用通常应观察，不强杀。", "收益很小，风险高；不要处理。", ports))
             continue
         if is_protected(proc):
-            keep.append((proc, "保护类进程或当前工作工具；可能影响连接、输入、同步或开发。", "默认保留。", ports))
+            keep.append((proc, "保护类进程或当前工作工具；可能影响连接、输入、同步或开发。", "保留它的收益是保护当前工作稳定；默认不处理。", ports))
             continue
 
         if is_dev_like(proc):
@@ -262,16 +265,52 @@ def seconds_to_text(value):
 
 
 def candidate_rows(items):
-    rows = [["PID", "对象", "端口", "为什么关注", "风险/处理"]]
+    rows = [["PID", "对象", "端口/时长/父进程", "为什么关注", "可能收益", "风险和恢复"]]
     for proc, reason, risk, ports in items:
         rows.append([
             proc.get("pid", ""),
             truncate(proc_name(proc), 32),
-            ",".join(str(port) for port in ports[:8]) if ports else "",
+            candidate_context(proc, ports),
             truncate(reason, 54),
-            truncate(risk, 58),
+            truncate(benefit_text(proc, ports, reason), 54),
+            truncate(risk, 70),
         ])
     return rows
+
+
+def candidate_context(proc, ports):
+    parts = []
+    if ports:
+        parts.append("端口 " + ",".join(str(port) for port in ports[:8]))
+    age = proc.get("etime") or seconds_to_text(proc.get("etime_seconds"))
+    if age and age != "不可用":
+        parts.append(f"已运行 {age}")
+    if proc.get("ppid") is not None:
+        parts.append(f"父进程 {proc.get('ppid')}")
+    return "；".join(parts)
+
+
+def benefit_text(proc, ports, reason):
+    if is_system_burst(proc):
+        return "保留可避免干扰系统索引、安全校验或核心服务"
+    if is_protected(proc):
+        return "保留可避免打断当前工作、网络、同步、输入或开发"
+    benefits = []
+    rss = proc.get("rss_mib")
+    cpu = proc.get("cpu_percent")
+    if isinstance(rss, (int, float)) and rss >= 256:
+        benefits.append(f"可能释放约 {rss:.0f} MiB 内存")
+    if isinstance(cpu, (int, float)) and cpu >= 5:
+        benefits.append("可能降低持续 CPU 和发热")
+    if ports:
+        benefits.append("可能关闭无用本地端口")
+    if "命令重复" in reason:
+        benefits.append("可能减少重复后台开发工具")
+    if "运行超过" in reason:
+        benefits.append("可能清掉长时间残留任务")
+    if not benefits:
+        benefits.append("收益不确定，建议先确认用途")
+    return "；".join(benefits)
 
 
 def metric_rows(before, after=None):
@@ -425,18 +464,19 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("# 系统性能诊断报告（before）")
         lines.append("")
         lines.append("一句话结论：当前只做低权限诊断和决策建议；未清理任何进程，不能宣称已经优化。")
+        lines.append("决策提示：下面是确认单，不是自动清理清单；我只解释证据、收益和风险，是否停止某个 PID 由你决定。")
         lines.append("")
         lines.append("## 为什么可能卡、热、占用高")
         for item in explain_state(before):
             lines.append(f"- {item}")
         lines.append("")
-        lines.append("## 建议确认后清理")
+        lines.append("## 需要你确认后才可能处理")
         lines.append(md_table(candidate_rows(confirm)))
         lines.append("")
-        lines.append("## 只观察")
+        lines.append("## 只观察（更安全）")
         lines.append(md_table(candidate_rows(observe)))
         lines.append("")
-        lines.append("## 不处理 / 保留")
+        lines.append("## 不处理 / 保留（保护当前工作）")
         lines.append(md_table(candidate_rows(keep)))
         lines.append("")
         lines.append("## 关键指标")
@@ -451,6 +491,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("## 安全边界")
         lines.append("- 默认未停止、未禁用、未删除、未修改配置。")
         lines.append("- 端口和开发关键词只是证据，不等于可以直接清理。")
+        lines.append("- 收益只在候选确实无用时成立；不确定用途时宁可先保留。")
         lines.append("- 深度取证未执行；如需执行，必须先说明用途、风险、权限、耗时、临时产物和替代方案。")
         lines.append("")
         lines.append("## 临时产物")
@@ -462,6 +503,7 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append("# 系统性能复测报告（before/after）")
     lines.append("")
     lines.append(f"一句话结论：{notes[0]}")
+    lines.append("决策提示：复测结果只说明指标变化；后续是否继续处理某个 PID，仍由你逐项确认。")
     lines.append("")
     lines.append("## 这次有没有效果")
     for item in notes:
@@ -485,7 +527,7 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append("## Top 内存 After")
     lines.append(md_table(proc_rows(processes(after, "top_memory"))))
     lines.append("")
-    lines.append("## 复测后仍建议确认")
+    lines.append("## 复测后仍需要你确认")
     lines.append(md_table(candidate_rows(confirm)))
     lines.append("")
     lines.append("## 仍需保留/只观察")
