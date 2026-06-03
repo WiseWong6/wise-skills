@@ -5,19 +5,19 @@ description: Diagnose Mac or Windows CPU, memory, heat or energy symptoms, disk 
 
 # Optimize System Performance
 
-Use a diagnose-first workflow. The default mode is read-only: capture a baseline, explain the causes in plain Chinese, produce a per-PID confirmation plan with risk, benefit, and recovery, then wait for the user before any cleanup. Treat this as a diagnosis and decision skill, not an automatic cleaner.
+Use a diagnose-first workflow. The default mode is read-only: capture a baseline, explain the causes in plain Chinese, show a short low-risk cleanup choice, then wait for the user before any cleanup. Treat this as a diagnosis and decision skill, not an automatic cleaner.
 
 ## Safety Rules
 
 - Default actions must be L0/L1 only: low-permission sampling, Chinese explanation, and cleanup recommendations.
 - Do not use `sudo`, elevated PowerShell, reboot, log out, clear caches, delete configs, disable startup items, unload plists, edit registry, change services, change scheduled tasks, or force-kill processes by default.
-- Do not stop browser main processes, remote control, VPN/proxy, sync drives, input methods, security software, enterprise management, meeting software, IDEs, Docker/VMs, Codex/Claude sessions, or local business services unless the user confirms a specific PID after seeing the risk.
-- Do not batch-clean from a broad instruction such as "clean it"; list the exact PID/service/port candidate first and ask for per-item confirmation.
+- Do not stop browser main processes, remote control, VPN/proxy, sync drives, input methods, security software, enterprise management, meeting software, IDEs, Docker/VMs, Codex/Claude sessions, or local business services unless the user confirms that specific high-risk target after seeing the risk.
+- Batch cleanup is allowed only for the report's explicit low-risk cleanup list after the user confirms a simple choice such as `清理低风险项`. Never include protected, ambiguous, startup, service, Docker/VM/browser/IDE, or business-service targets in that batch.
 - When cleanup is confirmed, use only gentle user-process termination: macOS `kill -TERM <pid>`; Windows `Stop-Process -Id <pid>` without `-Force`. If it fails, report it and stop.
 - Deep forensics are opt-in only. Before any high-risk tool, read the relevant reference and explain use, risk, permissions, duration, artifacts, and low-permission alternatives.
 - Default snapshots store executable/process names rather than full process arguments. Full command-line capture can expose tokens, paths, URLs, and business context, so treat it as opt-in deep inspection.
 - Redact sensitive text in user-facing reports. Keep snapshot paths visible so the user can decide whether to delete them.
-- Make decision ownership explicit: the agent explains evidence and tradeoffs; the user decides whether a specific PID should be stopped.
+- Make decision ownership explicit but simple: the agent explains evidence and tradeoffs; the user can choose `清理低风险项` or `只观察`. High-risk targets still need specific confirmation.
 
 ## Dangerous Action Gate
 
@@ -25,11 +25,12 @@ Treat these as dangerous actions: stopping any process, disabling or unloading s
 
 Before any dangerous action:
 
-1. Show the exact target, action, likely benefit, risk, and recovery path in Chinese.
-2. Require explicit per-item confirmation. Accept only a message that names the action and concrete target, such as `确认停止 PID 12345`.
-3. A broad phrase such as `清理吧`, `都处理`, `优化一下`, or `继续` is not enough. Ask again instead of acting.
-4. If the process, port, service, or startup item changed since the report, re-audit before acting.
-5. Never escalate from a failed gentle stop to force kill or config changes without a new explicit confirmation.
+1. Show the target group, action, likely benefit, risk, and recovery path in Chinese.
+2. For L2 low-risk cleanup, accept a clear batch confirmation such as `清理低风险项` only after the report lists the exact PIDs in that group.
+3. For high-risk, ambiguous, protected, startup/service, Docker/VM/browser/IDE, deep forensic, deletion, config, registry/plist, or force-kill actions, require a specific target confirmation such as `确认停止 PID 12345`.
+4. A vague phrase such as `优化一下`, `继续`, or `你决定` is not enough. Ask one short follow-up instead of acting.
+5. If the process, port, service, or startup item changed since the report, re-audit before acting.
+6. Never escalate from a failed gentle stop to force kill or config changes without a new explicit confirmation.
 
 ## Platform Selection
 
@@ -55,15 +56,16 @@ Before any dangerous action:
 4. Build the decision list:
    - keep/protected
    - observe only
-   - confirm before cleanup
+   - low-risk cleanup choice
+   - high-risk or ambiguous targets, specific confirmation only
    - deep forensic option, user-confirmed only
-5. For every cleanup candidate, explain in plain language:
+5. For the low-risk cleanup list, explain in plain language:
    - what is consuming CPU, memory, disk, network, or local ports
    - why it is suspicious
    - what the likely benefit would be if it is truly unused
    - what could break if it is stopped
    - how to recover or restart it
-6. If the user explicitly confirms a specific PID and action, record a cleanup ledger:
+6. If the user confirms `清理低风险项`, recheck that each listed PID still matches the report and is still unprotected, then gently stop only those listed PIDs. If the user confirms a high-risk specific PID and action, act only on that target. Record a cleanup ledger:
 
 ```json
 [

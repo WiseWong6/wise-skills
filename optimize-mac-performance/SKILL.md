@@ -22,11 +22,11 @@ If the cross-platform folder is missing, stop and ask the user to install or res
 
 - Default mode is read-only diagnosis and user decision support.
 - Do not use `sudo`, reboot, log out, run `purge`, clear system caches, delete configs, disable startup items, unload plists, call `sfltool`, or run deep forensics by default.
-- Do not stop browser main processes, remote control, VPN/proxy, sync drives, input methods, security software, enterprise management, meeting software, IDEs, Docker/VMs, Codex/Claude sessions, or local business services unless the user confirms a specific PID.
+- Do not stop browser main processes, remote control, VPN/proxy, sync drives, input methods, security software, enterprise management, meeting software, IDEs, Docker/VMs, Codex/Claude sessions, or local business services unless the user confirms that specific high-risk target.
 - Do not kill `mds`, `mds_stores`, `mdworker`, `syspolicyd`, `trustd`, `WindowServer`, or `kernel_task`.
 - A listening port is evidence, not proof that a service is unused. Only propose cleanup after correlating PID, command, PPID, age, protected keywords, and user context.
 - When cleanup is confirmed, use only `kill -TERM <pid>`. Do not escalate to `kill -9` without explicit confirmation.
-- Treat process stops, startup changes, cache deletion, deep forensics, Docker/browser/IDE cleanup, and any config change as dangerous actions. A broad phrase like `清理吧` is not confirmation; require an explicit target and action such as `确认停止 PID 12345`.
+- Treat startup changes, cache deletion, deep forensics, Docker/browser/IDE cleanup, and any config change as dangerous actions that require specific confirmation. Low-risk user-process cleanup can be batch-confirmed only after the report lists exact PIDs, with a simple phrase such as `清理低风险项`.
 - Do not use legacy raw command-line capture by default. Full command-line inspection can expose secrets and requires a separate user confirmation.
 
 ## Report Contract
@@ -40,6 +40,6 @@ Always print the Chinese diagnosis directly:
 - local listener-to-PID evidence
 - startup/background audit summary
 - protected items preserved
-- per-PID cleanup confirmation list
+- low-risk cleanup choice, plus specific confirmation for high-risk targets
 - after comparison and cleanup ledger when cleanup happened
 - temporary snapshot artifacts and whether the user wants them deleted
