@@ -62,8 +62,7 @@ foreach ($p in $procCim) {
     $created = [Management.ManagementDateTimeConverter]::ToDateTime($p.CreationDate)
     $ageSeconds = [int]((Get-Date) - $created).TotalSeconds
   }
-  $cmd = $p.CommandLine
-  if (-not $cmd) { $cmd = $p.Name }
+  $cmd = $p.Name
   $processes += [pscustomobject]@{
     pid = $id
     ppid = [int]$p.ParentProcessId
@@ -77,9 +76,10 @@ foreach ($p in $procCim) {
     stat = $null
     name = $p.Name
     command = $cmd
+    command_scope = "process_name_only_default"
     cpu_time_seconds = if ($basic) { [Math]::Round($basic.CPU, 1) } else { $null }
     is_dev_like = [bool]($cmd -match '(?i)codex|claude|mcp|node_repl|playwright|browser automation|node|python|java|bun|deno|vite|next|webpack|http-server')
-    is_protected_like = [bool]($cmd -match '(?i)chrome|edge|firefox|remote|vpn|clash|surge|dropbox|onedrive|google drive|docker|cursor|visual studio code|code helper|zoom|teams|lark|feishu|wechat|input|security|defender|sentinel|falcon')
+    is_protected_like = [bool]($cmd -match '(?i)chrome|edge|firefox|remote|vpn|clash|surge|dropbox|onedrive|google drive|docker|cursor|visual studio code|code helper|trae|kimi|terminal|powershell|cmd|zoom|teams|lark|feishu|wechat|input|security|defender|sentinel|falcon')
   }
 }
 
@@ -126,6 +126,11 @@ $summary = [ordered]@{
   timestamp_utc = $timestampUtc
   snapshot_dir = $snapshotDir
   raw_dir = $rawDir
+  privacy = [ordered]@{
+    command_scope = "process_name_only_default"
+    full_command_line_collected = $false
+    note = "Default snapshots avoid full process arguments to reduce token, path, and secret exposure."
+  }
   system = [ordered]@{
     hostname = $env:COMPUTERNAME
     uname = "$($os.Caption) $($os.Version)"

@@ -117,7 +117,7 @@ if have top; then
 fi
 
 if have ps; then
-  capture_shell process_snapshot "ps -axo pid=,ppid=,user=,etime=,%cpu=,%mem=,rss=,vsz=,stat=,command="
+  capture_shell process_snapshot "ps -axo pid=,ppid=,user=,etime=,%cpu=,%mem=,rss=,vsz=,stat=,comm="
 fi
 
 if have lsof; then
@@ -146,7 +146,7 @@ snapshot_dir, label, timestamp_utc = sys.argv[1:4]
 raw_dir = os.path.join(snapshot_dir, "raw")
 
 DEV_KEYWORDS = re.compile(r"codex|claude|mcp|node_repl|playwright|browser automation|node|python|java|bun|deno|vite|next|webpack|http-server", re.I)
-PROTECTED_KEYWORDS = re.compile(r"chrome|safari|firefox|todesk|clash|surge|vpn|dropbox|google drive|onedrive|docker|cursor|visual studio code|code helper|zoom|teams|feishu|lark|wechat|企业微信|doubaoime|input|security|sentinel|falcon|rapportd|sharingd|bluetoothd|mdnsresponder|configd|airportd|systemuiserver|controlcenter|loginwindow", re.I)
+PROTECTED_KEYWORDS = re.compile(r"chrome|safari|firefox|todesk|clash|surge|vpn|dropbox|google drive|onedrive|docker|cursor|visual studio code|code helper|zoom|teams|feishu|lark|wechat|企业微信|doubaoime|input|security|sentinel|falcon|rapportd|sharingd|bluetoothd|mdnsresponder|configd|airportd|systemuiserver|controlcenter|loginwindow|trae|kimi|kimi-webbridge|ghostty|terminal|iterm|finder|spotlight|notificationcenter|corespotlightd|suggestd|duetexpertd|applespell|webkit", re.I)
 
 def read_raw(name):
     path = os.path.join(raw_dir, f"{name}.txt")
@@ -212,6 +212,17 @@ def parse_etime_seconds(value):
     else:
         return None
     return days * 86400 + hours * 3600 + minutes * 60 + seconds
+
+def safe_process_name(command):
+    text = (command or "").strip()
+    if not text:
+        return ""
+    first = text.split()[0]
+    if "/" in text:
+        return os.path.basename(text)
+    if first.lower() in ("npm", "npx", "pnpm", "yarn", "node", "python", "python3", "java", "bun", "deno", "uvx"):
+        return first
+    return text[:80]
 
 def parse_vm_stat(text):
     result = {"raw_available": bool(text)}
@@ -283,6 +294,7 @@ def parse_processes(text):
         if len(parts) < 10:
             continue
         pid, ppid, user, etime, cpu, mem, rss, vsz, stat, command = parts
+        process_name = safe_process_name(command)
         try:
             rows.append({
                 "pid": int(pid),
@@ -295,8 +307,9 @@ def parse_processes(text):
                 "rss_mib": round(int(rss) / 1024, 1),
                 "vsz_mib": round(int(vsz) / 1024, 1),
                 "stat": stat,
-                "name": os.path.basename(command.split()[0]) if command.split() else "",
-                "command": command,
+                "name": process_name,
+                "command": process_name,
+                "command_scope": "process_name_only_default",
                 "is_dev_like": bool(DEV_KEYWORDS.search(command)),
                 "is_protected_like": bool(PROTECTED_KEYWORDS.search(command)),
             })
@@ -386,6 +399,10 @@ if total_mem_mib is not None and pressure.get("free_percent") is not None:
 
 processes = parse_processes(read_raw("process_snapshot"))
 listeners = parse_listeners(read_raw("tcp_listeners"))
+try:
+    os.remove(os.path.join(raw_dir, "process_snapshot.txt"))
+except OSError:
+    pass
 listener_pids = {item["pid"] for item in listeners}
 process_by_pid = {item["pid"]: item for item in processes}
 for item in listeners:
@@ -407,6 +424,11 @@ summary = {
     "timestamp_utc": timestamp_utc,
     "snapshot_dir": snapshot_dir,
     "raw_dir": raw_dir,
+    "privacy": {
+        "command_scope": "process_name_only_default",
+        "full_command_line_collected": False,
+        "note": "Default snapshots avoid full process arguments and remove the raw process list after parsing to reduce token, path, and secret exposure.",
+    },
     "system": {
         "hostname": non_command_lines(read_raw("hostname"))[-1] if non_command_lines(read_raw("hostname")) else None,
         "uname": non_command_lines(read_raw("uname"))[-1] if non_command_lines(read_raw("uname")) else None,

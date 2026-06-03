@@ -9,5 +9,6 @@
 | 深度 `nettop` | 进程级网络流量 | 可能暴露域名、端点、流量模式 | 中 | 监听端口、接口概览 |
 | `sample` / `spindump` | 卡顿栈分析 | 调用栈、路径、符号敏感，可能需权限 | 中高 | Top CPU 趋势、用户手动 Activity Monitor 采样 |
 | `sfltool` / 后台项数据库 | 登录/后台项深查 | 可能触发认证，暴露后台项清单 | 中高 | LaunchAgents、LaunchDaemons、brew services、人工设置页 |
+| 完整进程命令行 | 区分同名 dev server、MCP 或脚本任务 | 可能暴露 token、账号、路径、URL、业务参数 | 中 | 默认只看进程名、PID、PPID、运行时长和端口 |
 
 禁止默认执行：`sudo`、`purge`、`kill -9`、`pkill`、`killall`、`launchctl unload/bootout/disable`、`mdutil -i off`、`brew services stop`、`docker stop/prune`。

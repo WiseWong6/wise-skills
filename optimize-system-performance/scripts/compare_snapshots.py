@@ -14,6 +14,9 @@ PROTECTED_KEYWORDS = (
     "企业微信", "input", "ime", "security", "defender", "sentinel", "falcon",
     "rapportd", "sharingd", "bluetoothd", "mdnsresponder", "configd",
     "airportd", "systemuiserver", "controlcenter", "loginwindow",
+    "trae", "kimi", "kimi-webbridge", "ghostty", "terminal", "iterm",
+    "finder", "spotlight", "notificationcenter", "corespotlightd",
+    "suggestd", "duetexpertd", "applespell", "webkit",
 )
 
 SYSTEM_BURST_KEYWORDS = (
@@ -177,6 +180,10 @@ def command_key(proc):
 def cleanup_candidates(snapshot):
     listener_map = listeners_by_pid(snapshot)
     procs = all_candidate_processes(snapshot)
+    protected_parent_pids = {
+        int(proc["pid"]) for proc in procs
+        if proc.get("pid") is not None and (is_protected(proc) or is_system_burst(proc))
+    }
     command_counts = Counter(command_key(proc) for proc in procs if command_key(proc))
     keep = []
     observe = []
@@ -195,6 +202,9 @@ def cleanup_candidates(snapshot):
         if is_protected(proc):
             keep.append((proc, "保护类进程或当前工作工具；可能影响连接、输入、同步或开发。", "保留它的收益是保护当前工作稳定；默认不处理。", ports))
             continue
+        if proc.get("ppid") in protected_parent_pids:
+            keep.append((proc, "保护类工具的子进程；通常属于当前浏览器、IDE、Codex/Claude、远控或同步工作链路。", "保留可避免打断当前工作；默认不处理。", ports))
+            continue
 
         if is_dev_like(proc):
             score += 2
@@ -207,16 +217,17 @@ def cleanup_candidates(snapshot):
             else:
                 reasons.append(f"监听本地端口 {','.join(str(p) for p in ports[:6])}")
         etime_seconds = proc.get("etime_seconds")
-        if isinstance(etime_seconds, (int, float)) and etime_seconds >= 24 * 3600:
+        age_is_relevant = is_dev_like(proc) or bool(ports) or (proc.get("rss_mib") or 0) >= 1024 or (proc.get("cpu_percent") or 0) >= 20
+        if age_is_relevant and isinstance(etime_seconds, (int, float)) and etime_seconds >= 24 * 3600:
             score += 2
             reasons.append("运行超过 24 小时")
-        elif isinstance(etime_seconds, (int, float)) and etime_seconds >= 4 * 3600:
+        elif age_is_relevant and isinstance(etime_seconds, (int, float)) and etime_seconds >= 4 * 3600:
             score += 1
             reasons.append("运行超过 4 小时")
         if proc.get("ppid") in (0, 1) and is_dev_like(proc):
             score += 1
             reasons.append("疑似孤儿用户态开发进程")
-        if command_counts.get(command_key(proc), 0) > 1 and is_dev_like(proc):
+        if proc.get("command_scope") not in ("executable_only_default", "process_name_only_default") and command_counts.get(command_key(proc), 0) > 1 and is_dev_like(proc):
             score += 1
             reasons.append("命令重复")
         if (proc.get("rss_mib") or 0) >= 1024 or (proc.get("cpu_percent") or 0) >= 20:
@@ -466,6 +477,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("一句话结论：当前只做低权限诊断和决策建议；未清理任何进程，不能宣称已经优化。")
         lines.append("决策提示：下面是确认单，不是自动清理清单；我只解释证据、收益和风险，是否停止某个 PID 由你决定。")
         lines.append("安全门槛：只有类似“确认停止 PID 12345”的明确回复才算授权；“清理吧 / 继续 / 都处理”都不算。")
+        lines.append("隐私边界：默认不采集完整进程参数，只用进程名/PID/父进程/运行时长/端口/CPU/内存判断；完整命令行需要单独确认。")
         lines.append("")
         lines.append("## 为什么可能卡、热、占用高")
         for item in explain_state(before):
@@ -491,6 +503,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("")
         lines.append("## 安全边界")
         lines.append("- 默认未停止、未禁用、未删除、未修改配置。")
+        lines.append("- 默认未采集完整进程参数，避免暴露 token、路径、URL 或业务参数。")
         lines.append("- 端口和开发关键词只是证据，不等于可以直接清理。")
         lines.append("- 收益只在候选确实无用时成立；不确定用途时宁可先保留。")
         lines.append("- 停进程、禁用启动项、改服务/注册表/plist/config、删缓存、深度取证都属于危险动作，必须逐项确认。")
@@ -507,6 +520,7 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append(f"一句话结论：{notes[0]}")
     lines.append("决策提示：复测结果只说明指标变化；后续是否继续处理某个 PID，仍由你逐项确认。")
     lines.append("安全门槛：只有明确写出具体动作和目标才算授权；泛泛说“继续/都处理”不执行危险动作。")
+    lines.append("隐私边界：默认不采集完整进程参数；如果需要完整命令行排查同名服务，必须单独确认。")
     lines.append("")
     lines.append("## 这次有没有效果")
     for item in notes:
