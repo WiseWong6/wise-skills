@@ -31,6 +31,7 @@ cp -r wise-skills/prompt-creator ~/.claude/skills/
 cp -r wise-skills/ppt-speech-creator ~/.claude/skills/
 cp -r wise-skills/prompt-optimizer ~/.claude/skills/
 cp -r wise-skills/image-gen ~/.claude/skills/
+cp -r wise-skills/optimize-mac-performance ~/.claude/skills/
 ```
 
 ### 方法三：单技能安装
@@ -180,7 +181,21 @@ pip install google-genai pillow
 /image-gen 生成一张星际穿越主题的图片
 /prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
+/optimize-mac-performance 诊断并优化当前 Mac 的内存、CPU、发热和后台占用
 ```
+
+---
+
+### 🖥️ optimize-mac-performance
+
+**Mac 低权限性能诊断与清理决策助手**
+
+覆盖活动监视器常见维度：
+- CPU、内存、能耗/发热推断
+- 磁盘总览、网络总览
+- 启动项低权限审计
+- before/after 中文直出报告
+- 深度取证只作为确认后的菜单项，不默认执行
 
 ---
 
