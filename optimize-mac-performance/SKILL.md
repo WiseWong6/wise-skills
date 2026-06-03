@@ -16,7 +16,7 @@ Use the cross-platform Skill resources from the adjacent folder:
 - After: `../optimize-system-performance/scripts/capture_macos_snapshot.sh --label after --out <same-work-dir>`
 - Compare: `python3 ../optimize-system-performance/scripts/compare_snapshots.py <before-summary.json> <after-summary.json> [--cleanup-log <cleanup.json>]`
 
-If the cross-platform folder is missing, fall back to this folder's legacy scripts but keep the same safety rules.
+If the cross-platform folder is missing, stop and ask the user to install or restore `optimize-system-performance`. Do not fall back to legacy scripts, because older snapshots may capture more command-line detail than the current safety policy allows.
 
 ## Safety Rules
 
@@ -27,6 +27,7 @@ If the cross-platform folder is missing, fall back to this folder's legacy scrip
 - A listening port is evidence, not proof that a service is unused. Only propose cleanup after correlating PID, command, PPID, age, protected keywords, and user context.
 - When cleanup is confirmed, use only `kill -TERM <pid>`. Do not escalate to `kill -9` without explicit confirmation.
 - Treat process stops, startup changes, cache deletion, deep forensics, Docker/browser/IDE cleanup, and any config change as dangerous actions. A broad phrase like `清理吧` is not confirmation; require an explicit target and action such as `确认停止 PID 12345`.
+- Do not use legacy raw command-line capture by default. Full command-line inspection can expose secrets and requires a separate user confirmation.
 
 ## Report Contract
 

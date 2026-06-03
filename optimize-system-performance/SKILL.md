@@ -15,7 +15,8 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
 - Do not batch-clean from a broad instruction such as "clean it"; list the exact PID/service/port candidate first and ask for per-item confirmation.
 - When cleanup is confirmed, use only gentle user-process termination: macOS `kill -TERM <pid>`; Windows `Stop-Process -Id <pid>` without `-Force`. If it fails, report it and stop.
 - Deep forensics are opt-in only. Before any high-risk tool, read the relevant reference and explain use, risk, permissions, duration, artifacts, and low-permission alternatives.
-- Redact sensitive command text in user-facing reports. Keep raw snapshot paths visible so the user can decide whether to delete them.
+- Default snapshots store executable/process names rather than full process arguments. Full command-line capture can expose tokens, paths, URLs, and business context, so treat it as opt-in deep inspection.
+- Redact sensitive text in user-facing reports. Keep snapshot paths visible so the user can decide whether to delete them.
 - Make decision ownership explicit: the agent explains evidence and tradeoffs; the user decides whether a specific PID should be stopped.
 
 ## Dangerous Action Gate
@@ -50,6 +51,7 @@ Before any dangerous action:
    - Disk: space and aggregate I/O only by default.
    - Network: listeners and adapter overview only by default.
    - Startup/background: read-only summary only by default.
+   - Privacy: default process evidence uses executable/process names, PID, PPID, age, ports, CPU, and memory; do not collect full arguments unless the user confirms.
 4. Build the decision list:
    - keep/protected
    - observe only
@@ -82,15 +84,15 @@ Before any dangerous action:
 
 ## Low-Permission Detection Upgrades
 
-- Correlate local listeners with PIDs and commands. A port is not a cleanup target by itself; it is evidence.
+- Correlate local listeners with PIDs and executable/process names. A port is not a cleanup target by itself; it is evidence.
 - Use process age, PPID, command grouping, dev keywords, listener ownership, and protected keywords to score candidates.
 - Prefer confirmation candidates over automatic cleanup. A higher score means "ask the user", not "kill now".
 - Do not claim optimization unless a cleanup ledger or user action explains the before/after change.
 
 ## Bundled Resources
 
-- `scripts/capture_macos_snapshot.sh`: read-only macOS snapshot collector.
-- `scripts/capture_windows_snapshot.ps1`: read-only Windows snapshot collector.
+- `scripts/capture_macos_snapshot.sh`: read-only macOS snapshot collector; default process data is executable-only.
+- `scripts/capture_windows_snapshot.ps1`: read-only Windows snapshot collector; default process data is executable-only.
 - `scripts/normalize_snapshot.py`: schema sanity check and normalization helper.
 - `scripts/compare_snapshots.py`: Chinese before-only and before/after report generator.
 - `references/report-template.zh.md`: required report shape.
