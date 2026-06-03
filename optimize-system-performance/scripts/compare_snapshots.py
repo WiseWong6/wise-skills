@@ -194,7 +194,7 @@ def cleanup_candidates(snapshot):
         ports = sorted({item.get("port") for item in listener_map.get(int(pid), []) if item.get("port")})
         score = 0
         reasons = []
-        risk = "可能打断当前任务；停止前必须确认不是远控、代理、同步、会议、IDE、Docker 或业务服务。恢复方式：重开应用或重新运行对应命令。只有明确回复“确认停止 PID”才算授权。"
+        risk = "低风险候选也可能打断临时任务；确认前请看端口和名称。恢复方式：重开应用或重新运行对应命令。回复“清理低风险项”才会尝试温和停止。"
 
         if is_system_burst(proc):
             keep.append((proc, "系统/安全/索引类进程；高占用通常应观察，不强杀。", "收益很小，风险高；不要处理。", ports))
@@ -475,16 +475,18 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("# 系统性能诊断报告（before）")
         lines.append("")
         lines.append("一句话结论：当前只做低权限诊断和决策建议；未清理任何进程，不能宣称已经优化。")
-        lines.append("决策提示：下面是确认单，不是自动清理清单；我只解释证据、收益和风险，是否停止某个 PID 由你决定。")
-        lines.append("安全门槛：只有类似“确认停止 PID 12345”的明确回复才算授权；“清理吧 / 继续 / 都处理”都不算。")
+        lines.append("怎么决定：最简单是回复“清理低风险项”或“只观察”。高风险项不会混进低风险批量清理。")
+        lines.append("安全门槛：低风险项可批量确认；启动项、深度取证、删除、强杀、Docker/浏览器/IDE/业务服务等仍需单独确认。")
         lines.append("隐私边界：默认不采集完整进程参数，只用进程名/PID/父进程/运行时长/端口/CPU/内存判断；完整命令行需要单独确认。")
         lines.append("")
         lines.append("## 为什么可能卡、热、占用高")
         for item in explain_state(before):
             lines.append(f"- {item}")
         lines.append("")
-        lines.append("## 需要你确认后才可能处理")
+        lines.append("## 建议清理（低风险，确认后批量处理）")
         lines.append(md_table(candidate_rows(confirm)))
+        lines.append("")
+        lines.append("可选动作：回复 `清理低风险项`，只会温和停止上表列出的低风险 PID；回复 `只观察`，则不做任何清理。")
         lines.append("")
         lines.append("## 只观察（更安全）")
         lines.append(md_table(candidate_rows(observe)))
@@ -506,7 +508,7 @@ def render_report(before, after=None, cleanup_log=None):
         lines.append("- 默认未采集完整进程参数，避免暴露 token、路径、URL 或业务参数。")
         lines.append("- 端口和开发关键词只是证据，不等于可以直接清理。")
         lines.append("- 收益只在候选确实无用时成立；不确定用途时宁可先保留。")
-        lines.append("- 停进程、禁用启动项、改服务/注册表/plist/config、删缓存、深度取证都属于危险动作，必须逐项确认。")
+        lines.append("- 低风险用户态临时进程可以批量确认；禁用启动项、改服务/注册表/plist/config、删缓存、深度取证、强杀和高风险进程必须单独确认。")
         lines.append("- 深度取证未执行；如需执行，必须先说明用途、风险、权限、耗时、临时产物和替代方案。")
         lines.append("")
         lines.append("## 临时产物")
@@ -518,8 +520,8 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append("# 系统性能复测报告（before/after）")
     lines.append("")
     lines.append(f"一句话结论：{notes[0]}")
-    lines.append("决策提示：复测结果只说明指标变化；后续是否继续处理某个 PID，仍由你逐项确认。")
-    lines.append("安全门槛：只有明确写出具体动作和目标才算授权；泛泛说“继续/都处理”不执行危险动作。")
+    lines.append("怎么决定：复测结果只说明指标变化；后续可以回复“清理低风险项”或“只观察”。")
+    lines.append("安全门槛：高风险、深度取证、启动项、服务、删除和强杀仍需单独确认。")
     lines.append("隐私边界：默认不采集完整进程参数；如果需要完整命令行排查同名服务，必须单独确认。")
     lines.append("")
     lines.append("## 这次有没有效果")
@@ -544,7 +546,7 @@ def render_report(before, after=None, cleanup_log=None):
     lines.append("## Top 内存 After")
     lines.append(md_table(proc_rows(processes(after, "top_memory"))))
     lines.append("")
-    lines.append("## 复测后仍需要你确认")
+    lines.append("## 复测后建议清理（低风险，确认后批量处理）")
     lines.append(md_table(candidate_rows(confirm)))
     lines.append("")
     lines.append("## 仍需保留/只观察")
