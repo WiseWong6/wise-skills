@@ -31,6 +31,7 @@ cp -r wise-skills/prompt-creator ~/.claude/skills/
 cp -r wise-skills/ppt-speech-creator ~/.claude/skills/
 cp -r wise-skills/prompt-optimizer ~/.claude/skills/
 cp -r wise-skills/image-gen ~/.claude/skills/
+cp -r wise-skills/optimize-system-performance ~/.claude/skills/
 cp -r wise-skills/optimize-mac-performance ~/.claude/skills/
 ```
 
@@ -181,21 +182,30 @@ pip install google-genai pillow
 /image-gen 生成一张星际穿越主题的图片
 /prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
+/optimize-system-performance 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
 /optimize-mac-performance 诊断并优化当前 Mac 的内存、CPU、发热和后台占用
 ```
 
 ---
 
+### 🖥️ optimize-system-performance
+
+**Mac / Windows 低权限性能诊断与清理决策助手**
+
+默认只读诊断，不自动清理：
+- 跨平台覆盖 CPU、内存、能耗/发热推断、磁盘、网络、启动项/后台项
+- Mac 和 Windows 使用独立采样脚本，共用中文报告和候选评分
+- 通过 PID、PPID、运行时长、监听端口、命令分组识别可疑 dev server / MCP / node_repl
+- 清理动作只生成逐项确认单，不批量执行、不强杀、不禁用启动项
+- 深度取证只作为确认后的菜单项，不默认执行
+
+---
+
 ### 🖥️ optimize-mac-performance
 
-**Mac 低权限性能诊断与清理决策助手**
+**Mac 兼容入口**
 
-覆盖活动监视器常见维度：
-- CPU、内存、能耗/发热推断
-- 磁盘总览、网络总览
-- 启动项低权限审计
-- before/after 中文直出报告
-- 深度取证只作为确认后的菜单项，不默认执行
+保留给旧命令使用；安装了 `optimize-system-performance` 时优先走新的跨平台低权限流程。
 
 ---
 
