@@ -15,6 +15,7 @@ Use a diagnose-first workflow. The default mode is read-only: capture a baseline
 - Batch cleanup is allowed only for the report's explicit low-risk cleanup list after the user confirms a simple choice such as `清理低风险项`. Never include protected, ambiguous, startup, service, Docker/VM/browser/IDE, or business-service targets in that batch.
 - When cleanup is confirmed, use only gentle user-process termination: macOS `kill -TERM <pid>`; Windows `Stop-Process -Id <pid>` without `-Force`. If it fails, report it and stop.
 - Deep forensics are opt-in only. Before any high-risk tool, read the relevant reference and explain use, risk, permissions, duration, artifacts, and low-permission alternatives.
+- For macOS deep forensics, run a command-path preflight first. Prefer system absolute paths such as `/usr/bin/sample` and `/usr/sbin/spindump`; never assume a bare command is the Apple tool because Python, Homebrew, or third-party installs may shadow it in `PATH`.
 - Default snapshots store executable/process names rather than full process arguments. Full command-line capture can expose tokens, paths, URLs, and business context, so treat it as opt-in deep inspection.
 - Redact sensitive text in user-facing reports. Keep snapshot paths visible so the user can decide whether to delete them.
 - Make decision ownership explicit but simple: the agent explains evidence and tradeoffs; the user can choose `清理低风险项` or `只观察`. High-risk targets still need specific confirmation.
@@ -31,6 +32,7 @@ Before any dangerous action:
 4. A vague phrase such as `优化一下`, `继续`, or `你决定` is not enough. Ask one short follow-up instead of acting.
 5. If the process, port, service, or startup item changed since the report, re-audit before acting.
 6. Never escalate from a failed gentle stop to force kill or config changes without a new explicit confirmation.
+7. If a deep forensic command fails, check for `PATH` shadowing before blaming the OS tool. Explain the collision plainly and retry only with the verified absolute system path after confirmation.
 
 ## Platform Selection
 
