@@ -1,20 +1,23 @@
 # Wise Skills
 
-Claude Code 技能集合，提升 AI 编程与内容创作效率。
+AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude Code](https://claude.ai/code)、[OpenAI Codex CLI](https://github.com/openai/codex) 等 AI 编程工具。
 
 ---
 
 ## 前置要求
 
-- [Claude Code](https://claude.ai/code) CLI 工具
-- Python 3.8+（image-gen 需要）
+- AI 编程工具（任选其一）：
+  - [Claude Code](https://claude.ai/code) CLI
+  - [OpenAI Codex CLI](https://github.com/openai/codex)
+  - 其他支持 skill 指令的 AI 编程助手
+- Python 3.8+（image-gen、image-to-pages 需要）
 - 相关 API Key（见环境配置）
 
 ---
 
 ## 安装方法
 
-### 方法一：npx 一键安装
+### 方法一：npx 一键安装（Claude Code）
 
 ```bash
 npx skills add WiseWong6/wise-skills
@@ -22,29 +25,54 @@ npx skills add WiseWong6/wise-skills
 
 ### 方法二：手动复制
 
+**Claude Code：**
 ```bash
-# 克隆仓库
 git clone https://github.com/WiseWong6/wise-skills.git
+cp -r wise-skills/<skill-name> ~/.claude/skills/
+```
 
-# 复制需要的 skill 到 Claude Code skills 目录
-cp -r wise-skills/prompt-creator ~/.claude/skills/
-cp -r wise-skills/ppt-speech-creator ~/.claude/skills/
-cp -r wise-skills/prompt-optimizer ~/.claude/skills/
-cp -r wise-skills/image-gen ~/.claude/skills/
-cp -r wise-skills/optimize-system-performance ~/.claude/skills/
-cp -r wise-skills/optimize-mac-performance ~/.claude/skills/
+**Codex CLI：**
+```bash
+git clone https://github.com/WiseWong6/wise-skills.git
+# 全局安装
+cp -r wise-skills/<skill-name> ~/.codex/skills/
+# 或项目级安装
+cp -r wise-skills/<skill-name> .codex/skills/
 ```
 
 ### 方法三：单技能安装
 
 ```bash
-# 只安装需要的 skill
-npx skills add WiseWong6/wise-skills image-gen
+npx skills add WiseWong6/wise-skills image-to-pages
 ```
 
 ---
 
 ## Skills 列表
+
+### 📄 image-to-pages
+
+**图片排版转 HTML + PDF**
+
+将图片自动拼接成 3:4 比例页面，同时输出 HTML 和 PDF 文件。
+
+- **双模式排版**：`auto`（任意比例自动拼成 3:4）和 `full`（3:4 图片直接排列）
+- **自动 PDF 生成**：检测系统 Chrome/Chromium，headless 渲染输出 PDF
+- **打印白边优化**：页面尺寸 150mm × 200mm，PDF 无 A4 白边
+- **零外部依赖**：纯 Python + 系统浏览器，无需安装额外库
+
+```bash
+# 基本用法
+python3 scripts/generate_html.py ./my_images
+
+# 3:4 图片直接排列
+python3 scripts/generate_html.py ./my_images output --mode full
+
+# 只生成 HTML
+python3 scripts/generate_html.py ./my_images --no-pdf
+```
+
+---
 
 ### 🎨 image-gen
 
@@ -141,6 +169,42 @@ python scripts/generate_image.py \
 
 ---
 
+### 🖥️ optimize-system-performance
+
+**Mac / Windows 低权限性能诊断与清理决策助手**
+
+默认只读诊断，不自动清理：
+- 跨平台覆盖 CPU、内存、能耗/发热推断、磁盘、网络、启动项/后台项
+- Mac 和 Windows 使用独立采样脚本，共用中文报告和候选评分
+- 通过 PID、PPID、运行时长、监听端口、命令分组识别可疑 dev server / MCP / node_repl
+- 清理动作只生成逐项确认单，不批量执行、不强杀、不禁用启动项
+- 深度取证只作为确认后的菜单项，不默认执行
+
+---
+
+### 🖥️ optimize-mac-performance
+
+**Mac 兼容入口**
+
+保留给旧命令使用；安装了 `optimize-system-performance` 时优先走新的跨平台低权限流程。
+
+---
+
+## 使用方式
+
+**Claude Code：** 在对话中使用 `/skill-name` 触发：
+```
+/image-to-pages /path/to/images 帮我做成打印页面
+/image-gen 生成一张星际穿越主题的图片
+/prompt-creator 帮我创建一个代码审查提示词
+/ppt-speech-creator 帮我准备年终总结 PPT
+/optimize-system-performance 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
+```
+
+**Codex CLI：** 将 skill 目录放入 `~/.codex/skills/` 或项目 `.codex/skills/`，在指令中描述需求即可触发。
+
+---
+
 ## 环境配置
 
 ### image-gen API Key 配置
@@ -171,41 +235,6 @@ pip install openai python-dotenv pyyaml
 # Gemini（可选）
 pip install google-genai pillow
 ```
-
----
-
-## 使用方式
-
-安装后，在 Claude Code 中使用 `/skill-name` 命令触发：
-
-```bash
-/image-gen 生成一张星际穿越主题的图片
-/prompt-creator 帮我创建一个代码审查提示词
-/ppt-speech-creator 帮我准备年终总结 PPT
-/optimize-system-performance 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
-/optimize-mac-performance 诊断并优化当前 Mac 的内存、CPU、发热和后台占用
-```
-
----
-
-### 🖥️ optimize-system-performance
-
-**Mac / Windows 低权限性能诊断与清理决策助手**
-
-默认只读诊断，不自动清理：
-- 跨平台覆盖 CPU、内存、能耗/发热推断、磁盘、网络、启动项/后台项
-- Mac 和 Windows 使用独立采样脚本，共用中文报告和候选评分
-- 通过 PID、PPID、运行时长、监听端口、命令分组识别可疑 dev server / MCP / node_repl
-- 清理动作只生成逐项确认单，不批量执行、不强杀、不禁用启动项
-- 深度取证只作为确认后的菜单项，不默认执行
-
----
-
-### 🖥️ optimize-mac-performance
-
-**Mac 兼容入口**
-
-保留给旧命令使用；安装了 `optimize-system-performance` 时优先走新的跨平台低权限流程。
 
 ---
 
