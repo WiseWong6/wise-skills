@@ -1,0 +1,9 @@
+{
+  "name": "image-to-pages",
+  "description": "将图片拼接成3:4比例的HTML和PDF页面，支持双模式排版、自动Chrome headless PDF生成、打印白边优化",
+  "version": "1.0.0",
+  "entry_skill": "image-to-pages",
+  "author": "wisewong",
+  "tags": ["image", "pdf", "layout", "print", "3:4"],
+  "requires": ["folder_path"]
+}
