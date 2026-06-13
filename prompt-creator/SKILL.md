@@ -111,9 +111,9 @@ description: 从零创建提示词。先确认目标模型是否开启深度思�
 
 ## 配套 Skill
 
-当提示词需要局部修订、诊断或版本回滚时，使用 [prompt-optimizer](../prompt-optimizer)。
+当提示词需要局部修订、诊断或版本回滚时，使用 [prompt-optimizer](https://github.com/WiseWong6/wise-skills/tree/master/prompt-optimizer)。
 
 安装：
 ```bash
-npx skills add WiseWong6/wise-skills prompt-optimizer
+claude skill add https://github.com/WiseWong6/wise-skills/tree/master/prompt-optimizer
 ```

@@ -98,9 +98,9 @@ description: 局部修订、诊断和版本化已有提示词。先确定权威�
 
 ## 配套 Skill
 
-当改动涉及任务目标或核心流程的大幅变化、需要从零创建提示词时，使用 [prompt-creator](../prompt-creator)。
+当改动涉及任务目标或核心流程的大幅变化、需要从零创建提示词时，使用 [prompt-creator](https://github.com/WiseWong6/wise-skills/tree/master/prompt-creator)。
 
 安装：
 ```bash
-npx skills add WiseWong6/wise-skills prompt-creator
+claude skill add https://github.com/WiseWong6/wise-skills/tree/master/prompt-creator
 ```
