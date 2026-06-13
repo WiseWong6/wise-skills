@@ -40,13 +40,13 @@ license: MIT
 
 ```bash
 # 模式1（默认）：任意比例图片 → 每容器2张拼成3:4
-python3 scripts/generate_html.py <图片文件夹> [输出文件名]
+python3 ~/.claude/skills/image-to-pages/scripts/generate_html.py <图片文件夹> [输出文件名]
 
 # 模式2：已有3:4比例图片 → 每张独占完整容器
-python3 scripts/generate_html.py <图片文件夹> [输出文件名] --mode full
+python3 ~/.claude/skills/image-to-pages/scripts/generate_html.py <图片文件夹> [输出文件名] --mode full
 
 # 仅生成 HTML，不生成 PDF
-python3 scripts/generate_html.py <图片文件夹> [输出文件名] --no-pdf
+python3 ~/.claude/skills/image-to-pages/scripts/generate_html.py <图片文件夹> [输出文件名] --no-pdf
 ```
 
 **自动模式检测**：脚本会自动分析图片比例。如果超过70%的图片接近3:4，会自动建议并使用 `full` 模式。
@@ -139,16 +139,16 @@ python3 scripts/generate_html.py <图片文件夹> [输出文件名] --no-pdf
 
 用户："/path/to/images 帮我做成打印页面"
 
-助手：
+Claude：
 1. 扫描 /path/to/images 获取图片
-2. 运行 `python3 scripts/generate_html.py /path/to/images`
-3. 生成 `/path/to/images_layout.html` 和 `/path/to/images_layout.pdf`
+2. 运行 `python3 ~/.claude/skills/image-to-pages/scripts/generate_html.py /path/to/images`
+3. 生成 `/path/to/images_layout.html`，双击即可打开
 
 ### 示例 2: 模式2 - 已有3:4图片直接排列
 
 用户："/path/to/xhs_images 这些已经是3:4的图，直接排列展示"
 
-助手：
+Claude：
 1. 扫描 /path/to/xhs_images 获取图片
-2. 运行 `python3 scripts/generate_html.py /path/to/xhs_images output --mode full`
-3. 生成 `/path/to/output_layout.html` 和 `/path/to/output_layout.pdf`，每张图独占一个完整容器
+2. 运行 `python3 ~/.claude/skills/image-to-pages/scripts/generate_html.py /path/to/xhs_images output --mode full`
+3. 生成 `/path/to/output_layout.html`，每张图独占一个完整容器
