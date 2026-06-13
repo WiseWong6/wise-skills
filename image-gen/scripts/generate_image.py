@@ -1,4 +1,4 @@
-#!/Users/wisewong/.openclaw/workspace/.venvs/image-gen/bin/python3
+#!/usr/bin/env python3
 import argparse
 import base64
 import copy
