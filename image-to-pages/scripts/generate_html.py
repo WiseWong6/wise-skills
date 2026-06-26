@@ -107,13 +107,21 @@ def image_to_base64(img_path: Path) -> str:
     return f"data:{mime};base64,{base64.b64encode(data).decode()}"
 
 
-def generate_html(image_paths: List[Path], output_path: Path, title: str = "图片展示", mode: str = "auto"):
+def generate_html(image_paths: List[Path], output_path: Path, title: str = "图片展示",
+                  mode: str = "auto", orientation_key: str = "portrait_34"):
     """生成图片以 base64 嵌入的独立 HTML 文件
 
     mode:
         auto - 任意比例图片，每容器最多放2张（各占50%高度），自动拼成3:4容器
         full - 每张图本身是3:4比例，每张图独占一个完整容器，直接拼接展示
+    orientation_key: ORIENTATION_PRESETS 的 key，决定页面方向（横/竖）与比例。
+        横版时每张图独占一个横版页面（一页一张）。
     """
+    page_size, aspect_ratio, _orient_label = ORIENTATION_PRESETS[orientation_key]
+    is_landscape = orientation_key.startswith('landscape')
+    # page_size 形如 "267mm 150mm"（宽 高）；取高度分量用于打印时固定页高，
+    # 避免用 aspect-ratio 反推高度时因 mm 取整产生亚像素溢出（每页拖出空白尾页）
+    page_h = page_size.split()[1]
 
     # 收集图片元数据
     image_meta = []
@@ -128,7 +136,20 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
             'is_34': ratio and abs(ratio - TARGET_RATIO) / TARGET_RATIO <= RATIO_TOLERANCE,
         })
 
-    if mode == "full":
+    if is_landscape:
+        # 横版：每张图独占一个横版页面，object-fit: contain 不裁切
+        num_pages = len(image_paths)
+        pages_html = []
+        for page_idx, meta in enumerate(image_meta):
+            b64 = image_to_base64(meta['path'])
+            size_kb = len(b64) // 1024
+            ratio_str = f"{meta['ratio']:.3f}" if meta['ratio'] else "未知"
+            print(f"  ✅ {meta['path'].name} ({size_kb}KB) 比例={ratio_str}")
+            page_html = f'''        <div class="page landscape" id="page-{page_idx + 1}">
+            <img src="{b64}" alt="图片 {page_idx + 1:02d}">
+        </div>'''
+            pages_html.append(page_html)
+    elif mode == "full":
         num_pages = len(image_paths)
         pages_html = []
         for page_idx, meta in enumerate(image_meta):
@@ -211,7 +232,7 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
 
         .page {{
             background: white;
-            aspect-ratio: 3 / 4;
+            aspect-ratio: {aspect_ratio};
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -233,6 +254,13 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
             height: 100%;
         }}
 
+        .page.landscape img {{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }}
+
         @media print {{
             body {{
                 background: white;
@@ -248,10 +276,18 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
                 box-shadow: none;
                 page-break-after: always;
                 border-radius: 0;
+                aspect-ratio: auto;
+                width: 100%;
+                height: calc({page_h} - 1px);
+                overflow: hidden;
+            }}
+
+            .page:last-child {{
+                page-break-after: avoid;
             }}
 
             @page {{
-                size: 150mm 200mm;
+                size: {page_size};
                 margin: 0;
             }}
         }}
@@ -450,6 +486,32 @@ def detect_suggested_mode(image_meta: List[dict]) -> str:
     return 'auto'
 
 
+# 方向 -> (@page size, .page aspect-ratio, 人类可读比例标签)
+ORIENTATION_PRESETS = {
+    'portrait_34': ('150mm 200mm', '3 / 4', '3:4 竖版'),
+    'landscape_43': ('200mm 150mm', '4 / 3', '4:3 横版'),
+    'landscape_169': ('267mm 150mm', '16 / 9', '16:9 横版'),
+}
+
+
+def detect_orientation(image_meta: List[dict]) -> str:
+    """根据图片实际宽高决定 PDF 方向与页面比例（主方向统一）。
+
+    横版图（宽>高）占比更大 -> 横版 PDF；否则竖版。
+    横版时按横版图 w/h 中位数 snap 到 4:3 或 16:9，竖版固定 3:4。
+
+    Returns: ORIENTATION_PRESETS 的 key
+    """
+    landscapes = [m for m in image_meta if m['width'] and m['height'] and m['width'] > m['height']]
+    portraits = [m for m in image_meta if m['width'] and m['height'] and m['width'] <= m['height']]
+
+    if len(landscapes) > len(portraits) and landscapes:
+        ratios = sorted(m['width'] / m['height'] for m in landscapes)
+        median = ratios[len(ratios) // 2]
+        return 'landscape_169' if median >= 1.5 else 'landscape_43'
+    return 'portrait_34'
+
+
 def find_chrome() -> Optional[str]:
     """查找系统上安装的 Chromium 内核浏览器
 
@@ -541,62 +603,109 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 模式说明:
-  auto (默认) - 任意比例图片，每容器最多2张，自动拼成3:4
-  full        - 图片本身已是3:4比例，每张独占一个完整容器
+  auto (默认) - 竖版任意比例图片，每容器最多2张，自动拼成3:4
+  full        - 竖版3:4比例图片，每张独占一个完整容器
+  （横版图片自动走横版布局，每页一张，--mode 不生效）
+
+页面方向（--orientation）:
+  auto        按图片主方向自动判定（默认）
+  landscape   强制横版 PDF，每页一张
+  portrait    强制竖版 PDF
 
 示例:
   python generate_html.py ./my_images
   python generate_html.py ./my_images output --mode full
+  python generate_html.py ./landscape_images          # 横版图集，自动横版
+  python generate_html.py ./imgs --orientation landscape
+  python generate_html.py --files 封面.png 01.png 02.png  # 文件名无序号时按指定顺序
         '''
     )
-    parser.add_argument('folder', help='图片文件夹路径')
-    parser.add_argument('output', nargs='?', help='输出文件名（默认与文件夹同名）')
+    parser.add_argument('folder', nargs='?', help='图片文件夹路径（与 --files 二选一）')
+    parser.add_argument('output', nargs='?', help='输出文件名（默认与文件夹同名；--files 模式请用 --output）')
+    parser.add_argument('--output', dest='output_opt', default=None,
+                        help='输出文件名，--files 模式下使用（覆盖位置 output，避免与 --files 的多值参数冲突）')
+    parser.add_argument('--files', nargs='+',
+                        help='显式图片路径列表，按给定顺序排版（跳过文件名排序）。文件名无序号时由调用方排好顺序后传入')
     parser.add_argument('--mode', choices=['auto', 'full'], default='auto',
-                        help='布局模式: auto=自动拼成3:4容器, full=每张图独占完整容器')
+                        help='布局模式（仅竖版生效）: auto=自动拼成3:4容器, full=每张图独占完整容器')
+    parser.add_argument('--orientation', choices=['auto', 'landscape', 'portrait'], default='auto',
+                        help='页面方向: auto=按图片主方向自动判定, landscape=强制横版(每页一张), portrait=强制竖版')
     parser.add_argument('--no-pdf', action='store_true', default=False,
                         help='跳过 PDF 生成，仅输出 HTML')
 
     args = parser.parse_args()
 
-    input_folder = Path(args.folder)
-    output_name = args.output or f"{input_folder.name}_layout"
-    mode = args.mode
+    # --- 输入解析：--files（显式有序列表）或 folder（文件夹+自然排序）---
+    if args.files:
+        images = [Path(f) for f in args.files]
+        missing = [f for f in images if not f.is_file()]
+        if missing:
+            print(f"❌ 找不到图片文件: {', '.join(str(m) for m in missing)}")
+            sys.exit(1)
+        base_dir = images[0].parent
+        output_name = args.output_opt or args.output or f"{base_dir.name}_layout"
+        print(f"📁 使用显式文件列表：{len(images)} 张图片（按给定顺序，不重排）")
+    elif args.folder:
+        input_folder = Path(args.folder)
+        output_name = args.output_opt or args.output or f"{input_folder.name}_layout"
+        try:
+            images = get_images_from_folder(input_folder)
+        except FileNotFoundError as e:
+            print(f"❌ {e}")
+            sys.exit(1)
+        if not images:
+            print(f"❌ 文件夹中没有图片: {input_folder}")
+            sys.exit(1)
+        base_dir = input_folder
+    else:
+        parser.error("请提供文件夹路径，或用 --files 指定图片列表")
 
-    try:
-        images = get_images_from_folder(input_folder)
-    except FileNotFoundError as e:
-        print(f"❌ {e}")
-        sys.exit(1)
-
-    if not images:
-        print(f"❌ 文件夹中没有图片: {input_folder}")
-        sys.exit(1)
-
-    # 收集元数据并建议模式
+    # --- 收集元数据 ---
     image_meta = []
     for img in images:
         w, h = get_image_size(img)
         ratio = h / w if w and h else None
-        image_meta.append({'path': img, 'width': w, 'height': h, 'ratio': ratio, 'is_34': ratio and abs(ratio - TARGET_RATIO) / TARGET_RATIO <= RATIO_TOLERANCE})
+        image_meta.append({'path': img, 'width': w, 'height': h, 'ratio': ratio,
+                           'is_34': ratio and abs(ratio - TARGET_RATIO) / TARGET_RATIO <= RATIO_TOLERANCE})
 
-    suggested = detect_suggested_mode(image_meta)
+    # --- 决定方向与页面比例 ---
+    if args.orientation == 'landscape':
+        landscapes = [m for m in image_meta if m['width'] and m['height'] and m['width'] > m['height']]
+        if landscapes:
+            ratios = sorted(m['width'] / m['height'] for m in landscapes)
+            median = ratios[len(ratios) // 2]
+            orientation_key = 'landscape_169' if median >= 1.5 else 'landscape_43'
+        else:
+            orientation_key = 'landscape_43'  # 无横版图也强制横版，默认 4:3
+    elif args.orientation == 'portrait':
+        orientation_key = 'portrait_34'
+    else:  # auto
+        orientation_key = detect_orientation(image_meta)
 
-    if mode == 'auto' and suggested == 'full':
-        print(f"📊 检测到 {sum(1 for m in image_meta if m.get('is_34'))}/{len(images)} 张图片接近3:4比例")
-        print(f"💡 建议使用 --mode full 获得更好效果（已自动应用）")
-        mode = 'full'
+    is_landscape = orientation_key.startswith('landscape')
 
-    mode_label = "3:4容器拼接" if mode == "auto" else "完整图片排列"
-    print(f"📁 找到 {len(images)} 张图片，模式: {mode_label}，正在嵌入...")
+    # 竖版时保留 mode 自动升级；横版时 mode 不生效（横版固定每页一张）
+    mode = args.mode
+    if not is_landscape:
+        suggested = detect_suggested_mode(image_meta)
+        if mode == 'auto' and suggested == 'full':
+            print(f"📊 检测到 {sum(1 for m in image_meta if m.get('is_34'))}/{len(images)} 张图片接近3:4比例")
+            print(f"💡 建议使用 --mode full 获得更好效果（已自动应用）")
+            mode = 'full'
 
-    output_html = input_folder / f"{output_name}.html"
-    generate_html(images, output_html, title=output_name, mode=mode)
+    _page_size, _aspect, orient_label = ORIENTATION_PRESETS[orientation_key]
+    mode_label = "横版每页一张" if is_landscape else ("3:4容器拼接" if mode == "auto" else "完整图片排列")
+    print(f"📐 方向: {orient_label}")
+    print(f"📁 共 {len(images)} 张图片，模式: {mode_label}，正在嵌入...")
+
+    output_html = base_dir / f"{output_name}.html"
+    generate_html(images, output_html, title=output_name, mode=mode, orientation_key=orientation_key)
 
     # --- PDF 生成 ---
     if not args.no_pdf:
         chrome = find_chrome()
         if chrome:
-            output_pdf = input_folder / f"{output_name}.pdf"
+            output_pdf = base_dir / f"{output_name}.pdf"
             print(f"\n📄 正在生成 PDF（使用 Chrome headless）...")
             ok, msg = generate_pdf(chrome, output_html, output_pdf)
             if ok:
