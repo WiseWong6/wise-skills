@@ -46,12 +46,34 @@ def get_image_size(img_path: Path) -> Tuple[Optional[int], Optional[int]]:
     """纯Python读取图片宽高，不依赖PIL"""
     try:
         with open(img_path, 'rb') as f:
-            header = f.read(24)
+            header = f.read(32)
 
         # PNG
         if header[:8] == b'\x89PNG\r\n\x1a\n':
             w, h = struct.unpack('>II', header[16:24])
             return w, h
+
+        # GIF（GIF87a / GIF89a）：宽高为紧跟头部的小端 uint16
+        if header[:6] in (b'GIF87a', b'GIF89a'):
+            w, h = struct.unpack('<HH', header[6:10])
+            return w, h
+
+        # WebP（RIFF....WEBP），三种子格式尺寸位置不同
+        if header[:4] == b'RIFF' and header[8:12] == b'WEBP':
+            fmt = header[12:16]
+            if fmt == b'VP8 ':  # 有损：14-bit 宽/高，小端，位于帧头
+                w = struct.unpack('<H', header[26:28])[0] & 0x3fff
+                h = struct.unpack('<H', header[28:30])[0] & 0x3fff
+                return w, h
+            if fmt == b'VP8L':  # 无损：宽/高各 14-bit，紧凑打包
+                b1, b2, b3, b4 = header[21], header[22], header[23], header[24]
+                w = ((b2 & 0x3f) << 8 | b1) + 1
+                h = ((b4 & 0x0f) << 10 | b3 << 2 | (b2 & 0xc0) >> 6) + 1
+                return w, h
+            if fmt == b'VP8X':  # 扩展：宽/高各 24-bit 减一，小端
+                w = (header[24] | header[25] << 8 | header[26] << 16) + 1
+                h = (header[27] | header[28] << 8 | header[29] << 16) + 1
+                return w, h
 
         # JPEG
         if header[:2] == b'\xff\xd8':
@@ -558,6 +580,10 @@ def generate_pdf(
         "--disable-extensions",
         "--no-first-run",
         "--no-default-browser-check",
+        # 等所有合成阶段绘制完成、给虚拟时钟足够预算，确保大量 base64 图全部 decode 后再打印，
+        # 避免海量大图时在解码完成前出图导致零星空白页
+        "--run-all-compositor-stages-before-draw",
+        "--virtual-time-budget=20000",
         f"--print-to-pdf={pdf_path}",
         html_uri,
     ]
