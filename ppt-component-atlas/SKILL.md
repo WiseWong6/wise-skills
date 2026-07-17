@@ -33,6 +33,8 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --que
 
 生成成功后，在回复里给生成文件的链接。不要在聊天里粘贴完整 HTML 源码。
 
+导出默认为**动态版**：catalog 的 `componentMotionCss` 动效层已注入文件，与线上图册的动态预览一致——纯 CSS 实现，不含 JS；打开页面时入场动画播放一次，之后箭头轻推、雷达点脉冲等微动效持续循环。用户明确要「静态」「无动画」「不要动效」时，加 `--static` 重新导出静态版；用户未指明时默认动态，不要主动追问。
+
 导出的文件必须是裸 HTML：只包含可独立打开所需的最小 `html/head/style/body`、组件 CSS 和组件 DOM。不要导出 public 图册页、预览页、筛选器、分页、复制按钮、代码面板、返回按钮或说明 UI。
 
 成功导出后，回复必须包含：
@@ -71,8 +73,11 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --que
 # 列出全部组件
 node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --list
 
-# 按中文名导出
+# 按中文名导出（默认动态版，含动效）
 node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --query "封面" --out-dir outputs/ppt-components
+
+# 导出静态版（无动效）
+node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --query "封面" --static --out-dir outputs/ppt-components
 
 # 按英文名或英文名 + 变体导出
 node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --query "process wrapped" --out-dir outputs/ppt-components
@@ -83,7 +88,7 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --ver
 
 脚本输出 JSON：
 
-- `status: "ok"`：已生成文件，读取 `file`、`fileUrl`、`detailUrl`、`editableText`
+- `status: "ok"`：已生成文件，读取 `file`、`fileUrl`、`detailUrl`、`editableText`；`motion: true` 表示动态版（含动效层），`false` 为静态版
 - `status: "ambiguous"`：多候选，读取 `candidates` 中的 `detailUrl` 辅助确认样式
 - `status: "not_found"`：无命中，读取 `candidates` 中的 `detailUrl` 作为参考
 - `status: "mismatch"`：`--verify-source` 发现本地 catalog 与 GitHub raw 不一致
