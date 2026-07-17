@@ -98,7 +98,8 @@ function parseArgs(argv) {
     list: false,
     query: '',
     outDir: path.resolve(process.cwd(), 'outputs', 'ppt-components'),
-    verifySource: false
+    verifySource: false,
+    motion: true
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -117,6 +118,14 @@ function parseArgs(argv) {
     }
     if (arg === '--verify-source') {
       args.verifySource = true;
+      continue;
+    }
+    if (arg === '--motion') {
+      args.motion = true;
+      continue;
+    }
+    if (arg === '--static') {
+      args.motion = false;
       continue;
     }
     if (arg === '--help' || arg === '-h') {
@@ -181,7 +190,8 @@ async function verifySource() {
     source: local.source === remoteSource,
     entryCount: local.data.entries.length === remoteData.entries.length,
     entries: JSON.stringify(localKeys) === JSON.stringify(remoteKeys),
-    componentCss: local.data.componentCss === remoteData.componentCss
+    componentCss: local.data.componentCss === remoteData.componentCss,
+    componentMotionCss: local.data.componentMotionCss === remoteData.componentMotionCss
   };
   const ok = Object.values(matches).every(Boolean);
 
@@ -358,7 +368,7 @@ function extractEditableText(snippet) {
   return texts;
 }
 
-function buildBareHtmlDoc(entry, componentCss, snippet) {
+function buildBareHtmlDoc(entry, componentCss, snippet, motionCss = '') {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -392,6 +402,7 @@ function buildBareHtmlDoc(entry, componentCss, snippet) {
     .swiss-card--cover .swiss-card__content { padding: 24px 0 !important; }
     ${componentCss}
     ${WRAPPED_FLOW_CSS}
+    ${motionCss}
   </style>
 </head>
 <body>
@@ -409,9 +420,10 @@ function slugify(value) {
   return slug || 'component';
 }
 
-function outputFileName(entry) {
+function outputFileName(entry, motion = true) {
   const parts = [String(entry.num), slugify(entry.name)];
   if (entry.variant) parts.push(slugify(entry.variant));
+  if (motion) parts.push('animated');
   return `${parts.join('-')}.html`;
 }
 
@@ -420,6 +432,7 @@ function usage() {
     usage: [
       'node scripts/export-component-html.mjs --list',
       'node scripts/export-component-html.mjs --query "cover" --out-dir outputs/ppt-components',
+      'node scripts/export-component-html.mjs --query "cover" --static --out-dir outputs/ppt-components',
       'node scripts/export-component-html.mjs --verify-source'
     ]
   };
@@ -472,16 +485,18 @@ async function main() {
 
   const entry = result.entry;
   const editableText = extractEditableText(entry.snippet);
-  const html = buildBareHtmlDoc(entry, catalog.componentCss, entry.snippet);
+  const motion = args.motion && typeof catalog.componentMotionCss === 'string' && catalog.componentMotionCss.length > 0;
+  const html = buildBareHtmlDoc(entry, catalog.componentCss, entry.snippet, motion ? catalog.componentMotionCss : '');
   const outDir = path.resolve(args.outDir);
   fs.mkdirSync(outDir, { recursive: true });
-  const file = path.join(outDir, outputFileName(entry));
+  const file = path.join(outDir, outputFileName(entry, motion));
   fs.writeFileSync(file, html, 'utf8');
 
   printJson({
     status: 'ok',
     query: args.query,
     entry: entrySummary(entry),
+    motion,
     file,
     fileUrl: pathToFileURL(file).href,
     detailUrl: getDetailUrl(entry),
