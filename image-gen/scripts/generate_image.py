@@ -1,4 +1,4 @@
-#!/Users/wisewong/.openclaw/workspace/.venvs/image-gen/bin/python3
+#!/usr/bin/env python3
 import argparse
 import base64
 import copy
@@ -463,7 +463,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         default="doubao-seedream-5-0-260128",
-        help="Model ID to use",
+        help="Model ID: doubao-seedream-5-0-260128 (default, fast ~30s) or doubao-seedream-5-0-pro-260628 (pro, ~110s, higher quality)",
     )
     parser.add_argument("--size", default="2K", help="Image size, e.g. 2K")
     parser.add_argument(

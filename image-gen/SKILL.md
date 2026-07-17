@@ -26,10 +26,24 @@ metadata:
 
 ### 火山 Ark (默认)
 
+可选模型（同接口，只是 `--model` 不同）：
+
+| 模型 ID | 特点 | 适用场景 |
+|---|---|---|
+| `doubao-seedream-5-0-260128`（默认） | 快（~30s/张） | 批量配图、公众号/小红书正文图 |
+| `doubao-seedream-5-0-pro-260628` | 慢（~110s/张），画质更精 | 封面图、单张精修、视觉要求高的场景 |
+
 ```bash
+# 默认模型（快版）
 python scripts/generate_image.py \
   --prompt "星际穿越，黑洞，复古列车，电影大片感" \
   --model "doubao-seedream-5-0-260128" \
+  --size "2K"
+
+# pro 模型（精修）
+python scripts/generate_image.py \
+  --prompt "星际穿越，黑洞，复古列车，电影大片感" \
+  --model "doubao-seedream-5-0-pro-260628" \
   --size "2K"
 ```
 
@@ -123,7 +137,9 @@ python scripts/generate_image.py \
 - `--base-url`：默认 `https://ark.cn-beijing.volces.com/api/v3`
 - `--watermark`：默认 `false`（关闭水印）
 - `--response-format`：`url` 或 `b64_json`
-- `--model`：模型 ID，如 `doubao-seedream-5-0-260128`
+- `--model`：模型 ID，可选：
+  - `doubao-seedream-5-0-260128`（默认，快版，~30s/张）
+  - `doubao-seedream-5-0-pro-260628`（pro 精修版，~110s/张，画质更精）
 - `--size`：图片尺寸，如 `2K`
 - `--prompts-file`：从 Markdown 文件读取提示词（支持 image-prompter 格式）
 - `--out-dir`：输出目录（与 `--output` 二选一）
