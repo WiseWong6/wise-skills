@@ -35,7 +35,9 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --que
 
 导出默认为**动态版**：catalog 的 `componentMotionCss` 动效层已注入文件，与线上图册的动态预览一致——纯 CSS 实现，不含 JS；打开页面时入场动画播放一次，之后箭头轻推、雷达点脉冲等微动效持续循环。用户明确要「静态」「无动画」「不要动效」时，加 `--static` 重新导出静态版；用户未指明时默认动态，不要主动追问。
 
-导出的文件必须是裸 HTML：只包含可独立打开所需的最小 `html/head/style/body`、组件 CSS 和组件 DOM。不要导出 public 图册页、预览页、筛选器、分页、复制按钮、代码面板、返回按钮或说明 UI。
+导出的文件必须是裸 HTML：只包含可独立打开所需的最小 `html/head/style/body`、组件 CSS、组件动效层和组件 DOM。不要导出 public 图册页、预览页、筛选器、分页、复制按钮、代码面板、返回按钮或说明 UI。
+
+动效层随 catalog 的 `componentMotionCss` 一并注入：入场动画只播放一次，微动效持续循环，系统开启 `prefers-reduced-motion` 时全部自动关闭。不要手动删除生成文件里的动效样式，除非用户明确要求静态版本。
 
 成功导出后，回复必须包含：
 
@@ -55,6 +57,7 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --que
 - 唯一数据源是 `public/catalog-data.js`
 - 当前数据来自 `WiseWong6/wise-labs/html-ppt-components/catalog-data.js`
 - 当前只保留 61 个组件 entry
+- catalog 同时携带 `componentMotionCss` 动效层，导出时随组件 CSS 一并注入
 - 旧 catalog 中多出来的组件口径不保留、不兼容、不做 alias
 
 ## 匹配规则
