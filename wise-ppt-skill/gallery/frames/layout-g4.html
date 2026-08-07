@@ -59,11 +59,11 @@ el('line', {x1:CX, y1:200, x2:CX, y2:880, stroke:INK, 'stroke-width':.5, opacity
 /* ---------- 轨道虚线圆 ---------- */
 el('circle', {cx:CX, cy:CY, r:R, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.4, 'stroke-dasharray':'4 7'});
 
-/* ---------- 中心实心墨核（核心词纸色刻字） ---------- */
+/* ---------- 中心空心墨核（双圈+实心核，与卫星同语言；墨字非反白） ---------- */
 el('circle', {cx:CX, cy:CY, r:134, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.45});
-el('circle', {cx:CX, cy:CY, r:120, fill:INK, stroke:'none'});
-txt(CX, CY-6, '调度中枢', {'font-family':SANS, 'font-weight':300, 'font-size':38, 'letter-spacing':4, 'text-anchor':'middle', fill:'#DFE0D9'});
-txt(CX, CY+34, 'DISPATCH CORE', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(223,224,217,.75)'});
+el('circle', {cx:CX, cy:CY, r:120, fill:'none', stroke:INK, 'stroke-width':1.6});
+txt(CX, CY-6, '调度中枢', {'font-family':SANS, 'font-weight':400, 'font-size':38, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(CX, CY+34, 'DISPATCH CORE', {'font-family':MONO, 'font-size':11, 'letter-spacing':4, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 六颗卫星：双圈节点 + mono 码 ---------- */
 /* 角度：左 150/180/210，右 30/0/330（顶底留空，呼吸） */
