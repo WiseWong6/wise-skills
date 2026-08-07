@@ -95,10 +95,10 @@ kpis.forEach(function(k, i){
     el('line', {x1:1360, y1:y+66, x2:1770, y2:y+66, stroke:INK, 'stroke-width':.6, opacity:.25});
 });
 
-/* ---------- 图例（左下）：Ø 编码说明 ---------- */
-el('circle', {cx:212, cy:924, r:12, fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
-el('circle', {cx:212, cy:924, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-txt(240, 929, 'Ø = SITES IN OPERATION · MAP DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+/* ---------- 图例（左下）：Ø 编码说明 —— 文字基线 y=850，与 112°E 标注对齐 ---------- */
+el('circle', {cx:212, cy:845, r:12, fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
+el('circle', {cx:212, cy:845, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+txt(240, 850, 'Ø = SITES IN OPERATION · MAP DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
 
 /* ===================== ECharts 广东省地图（纸墨化） =====================
    分工：ECharts geo 只渲染真实市界（21 地级市），节点（双圈+数值+
@@ -173,8 +173,8 @@ loadMap().then(function(geo){
         fontFamily: MONO,
         fontSize: 11
       },
-      layoutCenter: ['50%', '50%'],
-      layoutSize: '85%'
+      layoutCenter: ['42%', '50%'],
+      layoutSize: '70%'
     }
   });
 
