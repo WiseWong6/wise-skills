@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-j2 · 蛇形回环</title>
+<title>layout-j2 · 蛇形回环 · Agent Loop Engineering</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
@@ -18,8 +18,8 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — J2<br>SERPENTINE LOOP</div>
-  <div class="folio">J2 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — J2<br>SERPENTINE · AGENT LOOP</div>
+  <div class="folio">J2 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <defs>
@@ -56,13 +56,13 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. J2 — SERPENTINE LOOP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 蛇形回环：衡玑调度平台 · 策略迭代八步 ----------
+/* ---------- 蛇形回环：Agent Loop Engineering · 策略迭代八步 ----------
    上排 01→04 左到右；右端大弧弯下（上线闸口）；下排 05→08 右到左；左端回环弧挂迭代标签 */
 var TY = 370, BY = 670;                 /* 上/下排节点中心 y */
 var CXS = [420, 770, 1120, 1470];       /* 四列节点中心 x */
 
 /* 八个仪器化图元（形态随语义变化，各不相同） */
-function gTelemetry(cx, gy){            /* 遥测：信号弧 */
+function gTelemetry(cx, gy){            /* 感知：信号弧 */
   [8, 14, 20].forEach(function(r){
     el('path', {d:'M '+(cx-r)+' '+gy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+gy,
       fill:'none', stroke:INK80, 'stroke-width':1.1});
@@ -134,26 +134,29 @@ function arrow(x1, x2, y, dir){
   el('line', {x1:x2, y1:y, x2:x2-dir*10, y2:y+6, stroke:INK80, 'stroke-width':1.2});
 }
 
-/* 上排：01 遥测采集 → 02 回放分析 → 03 策略调参 → 04 仿真回归 */
-var n1 = node(CXS[0], TY, 200, '01', 'TELEMETRY', '遥测采集', 'FLEET 420 · 4HZ', gTelemetry);
-var n2 = node(CXS[1], TY, 216, '02', 'REPLAY',    '回放分析', 'TRACE 1.2M / DAY', gReplay);
-var n3 = node(CXS[2], TY, 208, '03', 'TUNE',      '策略调参', 'PARAM SET V18', gTune);
-var n4 = node(CXS[3], TY, 232, '04', 'SIM',       '仿真回归', 'SCENARIO 860', gSim);
+/* 上排：01 感知输入 → 02 意图解析 → 03 规划分解 → 04 工具调用 */
+var n1 = node(CXS[0], TY, 200, '01', 'PERCEIVE',  '感知输入', 'INPUT · 4HZ', gTelemetry);
+var n2 = node(CXS[1], TY, 216, '02', 'PARSE',     '意图解析', 'INTENT 1.2M / DAY', gReplay);
+var n3 = node(CXS[2], TY, 208, '03', 'PLAN',      '规划分解', 'STEPS SET V18', gTune);
+var n4 = node(CXS[3], TY, 232, '04', 'TOOL CALL', '工具调用', 'CALLS 860', gSim);
 arrow(n1.r+8, n2.l-8, TY, 1);
 arrow(n2.r+8, n3.l-8, TY, 1);
 arrow(n3.r+8, n4.l-8, TY, 1);
 
-/* 右端大弧弯下：上线闸口（本页唯一强调线 2.2px） */
+/* 右端大弧弯下：上线闸口（与左端回环弧同规格 1.4px 墨80%） */
 el('path', {d:'M 1586 370 C 1746 370, 1746 670, 1586 670',
-  fill:'none', stroke:INK, 'stroke-width':2.2, opacity:.95});
+  fill:'none', stroke:INK80, 'stroke-width':1.4});
+/* 箭头头 < ：尖端(1586,670)朝左指 n5，两翼朝右(弧外侧)上下展开 */
+el('line', {x1:1586, y1:670, x2:1598, y2:662, stroke:INK80, 'stroke-width':1.2});
+el('line', {x1:1586, y1:670, x2:1598, y2:678, stroke:INK80, 'stroke-width':1.2});
 txt(1662, 500, 'GO-LIVE', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 txt(1662, 530, '上线闸口', {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
 
-/* 下排：05 灰度上线 → 06 全量发布 → 07 指标监控 → 08 问题回收（右到左） */
-var n5 = node(CXS[3], BY, 232, '05', 'CANARY',  '灰度上线', '5% FLEET · 2 SITES', gCanary);
-var n6 = node(CXS[2], BY, 224, '06', 'ROLLOUT', '全量发布', '100% · 3 SITES', gRollout);
-var n7 = node(CXS[1], BY, 204, '07', 'MONITOR', '指标监控', 'P95 38S → 29S', gMonitor);
-var n8 = node(CXS[0], BY, 200, '08', 'RECOVER', '问题回收', 'ISSUE 23 → 01', gRecover);
+/* 下排：05 结果校验 → 06 记忆更新 → 07 反思调整 → 08 输出交付（右到左） */
+var n5 = node(CXS[3], BY, 232, '05', 'VERIFY',  '结果校验', '5% SAMPLE · 2 RULES', gCanary);
+var n6 = node(CXS[2], BY, 224, '06', 'MEMORY',  '记忆更新', '100% · 3 STORES', gRollout);
+var n7 = node(CXS[1], BY, 204, '07', 'REFLECT', '反思调整', 'P95 38S → 29S', gMonitor);
+var n8 = node(CXS[0], BY, 200, '08', 'DELIVER', '输出交付', 'ISSUE 23 → 01', gRecover);
 arrow(n5.l-8, n6.r+8, BY, -1);
 arrow(n6.l-8, n7.r+8, BY, -1);
 arrow(n7.l-8, n8.r+8, BY, -1);
@@ -161,8 +164,9 @@ arrow(n7.l-8, n8.r+8, BY, -1);
 /* 左端回环弧：迭代标签（弧=语义，无标签的回环是装饰） */
 el('path', {d:'M 320 670 C 172 670, 172 370, 320 370',
   fill:'none', stroke:INK80, 'stroke-width':1.4});
-el('line', {x1:320, y1:370, x2:330, y2:360, stroke:INK80, 'stroke-width':1.2});
-el('line', {x1:320, y1:370, x2:330, y2:380, stroke:INK80, 'stroke-width':1.2});
+/* 箭头头 > ：尖端(320,370)朝右指 n1，两翼朝左(弧外侧)上下展开 */
+el('line', {x1:320, y1:370, x2:308, y2:362, stroke:INK80, 'stroke-width':1.2});
+el('line', {x1:320, y1:370, x2:308, y2:378, stroke:INK80, 'stroke-width':1.2});
 txt(246, 500, 'ITERATE · W01', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 txt(246, 530, '持续迭代', {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
 

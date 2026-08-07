@@ -2,10 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-d5 · 章节隔页</title>
+<title>layout-d5 · 章节隔页 · 工程化思维</title>
 <!--
   纸墨线稿样张 · C6 章节隔页
-  衡玑科技「仓储机器人调度平台」产品汇报 · 第三章
+  @歪斯Wise「AI 工程化实战」分享 · 第二章
   版式纪律（layouts C6）：超大空心编号 + 章节名 + mono 导语 + 一处十字准星；元素 ≤4；留白 >60%；无 FIG、无 caption
 -->
 <link rel="stylesheet" href="../assets/shared.css">
@@ -13,14 +13,14 @@
   svg.scene { position: absolute; inset: 0; z-index: 1; }
   .doc.tl, .folio { color: rgba(25,25,23,.45); }
   .chapter {
-    position: absolute; left: 1000px; top: 512px;
+    position: absolute; left: 1000px; top: 469px;
     font-family: var(--serif); font-weight: 400;
     font-size: 72px; letter-spacing: .1em;
     color: #191917;
     z-index: 5;
   }
   .lead {
-    position: absolute; left: 1004px; top: 636px;
+    position: absolute; left: 1004px; top: 593px;
     font-family: var(--mono); font-weight: 400;
     font-size: 14px; letter-spacing: .3em;
     color: rgba(25,25,23,.5);
@@ -31,15 +31,15 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — D5<br>CHAPTER DIVIDER</div>
-  <div class="folio">D5 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — D5<br>CHAPTER 02 · HARNESS ENG</div>
+  <div class="folio">D5 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="chapter">调度引擎</div>
-  <div class="lead">Chapter 03 — How Orders Become Routes</div>
+  <div class="chapter">工程化思维</div>
+  <div class="lead">Chapter 02 — From Model to Product</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -59,7 +59,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime';
 
 /* ===== ① 超大空心章节编号（描边不填，测绘感） ===== */
-var t = txt(560, 688, '03', {'font-family':MONO, 'font-size':300, fill:'none', stroke:INK, 'stroke-width':1.2, opacity:.5});
+var t = txt(560, 645, '02', {'font-family':MONO, 'font-size':300, fill:'none', stroke:INK, 'stroke-width':1.2, opacity:.5});
 
 /* ===== ② 十字准星（唯一装饰，右上空区） ===== */
 el('line', {x1:1382, y1:300, x2:1418, y2:300, stroke:INK, 'stroke-width':.8, opacity:.4});

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-d1 · 封面</title>
+<title>layout-d1 · 封面 · AI 工程化</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
@@ -32,13 +32,13 @@
     font-size: 26px; letter-spacing: .1em;
     color: var(--ink-70); z-index: 2;
   }
-  /* 主角判定：封面标题"仓序"是全页焦点 → 标题整词 + 下划线 bar 一起染色，形成落版焦点；右侧仓库线稿（图形）保持墨黑，不上彩 */
+  /* 主角判定：封面标题"AI 工程化"是全页焦点 → 标题整词 + 下划线 bar 一起染色，形成落版焦点；右侧线稿小图（图形）保持墨黑，不上彩 */
   :root.accent .title { color: var(--accent-red); }
   :root.accent .title-bar { border-top-color: var(--accent-red); }
 
-  /* 右下 mono 元数据块 */
+  /* 左下 mono 元数据块（与 kicker / title / subtitle 同列左对齐） */
   .meta {
-    position: absolute; right: 200px; bottom: 120px;
+    position: absolute; left: 300px; bottom: 120px;
     font-family: var(--mono); font-size: 13px;
     letter-spacing: .3em; line-height: 2.3;
     color: var(--ink-45); text-align: left;
@@ -49,22 +49,22 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — D1<br>COVER</div>
-  <div class="folio">D1 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — D1<br>COVER · AI ENGINEERING</div>
+  <div class="folio">D1 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="kicker">NEW PRODUCT LAUNCH — 2026 SPRING</div>
-  <div class="title">新境</div>
+  <div class="kicker">AGENT ENGINEERING — 2026 SUMMER</div>
+  <div class="title">AI 工程化</div>
   <div class="title-bar"></div>
-  <div class="subtitle">智能内容创作平台 · 产品发布会</div>
+  <div class="subtitle">从模型到产品的工程鸿沟 · Agent 实战第一课</div>
 
-  <div class="meta"><b>SPEAKER</b> — PRODUCT TEAM
-<b>DATE</b> — 2026.03.20
-<b>VERSION</b> — V5.0 AI
-<b>KEYWORDS</b> — CONTENT / AI / COLLAB</div>
+  <div class="meta"><b>SPEAKER</b> — @歪斯Wise
+<b>DATE</b> — 2026.08
+<b>VERSION</b> — V1.0
+<b>KEYWORDS</b> — AGENT / EVAL / HARNESS / INFRA</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -85,7 +85,12 @@ var MONO = 'Courier Prime';
 
 /* ===== 右侧极细线稿小图：产品界面俯视（导航 / 侧栏 / 内容卡 / AI 入口） ===== */
 (function(){
-  var X = 1330, Y = 316, W = 330, H = 216;
+  var X = 1138, Y = 330, W = 330, H = 216, S = 1.5;  // S=缩放倍数；Y 与左侧 kicker 顶部对齐
+
+  // 以 (X,Y) 为原点整体缩放，内部所有偏移同比放大，不变形
+  var layer = el('g', {transform:'translate(' + X + ',' + Y + ') scale(' + S + ') translate(' + (-X) + ',' + (-Y) + ')'});
+  var _el = el;
+  el = function(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); layer.appendChild(e); return e; };
 
   // 界面边界：虚线容器
   el('rect', {x:X, y:Y, width:W, height:H, fill:'none',
