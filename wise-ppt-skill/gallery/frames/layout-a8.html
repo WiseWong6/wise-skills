@@ -9,68 +9,68 @@
         border: 1px solid rgba(25,25,23,.5); }
 
   .filters {
-    display: flex; gap: 14px; align-items: center;
-    padding: 16px 26px;
+    display: flex; gap: var(--space-4); align-items: center;
+    padding: var(--space-4) var(--space-6);
     border-bottom: 1px solid rgba(25,25,23,.35);
   }
   .f {
     font-family: var(--mono); font-size: 13px; color: var(--ink-70);
-    border: 1px solid rgba(25,25,23,.4); padding: 7px 14px;
-    display: flex; gap: 8px; align-items: center;
+    border: 1px solid rgba(25,25,23,.4); padding: var(--space-2) var(--space-3);
+    display: flex; gap: var(--space-2); align-items: center;
   }
   .f .dim { color: var(--ink-45); }
   .btn { margin-left: auto; font-family: var(--sans); font-weight: 400; font-size: 14px;
-    border: 1.2px solid var(--ink); padding: 7px 22px; }
+    border: 1px solid var(--ink); padding: var(--space-2) var(--space-6); }
 
   .content { flex: 1; display: flex; min-height: 0; }
 
   /* 左：任务列表 */
-  .table { flex: 1.25; padding: 14px 22px; }
+  .table { flex: 1.25; padding: var(--space-4) var(--space-6); }
   .tr {
     display: grid;
     grid-template-columns: 150px 150px 130px 1fr 86px;
-    gap: 14px; align-items: center;
-    padding: 11px 12px;
+    gap: var(--space-4); align-items: center;
+    padding: var(--space-3) var(--space-3);
     font-family: var(--mono); font-size: 13px; color: var(--ink-70);
     border-bottom: 1px solid rgba(25,25,23,.18);
     position: relative;
   }
   .tr.hd { color: var(--ink-45); font-size: 11.5px; letter-spacing: .12em; }
   .tr .cn { font-family: var(--sans); font-weight: 300; font-size: 14px; }
-  .tr.sel { outline: 1.4px solid var(--ink); outline-offset: -1px; }
+  .tr.sel { outline: 1px solid var(--ink); outline-offset: -1px; }
   .tr.sel::after {
     content: 'SELECTED'; position: absolute; right: 10px; top: -9px;
     font-family: var(--mono); font-size: 9px; letter-spacing: .2em;
-    background: var(--paper); padding: 0 6px; color: var(--ink-45);
+    background: var(--paper); padding: 0 var(--space-2); color: var(--ink-45);
   }
   .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%;
-    border: 1.2px solid var(--ink); margin-right: 7px; vertical-align: -1px; }
+    border: 1px solid var(--ink); margin-right: var(--space-2); vertical-align: -1px; }
   .dot.err { background: var(--ink); }
   .dot.part { background: linear-gradient(90deg, var(--ink) 50%, transparent 50%); }
-  .ops { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; }
+  .ops { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-end; }
   .ops span {
-    border: 1px solid rgba(25,25,23,.45); padding: 2px 8px;
+    border: 1px solid rgba(25,25,23,.45); padding: var(--space-1) var(--space-2);
     font-size: 11px; font-family: var(--sans); font-weight: 300; white-space: nowrap;
   }
 
   /* 右：树形过程日志 */
-  .detail { flex: 1; border-left: 1px solid rgba(25,25,23,.35); padding: 14px 24px; }
+  .detail { flex: 1; border-left: 1px solid rgba(25,25,23,.35); padding: var(--space-4) var(--space-6); }
   .dhead { font-family: var(--mono); font-size: 13px; letter-spacing: .2em; color: var(--ink);
-    border-bottom: 1px solid rgba(25,25,23,.4); padding-bottom: 10px; margin-bottom: 6px;
+    border-bottom: 1px solid rgba(25,25,23,.4); padding-bottom: var(--space-3); margin-bottom: var(--space-2);
     display: flex; justify-content: space-between; }
   .dhead .id { color: var(--ink-45); letter-spacing: .05em; }
 
   .tree { font-family: var(--sans); font-weight: 300; font-size: 15.5px; color: var(--ink-70); }
-  .tnode { display: flex; align-items: baseline; gap: 10px; padding: 6.5px 0; position: relative; }
+  .tnode { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-2) 0; position: relative; }
   .tnode .mono { font-family: var(--mono); font-size: 12px; color: var(--ink-45); margin-left: auto; }
   .tnode .tag { font-family: var(--mono); font-size: 11.5px; color: var(--ink-45); }
   .tnode .st-ok { color: var(--ink-45); }
   .tnode .st-err { color: var(--ink); font-weight: 400; }
-  .tnode.sel { outline: 1.3px solid var(--ink); outline-offset: -1px; padding-left: 8px; }
+  .tnode.sel { outline: 1px solid var(--ink); outline-offset: -1px; padding-left: var(--space-2); }
   .tnode.off { opacity: .35; }
 
   .io {
-    margin: 6px 0 4px 30px; padding: 10px 14px;
+    margin: var(--space-2) 0 var(--space-1) var(--space-8); padding: var(--space-3) var(--space-4);
     border: 1px dashed rgba(25,25,23,.55);
     font-family: var(--mono); font-size: 12px; line-height: 1.85; color: var(--ink-70);
   }
@@ -135,16 +135,16 @@
         <div class="dhead"><span>调度过程 · 节点树</span><span class="id">a91c5e****</span></div>
         <div class="tree">
           <div class="tnode"><span>▸ 出库搬运 · 任务树</span><span class="tag">ROOT</span><span class="mono st-ok">✓ 受理</span></div>
-          <div class="tnode" style="padding-left:26px"><span>任务解析</span><span class="tag">PARSER</span><span class="mono st-ok">✓ 8ms</span></div>
-          <div class="tnode" style="padding-left:26px"><span>路径规划</span><span class="tag">PLANNER</span><span class="mono st-ok">✓ 214ms</span></div>
-          <div class="tnode sel" id="badstep" style="padding-left:26px"><span>充电桩对接 · CD-07</span><span class="tag">CHARGER</span><span class="mono st-err">✕ 60s 超时</span></div>
+          <div class="tnode" style="padding-left:var(--space-6)"><span>任务解析</span><span class="tag">PARSER</span><span class="mono st-ok">✓ 8ms</span></div>
+          <div class="tnode" style="padding-left:var(--space-6)"><span>路径规划</span><span class="tag">PLANNER</span><span class="mono st-ok">✓ 214ms</span></div>
+          <div class="tnode sel" id="badstep" style="padding-left:var(--space-6)"><span>充电桩对接 · CD-07</span><span class="tag">CHARGER</span><span class="mono st-err">✕ 60s 超时</span></div>
           <div class="io">
             <span class="lbl">ERROR</span>　<b>ChargeDockTimeoutError</b>：对接超时（超过 60s）<br>
             <span class="lbl">INPUT</span>　{ dock: "CD-07", robot: "RB-12", soc: 11% }<br>
             <span class="lbl">OUTPUT</span>　无（对接未完成）
           </div>
-          <div class="tnode off" style="padding-left:26px"><span>任务挂起</span><span class="tag">SUSPEND</span><span class="mono">未执行</span></div>
-          <div class="tnode off" style="padding-left:26px"><span>人工接管告警</span><span class="tag">ALERT</span><span class="mono">未执行</span></div>
+          <div class="tnode off" style="padding-left:var(--space-6)"><span>任务挂起</span><span class="tag">SUSPEND</span><span class="mono">未执行</span></div>
+          <div class="tnode off" style="padding-left:var(--space-6)"><span>人工接管告警</span><span class="tag">ALERT</span><span class="mono">未执行</span></div>
         </div>
       </div>
     </div>

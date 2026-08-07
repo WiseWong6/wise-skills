@@ -15,23 +15,23 @@
     background: rgba(255,255,255,.22);
     border: 1px solid rgba(25,25,23,.32);
     border-radius: 18px;
-    box-shadow: 8px 10px 0 rgba(25,25,23,.04);
+    box-shadow: var(--shadow-specimen);
     overflow: hidden;
     z-index: 2;
   }
   .specbar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 15px 24px;
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-4) var(--space-6);
     border-bottom: 1px solid rgba(25,25,23,.25);
   }
   .specbar .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(25,25,23,.3); }
   .specbar .t {
     font-family: var(--mono); font-size: 13px; letter-spacing: .25em;
-    color: var(--ink-45); margin-left: 12px;
+    color: var(--ink-45); margin-left: var(--space-3);
   }
-  .specbody { padding: 28px 30px 24px; }
+  .specbody { padding: 28px var(--space-8) var(--space-6); }
 
-  .msg { display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start; }
+  .msg { display: flex; gap: var(--space-4); margin-bottom: var(--space-6); align-items: flex-start; }
   .avatar {
     flex: none; width: 52px; height: 52px; border-radius: 50%;
     border: 1px solid rgba(25,25,23,.38);
@@ -41,9 +41,10 @@
   }
   .bub {
     max-width: 740px;
-    padding: 16px 24px;
+    padding: var(--space-4) var(--space-6);
     border: 1px solid rgba(25,25,23,.38);
     border-radius: 16px;
+    box-shadow: var(--shadow-soft);
     font-family: var(--sans); font-weight: 300;
     font-size: 22px; line-height: 1.8;
   }
@@ -52,8 +53,8 @@
   .msg.ai .bub { border-bottom-left-radius: 4px; }
   .bub .sc { font-family: var(--mono); font-size: 24px; color: var(--ink); }
   .bub .rs { color: var(--ink-45); font-size: 18px; }
-  .bub .item { display: flex; gap: 12px; margin-top: 6px; }
-  .bub .item .pt { flex: none; padding-top: 11px; font-size: 12px; color: var(--ink-45); }
+  .bub .item { display: flex; gap: var(--space-3); margin-top: var(--space-2); }
+  .bub .item .pt { flex: none; padding-top: var(--space-3); font-size: 12px; color: var(--ink-45); }
   .bub .wrong { font-weight: 400; }
 
   /* 居中手写批注 */
@@ -66,7 +67,7 @@
     color: var(--ink);
   }
   .note .big { font-size: 76px; line-height: 1.2; }
-  .note .sub { font-size: 38px; margin-top: 6px; color: var(--ink-70); }
+  .note .sub { font-size: 38px; margin-top: var(--space-2); color: var(--ink-70); }
 
   .caption {
     position: absolute; left: 0; right: 0; bottom: 108px;

@@ -67,10 +67,10 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs \
 - 删除组件自带的字体声明与 CDN 引入，统一走 `shared.css` 的 `@font-face`。
 
 ### 第 3 步 · 降线
-- 边框统一降到 1.2–1.4px @ 墨 80%；装饰线 0.6–0.7px。
+- 边框统一降到 **1px** @ 墨 38–80%（UI 组件边框一律 1px，深浅靠颜色阶梯）；SVG 图形主轮廓 1.2–1.4px、装饰线 0.6–0.7px。
 - 粗描边（≥2px）只保留给"全页唯一强调"（每页至多一处）。
 - 圆角：卡片/气泡保留 16–18px；图版元素（图表格、矩阵格）改直角。
-- 删 `box-shadow`（标本卡允许的极轻偏移影除外）、删渐变、删 `filter`。
+- 删 atlas 自带的 `box-shadow`/渐变/`filter`；如需质感阴影，替换为 `var(--shadow-soft)`（卡片/面板）或 `var(--shadow-specimen)`（标本卡），同层级不叠影。
 
 ### 第 4 步 · 入台
 - 组件 DOM 整体放进 `.stage`（1920×1080），外层包缩放定位容器或重写为 SVG 坐标。
@@ -95,7 +95,7 @@ node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs \
 | 多对多映射/组合 | layouts B15 星座映射网 | B2 弧线图（权重三档编码） |
 | 大数字指标 | 自绘 big-stat：超大 mono 数字（>80px）+ 右侧标签/变化 + 迷你 SVG 刻度 | atlas「数据」改造 |
 | 引用/金句 | 自绘 quote-block：文楷大字 + 短横 + mono 署名（衬线气质） | layouts C2 金句页 |
-| 风险/边界 | 自绘 alert-box：高对比细边框（1.3px 墨 80%）+ mono 标签，少量克制 | B5 栏内警示行 |
+| 风险/边界 | 自绘 alert-box：高对比细边框（1px 墨 80%）+ mono 标签，少量克制 | B5 栏内警示行 |
 | 代码/配置片段 | 自绘 terminal-box：Courier Prime + 柔白低对比底 + 细线框 | — |
 | 数据/排行 | 重做：mono 数字 + hatch 条（参照 B1 条形区） | atlas 图表类改造（去彩色、去圆角、坐标轴细线化） |
 | 复杂数据图（折线/柱状/散点） | ECharts 去色改造（本文件第三节） | 自绘细线 SVG |
