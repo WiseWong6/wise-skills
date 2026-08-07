@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-k3 · 竖排章节轨 · AI 工程化思维</title>
+<title>layout-d7 · 竖排章节轨</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
@@ -18,8 +18,8 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">AI LAYOUT GALLERY — K3<br>CHAPTER RAIL · AI ENGINEERING</div>
-  <div class="folio">K3 / 59 — BY @歪斯Wise</div>
+  <div class="doc tl">PAPER-INK GALLERY — K3<br>VERTICAL CHAPTER RAIL</div>
+  <div class="folio">K3 / 59 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
@@ -51,13 +51,13 @@ el('line', {x1:104, y1:0, x2:104, y2:1080, stroke:INK, 'stroke-width':1, opacity
 
 /* 轨顶章节计数 */
 txt(52, 132, 'CH', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
-txt(52, 162, '02', {'font-family':MONO, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(52, 162, '03', {'font-family':MONO, 'font-size':22, 'text-anchor':'middle', fill:INK});
 el('line', {x1:34, y1:182, x2:70, y2:182, stroke:INK, 'stroke-width':.6, opacity:.35});
 
-/* 五枚章节齿：当前章 02 加重 */
+/* 五枚章节齿：当前章 03 加重 */
 var CHY = [320, 430, 540, 650, 760];
 CHY.forEach(function(y, i){
-  var cur = (i === 1);
+  var cur = (i === 2);
   el('line', {x1:cur ? 72 : 90, y1:y, x2:104, y2:y, stroke:cur ? INK80 : INK,
     'stroke-width': cur ? 1.4 : .8, opacity: cur ? 1 : .4});
   txt(60, y + 5, '0' + (i + 1), {'font-family':MONO, 'font-size':13, 'text-anchor':'end',
@@ -66,14 +66,14 @@ CHY.forEach(function(y, i){
 });
 
 /* 竖排章节名：中文逐字 + mono EN 旋转 */
-'AI 工程'.split('').forEach(function(ch, i){
+'调度引擎'.split('').forEach(function(ch, i){
   txt(46, 436 + i * 46, ch, {'font-family':SANS, 'font-weight':300, 'font-size':26, 'text-anchor':'middle', fill:INK});
 });
-var vt = txt(80, 700, 'AI ENGINEERING', {'font-family':MONO, 'font-size':13, 'letter-spacing':4,
+var vt = txt(80, 700, 'FLEET SCHEDULING', {'font-family':MONO, 'font-size':13, 'letter-spacing':4,
   'text-anchor':'middle', fill:INK45, transform:'rotate(-90 80 700)'});
 
 /* 轨底署名刻度 */
-txt(52, 1010, 'AI WSP · 2026', {'font-family':MONO, 'font-size':10, 'letter-spacing':2,
+txt(52, 1010, 'HENJI WSP · 2026', {'font-family':MONO, 'font-size':10, 'letter-spacing':2,
   'text-anchor':'middle', fill:INK45, transform:'rotate(-90 52 1010)'});
 
 /* ---------- FIG 图题（主体区自 x140 起） ---------- */
@@ -81,8 +81,8 @@ txt(200, 176, 'FIG. K3 — VERTICAL CHAPTER RAIL', {'font-family':MONO, 'font-si
 el('line', {x1:200, y1:192, x2:570, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ============ 示范主体：本章标题 + 三级决策链（内容随轨右移） ============ */
-txt(300, 300, 'CHAPTER 02 / 05', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
-txt(300, 362, 'AI 工程化：三级决策链路', {'font-family':'Han Serif', 'font-size':44, fill:INK});
+txt(300, 300, 'CHAPTER 03 / 05', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
+txt(300, 362, '调度引擎：三级决策链路', {'font-family':'Han Serif', 'font-size':44, fill:INK});
 el('line', {x1:300, y1:392, x2:760, y2:392, stroke:INK, 'stroke-width':.8, opacity:.5});
 
 /* 三个形态各异的仪器图元：感知（十字准星盘） / 决策（芯片组） / 执行（甘特条） */
@@ -97,8 +97,8 @@ el('line', {x1:P1, y1:SY - 104, x2:P1, y2:SY + 104, stroke:INK, 'stroke-width':.
 el('circle', {cx:P1, cy:SY, r:3, fill:INK});
 el('circle', {cx:P1 + 40, cy:SY - 44, r:5, fill:'none', stroke:INK80, 'stroke-width':1});
 el('circle', {cx:P1 + 40, cy:SY - 44, r:1.6, fill:INK});
-txt(P1, SY + 132, '数据层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
-txt(P1, SY + 160, 'DATA · CORPUS+FEATURE', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(P1, SY + 132, '感知层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(P1, SY + 160, 'SENSE · LIDAR+UWB', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* ② 决策层 · 芯片组 */
 var P2 = 960;
@@ -108,10 +108,10 @@ for (var i = 0; i < 6; i++) {
   el('line', {x1:P2 - 78 - 18, y1:SY - 40 + i * 16, x2:P2 - 78, y2:SY - 40 + i * 16, stroke:INK, 'stroke-width':.9, opacity:.6});
   el('line', {x1:P2 + 78, y1:SY - 40 + i * 16, x2:P2 + 78 + 18, y2:SY - 40 + i * 16, stroke:INK, 'stroke-width':.9, opacity:.6});
 }
-txt(P2, SY - 4, 'M-ENGINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(P2, SY - 4, 'Q-ENGINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 txt(P2, SY + 22, 'V3.2', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-txt(P2, SY + 132, '模型层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
-txt(P2, SY + 160, 'MODEL · TRAIN+TUNE', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(P2, SY + 132, '决策层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(P2, SY + 160, 'DECIDE · 90MS CYCLE', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* ③ 执行层 · 迷你甘特 */
 var P3 = 1500;
@@ -122,8 +122,8 @@ el('rect', {x:P3 - 110, y:SY - 66, width:220, height:132, fill:'none', stroke:IN
     el('line', {x1:P3 - 92 + t * b[1] / 4, y1:SY + b[0] + 20, x2:P3 - 92 + t * b[1] / 4, y2:SY + b[0] + 26,
       stroke:INK, 'stroke-width':.5, opacity:.45});
 });
-txt(P3, SY + 132, '应用层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
-txt(P3, SY + 160, 'APP · DEPLOY+MONITOR', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(P3, SY + 132, '执行层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(P3, SY + 160, 'ACT · FLEET 128', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* 连接：细线 + 开放箭头 */
 [[P1 + 112, P2 - 104], [P2 + 104, P3 - 118]].forEach(function(seg){
