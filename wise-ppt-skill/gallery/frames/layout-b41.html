@@ -57,7 +57,7 @@ el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opaci
 
 /* ---------- 栏题（无线框：中文 + mono EN + 短横） ---------- */
 function colHead(x, zh, en) {
-  txt(x, 240, zh, {'font-family':SANS, 'font-weight':400, 'font-size':26, fill:INK});
+  txt(x, 240, zh, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
   txt(x, 268, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':3, fill:INK45});
   el('line', {x1:x, y1:286, x2:x + 96, y2:286, stroke:INK, 'stroke-width':.8, opacity:.5});
   el('line', {x1:x, y1:292, x2:x + 500, y2:292, stroke:INK, 'stroke-width':.6, opacity:.22});
@@ -68,7 +68,7 @@ function colHead(x, zh, en) {
 function itemDot(x, y, title, note, field) {
   el('circle', {cx:x + 8, cy:y - 7, r:4.2, fill:'none', stroke:INK80, 'stroke-width':1});
   el('circle', {cx:x + 8, cy:y - 7, r:1.4, fill:INK});
-  txt(x + 28, y, title, {'font-family':SANS, 'font-weight':400, 'font-size':21, fill:INK});
+  txt(x + 28, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
   txt(x + 500, y, field, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
   txt(x + 28, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
 }
@@ -87,7 +87,7 @@ function itemBox(x, y, title, note, field, glyph) {
   } else {                  /* 菱点 */
     el('path', {d:'M ' + (x + 15) + ' ' + (y - 17) + ' l 7 8 l -7 8 l -7 -8 Z', fill:'none', stroke:INK, 'stroke-width':.8, opacity:.7});
   }
-  txt(x + 48, y, title, {'font-family':SANS, 'font-weight':400, 'font-size':21, fill:INK});
+  txt(x + 48, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
   txt(x + 500, y, field, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
   txt(x + 48, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
 }
@@ -95,12 +95,12 @@ function itemBox(x, y, title, note, field, glyph) {
 function itemIdx(x, y, idx, title, note, field) {
   txt(x, y, idx, {'font-family':MONO, 'font-size':15, 'letter-spacing':1, fill:INK80});
   el('line', {x1:x, y1:y + 8, x2:x + 34, y2:y + 8, stroke:INK80, 'stroke-width':.8, opacity:.5});
-  txt(x + 64, y, title, {'font-family':SANS, 'font-weight':400, 'font-size':21, fill:INK});
+  txt(x + 64, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
   txt(x + 500, y, field, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
   txt(x + 64, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
 }
 
-/* ============ 三柱（衡玑调度平台功能清单 · 数据虚构） ============ */
+/* ============ 三柱（衡玑调度平台功能清单 ） ============ */
 var Y0 = 350, GAP = 128;
 
 /* 柱 1 · 调度核心 */

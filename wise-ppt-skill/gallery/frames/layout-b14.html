@@ -57,7 +57,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B14 — GANTT WATERFALL', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ============ 时间刻度尺：0–90S（衡玑调度平台 · 单任务周期，数据虚构） ============ */
+/* ============ 时间刻度尺：0–90S（衡玑调度平台 · 单任务周期） ============ */
 var X0 = 480, X1 = 1800, RY = 210;            // 14.67 px/s
 function mx(s){ return X0 + s * (X1 - X0) / 90; }
 

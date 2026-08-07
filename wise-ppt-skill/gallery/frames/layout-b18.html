@@ -68,7 +68,7 @@ stages.forEach(function(s, i){
   el('circle', {cx:cx, cy:275, r:11.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
   txt(cx, 280, s.no, {'font-family':MONO, 'font-size':13, 'text-anchor':'middle', fill:INK});
   el('line', {x1:cx-24, y1:302, x2:cx+24, y2:302, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(cx, 332, s.cn, {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+  txt(cx, 332, s.cn, {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
   /* 站心 → 矩阵列的锚定虚线（构造线不擦除） */
   el('line', {x1:cx, y1:344, x2:cx, y2:376, stroke:INK, 'stroke-width':.5, opacity:.25, 'stroke-dasharray':'2 5'});
 });
@@ -120,7 +120,7 @@ dims.forEach(function(d, r){
   var rt = MT + r*ROWH;
   /* 维度栏标签 */
   txt(165, rt+62, d.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK});
-  txt(165, rt+90, d.cn, {'font-family':SANS, 'font-weight':400, 'font-size':18, fill:INK70});
+  txt(165, rt+90, d.cn, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
   /* 各阶段列内 2×2 小字段 */
   d.cells.forEach(function(fields, c){
     var cl = COLS[c];

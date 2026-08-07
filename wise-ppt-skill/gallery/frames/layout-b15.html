@@ -51,7 +51,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B15 — CONSTELLATION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 星座映射网：左能力原子 → 右产品功能（衡玑调度平台，数据虚构） ---------- */
+/* ---------- 星座映射网：左能力原子 → 右产品功能（衡玑调度平台） ---------- */
 var AX = 360;    /* 原子节点 x */
 var MX = 1380;   /* 功能落点 x */
 var atoms = [
@@ -127,7 +127,7 @@ atoms.forEach(function(a){
 feats.forEach(function(m){
   el('circle', {cx:MX, cy:m.y, r:7, fill:'none', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:MX, cy:m.y, r:2.4, fill:INK});
-  txt(MX+24, m.y+2, m.cn, {'font-family':SANS, 'font-weight':400, 'font-size':22, fill:INK});
+  txt(MX+24, m.y+2, m.cn, {'font-family':SANS, 'font-weight':300, 'font-size':22, fill:INK});
   txt(MX+24, m.y+28, m.en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
 });
 

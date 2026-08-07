@@ -56,7 +56,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B16 — NESTED ZOOM FRAMES', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 主角：嵌套变焦框（衡玑调度平台 · 观察粒度逐层拉远，数据虚构） ---------- */
+/* ---------- 主角：嵌套变焦框（衡玑调度平台 · 观察粒度逐层拉远） ---------- */
 var CX = 780, CY = 520;
 var levels = [
   {no:'01', en:'ROBOT', cn:'单机状态', note:'（这台机器人）', half:74,  dash:null,   w:1.4, op:.9},
@@ -103,7 +103,7 @@ rail.forEach(function(r){
   el('circle', {cx:ex, cy:r.ly, r:2.4, fill:INK, opacity:.6});
   el('line', {x1:ex, y1:r.ly, x2:lx-10, y2:r.ly, stroke:INK, 'stroke-width':.7, opacity:.45});
   txt(lx, r.ly-2,  L.no + ' · ' + L.en, {'font-family':MONO, 'font-size':16, 'letter-spacing':2, fill:INK});
-  txt(lx, r.ly+32, L.cn, {'font-family':SANS, 'font-weight':400, 'font-size':23, fill:INK});
+  txt(lx, r.ly+32, L.cn, {'font-family':SANS, 'font-weight':300, 'font-size':23, fill:INK});
   txt(lx, r.ly+60, L.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK70});
 });
 

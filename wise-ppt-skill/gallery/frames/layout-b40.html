@@ -67,7 +67,7 @@ CHY.forEach(function(y, i){
 
 /* 竖排章节名：中文逐字 + mono EN 旋转 */
 '调度引擎'.split('').forEach(function(ch, i){
-  txt(46, 436 + i * 46, ch, {'font-family':SANS, 'font-weight':400, 'font-size':26, 'text-anchor':'middle', fill:INK});
+  txt(46, 436 + i * 46, ch, {'font-family':SANS, 'font-weight':300, 'font-size':26, 'text-anchor':'middle', fill:INK});
 });
 var vt = txt(80, 700, 'FLEET SCHEDULING', {'font-family':MONO, 'font-size':13, 'letter-spacing':4,
   'text-anchor':'middle', fill:INK45, transform:'rotate(-90 80 700)'});
@@ -97,7 +97,7 @@ el('line', {x1:P1, y1:SY - 104, x2:P1, y2:SY + 104, stroke:INK, 'stroke-width':.
 el('circle', {cx:P1, cy:SY, r:3, fill:INK});
 el('circle', {cx:P1 + 40, cy:SY - 44, r:5, fill:'none', stroke:INK80, 'stroke-width':1});
 el('circle', {cx:P1 + 40, cy:SY - 44, r:1.6, fill:INK});
-txt(P1, SY + 132, '感知层', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(P1, SY + 132, '感知层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
 txt(P1, SY + 160, 'SENSE · LIDAR+UWB', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* ② 决策层 · 芯片组 */
@@ -110,7 +110,7 @@ for (var i = 0; i < 6; i++) {
 }
 txt(P2, SY - 4, 'Q-ENGINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 txt(P2, SY + 22, 'V3.2', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-txt(P2, SY + 132, '决策层', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(P2, SY + 132, '决策层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
 txt(P2, SY + 160, 'DECIDE · 90MS CYCLE', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* ③ 执行层 · 迷你甘特 */
@@ -122,7 +122,7 @@ el('rect', {x:P3 - 110, y:SY - 66, width:220, height:132, fill:'none', stroke:IN
     el('line', {x1:P3 - 92 + t * b[1] / 4, y1:SY + b[0] + 20, x2:P3 - 92 + t * b[1] / 4, y2:SY + b[0] + 26,
       stroke:INK, 'stroke-width':.5, opacity:.45});
 });
-txt(P3, SY + 132, '执行层', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(P3, SY + 132, '执行层', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
 txt(P3, SY + 160, 'ACT · FLEET 128', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* 连接：细线 + 开放箭头 */

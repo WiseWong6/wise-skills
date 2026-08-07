@@ -103,6 +103,7 @@ function stageFit() {
   if (T.indexOf('cool') >= 0) document.documentElement.classList.add('cool');
   if (T.indexOf('mono') >= 0) document.documentElement.classList.add('mono');
   if (T.indexOf('ppt') >= 0) document.documentElement.classList.add('ppt');
+  if (T.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
   function fit() {
     var s = document.querySelector('.stage');
     var k = Math.min(innerWidth / 1920, innerHeight / 1080);

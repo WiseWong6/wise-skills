@@ -86,7 +86,7 @@ var layers = [
 layers.forEach(function(L, i){
   var midY = (L.y0 + L.y1)/2;
   /* 层名 */
-  txt(cX, midY-4, L.t, {'font-family':SANS, 'font-weight':400, 'font-size': i===2?24:30, 'text-anchor':'middle', fill:INK});
+  txt(cX, midY-4, L.t, {'font-family':SANS, 'font-weight':300, 'font-size': i===2?24:30, 'text-anchor':'middle', fill:INK});
   txt(cX, midY+26, L.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   /* 左侧：虚线引出 mono 数量 */
   var lw = wAt(midY);
