@@ -77,6 +77,11 @@
     color: var(--ink);
     z-index: 5;
   }
+
+  /* accent：错处「高达 100 元」染番茄红（否决/警示语义） */
+  :root.accent .bub .wrong { color: var(--accent-red); }
+  /* accent：居中批注的计算式大字染番茄红 */
+  :root.accent .note .big { color: var(--accent-red); }
 </style>
 </head>
 <body>

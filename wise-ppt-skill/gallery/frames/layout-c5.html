@@ -34,6 +34,10 @@ var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -52,7 +56,7 @@ el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opaci
 
 /* ============ 顶部总量：大数字 + 一行注（衡玑科技 ） ============ */
 txt(960, 246, 'TOTAL COMPUTE BUDGET / FY2026', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-txt(960, 336, '¥ 42,000,000', {'font-family':MONO, 'font-size':92, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(960, 336, '¥ 42,000,000', {'font-family':MONO, 'font-size':92, 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：总额是全页焦点 */
 txt(960, 382, '年度算力预算总额 · 按调度子系统拆分为四份', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 el('line', {x1:560, y1:312, x2:660, y2:312, stroke:INK, 'stroke-width':.8, opacity:.45});
 el('line', {x1:1260, y1:312, x2:1360, y2:312, stroke:INK, 'stroke-width':.8, opacity:.45});

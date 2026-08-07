@@ -35,6 +35,10 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -96,14 +100,16 @@ el('path', {d:'M 300 560 C 420 560, 470 430, 590 430 C 710 430, 710 700, 830 700
 
 /* ---------- 节点双圈 + 引线标注 ---------- */
 nodes.forEach(function(n){
-  el('circle', {cx:n.x, cy:n.y, r:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
-  el('circle', {cx:n.x, cy:n.y, r:2.4, fill:INK});
+  var pain = (n.t === -1);               /* 谷点=痛点=番茄红否决/警示语义 */
+  var inkN = (ACCENT && pain) ? RED : INK;
+  el('circle', {cx:n.x, cy:n.y, r:9, fill:'#DFE0D9', stroke:(ACCENT && pain ? RED : INK80), 'stroke-width':1.2});
+  el('circle', {cx:n.x, cy:n.y, r:2.4, fill:inkN});
   var up = (n.t >= 0);   /* 峰/中：标注在上方；谷：下方 */
   var ly = up ? n.y - 46 : n.y + 58;
   el('line', {x1:n.x, y1:up ? n.y-13 : n.y+13, x2:n.x, y2:up ? n.y-32 : n.y+34,
     stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 4'});
-  txt(n.x, ly, n.cn, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
-  txt(n.x, up ? ly-28 : ly+26, n.sc, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(n.x, ly, n.cn, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:inkN});
+  txt(n.x, up ? ly-28 : ly+26, n.sc, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT && pain ? RED : INK45)});
 });
 
 /* ---------- 虚线回环弧：尾段痛点引回上手阶段（带标签） ---------- */

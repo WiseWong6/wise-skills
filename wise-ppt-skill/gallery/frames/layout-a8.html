@@ -86,6 +86,11 @@
     font-size: 33px; letter-spacing: .04em;
     color: var(--ink); z-index: 5;
   }
+
+  /* accent：异常态染番茄红——.dot.err 红点 + #badstep 超时节点描边 + .st-err 超时文字 */
+  :root.accent .dot.err { background: var(--accent-red); border-color: var(--accent-red); }
+  :root.accent .tnode.sel { outline-color: var(--accent-red); }
+  :root.accent .tnode .st-err { color: var(--accent-red); }
 </style>
 </head>
 <body>

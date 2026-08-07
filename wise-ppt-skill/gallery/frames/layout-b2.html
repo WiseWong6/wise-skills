@@ -41,6 +41,10 @@ var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -138,23 +142,23 @@ durTag(mx(52) + 10, y4 - 12, '52 → 84 · 32S');
 /* ============ 断口圈注：手绘双椭圆 + 引线归因 ============ */
 var GCX = (mx(34) + mx(47)) / 2, GCY = y3 + BARH / 2;
 el('ellipse', {cx:GCX, cy:GCY, rx:132, ry:66, fill:'none',
-  stroke:INK80, 'stroke-width':1.4, transform:'rotate(-3 ' + GCX + ' ' + GCY + ')'});
+  stroke: ACCENT ? RED : INK80, 'stroke-width':1.4, transform:'rotate(-3 ' + GCX + ' ' + GCY + ')'});
 el('ellipse', {cx:GCX + 4, cy:GCY + 3, rx:140, ry:72, fill:'none',
-  stroke:INK80, 'stroke-width':0.9, opacity:.5, transform:'rotate(4 ' + GCX + ' ' + GCY + ')'});
+  stroke: ACCENT ? RED : INK80, 'stroke-width':0.9, opacity:.5, transform:'rotate(4 ' + GCX + ' ' + GCY + ')'});
 
 /* 竖向构造线：断口中心 → 刻度尺（T+40S） */
 el('line', {x1:GCX, y1:GCY - 66, x2:GCX, y2:RY + 24,
   stroke:INK, 'stroke-width':0.6, 'stroke-dasharray':'3 6', opacity:.3});
-el('circle', {cx:GCX, cy:RY, r:3.5, fill:'none', stroke:INK80, 'stroke-width':1});
+el('circle', {cx:GCX, cy:RY, r:3.5, fill:'none', stroke: ACCENT ? RED : INK80, 'stroke-width':1});
 txt(GCX + 12, RY + 44, 'T+40S', {'font-family':MONO, 'font-size':13, fill:'rgba(25,25,23,.5)'});
 
 /* 细引线：圈底 → 归因标注 */
 el('path', {d:'M ' + (GCX + 16) + ' ' + (GCY + 64) + ' Q ' + (GCX + 70) + ' ' + (GCY + 92) + ' ' + (GCX + 118) + ' ' + (GCY + 98),
   fill:'none', stroke:INK80, 'stroke-width':1, opacity:.7});
 txt(GCX + 185, GCY + 105, 'AVOID TIMEOUT · REMAP@V3.2',
-  {'font-family':MONO, 'font-size':16, 'letter-spacing':1.5, 'text-anchor':'end', fill:INK});
+  {'font-family':MONO, 'font-size':16, 'letter-spacing':1.5, 'text-anchor':'end', fill: ACCENT ? RED : INK});
 txt(GCX + 185, GCY + 132, '避让等待超时，触发地图重算',
-  {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill:'rgba(25,25,23,.6)'});
+  {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill: ACCENT ? RED : 'rgba(25,25,23,.6)'});
 el('line', {x1:GCX + 185 - 292, y1:GCY + 114, x2:GCX + 185 - 250, y2:GCY + 114,
   stroke:INK80, 'stroke-width':0.8, opacity:.5});
 

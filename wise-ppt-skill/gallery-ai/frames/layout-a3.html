@@ -35,6 +35,10 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -86,7 +90,7 @@ el('line', {x1:FX+44, y1:FY+126, x2:FX+FW-44, y2:FY+126, stroke:INK80, 'stroke-w
 el('line', {x1:FX+44, y1:FY+131, x2:FX+560, y2:FY+131, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* 标题行 */
-txt(960, FY+176, '生成式人工智能服务管理暂行办法', {'font-family':SANS, 'font-weight':300, 'font-size':28, 'text-anchor':'middle', fill:INK});
+txt(960, FY+176, '生成式人工智能服务管理暂行办法', {'font-family':SANS, 'font-weight':300, 'font-size':28, 'text-anchor':'middle', fill:(ACCENT ? RED : INK)});
 txt(960, FY+206, 'INTERIM MEASURES · CHAPTER IV', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
 /* 正文灰行暗示（条文号 + 圆点字段行） */

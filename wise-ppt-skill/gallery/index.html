@@ -31,9 +31,17 @@
     border-right: 1px solid rgba(25,25,23,.35);
     display: flex; flex-direction: column;
     height: 100vh;
+    position: relative;
+  }
+  /* 底部分割线：与右侧 #foot 顶边同高 */
+  #side::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 40px;
+    border-top: 1px solid rgba(25,25,23,.35);
   }
   #side .brand {
-    padding: 26px 24px 20px;
+    height: 76px; box-sizing: border-box;
+    display: flex; align-items: center;
+    padding: 0 24px;
     border-bottom: 1px solid rgba(25,25,23,.35);
   }
   #side .brand .en {
@@ -41,7 +49,7 @@
     color: rgba(25,25,23,.5);
   }
   #side .brand .cn {
-    margin-top: 10px; font-size: 24px; font-weight: 300; letter-spacing: .06em;
+    font-size: 24px; font-weight: 300; letter-spacing: .06em;
   }
   #side .brand .count {
     margin-top: 10px; font-family: var(--mono); font-size: 11px;
@@ -76,8 +84,9 @@
   /* ---------- 主预览区 ---------- */
   #main { flex: 1; display: flex; flex-direction: column; height: 100vh; min-width: 0; }
   #bar {
-    display: flex; align-items: baseline; gap: 18px;
-    padding: 22px 36px 16px;
+    height: 76px; box-sizing: border-box;
+    display: flex; align-items: center; gap: 18px;
+    padding: 0 36px;
     border-bottom: 1px solid rgba(25,25,23,.35);
   }
   #bar .code {
@@ -95,7 +104,7 @@
   }
   /* 强调色开关：高饱和点缀，不做底色填充 */
   #bar .acc-btn {
-    margin-left: auto;
+    margin-left: auto; align-self: center;
     font-family: var(--mono); font-size: 12px; letter-spacing: .2em;
     padding: 6px 14px;
     border: 1px solid rgba(25,25,23,.45);
@@ -150,7 +159,6 @@
 
 <div id="side">
   <div class="brand">
-    <div class="en">PAPER-INK LAYOUT GALLERY</div>
     <div class="cn">版式画册 · 通用</div>
   </div>
   <div id="toc"></div>
