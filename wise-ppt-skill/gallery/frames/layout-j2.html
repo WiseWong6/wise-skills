@@ -143,9 +143,12 @@ arrow(n1.r+8, n2.l-8, TY, 1);
 arrow(n2.r+8, n3.l-8, TY, 1);
 arrow(n3.r+8, n4.l-8, TY, 1);
 
-/* 右端大弧弯下：上线闸口（本页唯一强调线 2.2px） */
+/* 右端大弧弯下：上线闸口（与左端回环弧同规格 1.4px 墨80%） */
 el('path', {d:'M 1586 370 C 1746 370, 1746 670, 1586 670',
-  fill:'none', stroke:INK, 'stroke-width':2.2, opacity:.95});
+  fill:'none', stroke:INK80, 'stroke-width':1.4});
+/* 箭头头 < ：尖端(1586,670)朝左指 n5，两翼朝右(弧外侧)上下展开 */
+el('line', {x1:1586, y1:670, x2:1598, y2:662, stroke:INK80, 'stroke-width':1.2});
+el('line', {x1:1586, y1:670, x2:1598, y2:678, stroke:INK80, 'stroke-width':1.2});
 txt(1662, 500, 'GO-LIVE', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 txt(1662, 530, '上线闸口', {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
 
@@ -161,8 +164,9 @@ arrow(n7.l-8, n8.r+8, BY, -1);
 /* 左端回环弧：迭代标签（弧=语义，无标签的回环是装饰） */
 el('path', {d:'M 320 670 C 172 670, 172 370, 320 370',
   fill:'none', stroke:INK80, 'stroke-width':1.4});
-el('line', {x1:320, y1:370, x2:330, y2:360, stroke:INK80, 'stroke-width':1.2});
-el('line', {x1:320, y1:370, x2:330, y2:380, stroke:INK80, 'stroke-width':1.2});
+/* 箭头头 > ：尖端(320,370)朝右指 n1，两翼朝左(弧外侧)上下展开 */
+el('line', {x1:320, y1:370, x2:308, y2:362, stroke:INK80, 'stroke-width':1.2});
+el('line', {x1:320, y1:370, x2:308, y2:378, stroke:INK80, 'stroke-width':1.2});
 txt(246, 500, 'ITERATE · W01', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 txt(246, 530, '持续迭代', {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
 
