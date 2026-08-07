@@ -116,7 +116,7 @@ function block(side, y, code, cn, spec) {
   var rx = side === 'L' ? 136 : 1416;
   el('line', {x1:rx, y1:y-42, x2:rx, y2:y+50, stroke:INK, 'stroke-width':.8, opacity:.5});
   txt(x, y-24, code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
-  txt(x, y+8, cn, {'font-family':SANS, 'font-weight':400, 'font-size':23, fill:INK});
+  txt(x, y+8, cn, {'font-family':SANS, 'font-weight':300, 'font-size':23, fill:INK});
   txt(x, y+40, spec, {'font-family':MONO, 'font-size':13, 'letter-spacing':1.5, fill:INK45});
 }
 /* 肘形引线：锚点 → 水平 → 竖直 → 水平入块（端点小圆） */

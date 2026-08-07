@@ -94,7 +94,7 @@ bubbles.forEach(function(b){
   el('circle', {cx:b.x, cy:b.y, r:b.r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
   txt(b.x, b.y + b.r*.18, b.v, {'font-family':MONO, 'font-size':Math.round(b.r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
   /* 气泡正下：中文区名 + mono EN 注 */
-  txt(b.x, b.y + b.r + 24, b.cn, {'font-family':SANS, 'font-weight':400, 'font-size':17, 'text-anchor':'middle', fill:INK});
+  txt(b.x, b.y + b.r + 24, b.cn, {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'middle', fill:INK});
   txt(b.x, b.y + b.r + 44, b.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
 

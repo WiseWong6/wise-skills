@@ -52,7 +52,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B45 — TWIN PYRAMID MAPPING', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 双金字塔：传统班组职级 → 平台任务等级（数据虚构） ---------- */
+/* ---------- 双金字塔：传统班组职级 → 平台任务等级 ---------- */
 var TOP = 250, BASE = 610, HALF = 190;
 var mids = [295, 385, 475, 565];                  /* 四层中位线 */
 function halfAt(y){ return HALF * (y - TOP) / (BASE - TOP); }
@@ -71,12 +71,12 @@ function tower(cx, layers){
     el('line', {x1:cx-h, y1:y, x2:cx+h, y2:y, stroke:INK, 'stroke-width':.9, opacity:.5});
   });
   layers.forEach(function(L, i){
-    txt(cx, mids[i]+2, L[0], {'font-family':SANS, 'font-weight':400, 'font-size':19, 'text-anchor':'middle', fill:INK});
+    txt(cx, mids[i]+2, L[0], {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
     txt(cx, mids[i]+24, L[1], {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   });
   /* 塔题在基座下 */
   el('line', {x1:cx-80, y1:634, x2:cx+80, y2:634, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(cx, 664, layers[4], {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+  txt(cx, 664, layers[4], {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
   txt(cx, 692, layers[5], {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 }
 tower(470,  ['总监','组长','专员','仓务','传统班组职级体系','LEGACY CREW LADDER'].map(function(v,i){return v;}) && [

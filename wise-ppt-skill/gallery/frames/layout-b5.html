@@ -97,7 +97,7 @@ var cols = [
 cols.forEach(function(c){
   var x = c.x, xr = c.x + c.w;
   /* 栏头：中文标题 + 右对齐 mono tag + 双线分隔 + 虚线引线到中轴 */
-  txt(x, HY, c.title, {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+  txt(x, HY, c.title, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
   txt(xr, HY, c.tag, {'font-family':MONO, 'font-size':13, 'letter-spacing':1.5, 'text-anchor':'end', fill:INK45});
   el('line', {x1:x, y1:HY+22, x2:xr, y2:HY+22, stroke:INK, 'stroke-width':.8, opacity:.5});
   el('line', {x1:x, y1:HY+27, x2:x+120, y2:HY+27, stroke:INK, 'stroke-width':.6, opacity:.3});
@@ -108,7 +108,7 @@ cols.forEach(function(c){
   c.rows.forEach(function(r, i){
     var ry = RY0 + i * RH;
     el('circle', {cx:x, cy:ry+36, r:2.6, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.8});
-    txt(x+18, ry+43, r.label, {'font-family':SANS, 'font-weight':400, 'font-size':20, fill:INK});
+    txt(x+18, ry+43, r.label, {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK});
     txt(x+18, ry+71, r.code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
     el('line', {x1:x+182, y1:ry+12, x2:x+182, y2:ry+RH-24, stroke:INK, 'stroke-width':.6, opacity:.2, 'stroke-dasharray':'2 5'});
     r.d.forEach(function(line, j){

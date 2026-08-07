@@ -63,7 +63,7 @@ var heads = [
 heads.forEach(function(h){
   txt(h.x, 238, h.en, {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
   el('line', {x1:h.x, y1:254, x2:h.x+100, y2:254, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(h.x, 296, h.cn, {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+  txt(h.x, 296, h.cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
 });
 
 /* ---------- 栏间细线开放箭头 ---------- */
@@ -80,7 +80,7 @@ function item(x, y, no, title, note1, note2, tag){
   el('circle', {cx:x+22, cy:y, r:13, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:x+22, cy:y, r:9, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
   txt(x+22, y+4.5, no, {'font-family':MONO, 'font-size':13, 'text-anchor':'middle', fill:INK});
-  txt(x+52, y+7, title, {'font-family':SANS, 'font-weight':400, 'font-size':21, fill:INK});
+  txt(x+52, y+7, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
   txt(x+52, y+40, note1, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
   if (note2) txt(x+52, y+66, note2, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
   txt(x+444, y+7, tag, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
@@ -109,7 +109,7 @@ var CXR = 1485;
 /* KPI01 顶部对齐第一条目 y372 */
 txt(CXR, 392, 'KPI · 01', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 txt(CXR, 470, '-41%', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-txt(CXR, 506, '平均履约时长', {'font-family':SANS, 'font-weight':400, 'font-size':20, 'text-anchor':'middle', fill:INK});
+txt(CXR, 506, '平均履约时长', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
 txt(CXR, 534, '52 MIN → 31 MIN', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 el('line', {x1:1330, y1:568, x2:1640, y2:568, stroke:INK, 'stroke-width':.6, opacity:.3});
@@ -117,7 +117,7 @@ el('line', {x1:1330, y1:568, x2:1640, y2:568, stroke:INK, 'stroke-width':.6, opa
 /* KPI02 底部不超过左中栏末条目底部 y738 */
 txt(CXR, 600, 'KPI · 02', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 txt(CXR, 678, '2.3倍', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-txt(CXR, 714, '单仓日出库吞吐', {'font-family':SANS, 'font-weight':400, 'font-size':20, 'text-anchor':'middle', fill:INK});
+txt(CXR, 714, '单仓日出库吞吐', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
 txt(CXR, 738, '118K → 271K CASES / DAY', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 stageFit();

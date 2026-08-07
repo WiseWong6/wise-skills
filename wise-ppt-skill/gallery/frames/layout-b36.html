@@ -61,7 +61,7 @@ var cols = [
 ];
 cols.forEach(function(c){
   txt(c.x, 214, c.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
-  txt(c.x, 252, c.cn, {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+  txt(c.x, 252, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
   el('line', {x1:c.x, y1:268, x2:c.x+150, y2:268, stroke:INK, 'stroke-width':.8, opacity:.5});
   el('line', {x1:c.x, y1:272, x2:c.x+64, y2:272, stroke:INK, 'stroke-width':.6, opacity:.25});
 });
@@ -74,7 +74,7 @@ cols.forEach(function(c){
 
 /* ---------- 编号条款（①②③ 多级缩进，17px / 行距 36） ---------- */
 function clause(x, y, mark, lines) {
-  txt(x, y, mark, {'font-family':SANS, 'font-weight':400, 'font-size':17, fill:INK});
+  txt(x, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK});
   lines.forEach(function(ln, i){
     txt(x+34, y + i*36, ln, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK});
   });

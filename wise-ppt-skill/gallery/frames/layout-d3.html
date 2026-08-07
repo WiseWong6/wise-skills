@@ -74,7 +74,7 @@ function homeBar(x) {
 /* ===== 屏 1 · 今日任务列表 ===== */
 function screen1(x) {
   statusBar(x);
-  txt(x+22, PY+96, '今日任务', {'font-family':SANS, 'font-weight':400, 'font-size':20, fill:INK});
+  txt(x+22, PY+96, '今日任务', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK});
   txt(x+PW-22, PY+94, '12 单', {'font-family':MONO, 'font-size':12, fill:INK45, 'text-anchor':'end'});
   var dots = ['open', 'open', 'half', 'full', 'open'];
   var widths = [[150, 96], [128, 84], [142, 102], [118, 78], [136, 90]];
@@ -93,7 +93,7 @@ function screen1(x) {
 /* ===== 屏 2 · 路径地图 ===== */
 function screen2(x) {
   statusBar(x);
-  txt(x+22, PY+96, '路径监控', {'font-family':SANS, 'font-weight':400, 'font-size':20, fill:INK});
+  txt(x+22, PY+96, '路径监控', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK});
   txt(x+PW-22, PY+94, 'RB-12', {'font-family':MONO, 'font-size':12, fill:INK45, 'text-anchor':'end'});
   /* 库位栅格（构造虚线） */
   var gx0 = x+26, gy0 = PY+128, gw = PW-52, gh = 300;
@@ -135,7 +135,7 @@ function screen3(x) {
   el('circle', {cx:x+PW/2, cy:PY+150, r:40, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
   el('path', {d:'M '+(x+PW/2-11)+' '+(PY+139)+' L '+(x+PW/2+11)+' '+(PY+161)+' M '+(x+PW/2+11)+' '+(PY+139)+' L '+(x+PW/2-11)+' '+(PY+161),
     fill:'none', stroke:INK, 'stroke-width':2.6, 'stroke-linecap':'round'});
-  txt(x+PW/2, PY+232, '充电桩对接超时', {'font-family':SANS, 'font-weight':400, 'font-size':20, fill:INK, 'text-anchor':'middle'});
+  txt(x+PW/2, PY+232, '充电桩对接超时', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK, 'text-anchor':'middle'});
   txt(x+PW/2, PY+258, 'CHARGE-DOCK TIMEOUT', {'font-family':MONO, 'font-size':11, fill:INK45, 'text-anchor':'middle', 'letter-spacing':2});
   /* 字段行 */
   var fields = [['DOCK', 'CD-07'], ['ROBOT', 'RB-12'], ['SOC', '11%'], ['ELAPSED', '60s']];
@@ -147,14 +147,14 @@ function screen3(x) {
   });
   /* 操作按钮暗示 */
   el('rect', {x:x+26, y:PY+PH-108, width:PW-52, height:40, fill:'none', stroke:INK80, 'stroke-width':1.2});
-  txt(x+PW/2, PY+PH-82, '转人工接管', {'font-family':SANS, 'font-weight':400, 'font-size':15, fill:INK, 'text-anchor':'middle'});
+  txt(x+PW/2, PY+PH-82, '转人工接管', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK, 'text-anchor':'middle'});
   homeBar(x);
 }
 
 /* ===== 屏 4 · 效能统计 ===== */
 function screen4(x) {
   statusBar(x);
-  txt(x+22, PY+96, '本班效能', {'font-family':SANS, 'font-weight':400, 'font-size':20, fill:INK});
+  txt(x+22, PY+96, '本班效能', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK});
   txt(x+PW-22, PY+94, 'SHIFT-B', {'font-family':MONO, 'font-size':12, fill:INK45, 'text-anchor':'end'});
   /* 大数字 */
   txt(x+26, PY+180, '94.2', {'font-family':MONO, 'font-size':52, fill:INK});

@@ -71,7 +71,7 @@ cardX.forEach(function(px){
 function cardText(px, tag, side, name, rows, foot) {
   txt(px+36, CY+308, tag, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
   txt(px+CW-36, CY+308, side, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
-  txt(px+36, CY+348, name, {'font-family':SANS, 'font-weight':400, 'font-size':26, fill:INK});
+  txt(px+36, CY+348, name, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
   el('line', {x1:px+36, y1:CY+368, x2:px+CW-36, y2:CY+368, stroke:INK, 'stroke-width':.8, opacity:.5});
   rows.forEach(function(r, i){
     var y = CY + 404 + i * 42;

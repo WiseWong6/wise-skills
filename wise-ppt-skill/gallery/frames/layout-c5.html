@@ -83,7 +83,7 @@ rows.forEach(function(r, i){
 
   /* 中文章题 + EN 副题 + 内容预告 */
   var tx = X0 + 116;
-  txt(tx, cy+2, r.cn, {'font-family':SANS, 'font-weight':400, 'font-size':30, fill:INK, opacity:op});
+  txt(tx, cy+2, r.cn, {'font-family':SANS, 'font-weight':300, 'font-size':30, fill:INK, opacity:op});
   var cnw = r.cn.length * 32 + 26;
   txt(tx+cnw, cy-1, r.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.6)', opacity:op});
   txt(tx, cy+38, r.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)', opacity:op});

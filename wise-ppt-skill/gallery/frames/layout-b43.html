@@ -36,6 +36,9 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -52,7 +55,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B43 — KPI BIG-NUMBER BAND', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 引子（衡玑科技 · 仓储机器人调度平台，数据全部虚构） ---------- */
+/* ---------- 引子（衡玑科技 · 仓储机器人调度平台） ---------- */
 txt(960, 316, '平台上线 18 个月 · 四仓联调总账', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK70});
 txt(960, 350, 'HENGJI DISPATCH · FY2026 H1 REVIEW', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
@@ -66,16 +69,19 @@ var cells = [
 ];
 cells.forEach(function(C, i){
   var cx = 120 + 420*i + 210;
-  /* 格编号 */
-  txt(cx, 408, 'No.0' + (i+1), {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  /* 主角判定：99.97% 达成率是全页唯一焦点 → 数字/单位/中文标签 染色；No.编号与 EN 保持墨色 */
+  var focus = ACCENT && i === 1;
+  var fc = focus ? RED : null;
+  /* 格编号（不跟随染色） */
+  txt(cx, 408, 'No.0' + (i+1), {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill: INK45});
   /* 超大数字 + 降级单位 */
   var w = C.num.length * CW, gap = 16;
   var numEnd = cx + w/2 - (C.uw + gap)/2;
-  txt(numEnd, 532, C.num, {'font-family':MONO, 'font-size':108, 'text-anchor':'end', fill:INK});
-  txt(numEnd + gap, 532, C.unit, {'font-family':SANS, 'font-weight':400, 'font-size':24, 'text-anchor':'start', fill:INK70});
-  /* 中文标签 + mono EN */
-  txt(cx, 600, C.label, {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK80});
-  txt(cx, 632, C.en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(numEnd, 532, C.num, {'font-family':MONO, 'font-size':108, 'text-anchor':'end', fill: fc || INK});
+  txt(numEnd + gap, 532, C.unit, {'font-family':SANS, 'font-weight':300, 'font-size':24, 'text-anchor':'start', fill: fc || INK70});
+  /* 中文标签 + mono EN（EN 不跟随染色，保持档案感） */
+  txt(cx, 600, C.label, {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill: fc || INK80});
+  txt(cx, 632, C.en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill: INK45});
 });
 /* 格间 0.6px 竖线分隔（无外框） */
 [540, 960, 1380].forEach(function(x){

@@ -93,7 +93,7 @@ sources.forEach(function(c){
 
   /* 卡头 */
   txt(x+32, Y+44, c.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
-  txt(x+32, Y+88, c.t, {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+  txt(x+32, Y+88, c.t, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
   el('line', {x1:x+32, y1:Y+HEADER, x2:x+W-32, y2:Y+HEADER, stroke:INK, 'stroke-width':.8, opacity:.5});
   el('line', {x1:x+32, y1:Y+HEADER+4, x2:x+120, y2:Y+HEADER+4, stroke:INK, 'stroke-width':.6, opacity:.25});
 
@@ -150,7 +150,7 @@ el('rect', {x:RX0, y:RY, width:RW, height:RH, fill:'none', stroke:INK80, 'stroke
 el('rect', {x:RX0+5, y:RY+5, width:RW-10, height:RH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
 
 txt(RX0+32, RY+44, 'DISPATCH ORDER', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
-txt(RX0+32, RY+88, '调度指令', {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+txt(RX0+32, RY+88, '调度指令', {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
 el('line', {x1:RX0+32, y1:RY+RHEADER, x2:RX0+RW-32, y2:RY+RHEADER, stroke:INK, 'stroke-width':.8, opacity:.5});
 el('line', {x1:RX0+32, y1:RY+RHEADER+4, x2:RX0+120, y2:RY+RHEADER+4, stroke:INK, 'stroke-width':.6, opacity:.25});
 

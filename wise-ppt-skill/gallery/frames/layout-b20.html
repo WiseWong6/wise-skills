@@ -130,7 +130,7 @@ function card(x, y, w, h, item){
   el('rect', {x:x+5, y:y+5, width:w-10, height:h-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
   item.g(x+62, y+h/2);
   txt(x+112, y+40, item.en, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
-  txt(x+112, y+72, item.cn, {'font-family':SANS, 'font-weight':400, 'font-size':21, fill:INK});
+  txt(x+112, y+72, item.cn, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
   el('line', {x1:x+112, y1:y+88, x2:x+w-28, y2:y+88, stroke:INK, 'stroke-width':.6, opacity:.25});
   txt(x+112, y+114, item.note, {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
 }
@@ -155,7 +155,7 @@ var midItems = [
 el('rect', {x:150, y:780, width:1620, height:80, fill:'url(#hatch20)', stroke:INK80, 'stroke-width':1.3});
 el('rect', {x:156, y:786, width:1608, height:68, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
 txt(960, 819, 'HENGJI CORE — REALTIME SCHEDULING KERNEL', {'font-family':MONO, 'font-size':16, 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
-txt(960, 845, '衡玑实时调度底座 · 数字孪生仿真内核', {'font-family':SANS, 'font-weight':400, 'font-size':19, 'text-anchor':'middle', fill:INK});
+txt(960, 845, '衡玑实时调度底座 · 数字孪生仿真内核', {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
 txt(186, 845, 'REV 4.2', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
 txt(1734, 845, '2,400 AMR', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 

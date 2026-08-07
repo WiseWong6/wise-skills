@@ -56,7 +56,7 @@ var NW = 380, NH = 116, NX = 960 - NW/2, NY = 520 - NH/2;
 el('rect', {x:NX, y:NY, width:NW, height:NH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.4});
 el('rect', {x:NX+5, y:NY+5, width:NW-10, height:NH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
 txt(960, NY+46, 'DISPATCHER', {'font-family':MONO, 'font-size':24, 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
-txt(960, NY+84, '任务调度器', {'font-family':SANS, 'font-weight':400, 'font-size':23, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(960, NY+84, '任务调度器', {'font-family':SANS, 'font-weight':300, 'font-size':23, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
 
 /* ---------- 分支线：左输入 / 右输出 / 下参数 ---------- */
 var LTX = 560, RTX = 1360;
@@ -80,7 +80,7 @@ var inRows = [
   ['slot_map',       '货位占用与库存'],
   ['charge_queue',   '充电桩排队状态']
 ];
-txt(LTX, 268, '输 入', {'font-family':SANS, 'font-weight':400, 'font-size':26, 'text-anchor':'end', fill:INK});
+txt(LTX, 268, '输 入', {'font-family':SANS, 'font-weight':300, 'font-size':26, 'text-anchor':'end', fill:INK});
 txt(LTX, 296, 'INPUT', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 el('line', {x1:LTX, y1:320, x2:LTX, y2:800, stroke:INK, 'stroke-width':.8, opacity:.5});
 inRows.forEach(function(r, j){
@@ -98,7 +98,7 @@ var outRows = [
   ['heartbeat',      '运行心跳回传'],
   ['exception',      '异常事件上报']
 ];
-txt(RTX, 268, '输 出', {'font-family':SANS, 'font-weight':400, 'font-size':26, fill:INK});
+txt(RTX, 268, '输 出', {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
 txt(RTX, 296, 'OUTPUT', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK45});
 el('line', {x1:RTX, y1:320, x2:RTX, y2:860, stroke:INK, 'stroke-width':.8, opacity:.5});
 outRows.forEach(function(r, j){
@@ -115,7 +115,7 @@ var paramRows = [
   ['battery_min',  '电量阈值'],
   ['retry_ms',     '超时重派']
 ];
-txt(984, 668, '参 数', {'font-family':SANS, 'font-weight':400, 'font-size':26, fill:INK});
+txt(984, 668, '参 数', {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
 txt(984, 696, 'PARAMS', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK45});
 el('line', {x1:620, y1:700, x2:1300, y2:700, stroke:INK, 'stroke-width':.8, opacity:.5});
 paramRows.forEach(function(r, j){
