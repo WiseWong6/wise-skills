@@ -1,6 +1,6 @@
 # 字体说明
 
-paper-ink-ppt skill 依赖 5 个本地开源字体，字形是纸墨线稿风的视觉根基。
+wise-ppt-skill skill 依赖 5 个本地开源字体，字形是纸墨线稿风的视觉根基。
 字体文件（共约 79MB）**不进 git**，避免仓库膨胀。首次使用时由
 `download-fonts.sh` 从官方源自动下载。
 
