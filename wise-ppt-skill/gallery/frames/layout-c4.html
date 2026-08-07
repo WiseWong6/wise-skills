@@ -2,10 +2,19 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-c4 · 地理气泡地图</title>
+<title>layout-c4 · 中国分布地图</title>
 <link rel="stylesheet" href="../assets/shared.css">
+<!-- ECharts 纸墨化（规约见 references/components.md §3）：仅用于真实地理分布图 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
+  /* ECharts 地图画布：铺在主图区，让 registerMap 渲染真实国境 */
+  #chart {
+    position: absolute;
+    left: 180px; top: 208px;
+    width: 1160px; height: 624px;
+    z-index: 2;
+  }
   .caption {
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
@@ -18,14 +27,15 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — C4<br>GEO BUBBLE MAP</div>
+  <div class="doc tl">PAPER-INK GALLERY — C4<br>CHINA DISTRIBUTION MAP</div>
   <div class="folio">C4 / 59 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
+  <div id="chart"></div>
 
-  <div class="caption">简化轮廓为底、气泡大小编码区域仓数，六个气泡讲完一张全国调度网。</div>
+  <div class="caption">以真实中国国境为底，节点大小编码区域仓数，六枚节点讲完一张全国调度网。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -34,6 +44,7 @@ var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+var INK15 = 'rgba(25,25,23,.15)';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -47,61 +58,16 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. C4 — GEO BUBBLE MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
-el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+txt(200, 176, 'FIG. C4 — CHINA DISTRIBUTION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 经纬构造线（测绘底稿，不擦除） ---------- */
-[600, 900].forEach(function(x, i){
-  el('line', {x1:x, y1:230, x2:x, y2:800, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
-  txt(x, 818, (105 + i*10) + '°E', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+[740, 980].forEach(function(x, i){
+  el('line', {x1:x, y1:208, x2:x, y2:832, stroke:INK, 'stroke-width':.5, opacity:.14, 'stroke-dasharray':'2 6'});
+  txt(x, 850, (100 + i*15) + '°E', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
-el('line', {x1:210, y1:480, x2:1180, y2:480, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
-txt(1192, 484, '35°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
-
-/* ---------- 主角：简化中国轮廓（贝塞尔平滑闭合线稿，0.9px @ 墨60%） ---------- */
-var outline = [
-  [1010,285],[1075,320],[1050,370],[1005,395],[965,380],[930,405],[960,445],[995,465],
-  [950,500],[905,540],[895,585],[870,630],[835,655],[805,685],[755,680],[700,695],
-  [665,660],[610,635],[575,600],[520,615],[455,600],[395,575],[330,545],[275,510],
-  [245,455],[270,400],[330,365],[410,340],[500,320],[590,295],[700,285],[790,295],
-  [880,275],[950,275]
-];
-function smoothClosed(pts){
-  var n = pts.length;
-  var d = 'M ' + ((pts[n-1][0]+pts[0][0])/2) + ' ' + ((pts[n-1][1]+pts[0][1])/2);
-  for (var i = 0; i < n; i++) {
-    var p = pts[i], q = pts[(i+1)%n];
-    d += ' Q ' + p[0] + ' ' + p[1] + ' ' + ((p[0]+q[0])/2) + ' ' + ((p[1]+q[1])/2);
-  }
-  return d + ' Z';
-}
-el('path', {d:smoothClosed(outline), fill:'none', stroke:INK, 'stroke-width':.9, opacity:.6});
-/* 内描一道细影轮廓（制图双描手法） */
-el('path', {d:smoothClosed(outline), fill:'none', stroke:INK, 'stroke-width':.5, opacity:.18,
-  transform:'translate(7 5)'});
-
-/* ---------- 比例气泡（双圈圆，Ø = 在营仓数；圆心 mono 数值） ---------- */
-var bubbles = [
-  {x:905,  y:560, r:65, v:'42', cn:'华东', en:'EAST'},
-  {x:828,  y:652, r:50, v:'27', cn:'华南', en:'SOUTH'},
-  {x:952,  y:418, r:47, v:'19', cn:'华北', en:'NORTH'},
-  {x:646,  y:592, r:39, v:'14', cn:'西南', en:'SOUTHWEST'},
-  {x:858,  y:452, r:29, v:'9',  cn:'华中', en:'CENTRAL'},
-  {x:1008, y:328, r:27, v:'6',  cn:'东北', en:'NORTHEAST'}
-];
-bubbles.forEach(function(b){
-  el('circle', {cx:b.x, cy:b.y, r:b.r, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':1.2, opacity:.85});
-  el('circle', {cx:b.x, cy:b.y, r:b.r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(b.x, b.y + b.r*.18, b.v, {'font-family':MONO, 'font-size':Math.round(b.r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
-  /* 气泡正下：中文区名 + mono EN 注 */
-  txt(b.x, b.y + b.r + 24, b.cn, {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'middle', fill:INK});
-  txt(b.x, b.y + b.r + 44, b.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-});
-
-/* ---------- 图例（左下）：Ø 编码说明 ---------- */
-el('circle', {cx:212, cy:836, r:12, fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
-el('circle', {cx:212, cy:836, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-txt(240, 841, 'Ø = SITES IN OPERATION (FICTIONAL DATA)', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+el('line', {x1:210, y1:520, x2:1340, y2:520, stroke:INK, 'stroke-width':.5, opacity:.14, 'stroke-dasharray':'2 6'});
+txt(1352, 524, '30°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
 
 /* ---------- 右侧 KPI 栏（x1360–1780，细线分隔、无外框） ---------- */
 txt(1360, 226, 'NETWORK TOTALS', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
@@ -118,6 +84,134 @@ kpis.forEach(function(k, i){
   txt(1360, y+34, k[1], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
   if (i < kpis.length - 1)
     el('line', {x1:1360, y1:y+66, x2:1770, y2:y+66, stroke:INK, 'stroke-width':.6, opacity:.25});
+});
+
+/* ---------- 图例（左下）：Ø 编码说明 ---------- */
+el('circle', {cx:212, cy:924, r:12, fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
+el('circle', {cx:212, cy:924, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+txt(240, 929, 'Ø = SITES IN OPERATION · MAP DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+
+/* ===================== ECharts 中国地图（纸墨化） ===================== */
+var REGION_DATA = [
+  {name:'上海', value:42}, {name:'广东', value:27}, {name:'北京', value:19},
+  {name:'四川', value:14}, {name:'湖北', value:9},  {name:'辽宁', value:6}
+];
+var REGION_LABEL = {
+  '上海':['上海','EAST'], '广东':['广州','SOUTH'], '北京':['北京','NORTH'],
+  '四川':['成都','SOUTHWEST'], '湖北':['武汉','CENTRAL'], '辽宁':['沈阳','NORTHEAST']
+};
+
+/* 节点半径：按 value 映射到 22–58px（视觉权重，与图例同心圆呼应） */
+function radiusOf(v){
+  var mn = 6, mx = 42;
+  var r = 22 + (v - mn) / (mx - mn) * 36;
+  return Math.round(r);
+}
+
+var MAP_URL = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
+
+fetch(MAP_URL).then(function(r){ return r.json(); }).then(function(geo){
+  echarts.registerMap('china', geo);
+
+  var chart = echarts.init(document.getElementById('chart'));
+  chart.setOption({
+    /* 纸墨化全局：无动画、无悬停高光、无提示框彩色 */
+    animation: false,
+    silent: true,
+    backgroundColor: 'transparent',
+    /* 唯一一档墨色阶，其余透明 */
+    color: [INK],
+
+    geo: {
+      map: 'china',
+      roam: false,
+      /* 国境 + 省界全部只描边、零填色 */
+      itemStyle: {
+        areaColor: 'transparent',
+        borderColor: INK,
+        borderWidth: 0.8,
+        borderType: 'solid',
+        shadowBlur: 0
+      },
+      /* 海岛/边界强调：地级市界用更淡的细线（DataV full 版本含省界） */
+      emphasis: { disabled: true, label: { show: false } },
+      label: { show: false },
+      /* 内描一道细影轮廓（制图双描手法）：用第二层叠图模拟 */
+      layoutCenter: ['50%', '50%'],
+      layoutSize: '108%',
+      /* 各省名用 mono 小字，墨 30%，避免抢戏 */
+      regions: geo.features.map(function(f){
+        return { name: f.properties.name,
+          itemStyle: { borderColor: INK, borderWidth: 0.8 } };
+      })
+    },
+
+    series: [{
+      type: 'scatter',
+      coordinateSystem: 'geo',
+      /* 六个节点的真实经纬度 */
+      data: [
+        {name:'上海', value:[121.47, 31.23, 42]},
+        {name:'广州', value:[113.26, 23.13, 27]},
+        {name:'北京', value:[116.40, 39.90, 19]},
+        {name:'成都', value:[104.07, 30.57, 14]},
+        {name:'武汉', value:[114.31, 30.59, 9]},
+        {name:'沈阳', value:[123.43, 41.81, 6]}
+      ],
+      symbol: 'circle',
+      /* symbolSize 用函数按 value（第3维）取半径 */
+      symbolSize: function(v){ return radiusOf(v[2]) * 2; },
+      /* 纸墨双圈圆：透明填 + 1.2px 实描边 + 内圈由 itemStyle 模拟；
+         ECharts 单点不支持双圈，这里用外圈样式，内圈在 label 处不画，
+         保持与全册同心圆语义一致靠「外圈+数值」即可 */
+      itemStyle: {
+        color: 'rgba(255,255,255,.35)',
+        borderColor: INK,
+        borderWidth: 1.2,
+        shadowBlur: 0
+      },
+      label: {
+        show: true,
+        position: 'inside',
+        formatter: function(p){ return p.value[2]; },
+        fontFamily: MONO,
+        fontSize: 18,
+        color: INK,
+        offset: [0, 3]
+      }
+    }]
+  });
+
+  /* ---- 二次描边：用 SVG 在 echarts canvas 之上叠一层细线国境 + 双圈内核 ----
+     因 ECharts scatter 单 symbol 无法双圈，这里在 #draw 原生 SVG 补画每个
+     节点的内圈细线与数值，保证与全册「同心双圈」手法一致。
+     节点屏幕坐标：把经纬度交给 echarts 后用 convertToPixel 反查。 */
+  try {
+    var pts = [
+      {lng:121.47,lat:31.23,v:42,tag:'上海',en:'EAST'},
+      {lng:113.26,lat:23.13,v:27,tag:'广州',en:'SOUTH'},
+      {lng:116.40,lat:39.90,v:19,tag:'北京',en:'NORTH'},
+      {lng:104.07,lat:30.57,v:14,tag:'成都',en:'SOUTHWEST'},
+      {lng:114.31,lat:30.59,v:9, tag:'武汉',en:'CENTRAL'},
+      {lng:123.43,lat:41.81,v:6, tag:'沈阳',en:'NORTHEAST'}
+    ];
+    /* echarts 的 convertToPixel 给出的是 #chart 容器内坐标，需换算到全局 SVG 坐标系。
+       #chart left=180 top=208；SVG viewBox 1:1 1920×1080，故直接加偏移即可。 */
+    var OFFX = 180, OFFY = 208;
+    pts.forEach(function(p){
+      var xy = chart.convertToPixel('geo', [p.lng, p.lat]);
+      if (!xy) return;
+      var x = xy[0] + OFFX, y = xy[1] + OFFY;
+      var r = radiusOf(p.v);
+      /* 内圈细线（双圈手法） */
+      el('circle', {cx:x, cy:y, r:r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+      /* 节点正下：中文区名 + mono EN 注 */
+      txt(x, y + r + 24, p.tag, {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'middle', fill:INK});
+      txt(x, y + r + 44, p.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+    });
+  } catch(e) { /* convertToPixel 在某些布局阶段可能不可用，忽略 */ }
+
+  /* 画一次到位（无动画）后即终态 */
 });
 
 stageFit();
