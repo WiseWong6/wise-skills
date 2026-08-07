@@ -37,6 +37,10 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var SERIF = 'Han Serif';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
@@ -58,7 +62,7 @@ el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opaci
 var heads = [
   {x:150,  en:'PAIN POINTS', cn:'现状痛点'},
   {x:700,  en:'THE FIX',    cn:'运营动作'},
-  {x:1250, en:'OUTCOME',    cn:'上线成效'}
+  {x:1330, en:'OUTCOME',    cn:'上线成效'}
 ];
 heads.forEach(function(h){
   txt(h.x, 238, h.en, {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
@@ -108,16 +112,16 @@ YS.forEach(function(y, i){
 var CXR = 1485;
 /* KPI01 顶部对齐第一条目 y372 */
 txt(CXR, 392, 'KPI · 01', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt(CXR, 470, '+62%', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-txt(CXR, 506, '次日留存率', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
+txt(CXR, 470, '+62%', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：成效焦点 */
+txt(CXR, 506, '次日留存率', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill: ACCENT ? 'rgba(192,57,43,.85)' : INK});
 txt(CXR, 534, '34% → 55%', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 el('line', {x1:1330, y1:568, x2:1640, y2:568, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* KPI02 底部不超过左中栏末条目底部 y738 */
 txt(CXR, 600, 'KPI · 02', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt(CXR, 678, '2.1倍', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-txt(CXR, 714, '月度付费用户', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
+txt(CXR, 678, '2.1倍', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：成效焦点 */
+txt(CXR, 714, '月度付费用户', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill: ACCENT ? 'rgba(192,57,43,.85)' : INK});
 txt(CXR, 738, '82K → 172K PAID USERS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 stageFit();

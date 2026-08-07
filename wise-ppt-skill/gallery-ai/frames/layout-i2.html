@@ -73,7 +73,7 @@ txt(1470, CY+26, '答案已生成', {'font-family':SANS, 'font-weight':300, 'fon
 txt(1440, CY-90, '已知 · 输出', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK45});
 
 /* ---------- 中间：不可见的步骤（虚线圆角框 + 虚线箭头） ---------- */
-var steps = ['意图如何解析？','知识如何检索？','逻辑如何推演？','幻觉如何产生？','置信如何判断？'];
+var steps = ['意图如何解析？','知识如何检索？','逻辑如何推演？','幻觉与置信如何把控？'];
 var sx0 = 560, gapX = 220;
 el('line', {x1:480, y1:CY, x2:sx0-16, y2:CY, stroke:INK, 'stroke-width':1.2, 'stroke-dasharray':'6 7', 'marker-end':'url(#arrow)', opacity:.6});
 steps.forEach(function(s, i){
