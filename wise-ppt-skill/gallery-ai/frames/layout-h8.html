@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-h8 · 用量注记矩阵 · 模型调用</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 110px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 32px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">AI LAYOUT GALLERY — H8<br>USAGE-ANNOTATED MATRIX</div>
+  <div class="folio">H8 / 63 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width="0.6" opacity="0.32"/>
+      </pattern>
+    </defs>
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">每柱顶挂调用量注记，柱内子项带状态——模型供应商覆盖与活跃度，一屏读尽。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS='http://www.w3.org/2000/svg';
+var INK='#191917',INK80='rgba(25,25,23,.8)',INK70='rgba(25,25,23,.7)';
+var INK55='rgba(25,25,23,.55)',INK45='rgba(25,25,23,.45)';
+var G=document.getElementById('draw');
+function el(tag,attrs){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);G.appendChild(e);return e;}
+function txt(x,y,str,attrs){var t=el('text',Object.assign({x:x,y:y},attrs||{}));t.textContent=str;return t;}
+var MONO='Courier Prime',SANS='Han Sans';
+var ACCENT=document.documentElement.classList.contains('accent');
+var CINNABAR=ACCENT?'#C0392B':'#191917';
+
+function sGlyph(cx,cy,st){
+  if(st==='live'){el('circle',{cx:cx,cy:cy,r:2.6,fill:INK});}
+  else if(st==='wip'){el('circle',{cx:cx,cy:cy,r:3.2,fill:'none',stroke:INK80,'stroke-width':.9});el('circle',{cx:cx,cy:cy,r:1.3,fill:INK});}
+  else if(st==='new'){el('circle',{cx:cx,cy:cy,r:2.6,fill:INK});}
+  else{el('circle',{cx:cx,cy:cy,r:2.8,fill:'none',stroke:INK55,'stroke-width':.8});}
+}
+function sFill(st){return(st==='live'||st==='new')?'url(#hatch)':'none';}
+function sStroke(st){return st==='todo'?{stroke:INK55,'stroke-width':.9,'stroke-dasharray':'3 3'}:{stroke:INK80,'stroke-width':1};}
+function colItem(x,y,w,label,st){
+  var s=sStroke(st);
+  el('rect',{x:x,y:y,width:14,height:14,fill:sFill(st),stroke:s.stroke,'stroke-width':s['stroke-width'],'stroke-dasharray':s['stroke-dasharray']||'none',rx:1.5,ry:1.5});
+  sGlyph(x+7,y+7,st);
+  var op=st==='todo'?.5:.9;
+  txt(x+22,y+11,label,{'font-family':SANS,'font-weight':300,'font-size':15,fill:'rgba(25,25,23,'+op+')'});
+}
+
+txt(150,150,'FIG. H8 — USAGE-ANNOTATED MATRIX',{'font-family':MONO,'font-size':15,'letter-spacing':3,fill:INK45});
+el('line',{x1:150,y1:166,x2:540,y2:166,stroke:INK,'stroke-width':.6,opacity:.3});
+
+var LX=1240,LY=142;
+txt(LX,LY,'LEGEND',{'font-family':MONO,'font-size':12,'letter-spacing':2.5,fill:INK45});
+[['live','LIVE'],['wip','WIP'],['new','NEW'],['todo','TODO']].forEach(function(p,i){
+  var lx=LX+70+i*145,ly=138,st=p[0],ms=sStroke(st);
+  el('rect',{x:lx,y:ly,width:18,height:13,fill:sFill(st),stroke:ms.stroke,'stroke-width':.9,'stroke-dasharray':ms['stroke-dasharray']||'none',rx:1.5,ry:1.5});
+  sGlyph(lx+6,ly+6.5,st);
+  if(st==='new'){el('path',{d:'M '+(lx+16)+' '+ly+' L '+(lx+10)+' '+ly+' L '+(lx+16)+' '+(ly+6)+' Z',fill:CINNABAR,opacity:.85});}
+  txt(lx+24,ly+10,p[1],{'font-family':MONO,'font-size':11,'letter-spacing':1,fill:INK70});
+});
+
+/* 4 列：模型供应商 × 日均调用量 */
+var cols=[
+  {name:'云厂商 A',en:'VENDOR A',usage:'日均 1.28M',status:'wip',items:[
+    {label:'旗舰大模型',st:'live'},{label:'轻量快模型',st:'live'},
+    {label:'Embedding',st:'live'},{label:'多模态视觉',st:'wip'},
+    {label:'语音合成',st:'todo'}
+  ]},
+  {name:'云厂商 B',en:'VENDOR B',usage:'日均 860K',status:'wip',items:[
+    {label:'旗舰大模型',st:'live'},{label:'代码专精',st:'live'},
+    {label:'推理强化',st:'new'},{label:'Embedding',st:'live'},
+    {label:'图像生成',st:'todo'}
+  ]},
+  {name:'自研集群',en:'SELF-HOST',usage:'日均 420K',status:'live',items:[
+    {label:'微调专用',st:'live'},{label:'私有部署',st:'live'},
+    {label:'本地推理',st:'live'},{label:'数据驻留',st:'live'}
+  ]},
+  {name:'开源社区',en:'OPEN-SOURCE',usage:'日均 180K',status:'wip',items:[
+    {label:'社区模型',st:'live'},{label:'微调变体',st:'new'},
+    {label:'GGUF 量化',st:'wip'},{label:'边缘部署',st:'todo'},
+    {label:'评测基准',st:'todo'}
+  ]}
+];
+
+var MX=150,MY=240,MW=1620,colGap=24,ncols=cols.length;
+var colW=(MW-colGap*(ncols-1))/ncols,headH=120,bodyTop=MY+headH+12;
+
+cols.forEach(function(c,i){
+  if(i<ncols-1){var lx=MX+(i+1)*colW+i*colGap;el('line',{x1:lx+colGap/2,y1:MY,x2:lx+colGap/2,y2:bodyTop+420,stroke:INK,'stroke-width':.4,'stroke-dasharray':'2 6',opacity:.15});}
+});
+
+cols.forEach(function(c,i){
+  var cx=MX+i*(colW+colGap);
+  txt(cx+colW/2,MY+24,c.en,{'font-family':MONO,'font-size':12,'letter-spacing':2.5,'text-anchor':'middle',fill:INK45});
+  txt(cx+colW/2,MY+58,c.name,{'font-family':SANS,'font-weight':400,'font-size':26,'text-anchor':'middle',fill:INK});
+  var usageNum=c.usage.split(' ')[1];
+  txt(cx+colW/2,MY+98,usageNum,{'font-family':MONO,'font-size':22,'letter-spacing':1,'text-anchor':'middle',fill:INK});
+  txt(cx+colW/2,MY+116,'DAILY CALLS',{'font-family':MONO,'font-size':9,'letter-spacing':2,'text-anchor':'middle',fill:INK45});
+  sGlyph(cx+colW-18,MY+24,c.status);
+  el('line',{x1:cx,y1:MY+headH,x2:cx+colW,y2:MY+headH,stroke:INK,'stroke-width':.7,opacity:.3});
+  el('line',{x1:cx,y1:MY+headH+2,x2:cx+colW,y2:MY+headH+2,stroke:INK,'stroke-width':.4,opacity:.18});
+  c.items.forEach(function(it,j){
+    colItem(cx+16,bodyTop+j*56,colW-32,it.label,it.st);
+    if(j<c.items.length-1){el('line',{x1:cx+16,y1:bodyTop+j*56+36,x2:cx+colW-16,y2:bodyTop+j*56+36,stroke:INK,'stroke-width':.3,opacity:.12});}
+  });
+});
+
+var allItems=[];cols.forEach(function(c){c.items.forEach(function(it){allItems.push(it);});});
+var done=0;allItems.forEach(function(it){if(it.st==='live'||it.st==='new')done++;});
+var totalUsage=cols.reduce(function(s,c){var n=parseInt(c.usage.split(' ')[1].replace(/[KM]/g,''),10);var m=c.usage.indexOf('M')>=0?1000000:1000;return s+n*m;},0);
+txt(960,960,'TOTAL '+(totalUsage/1000000).toFixed(2)+'M DAILY  ·  '+done+'/'+allItems.length+' LIVE  ·  '+cols.length+' VENDORS',
+  {'font-family':MONO,'font-size':13,'letter-spacing':2.5,'text-anchor':'middle',fill:INK45});
+
+stageFit();
+</script>
+</body>
+</html>
