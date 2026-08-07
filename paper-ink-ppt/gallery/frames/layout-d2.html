@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-d2 · 图标六宫格</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink); z-index: 5;
+  }
+  /* D2 · 2×3 网格：格间无框，靠间距分组 */
+  .grid {
+    position: absolute; left: 300px; top: 280px;
+    width: 1320px; height: 520px;
+    display: grid;
+    grid-template-columns: repeat(3, 440px);
+    grid-template-rows: repeat(2, 260px);
+    z-index: 2;
+  }
+  .cell { padding: 18px 28px 0 8px; }
+  .cell i { font-size: 54px; color: var(--ink); }
+  .cell .t {
+    margin-top: 26px;
+    font-family: var(--sans); font-weight: 400; font-size: 22px;
+    color: var(--ink);
+  }
+  .cell .t span {
+    margin-left: 12px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .2em;
+    color: var(--ink-45); vertical-align: 3px;
+  }
+  .cell .d {
+    margin-top: 12px;
+    font-family: var(--sans); font-weight: 300; font-size: 17px;
+    line-height: 1.75; color: var(--ink-70);
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — D2<br>ICON SIX-GRID</div>
+  <div class="folio">D2 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="grid">
+    <div class="cell">
+      <i class="fa-solid fa-route"></i>
+      <div class="t">路径规划<span>PLANNER</span></div>
+      <div class="d">多机协同路径实时重算<br>路口冲突消解 &lt; 200ms</div>
+    </div>
+    <div class="cell">
+      <i class="fa-solid fa-battery-three-quarters"></i>
+      <div class="t">充电调度<span>CHARGING</span></div>
+      <div class="d">按电量阈值自动排程<br>波谷时段错峰回充</div>
+    </div>
+    <div class="cell">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      <div class="t">库位管理<span>SLOTTING</span></div>
+      <div class="d">货位热度动态分区<br>试点仓周转率提升 31%</div>
+    </div>
+    <div class="cell">
+      <i class="fa-solid fa-tower-broadcast"></i>
+      <div class="t">集群通信<span>MESH</span></div>
+      <div class="d">厂区 5G 局域组网<br>断点任务自动接管</div>
+    </div>
+    <div class="cell">
+      <i class="fa-solid fa-gauge-high"></i>
+      <div class="t">效能看板<span>OEE</span></div>
+      <div class="d">逐仓逐班效能统计<br>瓶颈工位自动标记</div>
+    </div>
+    <div class="cell">
+      <i class="fa-solid fa-shield-halved"></i>
+      <div class="t">安全联锁<span>SAFETY</span></div>
+      <div class="d">人机混行区自动降速<br>急停响应 &lt; 80ms</div>
+    </div>
+  </div>
+
+  <div class="caption">图标六宫格是兜底版式：概念抽象到画不出关系图时，用六枚墨色图标并列陈列。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime';
+
+/* FIG 图题 */
+txt(200, 176, 'FIG. D2 — ICON SIX-GRID', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:'rgba(25,25,23,.45)'});
+el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 网格上下缘的构造虚线（测绘痕迹，不进格内） */
+el('line', {x1:300, y1:262, x2:1620, y2:262, stroke:INK, 'stroke-width':.6, opacity:.22, 'stroke-dasharray':'2 6'});
+el('line', {x1:300, y1:818, x2:1620, y2:818, stroke:INK, 'stroke-width':.6, opacity:.22, 'stroke-dasharray':'2 6'});
+
+stageFit();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-b21 · 痛点→解法→成效三栏</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  canvas { position: absolute; inset: 0; z-index: 2; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — B21<br>PAIN — FIX — GAIN</div>
+  <div class="folio">B21 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+  <canvas id="cv" width="1920" height="1080"></canvas>
+
+  <div class="caption">问题、解法、成效各一栏，编号逐条对位——汇报叙事的最小闭环。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var SERIF = 'Han Serif';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. B21 — PAIN — FIX — GAIN', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 栏头：mono 栏题 + 短横 + 中文栏题 ---------- */
+var heads = [
+  {x:150,  en:'PAIN POINTS', cn:'现状痛点'},
+  {x:700,  en:'THE FIX',    cn:'衡玑解法'},
+  {x:1250, en:'OUTCOME',    cn:'上线成效'}
+];
+heads.forEach(function(h){
+  txt(h.x, 238, h.en, {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+  el('line', {x1:h.x, y1:254, x2:h.x+100, y2:254, stroke:INK, 'stroke-width':.8, opacity:.5});
+  txt(h.x, 296, h.cn, {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+});
+
+/* ---------- 栏间细线开放箭头 ---------- */
+function colArrow(x1, x2, y){
+  el('line', {x1:x1, y1:y, x2:x2, y2:y, stroke:INK, 'stroke-width':1.2, opacity:.6});
+  el('line', {x1:x2-10, y1:y-6, x2:x2, y2:y, stroke:INK, 'stroke-width':1.2, opacity:.6});
+  el('line', {x1:x2-10, y1:y+6, x2:x2, y2:y, stroke:INK, 'stroke-width':1.2, opacity:.6});
+}
+colArrow(636, 684, 540);
+colArrow(1186, 1234, 540);
+
+/* ---------- 编号条目（左右栏同构对位） ---------- */
+function item(x, y, no, title, note1, note2, tag){
+  el('circle', {cx:x+22, cy:y, r:13, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
+  el('circle', {cx:x+22, cy:y, r:9, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
+  txt(x+22, y+4.5, no, {'font-family':MONO, 'font-size':13, 'text-anchor':'middle', fill:INK});
+  txt(x+52, y+7, title, {'font-family':SANS, 'font-weight':400, 'font-size':21, fill:INK});
+  txt(x+52, y+40, note1, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+  if (note2) txt(x+52, y+66, note2, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+  txt(x+444, y+7, tag, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+}
+
+var pains = [
+  ['1', '高峰拥堵', '大促峰值，机器人在路口互相等待，', '通道利用率跌到六成。', 'QUEUE'],
+  ['2', '人工改派', '异常任务靠调度员手工改派，', '响应以十分钟计。', 'MANUAL'],
+  ['3', '协议孤岛', '三个品牌机器人各说各话，', '无法混编作业。', 'SILO']
+];
+var fixes = [
+  ['1', '时空预约', '全局路径按时间片预约，', '路口零等待。', 'T-RESERVE'],
+  ['2', '秒级改派', '改派引擎自动重算路径，', '异常任务 18 秒内重新上路。', 'AUTO'],
+  ['3', '统一接入', '协议适配层屏蔽品牌差异，', '异构车队混编。', 'UNIFY']
+];
+var YS = [372, 522, 672];
+YS.forEach(function(y, i){
+  item(150, y, pains[i][0], pains[i][1], pains[i][2], pains[i][3], pains[i][4]);
+  item(700, y, fixes[i][0], fixes[i][1], fixes[i][2], fixes[i][3], fixes[i][4]);
+  /* 对位虚线（栏间短桥，编号对齐语义） */
+  el('line', {x1:616, y1:y, x2:680, y2:y, stroke:INK, 'stroke-width':.5, opacity:.3, 'stroke-dasharray':'2 5'});
+});
+
+/* ---------- 右栏：成效大数字（只放 2 个） ---------- */
+var CXR = 1485;
+txt(CXR, 420, 'KPI · 01', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(CXR, 508, '-41%', {'font-family':SERIF, 'font-size':92, 'text-anchor':'middle', fill:INK});
+txt(CXR, 552, '平均履约时长', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(CXR, 584, '52 MIN → 31 MIN', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+
+el('line', {x1:1330, y1:626, x2:1640, y2:626, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+txt(CXR, 668, 'KPI · 02', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(CXR, 756, '2.3倍', {'font-family':SERIF, 'font-size':92, 'text-anchor':'middle', fill:INK});
+txt(CXR, 800, '单仓日出库吞吐', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(CXR, 832, '118K → 271K CASES / DAY', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+
+stageFit();
+</script>
+</body>
+</html>

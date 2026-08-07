@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-a1 · 标本卡</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+
+  /* 标本面板：值班对话原件 */
+  .specimen {
+    position: absolute;
+    left: 300px; top: 168px;
+    width: 920px;
+    background: rgba(255,255,255,.22);
+    border: 1px solid rgba(25,25,23,.32);
+    border-radius: 18px;
+    box-shadow: 8px 10px 0 rgba(25,25,23,.04);
+    overflow: hidden;
+    z-index: 2;
+  }
+  .specbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 15px 24px;
+    border-bottom: 1px solid rgba(25,25,23,.25);
+  }
+  .specbar .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(25,25,23,.3); }
+  .specbar .t {
+    font-family: var(--mono); font-size: 13px; letter-spacing: .25em;
+    color: var(--ink-45); margin-left: 12px;
+  }
+  .specbody { padding: 28px 30px 24px; }
+
+  .msg { display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start; }
+  .avatar {
+    flex: none; width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid rgba(25,25,23,.38);
+    display: grid; place-items: center;
+    font-family: var(--sans); font-weight: 400; font-size: 15px;
+    background: rgba(255,255,255,.22);
+  }
+  .bub {
+    max-width: 740px;
+    padding: 16px 24px;
+    border: 1px solid rgba(25,25,23,.38);
+    border-radius: 16px;
+    font-family: var(--sans); font-weight: 300;
+    font-size: 22px; line-height: 1.8;
+  }
+  .msg.user { flex-direction: row-reverse; }
+  .msg.user .bub { border-bottom-right-radius: 4px; font-weight: 400; background: rgba(255,255,255,.22); }
+  .msg.ai .bub { border-bottom-left-radius: 4px; }
+  .bub .sc { font-family: var(--mono); font-size: 24px; color: var(--ink); }
+  .bub .rs { color: var(--ink-45); font-size: 18px; }
+  .bub .item { display: flex; gap: 12px; margin-top: 6px; }
+  .bub .item .pt { flex: none; padding-top: 11px; font-size: 12px; color: var(--ink-45); }
+  .bub .wrong { font-weight: 400; }
+
+  /* 居中手写批注 */
+  .note {
+    position: absolute; left: 50%; top: 704px;
+    transform: translateX(-50%) rotate(-1.5deg);
+    text-align: center;
+    z-index: 4;
+    font-family: var(--brush);
+    color: var(--ink);
+  }
+  .note .big { font-size: 76px; line-height: 1.2; }
+  .note .sub { font-size: 38px; margin-top: 6px; color: var(--ink-70); }
+
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 108px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 32px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — A1<br>SPECIMEN CARD</div>
+  <div class="folio">A1 / 59 — BY WISEWONG</div>
+
+  <div class="specimen">
+    <div class="specbar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="t">HENGJI DISPATCH DESK · LOG NO.0317</span>
+    </div>
+    <div class="specbody">
+      <div class="msg user">
+        <div class="avatar">周</div>
+        <div class="bub">今晚 B 区出库峰值，平台扛得住吗？</div>
+      </div>
+      <div class="msg ai">
+        <div class="avatar">衡</div>
+        <div class="bub">
+          已拉取近 6 周 B 区历史数据，预测如下：
+          <div class="item"><span class="pt">●</span><div>峰值 <span class="sc">1840</span> 单/时 <span class="rs">—— 出现在 21:00–22:00</span></div></div>
+          <div class="item"><span class="pt">●</span><div>当前可用运力 <span class="sc">1500</span> 单/时 <span class="rs">—— 含 2 台待检修</span></div></div>
+          <div class="item"><span class="pt">●</span><div>结论：运力<span class="wrong" id="wrong">富余 340 单/时</span>，建议照常排班。</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <div class="big">1840 − 1500 = −340</div>
+    <div class="sub">是缺口，不是「富余」。</div>
+  </div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="anno"></g>
+  </svg>
+
+  <div class="caption">标本卡钉住证据原件——一段对话、一张单据，错处圈出来，批注落在它旁边。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+/* 细线圈住「富余 340 单/时」+ 引线到居中批注（程序化定位） */
+(function(){
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(tag, attrs, parent) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    parent.appendChild(e); return e;
+  }
+  var g = document.getElementById('anno');
+  var t = document.getElementById('wrong').getBoundingClientRect();
+  var s = document.querySelector('.stage').getBoundingClientRect();
+  var k = s.width / 1920;
+  var cx = (t.left + t.width/2 - s.left)/k, cy = (t.top + t.height/2 - s.top)/k;
+  var INK = '#191917';
+  el('ellipse', {cx:cx, cy:cy, rx:t.width/k*.72, ry:t.height/k*1.05, fill:'none',
+    stroke:INK, 'stroke-width':2, transform:'rotate(-4 '+cx+' '+cy+')'}, g);
+  el('ellipse', {cx:cx+3, cy:cy+2, rx:t.width/k*.78, ry:t.height/k*1.12, fill:'none',
+    stroke:INK, 'stroke-width':1, opacity:.45, transform:'rotate(6 '+cx+' '+cy+')'}, g);
+  /* 引线向下到批注 */
+  el('path', {d:'M '+(cx+4)+' '+(cy+34)+' C '+(cx+8)+' '+(cy+130)+' '+(cx+70)+' '+(cy+190)+' '+(cx+130)+' 692',
+    fill:'none', stroke:INK, 'stroke-width':1.4, 'stroke-linecap':'round'}, g);
+  el('path', {d:'M '+(cx+114)+' 682 L '+(cx+134)+' 694 L '+(cx+110)+' 702',
+    fill:'none', stroke:INK, 'stroke-width':1.4, 'stroke-linecap':'round', 'stroke-linejoin':'round'}, g);
+})();
+
+stageFit();
+</script>
+</body>
+</html>

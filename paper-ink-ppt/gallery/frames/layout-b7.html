@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-b7 · 四象限矩阵</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — B7<br>FOUR-QUADRANT MATRIX</div>
+  <div class="folio">B7 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">四象限矩阵用一个中心圆标统摄四个组成象限，适合定义核心概念由哪几部分构成。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. B7 — FOUR-QUADRANT MATRIX', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:'rgba(25,25,23,.45)'});
+el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 中央双圈圆标：衡玑「衡枢」调度内核 ---------- */
+var CX = 960, CY = 590, CR = 92;
+el('circle', {cx:CX, cy:CY, r:CR, fill:'none', stroke:INK80, 'stroke-width':1.6});
+el('circle', {cx:CX, cy:CY, r:CR-8, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
+txt(CX, CY+2, 'DISPATCH', {'font-family':MONO, 'font-size':28, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(CX, CY+34, '调度内核 · 一个大脑', {'font-family':SANS, 'font-weight':300, 'font-size':18, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
+
+/* ---------- 四象限双线卡 ---------- */
+var quads = [
+  {x: 420, y: 330, en:'TASK POOL',   cn:'任务池',   d:'订单拆解、排队与优先级'},
+  {x:1180, y: 330, en:'PATH ENGINE', cn:'路径引擎', d:'实时规划、避障与让行'},
+  {x: 420, y: 690, en:'FLEET MAP',   cn:'车队图谱', d:'位姿、电量与健康度'},
+  {x:1180, y: 690, en:'RULE DESK',   cn:'规则台',   d:'策略参数与人工干预'}
+];
+var QW = 330, QH = 150;
+
+quads.forEach(function(q){
+  /* 双线卡框 */
+  el('rect', {x:q.x, y:q.y, width:QW, height:QH, fill:'none', stroke:INK80, 'stroke-width':1.2});
+  el('rect', {x:q.x+5, y:q.y+5, width:QW-10, height:QH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+  txt(q.x+26, q.y+46, q.en, {'font-family':MONO, 'font-size':19, 'letter-spacing':1, fill:INK});
+  el('line', {x1:q.x+26, y1:q.y+60, x2:q.x+90, y2:q.y+60, stroke:INK, 'stroke-width':1});
+  txt(q.x+26, q.y+102, q.cn, {'font-family':SANS, 'font-weight':400, 'font-size':26, fill:INK});
+  txt(q.x+26, q.y+132, q.d, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:'rgba(25,25,23,.55)'});
+  /* 到中心的虚线构造连线（中点落小圆点） */
+  var tx0 = (q.x + QW/2 < CX) ? q.x + QW : q.x;
+  var ty = q.y + QH/2;
+  var mx = (tx0 + CX)/2, my = (ty + CY)/2;
+  el('line', {x1:tx0, y1:ty, x2:CX + (tx0<CX?-CR-6:CR+6), y2:CY + (ty<CY?-14:14),
+    stroke:INK, 'stroke-width':.7, 'stroke-dasharray':'3 5', opacity:.45});
+  el('circle', {cx:mx, cy:my, r:2.4, fill:INK, opacity:.6});
+});
+
+/* ---------- 十字虚线基准轴 ---------- */
+el('line', {x1:CX, y1:270, x2:CX, y2:900, stroke:INK, 'stroke-width':.5, 'stroke-dasharray':'2 6', opacity:.25});
+el('line', {x1:330, y1:CY, x2:1590, y2:CY, stroke:INK, 'stroke-width':.5, 'stroke-dasharray':'2 6', opacity:.25});
+
+stageFit();
+</script>
+</body>
+</html>
