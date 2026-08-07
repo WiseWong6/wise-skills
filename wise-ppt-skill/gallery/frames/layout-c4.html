@@ -15,6 +15,12 @@
     width: 1160px; height: 624px;
     z-index: 2;
   }
+  /* SVG 节点叠层：盖在 echarts canvas 之上，画双圈节点/数值/城市名 */
+  svg.overlay {
+    position: absolute; left: 0; top: 0;
+    width: 1920px; height: 1080px;
+    z-index: 3; pointer-events: none;
+  }
   .caption {
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
@@ -34,6 +40,9 @@
     <g id="draw"></g>
   </svg>
   <div id="chart"></div>
+  <svg class="overlay" viewBox="0 0 1920 1080">
+    <g id="nodes"></g>
+  </svg>
 
   <div class="caption">以真实中国国境为底，节点大小编码区域仓数，六枚节点讲完一张全国调度网。</div>
 </div>
@@ -91,127 +100,95 @@ el('circle', {cx:212, cy:924, r:12, fill:'none', stroke:INK, 'stroke-width':1, o
 el('circle', {cx:212, cy:924, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
 txt(240, 929, 'Ø = SITES IN OPERATION · MAP DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
 
-/* ===================== ECharts 中国地图（纸墨化） ===================== */
-var REGION_DATA = [
-  {name:'上海', value:42}, {name:'广东', value:27}, {name:'北京', value:19},
-  {name:'四川', value:14}, {name:'湖北', value:9},  {name:'辽宁', value:6}
-];
-var REGION_LABEL = {
-  '上海':['上海','EAST'], '广东':['广州','SOUTH'], '北京':['北京','NORTH'],
-  '四川':['成都','SOUTHWEST'], '湖北':['武汉','CENTRAL'], '辽宁':['沈阳','NORTHEAST']
-};
+/* ===================== ECharts 中国地图（纸墨化） =====================
+   分工：ECharts geo 只渲染真实国境（含省界/南海九段线/海南/台湾），
+   节点（双圈+数值+城市名）全部由 SVG overlay 在 canvas 之上绘制，
+   保证纸墨线稿手法与字体一致、层级干净。 */
 
-/* 节点半径：按 value 映射到 22–58px（视觉权重，与图例同心圆呼应） */
+/* 节点半径：按 value 映射到 24–60px（视觉权重，与图例同心圆呼应） */
 function radiusOf(v){
   var mn = 6, mx = 42;
-  var r = 22 + (v - mn) / (mx - mn) * 36;
-  return Math.round(r);
+  return Math.round(24 + (v - mn) / (mx - mn) * 36);
 }
 
-var MAP_URL = 'https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json';
+/* 六个节点：真实城市经纬度 + 仓数 + 中英文标签 */
+var NODES = [
+  {lng:121.47,lat:31.23,v:42,tag:'上海',en:'EAST'},
+  {lng:113.26,lat:23.13,v:27,tag:'广州',en:'SOUTH'},
+  {lng:116.40,lat:39.90,v:19,tag:'北京',en:'NORTH'},
+  {lng:104.07,lat:30.57,v:14,tag:'成都',en:'SOUTHWEST'},
+  {lng:114.31,lat:30.59,v:9, tag:'武汉',en:'CENTRAL'},
+  {lng:123.43,lat:41.81,v:6, tag:'沈阳',en:'NORTHEAST'}
+];
 
-fetch(MAP_URL).then(function(r){ return r.json(); }).then(function(geo){
+/* overlay 层的绘制工具（独立于 #draw，因 overlay 在更高 z 层） */
+var ONodes = document.getElementById('nodes');
+function oEl(tag, attrs){
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  ONodes.appendChild(e); return e;
+}
+function oTxt(x, y, str, attrs){
+  var t = oEl('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+
+/* 地图数据：优先本地相对路径（file:// 放映零 CORS），CDN 兜底 */
+function loadMap(){
+  return fetch('../assets/china-geo.json')
+    .then(function(r){ if(!r.ok) throw new Error('local miss'); return r.json(); })
+    .catch(function(){
+      return fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+        .then(function(r){ return r.json(); });
+    });
+}
+
+loadMap().then(function(geo){
   echarts.registerMap('china', geo);
 
   var chart = echarts.init(document.getElementById('chart'));
   chart.setOption({
-    /* 纸墨化全局：无动画、无悬停高光、无提示框彩色 */
     animation: false,
-    silent: true,
     backgroundColor: 'transparent',
-    /* 唯一一档墨色阶，其余透明 */
-    color: [INK],
-
     geo: {
       map: 'china',
       roam: false,
-      /* 国境 + 省界全部只描边、零填色 */
+      /* 国境 + 省界全部只描边、零填色：纸墨化核心 */
       itemStyle: {
         areaColor: 'transparent',
         borderColor: INK,
         borderWidth: 0.8,
-        borderType: 'solid',
         shadowBlur: 0
       },
-      /* 海岛/边界强调：地级市界用更淡的细线（DataV full 版本含省界） */
-      emphasis: { disabled: true, label: { show: false } },
+      emphasis: {
+        itemStyle: { areaColor: INK15, borderColor: INK, borderWidth: 0.8 },
+        label: { show: false }
+      },
       label: { show: false },
-      /* 内描一道细影轮廓（制图双描手法）：用第二层叠图模拟 */
       layoutCenter: ['50%', '50%'],
-      layoutSize: '108%',
-      /* 各省名用 mono 小字，墨 30%，避免抢戏 */
-      regions: geo.features.map(function(f){
-        return { name: f.properties.name,
-          itemStyle: { borderColor: INK, borderWidth: 0.8 } };
-      })
-    },
-
-    series: [{
-      type: 'scatter',
-      coordinateSystem: 'geo',
-      /* 六个节点的真实经纬度 */
-      data: [
-        {name:'上海', value:[121.47, 31.23, 42]},
-        {name:'广州', value:[113.26, 23.13, 27]},
-        {name:'北京', value:[116.40, 39.90, 19]},
-        {name:'成都', value:[104.07, 30.57, 14]},
-        {name:'武汉', value:[114.31, 30.59, 9]},
-        {name:'沈阳', value:[123.43, 41.81, 6]}
-      ],
-      symbol: 'circle',
-      /* symbolSize 用函数按 value（第3维）取半径 */
-      symbolSize: function(v){ return radiusOf(v[2]) * 2; },
-      /* 纸墨双圈圆：透明填 + 1.2px 实描边 + 内圈由 itemStyle 模拟；
-         ECharts 单点不支持双圈，这里用外圈样式，内圈在 label 处不画，
-         保持与全册同心圆语义一致靠「外圈+数值」即可 */
-      itemStyle: {
-        color: 'rgba(255,255,255,.35)',
-        borderColor: INK,
-        borderWidth: 1.2,
-        shadowBlur: 0
-      },
-      label: {
-        show: true,
-        position: 'inside',
-        formatter: function(p){ return p.value[2]; },
-        fontFamily: MONO,
-        fontSize: 18,
-        color: INK,
-        offset: [0, 3]
-      }
-    }]
+      layoutSize: '115%'
+    }
   });
 
-  /* ---- 二次描边：用 SVG 在 echarts canvas 之上叠一层细线国境 + 双圈内核 ----
-     因 ECharts scatter 单 symbol 无法双圈，这里在 #draw 原生 SVG 补画每个
-     节点的内圈细线与数值，保证与全册「同心双圈」手法一致。
-     节点屏幕坐标：把经纬度交给 echarts 后用 convertToPixel 反查。 */
-  try {
-    var pts = [
-      {lng:121.47,lat:31.23,v:42,tag:'上海',en:'EAST'},
-      {lng:113.26,lat:23.13,v:27,tag:'广州',en:'SOUTH'},
-      {lng:116.40,lat:39.90,v:19,tag:'北京',en:'NORTH'},
-      {lng:104.07,lat:30.57,v:14,tag:'成都',en:'SOUTHWEST'},
-      {lng:114.31,lat:30.59,v:9, tag:'武汉',en:'CENTRAL'},
-      {lng:123.43,lat:41.81,v:6, tag:'沈阳',en:'NORTHEAST'}
-    ];
-    /* echarts 的 convertToPixel 给出的是 #chart 容器内坐标，需换算到全局 SVG 坐标系。
-       #chart left=180 top=208；SVG viewBox 1:1 1920×1080，故直接加偏移即可。 */
-    var OFFX = 180, OFFY = 208;
-    pts.forEach(function(p){
-      var xy = chart.convertToPixel('geo', [p.lng, p.lat]);
-      if (!xy) return;
-      var x = xy[0] + OFFX, y = xy[1] + OFFY;
-      var r = radiusOf(p.v);
-      /* 内圈细线（双圈手法） */
-      el('circle', {cx:x, cy:y, r:r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-      /* 节点正下：中文区名 + mono EN 注 */
-      txt(x, y + r + 24, p.tag, {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'middle', fill:INK});
-      txt(x, y + r + 44, p.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-    });
-  } catch(e) { /* convertToPixel 在某些布局阶段可能不可用，忽略 */ }
-
-  /* 画一次到位（无动画）后即终态 */
+  /* ---- 节点：用 convertToPixel 把经纬度反查为屏幕坐标，画在 overlay ----
+     convertToPixel 给的是 #chart 容器内坐标；overlay 与全局 SVG 同坐标系，
+     需加 #chart 偏移（left=180, top=208）。 */
+  var OFFX = 180, OFFY = 208;
+  NODES.forEach(function(p){
+    var xy;
+    try { xy = chart.convertToPixel('geo', [p.lng, p.lat]); } catch(e) { xy = null; }
+    if (!xy) return;
+    var x = xy[0] + OFFX, y = xy[1] + OFFY, r = radiusOf(p.v);
+    /* 外圈：透明填 + 1.2px 实描边 */
+    oEl('circle', {cx:x, cy:y, r:r, fill:'rgba(255,255,255,.30)', stroke:INK, 'stroke-width':1.2, opacity:.88});
+    /* 内圈：双圈手法 */
+    oEl('circle', {cx:x, cy:y, r:r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+    /* 圆心数值（mono，字号随半径） */
+    oTxt(x, y + r*.18, p.v, {'font-family':MONO, 'font-size':Math.round(r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
+    /* 节点正下：中文城市名 + mono EN 注 */
+    oTxt(x, y + r + 24, p.tag, {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'middle', fill:INK});
+    oTxt(x, y + r + 44, p.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  });
 });
 
 stageFit();
