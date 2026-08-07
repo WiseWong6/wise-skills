@@ -36,9 +36,9 @@
   :root.accent .title { color: var(--accent-red); }
   :root.accent .title-bar { border-top-color: var(--accent-red); }
 
-  /* 右下 mono 元数据块 */
+  /* 左下 mono 元数据块（与 kicker / title / subtitle 同列左对齐） */
   .meta {
-    position: absolute; right: 200px; bottom: 120px;
+    position: absolute; left: 300px; bottom: 120px;
     font-family: var(--mono); font-size: 13px;
     letter-spacing: .3em; line-height: 2.3;
     color: var(--ink-45); text-align: left;
@@ -85,7 +85,12 @@ var MONO = 'Courier Prime';
 
 /* ===== 右侧极细线稿小图：产品界面俯视（导航 / 侧栏 / 内容卡 / AI 入口） ===== */
 (function(){
-  var X = 1330, Y = 316, W = 330, H = 216;
+  var X = 1138, Y = 330, W = 330, H = 216, S = 1.5;  // S=缩放倍数；Y 与左侧 kicker 顶部对齐
+
+  // 以 (X,Y) 为原点整体缩放，内部所有偏移同比放大，不变形
+  var layer = el('g', {transform:'translate(' + X + ',' + Y + ') scale(' + S + ') translate(' + (-X) + ',' + (-Y) + ')'});
+  var _el = el;
+  el = function(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); layer.appendChild(e); return e; };
 
   // 界面边界：虚线容器
   el('rect', {x:X, y:Y, width:W, height:H, fill:'none',
