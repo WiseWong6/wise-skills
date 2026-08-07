@@ -93,9 +93,9 @@ cp <SKILL_ROOT>/assets/app-template.html  "$DECK/index.html"          # 单页�
 cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页一份
 ```
 
-- 模板内引用的 `../assets/shared.css`、`../assets/particles.js` 和字体：把 `<SKILL_ROOT>/assets/` 整个软链或拷贝到 `$DECK/assets`（推荐软链，规约更新全 deck 受益）：
+- 模板内引用的 `../assets/shared.css`、`../assets/particles.js` 和字体：把 `<SKILL_ROOT>/assets/` **拷贝**（非软链）到 `$DECK/assets`。**必须用拷贝不用软链**——软链在 `file://` 下被部分浏览器安全策略拒绝（CSS/字体加载失败），且 deck 拷给别人后软链断裂：
   ```bash
-  ln -s <SKILL_ROOT>/assets "$DECK/assets"
+  cp -R <SKILL_ROOT>/assets "$DECK/assets"
   ```
 - 改 `index.html` 顶部配置区的 `CONFIG` / `ACTS` / `SHOTS`（**单文件单份配置**，画板与全屏共用，无需像旧 board+deck 双文件那样手工同步两份）。
 - 画板缩略图引用 `frames/thumb-NN.png`，这些 PNG 由 Step 5 的 `shot-screenshot.sh thumb` 模式生成 —— **不要手画、不要手截图，必须跑脚本**。

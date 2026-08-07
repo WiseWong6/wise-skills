@@ -49,6 +49,9 @@ for f in "${FILES[@]}"; do
   fi
   "$CHROME" --headless --disable-gpu --hide-scrollbars \
     --screenshot="$OUT/$out_name.png" --window-size="$WIN" \
-    --virtual-time-budget=3000 "file://$f$QUERY" >/dev/null 2>&1
+    --virtual-time-budget=4000 "file://$f$QUERY" >/dev/null 2>&1
+  # 串行间隔：连续启动多个 headless Chrome 会触发 allocator 冲突，
+  # 导致后续截图截到渲染未完成的深色帧（thumb 模式 640×360 尤其严重）
+  sleep 1
   echo "ok $OUT/$out_name.png"
 done
