@@ -44,7 +44,7 @@
     <g id="nodes"></g>
   </svg>
 
-  <div class="caption">以广东省真实市界为底，节点大小编码各市仓数，六枚节点讲完一张全省调度网。</div>
+  <div class="caption">以广东省真实市界为底，墨色深浅编码各市仓数，六座城市讲完一张全省调度网。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -95,32 +95,41 @@ kpis.forEach(function(k, i){
     el('line', {x1:1360, y1:y+66, x2:1770, y2:y+66, stroke:INK, 'stroke-width':.6, opacity:.25});
 });
 
-/* ---------- 图例（左下）：Ø 编码说明 —— 文字基线 y=850，与 112°E 标注对齐 ---------- */
-el('circle', {cx:212, cy:845, r:12, fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
-el('circle', {cx:212, cy:845, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-txt(240, 850, 'Ø = SITES IN OPERATION · MAP DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+/* ---------- 图例（左下）：墨色强度色阶 —— 文字基线 y=850，与 112°E 标注对齐 ---------- */
+/* 五档色阶方块：从浅(墨12%)到深(墨55%)，编码仓数强度 */
+var rampY = 845, rampX = 200, rampStep = 22, rampH = 12;
+[.12, .22, .32, .43, .55].forEach(function(a, i){
+  el('rect', {x:rampX + i*rampStep, y:rampY - rampH/2, width:rampStep-2, height:rampH,
+    fill:'rgba(25,25,23,'+a+')', stroke:INK, 'stroke-width':.5, opacity:.85});
+});
+txt(rampX,            rampY + rampH/2 + 14, '少', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
+txt(rampX + 4*rampStep + (rampStep-2), rampY + rampH/2 + 14, '多', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
+txt(rampX + 5*rampStep + 8, rampY + 4, 'FILL INTENSITY = SITES · DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
 
 /* ===================== ECharts 广东省地图（纸墨化） =====================
    分工：ECharts geo 只渲染真实市界（21 地级市），节点（双圈+数值+
    城市名）全部由 SVG overlay 在 canvas 之上绘制，保证纸墨线稿手法
    与字体一致、层级干净。 */
 
-/* 节点半径：按 value 映射到 24–58px（视觉权重，与图例同心圆呼应） */
-function radiusOf(v){
-  var mn = 5, mx = 42;
-  return Math.round(24 + (v - mn) / (mx - mn) * 34);
+/* 墨色透明度分级：仓数越高，城市填色越深（纯单色，纸墨线稿默认规约） */
+function inkAlpha(v){
+  /* 6→.12, 42→.55，线性映射，clamp */
+  var mn = 6, mx = 42, lo = .12, hi = .55;
+  if (v <= mn) return lo;
+  if (v >= mx) return hi;
+  return (lo + (v - mn) / (mx - mn) * (hi - lo)).toFixed(3);
 }
 
-/* 六个节点：广东省内真实城市经纬度 + 仓数 + 中英文标签
-   labelDir：标签外推方向（弧度），用于规避珠三角城市群的密集重叠。
-   珠三角广/佛/深/莞/珠五城经纬度极近，必须把标签沿引线甩到不同方向。 */
+/* 六个覆盖城市：广东省内真实城市名 + 仓数 + 经纬度 + 延伸线方向（弧度）
+   labelDir 用于规避珠三角城市群的密集重叠：仓数标签沿引线甩到不同方向。
+   城市名必须与 GeoJSON properties.name 完全一致（含「市」），供 series.map 匹配。 */
 var NODES = [
-  {lng:113.26,lat:23.13,v:42,tag:'广州',en:'GUANGZHOU', dir:-2.4},  /* 左上 */
-  {lng:114.06,lat:22.55,v:27,tag:'深圳',en:'SHENZHEN',  dir: 0.5},  /* 右下 */
-  {lng:113.12,lat:23.02,v:19,tag:'佛山',en:'FOSHAN',    dir: 2.5},  /* 左下 */
-  {lng:113.75,lat:23.05,v:14,tag:'东莞',en:'DONGGUAN',  dir:-0.6},  /* 右上 */
-  {lng:113.58,lat:22.27,v:9, tag:'珠海',en:'ZHUHAI',    dir: 1.7},  /* 下方 */
-  {lng:116.68,lat:23.35,v:6, tag:'汕头',en:'SHANTOU',   dir: 0.0}   /* 右侧 */
+  {city:'广州市',lng:113.26,lat:23.13,v:42,tag:'广州',en:'GUANGZHOU', dir:-2.5}, /* 左 */
+  {city:'深圳市',lng:114.06,lat:22.55,v:27,tag:'深圳',en:'SHENZHEN',  dir: 0.4},  /* 右下 */
+  {city:'佛山市',lng:113.12,lat:23.02,v:19,tag:'佛山',en:'FOSHAN',    dir: 2.95}, /* 正下偏左，与广州(左)拉开纵向 */
+  {city:'东莞市',lng:113.75,lat:23.05,v:14,tag:'东莞',en:'DONGGUAN',  dir:-0.5},  /* 右上 */
+  {city:'珠海市',lng:113.58,lat:22.27,v:9, tag:'珠海',en:'ZHUHAI',    dir: 1.6},  /* 下方 */
+  {city:'汕头市',lng:116.68,lat:23.35,v:6, tag:'汕头',en:'SHANTOU',   dir: 0.0}   /* 右 */
 ];
 
 /* overlay 层的绘制工具（独立于 #draw，因 overlay 在更高 z 层） */
@@ -148,25 +157,39 @@ function loadMap(){
 loadMap().then(function(geo){
   echarts.registerMap('guangdong', geo);
 
+  /* 各覆盖城市的墨色填充透明度（仓数越高越深）；其余城市透明 */
+  var cityColor = {};
+  NODES.forEach(function(n){
+    cityColor[n.city] = 'rgba(25,25,23,' + inkAlpha(n.v) + ')';
+  });
+
   var chart = echarts.init(document.getElementById('chart'));
   chart.setOption({
     animation: false,
     backgroundColor: 'transparent',
-    geo: {
+    series: [{
+      type: 'map',
       map: 'guangdong',
       roam: false,
-      /* 市界全部只描边、零填色：纸墨化核心 */
+      /* 六个覆盖城市带 value（用于分级填色），其余城市无 value 自动留白 */
+      data: NODES.map(function(n){ return {name: n.city, value: n.v}; }),
+      /* 统一描边；填色按城市名查表，覆盖城市上墨色，其余透明 */
       itemStyle: {
         areaColor: 'transparent',
         borderColor: INK,
         borderWidth: 0.8,
         shadowBlur: 0
       },
+      /* 各市填色：用 data 的 value 不会自动映射 areaColor，这里靠
+         regions 逐市指定 areaColor（未列出的默认 transparent） */
+      regions: NODES.map(function(n){
+        return { name: n.city, itemStyle: { areaColor: cityColor[n.city] } };
+      }),
+      select: { disabled: true },
       emphasis: {
-        itemStyle: { areaColor: INK15, borderColor: INK, borderWidth: 0.8 },
+        itemStyle: { areaColor: cityColor, borderColor: INK, borderWidth: 0.8 },
         label: { show: false }
       },
-      /* 各市名用 mono 小字、墨 32%，标注但不抢戏 */
       label: {
         show: true,
         color: 'rgba(25,25,23,.32)',
@@ -175,47 +198,46 @@ loadMap().then(function(geo){
       },
       layoutCenter: ['42%', '50%'],
       layoutSize: '70%'
-    }
+    }]
   });
 
-  /* ---- 节点：用 convertToPixel 把经纬度反查为屏幕坐标，画在 overlay ----
-     珠三角五城密集，标签沿 dir 方向引线外推到地图空白区，避免文字重叠。 */
+  /* ---- 仓数标注：延伸线从城市中心拉到地图外，圆点气泡不再使用 ----
+     convertToPixel 在 series.map 下用 'series' 坐标系反查经纬度。 */
   var OFFX = 180, OFFY = 208;
-  function drawNodes(){
+  function drawCallouts(){
     ONodes.innerHTML = '';
     NODES.forEach(function(p){
       var xy;
-      try { xy = chart.convertToPixel('geo', [p.lng, p.lat]); } catch(e) { xy = null; }
+      try { xy = chart.convertToPixel({seriesIndex:0}, [p.lng, p.lat]); } catch(e) { xy = null; }
       if (!xy) return;
-      var x = xy[0] + OFFX, y = xy[1] + OFFY, r = radiusOf(p.v);
-      /* 外圈：透明填 + 1.2px 实描边 */
-      oEl('circle', {cx:x, cy:y, r:r, fill:'rgba(255,255,255,.35)', stroke:INK, 'stroke-width':1.2, opacity:.88});
-      /* 内圈：双圈手法 */
-      oEl('circle', {cx:x, cy:y, r:r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-      /* 圆心数值（mono，字号随半径） */
-      oTxt(x, y + r*.18, p.v, {'font-family':MONO, 'font-size':Math.round(r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
+      var x = xy[0] + OFFX, y = xy[1] + OFFY;
+      /* 城市锚点小圆点（标记经纬度落点，替代原气泡） */
+      oEl('circle', {cx:x, cy:y, r:2.4, fill:INK, opacity:.7});
 
-      /* 标签锚点：从圆心沿 dir 方向延伸（引线长度随节点半径递增） */
-      var lead = r + 26;
+      /* 延伸线终点：沿 dir 方向外推固定长度 */
+      var lead = 78;
       var ax = x + Math.cos(p.dir) * lead;
       var ay = y + Math.sin(p.dir) * lead;
-      /* 引线（细虚，墨 30%）—— 仅当标签需要外推时画 */
-      oEl('line', {x1:x + Math.cos(p.dir)*r, y1:y + Math.sin(p.dir)*r,
-                   x2:ax, y2:ay, stroke:INK, 'stroke-width':.6, opacity:.3});
-      /* 引线末端小圆点（套准感） */
-      oEl('circle', {cx:ax, cy:ay, r:1.6, fill:INK, opacity:.5});
-      /* 文字对齐方向：左半平面右对齐，右半平面左对齐 */
+      /* 延伸线（细实线，墨 35%） */
+      oEl('line', {x1:x + Math.cos(p.dir)*4, y1:y + Math.sin(p.dir)*4,
+                   x2:ax, y2:ay, stroke:INK, 'stroke-width':.7, opacity:.35});
+      /* 线末端小横杠（制图标注感） */
+      var perp = p.dir + Math.PI/2;
+      oEl('line', {x1:ax + Math.cos(perp)*5, y1:ay + Math.sin(perp)*5,
+                   x2:ax - Math.cos(perp)*5, y2:ay - Math.sin(perp)*5,
+                   stroke:INK, 'stroke-width':.9, opacity:.6});
+      /* 文字对齐方向：右半平面左对齐，左半平面右对齐 */
       var anchor = Math.cos(p.dir) >= 0 ? 'start' : 'end';
-      var tx = ax + (anchor === 'start' ? 6 : -6);
-      /* 中文城市名 + mono EN 注 */
-      oTxt(tx, ay + 2, p.tag, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':anchor, fill:INK});
-      oTxt(tx, ay + 22, p.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':anchor, fill:INK45});
+      var tx = ax + (anchor === 'start' ? 8 : -8);
+      /* 仓数（mono 大字）+ 城市名（中文）+ mono EN 注 */
+      oTxt(tx, ay - 6, p.v + ' 仓', {'font-family':MONO, 'font-size':20, 'letter-spacing':1, 'text-anchor':anchor, fill:INK});
+      oTxt(tx, ay + 18, p.tag + ' · ' + p.en, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'letter-spacing':1, 'text-anchor':anchor, fill:INK70});
     });
   }
 
-  /* setOption 同步完成 layout（无动画），finished 事件兜底确保 convertToPixel 可用 */
-  chart.on('finished', drawNodes);
-  drawNodes();
+  /* setOption 同步完成 layout（无动画），finished 兜底确保 convertToPixel 可用 */
+  chart.on('finished', drawCallouts);
+  drawCallouts();
 });
 
 stageFit();
