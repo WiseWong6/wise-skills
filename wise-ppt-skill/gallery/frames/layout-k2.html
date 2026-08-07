@@ -57,7 +57,7 @@ el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opaci
 /* ---------- 栏头：mono 栏题 + 短横 + 中文栏题 ---------- */
 var heads = [
   {x:150,  en:'PAIN POINTS', cn:'现状痛点'},
-  {x:700,  en:'THE FIX',    cn:'衡玑解法'},
+  {x:700,  en:'THE FIX',    cn:'运营动作'},
   {x:1250, en:'OUTCOME',    cn:'上线成效'}
 ];
 heads.forEach(function(h){
@@ -87,14 +87,14 @@ function item(x, y, no, title, note1, note2, tag){
 }
 
 var pains = [
-  ['1', '高峰拥堵', '大促峰值，机器人在路口互相等待，', '通道利用率跌到六成。', 'QUEUE'],
-  ['2', '人工改派', '异常任务靠调度员手工改派，', '响应以十分钟计。', 'MANUAL'],
-  ['3', '协议孤岛', '三个品牌机器人各说各话，', '无法混编作业。', 'SILO']
+  ['1', '拉新见顶', '买量成本同比翻倍，', '自然新增连续 3 月下滑。', 'CPA↑'],
+  ['2', '留存疲软', '次留跌破 35%，', '用户首日流失严重。', 'RETENTION↓'],
+  ['3', '变现单薄', '付费率仅 3.2%，', '广告收入独大、会员薄弱。', 'ARPU↓']
 ];
 var fixes = [
-  ['1', '时空预约', '全局路径按时间片预约，', '路口零等待。', 'T-RESERVE'],
-  ['2', '秒级改派', '改派引擎自动重算路径，', '异常任务 18 秒内重新上路。', 'AUTO'],
-  ['3', '统一接入', '协议适配层屏蔽品牌差异，', '异构车队混编。', 'UNIFY']
+  ['1', '裂变激励', '邀请双方各得会员天，', '老带新成本低于买量 60%。', 'REFERRAL'],
+  ['2', '新手引导', '首日 3 步任务 + 签到，', '关键动作完成率提升至 78%。', 'ONBOARDING'],
+  ['3', '会员矩阵', '推出连续包月 + 年费，', '付费率 3 月内翻倍。', 'MEMBERSHIP']
 ];
 var YS = [372, 522, 672];
 YS.forEach(function(y, i){
@@ -108,17 +108,17 @@ YS.forEach(function(y, i){
 var CXR = 1485;
 /* KPI01 顶部对齐第一条目 y372 */
 txt(CXR, 392, 'KPI · 01', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt(CXR, 470, '-41%', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-txt(CXR, 506, '平均履约时长', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
-txt(CXR, 534, '52 MIN → 31 MIN', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(CXR, 470, '+62%', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
+txt(CXR, 506, '次日留存率', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
+txt(CXR, 534, '34% → 55%', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 el('line', {x1:1330, y1:568, x2:1640, y2:568, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* KPI02 底部不超过左中栏末条目底部 y738 */
 txt(CXR, 600, 'KPI · 02', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt(CXR, 678, '2.3倍', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-txt(CXR, 714, '单仓日出库吞吐', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
-txt(CXR, 738, '118K → 271K CASES / DAY', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(CXR, 678, '2.1倍', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
+txt(CXR, 714, '月度付费用户', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
+txt(CXR, 738, '82K → 172K PAID USERS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 stageFit();
 </script>
