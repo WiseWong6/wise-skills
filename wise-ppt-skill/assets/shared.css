@@ -95,6 +95,14 @@
   --cinnabar: #191917;          /* 强调色 = 墨色：单色系统没有彩色 */
 }
 
+/* ---------- 高饱和强调色主题（?accent 开启） ---------- */
+/* particles.js stageFit() 读 URL 加 .accent 类；此处重定义 --cinnabar 为番茄红，
+   让 .cin 工具类、.zhu-* 批注族（均用 var(--cinnabar)）在 accent 模式自动变红。
+   面积配额 ≤2.5%、一页一色、禁染清单见 design-tokens §1.5 */
+:root.accent {
+  --cinnabar: #C0392B;          /* 番茄红：焦点/数据关键值/警示/未达标 */
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body { height: 100%; }

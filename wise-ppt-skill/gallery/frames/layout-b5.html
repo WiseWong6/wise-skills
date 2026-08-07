@@ -35,6 +35,10 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -73,16 +77,17 @@ var steps = [
   {x:1270, lx:1306, tread:430, ty:310, year:'2024', ev:'跨仓组网', note:'三仓协同 · 统一调度'},
   {x:1608, lx:1644, tread:300, ty:186, year:'2025', ev:'平台开放', note:'开放 API · 百仓互联'}
 ];
-steps.forEach(function(s){
+steps.forEach(function(s, i){
+  var top = (i === steps.length - 1);
   /* 踏步落点 + 短引线 */
-  el('circle', {cx:s.lx, cy:s.tread, r:5, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1});
-  el('circle', {cx:s.lx, cy:s.tread, r:1.8, fill:INK});
+  el('circle', {cx:s.lx, cy:s.tread, r:5, fill:'#DFE0D9', stroke: top && ACCENT ? RED : INK80, 'stroke-width':1});
+  el('circle', {cx:s.lx, cy:s.tread, r:1.8, fill: top && ACCENT ? RED : INK});
   el('line', {x1:s.lx, y1:s.tread-6, x2:s.lx, y2:s.ty+78, stroke:INK, 'stroke-width':.7, opacity:.45});
   /* 文字块 */
-  txt(s.x, s.ty, s.year, {'font-family':MONO, 'font-size':20, 'letter-spacing':2, fill:INK});
+  txt(s.x, s.ty, s.year, {'font-family':MONO, 'font-size':20, 'letter-spacing':2, fill: top && ACCENT ? RED : INK});
   el('line', {x1:s.x, y1:s.ty+12, x2:s.x+58, y2:s.ty+12, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(s.x, s.ty+44, s.ev, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
-  txt(s.x, s.ty+72, s.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK70});
+  txt(s.x, s.ty+44, s.ev, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill: top && ACCENT ? RED : INK});
+  txt(s.x, s.ty+72, s.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill: top && ACCENT ? RED : INK70});
 });
 
 /* ---------- 右下空白区：竖向高度标注（构造件） ---------- */

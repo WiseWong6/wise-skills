@@ -146,16 +146,6 @@ txt(rampX + 5*rampStep + 8, rampY + 4, 'FILL INTENSITY = NODES · DATA © DATAV.
    城市名）全部由 SVG overlay 在 canvas 之上绘制，保证纸墨线稿手法
    与字体一致、层级干净。 */
 
-/* 强调色（番茄红 #C0392B）透明度分级：部署节点越多，城市填色越饱和。
-   用户明确允许填充，强调强度优先于单色规约。6→.30, 42→.85。 */
-var ACCENT = '#C0392B';
-function fillAlpha(v){
-  var mn = 6, mx = 42, lo = .30, hi = .85;
-  if (v <= mn) return lo;
-  if (v >= mx) return hi;
-  return (lo + (v - mn) / (mx - mn) * (hi - lo)).toFixed(3);
-}
-
 /* 六个覆盖城市：广东省内真实城市名 + 部署节点数 + 经纬度 + 延伸线方向（弧度）
    labelDir 用于规避珠三角城市群的密集重叠：节点数标签沿引线甩到不同方向。
    城市名必须与 GeoJSON properties.name 完全一致（含「市」），供 series.map 匹配。 */
