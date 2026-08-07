@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-j3 · 旅程曲线</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — J3<br>JOURNEY CURVE</div>
+  <div class="folio">J3 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">一条连续曲线同时承载阶段推进与体验起伏，尾段痛点以带标签的虚线回环引回改进环节。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. J3 — JOURNEY CURVE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 顶部 chevron 阶段带（订单履约旅程） ---------- */
+var stages = [
+  ['01','INBOUND','入库预约'],
+  ['02','WAVING','波次规划'],
+  ['03','PICKING','拣选调度'],
+  ['04','MERGE','合流复核'],
+  ['05','OUTBOUND','出库发运']
+];
+stages.forEach(function(s, i){
+  var x = 180 + i*312, w = 290, y = 240, h = 46, tip = 22;
+  var d = 'M '+x+' '+y+' L '+(x+w-tip)+' '+y+' L '+(x+w)+' '+(y+h/2)+
+          ' L '+(x+w-tip)+' '+(y+h)+' L '+x+' '+(y+h)+' L '+(x+tip)+' '+(y+h/2)+' Z';
+  el('path', {d:d, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.1});
+  txt(x+w/2+6, y+19, s[0]+' '+s[1], {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(x+w/2+6, y+38, s[2], {'font-family':SANS, 'font-weight':300, 'font-size':15, 'text-anchor':'middle', fill:INK70});
+});
+
+/* ---------- 主体：连续贝塞尔起伏曲线 ---------- */
+/* 节点：x / y / 类型(0中 1峰 -1谷) / 中文注 / mono 分值 */
+var nodes = [
+  {x:300,  y:560, t:0,  cn:'入库预约顺畅',   sc:'SCORE 74'},
+  {x:590,  y:430, t:1,  cn:'自动波次合并',   sc:'SCORE 92 · PEAK'},
+  {x:830,  y:700, t:-1, cn:'高峰拣选排队',   sc:'SCORE 41 · PAIN'},
+  {x:1090, y:450, t:1,  cn:'动态路径重规划', sc:'SCORE 88 · PEAK'},
+  {x:1330, y:660, t:-1, cn:'合流复核等待',   sc:'SCORE 55 · PAIN'},
+  {x:1640, y:500, t:0,  cn:'出库准点发运',   sc:'SCORE 90'}
+];
+
+/* 中位基准虚线 + 轴注 */
+el('line', {x1:180, y1:560, x2:1740, y2:560, stroke:INK, 'stroke-width':.5, opacity:.3, 'stroke-dasharray':'2 6'});
+txt(1740, 548, 'EXPERIENCE INDEX 0–100', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+
+/* 节点 → 阶段带的竖向构造虚线 */
+nodes.forEach(function(n){
+  el('line', {x1:n.x, y1:292, x2:n.x, y2:n.y-14, stroke:INK, 'stroke-width':.5, opacity:.22, 'stroke-dasharray':'2 6'});
+});
+
+/* 曲线本体（连续单线，1.4px） */
+el('path', {d:'M 300 560 C 420 560, 470 430, 590 430 C 710 430, 710 700, 830 700 '+
+              'C 950 700, 960 450, 1090 450 C 1220 450, 1210 660, 1330 660 '+
+              'C 1450 660, 1510 500, 1640 500',
+  fill:'none', stroke:INK80, 'stroke-width':1.4});
+
+/* ---------- 节点双圈 + 引线标注 ---------- */
+nodes.forEach(function(n){
+  el('circle', {cx:n.x, cy:n.y, r:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
+  el('circle', {cx:n.x, cy:n.y, r:2.4, fill:INK});
+  var up = (n.t >= 0);   /* 峰/中：标注在上方；谷：下方 */
+  var ly = up ? n.y - 46 : n.y + 58;
+  el('line', {x1:n.x, y1:up ? n.y-13 : n.y+13, x2:n.x, y2:up ? n.y-32 : n.y+34,
+    stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 4'});
+  txt(n.x, ly, n.cn, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
+  txt(n.x, up ? ly-28 : ly+26, n.sc, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+});
+
+/* ---------- 虚线回环弧：尾段痛点引回波次规划（带标签） ---------- */
+el('path', {d:'M 1330 672 C 1340 850, 600 852, 592 452',
+  fill:'none', stroke:INK, 'stroke-width':.9, opacity:.55, 'stroke-dasharray':'6 5'});
+/* 开放箭头（指向上方节点） */
+el('line', {x1:592, y1:452, x2:583, y2:466, stroke:INK, 'stroke-width':1.1, opacity:.7});
+el('line', {x1:592, y1:452, x2:601, y2:466, stroke:INK, 'stroke-width':1.1, opacity:.7});
+txt(960, 876, 'FEEDBACK: REVIEW RULES → WAVING', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+
+stageFit();
+</script>
+</body>
+</html>
