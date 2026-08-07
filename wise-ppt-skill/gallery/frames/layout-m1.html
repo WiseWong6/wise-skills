@@ -12,13 +12,13 @@
   .compare {
     position: absolute; left: 0; right: 0; top: 268px;
     display: flex; align-items: center; justify-content: center;
-    gap: 18px; z-index: 3;
+    gap: var(--space-5); z-index: 3;
     font-family: var(--sans); font-weight: 300;
     font-size: 24px; color: var(--ink-70);
     letter-spacing: .06em;
   }
   .compare .arr { font-style: normal; color: var(--ink-45); }
-  .compare .sep { width: 1px; height: 26px; background: var(--ink-25); margin: 0 26px; }
+  .compare .sep { width: 1px; height: 26px; background: var(--ink-25); margin: 0 var(--space-6); }
   .compare .q {
     font-family: var(--serif); font-size: 44px;
     color: var(--ink); transform: translateY(2px);
@@ -49,7 +49,7 @@
   .boxtext .divi {
     width: 140px; height: 1px;
     background: rgba(223,224,217,.55);
-    margin: 22px 0 18px;
+    margin: var(--space-6) 0 var(--space-5);
   }
   .boxtext .t2 {
     font-family: var(--mono); font-size: 13px;
