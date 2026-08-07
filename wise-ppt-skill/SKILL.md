@@ -1,9 +1,9 @@
 ---
-name: paper-ink-ppt
+name: wise-ppt-skill
 description: 纸墨线稿风网页 PPT 技能。把已有内容（html/ppt/pptx/pdf/图片）或纯文稿（链接/md/文章）重排为 1920×1080 精细线稿分镜页：单色纸墨底、四族开源字体、精密细线图版、自由程序化 SVG 图形化表达。分页骨架=封面→Context→内容循环→极简 Outro。每页一个 HTML 文件，产出单页双模式 index.html（画板缩略图总览 ↔ 全屏放映一键切换，点缩略图进全屏，ESC/右下角按钮回画板；全屏方向键/滑动翻页并预加载下一页，?ppt 显示页码署名），支持整 deck 导出 16:9 PDF 与逐页 PNG。可按需引入 FontAwesome 图标与 ECharts（强制纸墨化改造）。当用户要做网页 PPT、内容排版优化、把文章/旧 PPT 重做成统一风格的 slides 时使用。
 ---
 
-# 纸墨线稿 PPT（paper-ink-ppt）
+# 纸墨线稿 PPT（wise-ppt-skill）
 
 把内容变成**纸墨线稿风**的网页 PPT：冷调纸底 + 单色墨线 + 精密细线图版，像一本被测量过的工程档案。
 
@@ -129,7 +129,7 @@ cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页�
 ## 资源文件导览
 
 ```
-paper-ink-ppt/
+wise-ppt-skill/
 ├── SKILL.md                  ← 本文件
 ├── assets/
 │   ├── shared.css            ← 设计 token + 舞台/三件套/纸纹样式（每页必链）
