@@ -190,7 +190,7 @@ ACTS.forEach(function(a) {
   actsRoot.appendChild(grid);
 });
 
-/* 缩略图用 <img loading="lazy">，彻底告别 N 个 iframe 同屏 */
+/* 缩略图用 <img>（禁 lazy：file:// 下 IntersectionObserver 不触发，缩略图永不加载） */
 SHOTS.forEach(function(s, idx) {
   var grid = document.getElementById(s[0]);
   if (!grid) return;
@@ -200,7 +200,7 @@ SHOTS.forEach(function(s, idx) {
   card.dataset.idx = idx;
   card.innerHTML =
     '<div class="frame">' +
-      '<img loading="lazy" alt="S' + no + ' ' + title + '" ' +
+      '<img alt="S' + no + ' ' + title + '" ' +
            'src="' + PREFIXES.thumb + no + CONFIG.thumbExt + '">' +
     '</div>' +
     '<div class="meta"><div class="row1">' +
