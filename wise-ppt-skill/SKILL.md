@@ -124,13 +124,23 @@ cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页�
 
 ### Step 6 · 交付与迭代
 
-- 交付路径：`$DECK/index.html`（单页双模式：画板 ↔ 全屏）、`$DECK/frames/shot-NN.html`（单页原尺寸）；`$DECK/frames/thumb-NN.png` 为画板缩略图（由脚本生成，非手工产物）。
-- **导出**：`scripts/export-pdf.sh "$DECK"` 整 deck 导出 16:9 PDF（每页一张）；逐页 PNG 用 `scripts/shot-screenshot.sh`。
+- 交付路径：`$DECK/index.html`（单页双模式：画板 ↔ 全屏）、`$DECK/frames/shot-NN.html`（单页原尺寸）；`$DECK/frames/thumb-NN.png` 为画板缩略图（由脚本生成，非手工产物）。逐页 PNG 用 `scripts/shot-screenshot.sh`。
 - 迭代时改对应单页 `shot-NN.html`，改完**必须两件事**：① 重截该页复核 ② 重跑 `thumb` 模式刷新该页缩略图：
   ```bash
   <SKILL_ROOT>/scripts/shot-screenshot.sh "$DECK" /tmp/review            # ① 复核截图
   <SKILL_ROOT>/scripts/shot-screenshot.sh "$DECK" "" "" thumb            # ② 刷新缩略图（幂等，整体重跑即可）
   ```
+
+#### 验收通过后：主动问用户要不要导出 PDF（不可省）
+
+deck 通过 Step 5 全部闸门 + 用户目检确认后，**必须主动问用户**「整份 deck 已验收通过，要不要导出成 PDF？」——这是收尾的标准动作，不等用户提。同意则立刻执行，拒绝则正常收尾：
+
+```bash
+<SKILL_ROOT>/scripts/export-pdf.sh "$DECK"      # → $DECK/<deck名>.pdf，16:9 每页一张
+```
+
+- 脚本流程：逐页 PNG（调 `shot-screenshot.sh`）→ 临时 print HTML（`@page 20in×11.25in`）→ Chrome headless `--print-to-pdf` → 有 `gs` 则 ebook 档二次压缩。
+- 导出失败（无 Chrome/Edge）：告知用户可手动用 `$DECK/index.html` 的浏览器打印功能导出 PDF（`?ppt` 态打印即每页一张），不阻断交付。
 
 ## 资源文件导览
 
