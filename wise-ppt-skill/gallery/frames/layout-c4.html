@@ -44,7 +44,7 @@
     <g id="nodes"></g>
   </svg>
 
-  <div class="caption">以广东省真实市界为底，红色深浅编码各市部署节点数，六座城市讲完一张全省 AI 服务覆盖网。</div>
+  <div class="caption">以广东省真实市界为底，<span id="cap-tone">墨色</span>深浅编码各市部署节点数，六座城市讲完一张全省 AI 服务覆盖网。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -65,6 +65,41 @@ function txt(x, y, str, attrs) {
   t.textContent = str; return t;
 }
 var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- 色阶配方：遵循强调色开关（design-tokens §1.5）----------
+   默认单色系统 → 墨灰色阶；?accent 开启 → 番茄红色阶。
+   未覆盖城市一律透明（纸底透出），仅覆盖城市按仓数分档上色。
+   visualMap（地图）与左下角图例从同一 RAMP 生成，保证 1:1 对应。 */
+/* 直接读 URL 判定强调色（stageFit 末尾才加 .accent class，此处不能依赖它） */
+var ACCENT_ON = location.search.indexOf('accent') >= 0;
+/* caption 用词随模式：默认「墨色」，?accent「红色」 */
+document.getElementById('cap-tone').textContent = ACCENT_ON ? '红色' : '墨色';
+/* rgb 串 + alpha 区间：墨灰档轻（.12–.55），番茄红档重（.30–.85） */
+var RAMP_RGB = ACCENT_ON ? '192,57,43' : '25,25,23';
+var RAMP_LO = ACCENT_ON ? .30 : .12;
+var RAMP_HI = ACCENT_ON ? .85 : .55;
+/* 六档 alpha：仓数越高越饱和，与六个城市的 value 线性对应 */
+function rampAlpha(v){
+  var mn = 6, mx = 42;
+  if (v <= mn) return RAMP_LO;
+  if (v >= mx) return RAMP_HI;
+  return +(RAMP_LO + (v - mn) / (mx - mn) * (RAMP_HI - RAMP_LO)).toFixed(3);
+}
+function rampColor(v){ return 'rgba(' + RAMP_RGB + ',' + rampAlpha(v) + ')'; }
+/* visualMap 的分段边界（按城市仓数划分，每档左闭右开区间） */
+var RAMP_PIECES = [
+  {min:35, max:100}, {min:24, max:35}, {min:15, max:24},
+  {min:11, max:15}, {min:7, max:11}, {min:0, max:7}
+].map(function(p){
+  /* 每档取中点算 alpha，保证档内城市命中预期色 */
+  var midV = (p.min + Math.min(p.max,42)) / 2;
+  return { min: p.min, max: p.max, color: rampColor(midV) };
+});
+/* 图例用的 5 档展示 alpha（从最浅到最深） */
+var RAMP_LEGEND = [.12,.27,.40,.52,.65].map(function(frac){
+  return +(RAMP_LO + frac * (RAMP_HI - RAMP_LO)).toFixed(3);
+});
+if (ACCENT_ON) RAMP_LEGEND = [.30,.46,.60,.73,.85];
 
 /* ---------- FIG 图题（基线 y=226，与右侧 PROVINCE TOTALS 水平对齐） ---------- */
 txt(200, 226, 'FIG. C4 — AI COVERAGE MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
@@ -95,12 +130,12 @@ kpis.forEach(function(k, i){
     el('line', {x1:1360, y1:y+66, x2:1770, y2:y+66, stroke:INK, 'stroke-width':.6, opacity:.25});
 });
 
-/* ---------- 图例（左下）：墨色强度色阶 —— 文字基线 y=850，与 112°E 标注对齐 ---------- */
-/* 五档色阶方块：从浅(红30%)到深(红85%)，编码部署节点强度 */
+/* ---------- 图例（左下）：色阶 —— 与地图同配方（RAMP），1:1 对应 ----------
+   文字基线 y=850，与 112°E 标注对齐 */
 var rampY = 845, rampX = 200, rampStep = 22, rampH = 12;
-[.30, .45, .60, .72, .85].forEach(function(a, i){
+RAMP_LEGEND.forEach(function(a, i){
   el('rect', {x:rampX + i*rampStep, y:rampY - rampH/2, width:rampStep-2, height:rampH,
-    fill:'rgba(192,57,43,'+a+')', stroke:INK, 'stroke-width':.5, opacity:.9});
+    fill:'rgba('+RAMP_RGB+','+a+')', stroke:INK, 'stroke-width':.5, opacity:.9});
 });
 txt(rampX,            rampY + rampH/2 + 14, '少', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
 txt(rampX + 4*rampStep + (rampStep-2), rampY + rampH/2 + 14, '多', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
@@ -167,16 +202,10 @@ loadMap().then(function(geo){
        piecewise 分段比 continuous 更贴合「分档强调」语义。 */
     visualMap: {
       type: 'piecewise',
-      pieces: [
-        { min: 35, max: 100, color: 'rgba(192,57,43,.85)' }, /* 广州 42 */
-        { min: 24, max: 35,  color: 'rgba(192,57,43,.62)' }, /* 深圳 27 */
-        { min: 15, max: 24,  color: 'rgba(192,57,43,.50)' }, /* 佛山 19 */
-        { min: 11, max: 15,  color: 'rgba(192,57,43,.42)' }, /* 东莞 14 */
-        { min: 7,  max: 11,  color: 'rgba(192,57,43,.35)' }, /* 珠海 9  */
-        { min: 0,  max: 7,   color: 'rgba(192,57,43,.30)' }  /* 汕头 6  */
-      ],
+      /* 与左下角图例同配方（RAMP_PIECES）：墨灰（默认）/ 番茄红（?accent） */
+      pieces: RAMP_PIECES,
       outOfRange: { color: 'transparent' },
-      show: false  /* 不用 echarts 自带图例，左下角已有自绘图例 */
+      show: false
     },
     series: [{
       type: 'map',
