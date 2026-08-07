@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-h7 · 扁平状态网格 · 评测覆盖</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 110px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 32px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">AI LAYOUT GALLERY — H7<br>FLAT STATUS GRID</div>
+  <div class="folio">H7 / 63 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width="0.6" opacity="0.32"/>
+      </pattern>
+    </defs>
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">多列扁平条目密排，每格状态编码——评测能力覆盖度一屏扫尽。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS='http://www.w3.org/2000/svg';
+var INK='#191917',INK80='rgba(25,25,23,.8)',INK70='rgba(25,25,23,.7)';
+var INK55='rgba(25,25,23,.55)',INK45='rgba(25,25,23,.45)';
+var G=document.getElementById('draw');
+function el(tag,attrs){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);G.appendChild(e);return e;}
+function txt(x,y,str,attrs){var t=el('text',Object.assign({x:x,y:y},attrs||{}));t.textContent=str;return t;}
+var MONO='Courier Prime',SANS='Han Sans';
+var ACCENT=document.documentElement.classList.contains('accent');
+var CINNABAR=ACCENT?'#C0392B':'#191917';
+
+function sGlyph(cx,cy,st){
+  if(st==='live'){el('circle',{cx:cx,cy:cy,r:2.6,fill:INK});}
+  else if(st==='wip'){el('circle',{cx:cx,cy:cy,r:3.2,fill:'none',stroke:INK80,'stroke-width':.9});el('circle',{cx:cx,cy:cy,r:1.3,fill:INK});}
+  else if(st==='new'){el('circle',{cx:cx,cy:cy,r:2.6,fill:INK});}
+  else{el('circle',{cx:cx,cy:cy,r:2.8,fill:'none',stroke:INK55,'stroke-width':.8});}
+}
+function sFill(st){return(st==='live'||st==='new')?'url(#hatch)':'none';}
+function sStroke(st){return st==='todo'?{stroke:INK55,'stroke-width':.9,'stroke-dasharray':'3 3'}:{stroke:INK80,'stroke-width':1};}
+function gridCell(x,y,w,h,label,st){
+  var s=sStroke(st);
+  el('rect',{x:x,y:y,width:w,height:h,fill:sFill(st),stroke:s.stroke,'stroke-width':s['stroke-width'],'stroke-dasharray':s['stroke-dasharray']||'none',rx:1.5,ry:1.5});
+  sGlyph(x+w-14,y+14,st);
+  if(st==='new'){el('path',{d:'M '+(x+w-2)+' '+y+' L '+(x+w-12)+' '+y+' L '+(x+w-2)+' '+(y+10)+' Z',fill:CINNABAR,opacity:.85});}
+  var op=st==='todo'?.5:.9;
+  txt(x+w/2,y+h/2+5,label,{'font-family':SANS,'font-weight':300,'font-size':15,'text-anchor':'middle',fill:'rgba(25,25,23,'+op+')'});
+}
+
+txt(150,150,'FIG. H7 — FLAT STATUS GRID',{'font-family':MONO,'font-size':15,'letter-spacing':3,fill:INK45});
+el('line',{x1:150,y1:166,x2:500,y2:166,stroke:INK,'stroke-width':.6,opacity:.3});
+
+var LX=1240,LY=142;
+txt(LX,LY,'LEGEND',{'font-family':MONO,'font-size':12,'letter-spacing':2.5,fill:INK45});
+[['live','LIVE'],['wip','WIP'],['new','NEW'],['todo','TODO']].forEach(function(p,i){
+  var lx=LX+70+i*145,ly=138,st=p[0],ms=sStroke(st);
+  el('rect',{x:lx,y:ly,width:18,height:13,fill:sFill(st),stroke:ms.stroke,'stroke-width':.9,'stroke-dasharray':ms['stroke-dasharray']||'none',rx:1.5,ry:1.5});
+  sGlyph(lx+6,ly+6.5,st);
+  if(st==='new'){el('path',{d:'M '+(lx+16)+' '+ly+' L '+(lx+10)+' '+ly+' L '+(lx+16)+' '+(ly+6)+' Z',fill:CINNABAR,opacity:.85});}
+  txt(lx+24,ly+10,p[1],{'font-family':MONO,'font-size':11,'letter-spacing':1,fill:INK70});
+});
+
+/* 评测体系覆盖：3 组 × 6 列 */
+var GX=290,GY=220,GW=1490,cols=6,gap=12;
+var cw=(GW-gap*(cols-1))/cols,ch=68;
+var groups=[
+  {name:'评测对象',en:'SUBJECT',items:[
+    {label:'单轮问答',st:'live'},{label:'多轮对话',st:'live'},{label:'工具调用',st:'live'},
+    {label:'代码生成',st:'live'},{label:'长文档理解',st:'new'},{label:'多模态',st:'todo'}
+  ]},
+  {name:'评测能力',en:'CAPABILITY',items:[
+    {label:'评测集管理',st:'live'},{label:'指标计算',st:'live'},{label:'任务编排',st:'live'},
+    {label:'并行加速',st:'wip'},{label:'结果可视化',st:'live'},{label:'横向对比',st:'wip'}
+  ]},
+  {name:'治理闭环',en:'GOVERNANCE',items:[
+    {label:'质量回归',st:'live'},{label:'版本快照',st:'live'},{label:'异常告警',st:'new'},
+    {label:'归因分析',st:'todo'},{label:'人工抽检',st:'live'},{label:'报告导出',st:'live'}
+  ]}
+];
+
+var labelX=150;
+groups.forEach(function(grp,r){
+  var rowY=GY+r*(ch+gap);
+  txt(labelX+20,rowY+ch/2-8,grp.en,{'font-family':MONO,'font-size':12,'letter-spacing':2.5,fill:INK45});
+  txt(labelX+20,rowY+ch/2+18,grp.name,{'font-family':SANS,'font-weight':400,'font-size':18,fill:INK});
+  el('line',{x1:labelX,y1:rowY,x2:labelX,y2:rowY+ch,stroke:INK,'stroke-width':.5,opacity:.2});
+  grp.items.forEach(function(it,i){gridCell(GX+i*(cw+gap),rowY,cw,ch,it.label,it.st);});
+  if(r<groups.length-1){el('line',{x1:labelX,y1:rowY+ch+gap/2,x2:GX+GW,y2:rowY+ch+gap/2,stroke:INK,'stroke-width':.4,opacity:.12});}
+});
+
+txt(GX-10,GY-14,'FIELD',{'font-family':MONO,'font-size':11,'letter-spacing':2,fill:INK45});
+for(var c=0;c<cols;c++){txt(GX+c*(cw+gap)+cw/2,GY-14,'C'+(c+1),{'font-family':MONO,'font-size':11,'letter-spacing':1.5,'text-anchor':'middle',fill:INK45});}
+el('line',{x1:GX-14,y1:GY-6,x2:GX+GW,y2:GY-6,stroke:INK,'stroke-width':.5,opacity:.25});
+
+var all=[];groups.forEach(function(g){g.items.forEach(function(it){all.push(it);});});
+var done=0,wip=0,todo=0;
+all.forEach(function(it){if(it.st==='live'||it.st==='new')done++;else if(it.st==='wip')wip++;else todo++;});
+var pct=Math.round(done/all.length*100);
+var SY=910;
+var segs=[{num:pct+'%',label:'COVERAGE 覆盖率'},{num:done+'/'+all.length,label:'LIVE 已上线'},{num:todo,label:'TODO 待启动'}];
+var segW=420,segGap=60,startX=960-(segW*3+segGap*2)/2;
+segs.forEach(function(s,i){
+  var sx=startX+i*(segW+segGap);
+  txt(sx+segW/2,SY,s.num,{'font-family':MONO,'font-size':38,'letter-spacing':1,'text-anchor':'middle',fill:INK});
+  txt(sx+segW/2,SY+28,s.label,{'font-family':MONO,'font-size':11,'letter-spacing':2,'text-anchor':'middle',fill:INK45});
+  if(i<2){el('line',{x1:sx+segW+segGap/2,y1:SY-20,x2:sx+segW+segGap/2,y2:SY+20,stroke:INK,'stroke-width':.5,opacity:.25});}
+});
+
+stageFit();
+</script>
+</body>
+</html>
