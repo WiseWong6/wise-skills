@@ -70,7 +70,7 @@ var strategies = [
   ['04', '人机混行',   '人车同场分区限速，安全是硬约束', '风险区域毫秒级减速让行']
 ];
 strategies.forEach(function(s, i){
-  var y = 372 + i * 126;
+  var y = 372 + i * 139;
   txt(150, y, s[0], {'font-family':MONO, 'font-size':18, 'letter-spacing':2, fill:INK});
   el('line', {x1:150, y1:y+12, x2:186, y2:y+12, stroke:INK, 'stroke-width':.6, opacity:.3});
   txt(206, y, s[1], {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
@@ -80,17 +80,20 @@ strategies.forEach(function(s, i){
     el('line', {x1:150, y1:y+88, x2:670, y2:y+88, stroke:INK, 'stroke-width':.6, opacity:.22});
 });
 
-/* ---------- 中央开放箭头（x700–860, y540）：本页唯一强调线 ---------- */
-txt(780, 500, 'PROOF', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
-el('line', {x1:700, y1:540, x2:852, y2:540, stroke:INK, 'stroke-width':2});
-el('line', {x1:852, y1:540, x2:826, y2:520, stroke:INK80, 'stroke-width':1.3});
-el('line', {x1:852, y1:540, x2:826, y2:560, stroke:INK80, 'stroke-width':1.3});
+/* ---------- 中央开放箭头（x720–848, y540）：本页唯一强调线 ---------- */
+txt(784, 500, 'PROOF', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+el('line', {x1:720, y1:540, x2:848, y2:540, stroke:INK, 'stroke-width':2});
+el('line', {x1:848, y1:540, x2:822, y2:520, stroke:INK80, 'stroke-width':1.3});
+el('line', {x1:848, y1:540, x2:822, y2:560, stroke:INK80, 'stroke-width':1.3});
 /* 箭头两侧构造虚线 */
-el('line', {x1:686, y1:540, x2:700, y2:540, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 4'});
-el('line', {x1:852, y1:540, x2:886, y2:540, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 4'});
+el('line', {x1:706, y1:540, x2:720, y2:540, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 4'});
+el('line', {x1:848, y1:540, x2:882, y2:540, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 4'});
 
-/* ---------- 右区：2×2 证据墙标本格（x900–1760） ---------- */
-var CW = 420, CH = 250;
+/* ---------- 右区：2×2 证据墙标本格（等高等宽，上排下延/下排上延） ---------- */
+/* 列1 x=910、列2 x=1350（CW=400, 间隙40）；上排 py=300 对齐左栏标题、下排 py=610（CH=260, 中间间隙50） */
+var CW = 400, CH = 260;
+var COL1X = 910, COL2X = 1350;
+var ROW_TOP = 300, ROW_BOT = 610;
 function specFrame(px, py, tag) {
   el('rect', {x:px, y:py, width:CW, height:CH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.3});
   el('rect', {x:px+5, y:py+5, width:CW-10, height:CH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
@@ -103,7 +106,7 @@ function specLabel(px, py, str) {
 
 /* 格 1 · 调度台界面线稿（地图网格 + 机器人落点 + 路径） */
 (function(){
-  var px = 900, py = 300;
+  var px = COL1X, py = ROW_TOP;
   specFrame(px, py, 'EXHIBIT 01 — DISPATCH CONSOLE');
   var mx = px+40, my = py+58, mw = CW-80, mh = 116;
   el('rect', {x:mx, y:my, width:mw, height:mh, fill:'none', stroke:INK, 'stroke-width':1.1, opacity:.8});
@@ -124,7 +127,7 @@ function specLabel(px, py, str) {
 
 /* 格 2 · 吞吐曲线（峰值落点） */
 (function(){
-  var px = 1340, py = 300;
+  var px = COL2X, py = ROW_TOP;
   specFrame(px, py, 'EXHIBIT 02 — THROUGHPUT');
   var ax = px+48, ay = py+58, aw = CW-96, ah = 116;
   el('line', {x1:ax, y1:ay+ah, x2:ax+aw, y2:ay+ah, stroke:INK, 'stroke-width':.9, opacity:.7});
@@ -142,7 +145,7 @@ function specLabel(px, py, str) {
 
 /* 格 3 · 机器人实物轮廓（立绘） */
 (function(){
-  var px = 900, py = 600;
+  var px = COL1X, py = ROW_BOT;
   specFrame(px, py, 'EXHIBIT 03 — GEN-2 AMR');
   var cx = px + CW/2, base = py + 178;
   el('rect', {x:px+40, y:base+8, width:CW-80, height:12, fill:'url(#hatch22)', stroke:'none'});
@@ -162,7 +165,7 @@ function specLabel(px, py, str) {
 
 /* 格 4 · 波次甘特（三条错峰带） */
 (function(){
-  var px = 1340, py = 600;
+  var px = COL2X, py = ROW_BOT;
   specFrame(px, py, 'EXHIBIT 04 — WAVE PLAN');
   var gx = px+48, gw = CW-96, gy = py+76;
   el('line', {x1:gx, y1:gy+84, x2:gx+gw, y2:gy+84, stroke:INK, 'stroke-width':.9, opacity:.7});

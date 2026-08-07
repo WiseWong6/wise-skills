@@ -57,20 +57,20 @@ txt(200, 176, 'FIG. B16 — NESTED ZOOM FRAMES', {'font-family':MONO, 'font-size
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 主角：嵌套变焦框（衡玑调度平台 · 观察粒度逐层拉远，数据虚构） ---------- */
-var CX = 660, CY = 520;
+var CX = 780, CY = 520;
 var levels = [
-  {no:'01', en:'ROBOT', cn:'单机状态', note:'（这台机器人）', half:80,  dash:null,   w:1.4, op:.9},
-  {no:'02', en:'AISLE', cn:'巷道通行', note:'（这条作业巷）', half:145, dash:null,   w:1.2, op:.7},
-  {no:'03', en:'ZONE',  cn:'库区负载', note:'（这片存储区）', half:220, dash:'6 4',  w:1.1, op:.6},
-  {no:'04', en:'FLEET', cn:'全网履约', note:'（全部仓配网）', half:300, dash:'3 6',  w:1.1, op:.5}
+  {no:'01', en:'ROBOT', cn:'单机状态', note:'（这台机器人）', half:74,  dash:null,   w:1.4, op:.9},
+  {no:'02', en:'AISLE', cn:'巷道通行', note:'（这条作业巷）', half:138, dash:null,   w:1.2, op:.7},
+  {no:'03', en:'ZONE',  cn:'库区负载', note:'（这片存储区）', half:202, dash:'6 4',  w:1.1, op:.6},
+  {no:'04', en:'FLEET', cn:'全网履约', note:'（全部仓配网）', half:266, dash:'3 6',  w:1.1, op:.5}
 ];
 
 /* 构造线不擦除：十字基准（超出最外框） */
-el('line', {x1:CX-370, y1:CY, x2:CX+370, y2:CY, stroke:INK, 'stroke-width':.5, opacity:.22, 'stroke-dasharray':'2 6'});
-el('line', {x1:CX, y1:CY-370, x2:CX, y2:CY+370, stroke:INK, 'stroke-width':.5, opacity:.22, 'stroke-dasharray':'2 6'});
+el('line', {x1:CX-320, y1:CY, x2:CX+320, y2:CY, stroke:INK, 'stroke-width':.5, opacity:.22, 'stroke-dasharray':'2 6'});
+el('line', {x1:CX, y1:CY-320, x2:CX, y2:CY+320, stroke:INK, 'stroke-width':.5, opacity:.22, 'stroke-dasharray':'2 6'});
 /* 四角套准标记（最外框外） */
 [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(s){
-  var mx = CX + s[0]*336, my = CY + s[1]*336;
+  var mx = CX + s[0]*296, my = CY + s[1]*296;
   el('line', {x1:mx-9, y1:my, x2:mx+9, y2:my, stroke:INK, 'stroke-width':.8, opacity:.4});
   el('line', {x1:mx, y1:my-9, x2:mx, y2:my+9, stroke:INK, 'stroke-width':.8, opacity:.4});
 });
@@ -95,7 +95,7 @@ var rail = [
 rail.forEach(function(r){
   var L = r.L;
   var fx = CX + L.half, fy = CY - L.half;      /* 各框右上角 */
-  var ex = 1080, lx = 1130;
+  var ex = 1160, lx = 1210;
   el('circle', {cx:fx, cy:fy, r:5, fill:'none', stroke:INK80, 'stroke-width':1});
   el('circle', {cx:fx, cy:fy, r:1.8, fill:INK});
   el('path', {d:'M '+fx+' '+fy+' L '+(fx+70)+' '+fy+' L '+ex+' '+r.ly, fill:'none',

@@ -62,7 +62,7 @@ var rows = [
   {no:'04', cn:'运行数据', en:'OPERATIONS DATA',   note:'首座试运行仓的九十天指标与复盘',   cur:false},
   {no:'05', cn:'落地路线', en:'ROLLOUT ROADMAP',   note:'三阶段复制计划与商务模式',         cur:false}
 ];
-var X0 = 300, X1 = 1500, Y0 = 250, GAP = 126;
+var X0 = 300, X1 = 1620, Y0 = 250, GAP = 126;
 
 rows.forEach(function(r, i){
   var y = Y0 + i * GAP;                 /* 行基线带顶部 */
@@ -97,30 +97,6 @@ rows.forEach(function(r, i){
 });
 /* 首行上方分隔线 */
 el('line', {x1:X0, y1:Y0-26, x2:X1, y2:Y0-26, stroke:INK, 'stroke-width':.6, opacity:.22});
-
-/* ===== 右侧小线稿：仓区巷道俯视一角（≤15% 面积） ===== */
-var mx = 1590, my = 400;                /* 图区左上 */
-/* 构造虚线框 */
-el('rect', {x:mx-18, y:my-46, width:212, height:300, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.25, 'stroke-dasharray':'2 6'});
-/* 三排货架（线稿短柱）与两条巷道 */
-for (var s = 0; s < 3; s++) {
-  var sx = mx + s * 70;
-  el('rect', {x:sx, y:my, width:44, height:96, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.6});
-  el('rect', {x:sx+5, y:my+5, width:34, height:86, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-}
-/* 机器人路径：折线 + 落点 */
-el('path', {d:'M '+(mx+22)+' '+(my+150)+' L '+(mx+22)+' '+(my+118)+' L '+(mx+92)+' '+(my+118)+' L '+(mx+92)+' '+(my+150)+' L '+(mx+162)+' '+(my+150)',
-  fill:'none', stroke:INK, 'stroke-width':1.1, 'stroke-dasharray':'5 4', opacity:.75});
-el('circle', {cx:mx+22, cy:my+150, r:4, fill:'none', stroke:INK, 'stroke-width':.9});
-el('circle', {cx:mx+22, cy:my+150, r:1.5, fill:INK});
-el('circle', {cx:mx+162, cy:my+150, r:4, fill:'none', stroke:INK, 'stroke-width':.9});
-el('circle', {cx:mx+162, cy:my+150, r:1.5, fill:INK});
-/* 机器人本体：小方块+轮点 */
-el('rect', {x:mx+80, y:my+106, width:24, height:16, fill:'#DFE0D9', stroke:INK, 'stroke-width':1.1});
-el('circle', {cx:mx+86, cy:my+126, r:1.8, fill:INK});
-el('circle', {cx:mx+98, cy:my+126, r:1.8, fill:INK});
-/* 图注 */
-txt(mx-18, my+230, 'AISLE PLAN · ZONE B', {'font-family':MONO, 'font-size':11, 'letter-spacing':2.5, fill:'rgba(25,25,23,.45)'});
 
 stageFit();
 </script>
