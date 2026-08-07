@@ -2,63 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-c1 · 粒子主角 + 对照提问</title>
+<title>layout-c1 · 左图右 2×2 数据格</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
-  canvas.scene { position: absolute; inset: 0; z-index: 1; }
-  svg.overlay { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-
-  /* 方块上方：对照行 */
-  .compare {
-    position: absolute; left: 0; right: 0; top: 268px;
-    display: flex; align-items: center; justify-content: center;
-    gap: 18px; z-index: 3;
-    font-family: var(--sans); font-weight: 300;
-    font-size: 24px; color: var(--ink-70);
-    letter-spacing: .06em;
-  }
-  .compare .arr { font-style: normal; color: var(--ink-45); }
-  .compare .sep { width: 1px; height: 26px; background: var(--ink-25); margin: 0 26px; }
-  .compare .q {
-    font-family: var(--serif); font-size: 44px;
-    color: var(--ink); transform: translateY(2px);
-  }
-  .compare-rule {
-    position: absolute; left: 560px; top: 336px; width: 800px;
-    border-top: 1px solid var(--ink-25); z-index: 3;
-  }
-  .compare-rule::before, .compare-rule::after {
-    content: ""; position: absolute; top: -5px;
-    width: 1px; height: 11px; background: var(--ink-25);
-  }
-  .compare-rule::before { left: 0; }
-  .compare-rule::after { right: 0; }
-
-  /* 方块刻字（纸色反色） */
-  .boxtext {
-    position: absolute; left: 825px; top: 355px;
-    width: 270px; height: 270px; z-index: 3;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    color: #DFE0D9; pointer-events: none;
-  }
-  .boxtext .t1 {
-    font-family: var(--mono); font-size: 35px;
-    letter-spacing: .16em; text-indent: .16em;
-  }
-  .boxtext .divi {
-    width: 140px; height: 1px;
-    background: rgba(223,224,217,.55);
-    margin: 22px 0 18px;
-  }
-  .boxtext .t2 {
-    font-family: var(--mono); font-size: 13px;
-    letter-spacing: .4em; text-indent: .4em;
-    color: rgba(223,224,217,.8);
-  }
-
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
   .caption {
-    position: absolute; left: 0; right: 0; bottom: 108px;
+    position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
     font-size: 33px; letter-spacing: .04em;
@@ -69,116 +18,125 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — C1<br>PARTICLE HERO + CONTRAST</div>
+  <div class="doc tl">PAPER-INK GALLERY — C1<br>LEFT FIGURE RIGHT DATA GRID</div>
   <div class="folio">C1 / 59 — BY WISEWONG</div>
 
-  <canvas class="scene" id="cv" width="1920" height="1080"></canvas>
-
-  <div class="compare">
-    <span>十字路口</span><i class="arr">→</i><span>有红绿灯</span>
-    <span class="sep"></span>
-    <span>百台机器人同仓</span><i class="arr">→</i><span class="q">？</span>
-  </div>
-  <div class="compare-rule"></div>
-
-  <svg class="overlay" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <defs>
-      <pattern id="hatch" width="5.6" height="5.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-        <line x1="0" y1="0" x2="0" y2="5.6" stroke="#191917" stroke-width="0.7" opacity="0.35"/>
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width="0.7" opacity="0.35"/>
       </pattern>
     </defs>
     <g id="draw"></g>
   </svg>
 
-  <div class="boxtext">
-    <div class="t1">SCHEDULER</div>
-    <div class="divi"></div>
-    <div class="t2">ROBOT ORCHESTRA</div>
-  </div>
-
-  <div class="caption">仓库里没有红绿灯——上百台机器人的每一次让路，都来自这个看不见的调度中枢。</div>
+  <div class="caption">左图右数据格把证据与成效放在同一页——左侧场景立绘证明它真实存在，右侧四格大数字给出结果。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
 <script>
-/* ============ 粒子黑方块（极密 + 毛糙边缘） ============ */
-(function(){
-  var ctx = document.getElementById('cv').getContext('2d');
-  var BX = 825, BY = 355, BS = 270;
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans', SERIF = 'Han Serif';
 
-  // 极密实心填充
-  for (var y = BY; y < BY + BS; y += 2.6) {
-    for (var x = BX; x < BX + BS; x += 2.6) {
-      var e = Math.min(x - BX, BX + BS - x, y - BY, BY + BS - y);
-      if (e < 4 && Math.random() < (4 - e) / 4 * .75) continue;
-      PART.dot(ctx,
-        x + (Math.random() - .5) * 1.6,
-        y + (Math.random() - .5) * 1.6,
-        1.5 + Math.random() * .7,
-        .75 + Math.random() * .25);
-    }
-  }
-  // 边缘向外毛糙散落
-  for (var i = 0; i < 460; i++) {
-    var side = (Math.random() * 4) | 0, t = Math.random() * BS;
-    var d = Math.pow(Math.random(), 2) * 11;
-    var px, py;
-    if (side === 0)      { px = BX + BS + d; py = BY + t; }
-    else if (side === 1) { px = BX - d;      py = BY + t; }
-    else if (side === 2) { px = BX + t;      py = BY + BS + d; }
-    else                 { px = BX + t;      py = BY - d; }
-    PART.dot(ctx, px, py, .6 + Math.random() * 1.1, .1 + Math.random() * .42 * (1 - d / 11));
-  }
-  // 氛围尘埃（极淡，避开文字区）
-  PART.dust(ctx, 320, 380, 1280, 440, 110, .1);
-})();
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. C1 — FIGURE & DATA GRID', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ============ SVG 构造线 / 尺寸标注 / 剖面影 ============ */
-(function(){
-  var NS = 'http://www.w3.org/2000/svg';
-  var INK8 = 'rgba(25,25,23,.8)';
-  var G = document.getElementById('draw');
-  function el(tag, attrs) {
-    var e = document.createElementNS(NS, tag);
-    for (var k in attrs) e.setAttribute(k, attrs[k]);
-    G.appendChild(e); return e;
-  }
-  function txt(x, y, str, attrs) {
-    var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
-    t.textContent = str; return t;
-  }
-  var MONO = 'Courier Prime';
-  var BX = 825, BY = 355, BS = 270;
+/* ============ 左区：标本立绘（衡玑 HJ-AMR S600 仓储机器人） ============ */
+var FX = 150, FY = 260, FW = 860, FH = 560;
+el('rect', {x:FX, y:FY, width:FW, height:FH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.3});
+el('rect', {x:FX+6, y:FY+6, width:FW-12, height:FH-12, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
+/* 编号牌（压框顶边） */
+el('rect', {x:190, y:238, width:330, height:44, fill:'#DFE0D9', stroke:INK, 'stroke-width':1.2});
+txt(355, 267, 'SPECIMEN 01 — HJ-AMR S600', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 
-  // 构造框（虚线，比方块大一圈）
-  el('rect', {x:BX-18, y:BY-18, width:BS+36, height:BS+36, fill:'none',
-    stroke:INK8, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'3 5'});
-  // 构造框四角短刻度
-  [[BX-18,BY-18],[BX+BS+18,BY-18],[BX-18,BY+BS+18],[BX+BS+18,BY+BS+18]].forEach(function(c){
-    el('line', {x1:c[0]-7, y1:c[1], x2:c[0]+7, y2:c[1], stroke:INK8, 'stroke-width':.8, opacity:.5});
-    el('line', {x1:c[0], y1:c[1]-7, x2:c[0], y2:c[1]+7, stroke:INK8, 'stroke-width':.8, opacity:.5});
-  });
+/* 构造基准（不擦除） */
+el('line', {x1:555, y1:290, x2:555, y2:790, stroke:INK, 'stroke-width':.5, opacity:.2, 'stroke-dasharray':'2 6'});
+el('circle', {cx:555, cy:530, r:225, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.18, 'stroke-dasharray':'3 6'});
+el('line', {x1:246, y1:304, x2:264, y2:304, stroke:INK, 'stroke-width':.8, opacity:.4});
+el('line', {x1:255, y1:295, x2:255, y2:313, stroke:INK, 'stroke-width':.8, opacity:.4});
 
-  // 左侧尺寸标注：270 px
-  var dx = BX - 74;
-  el('line', {x1:BX-30, y1:BY, x2:dx-10, y2:BY, stroke:INK8, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 4'});
-  el('line', {x1:BX-30, y1:BY+BS, x2:dx-10, y2:BY+BS, stroke:INK8, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 4'});
-  el('line', {x1:dx, y1:BY, x2:dx, y2:BY+BS, stroke:INK8, 'stroke-width':1.2});
-  el('line', {x1:dx-8, y1:BY, x2:dx+8, y2:BY, stroke:INK8, 'stroke-width':1.2});
-  el('line', {x1:dx-8, y1:BY+BS, x2:dx+8, y2:BY+BS, stroke:INK8, 'stroke-width':1.2});
-  txt(dx-16, BY+BS/2, '270 PX', {'font-family':MONO, 'font-size':14, 'letter-spacing':3,
-    fill:'rgba(25,25,23,.6)', 'text-anchor':'middle',
-    transform:'rotate(-90 '+(dx-16)+' '+(BY+BS/2)+')'});
+/* 地面基线 + 刻度齿 */
+el('line', {x1:210, y1:740, x2:960, y2:740, stroke:INK80, 'stroke-width':1.3});
+for (var gx = 230; gx <= 950; gx += 40)
+  el('line', {x1:gx, y1:740, x2:gx, y2:746, stroke:INK, 'stroke-width':.6, opacity:.4});
 
-  // 底部剖面影（hatch）
-  el('path', {d:'M '+BX+' '+(BY+BS+10)+' L '+(BX+BS)+' '+(BY+BS+10)+
-    ' L '+(BX+BS-14)+' '+(BY+BS+21)+' L '+(BX-14)+' '+(BY+BS+21)+' Z', fill:'url(#hatch)'});
-  el('line', {x1:BX-14, y1:BY+BS+21, x2:BX+BS-14, y2:BY+BS+21, stroke:INK8, 'stroke-width':1, opacity:.5});
+/* 货架（右侧背景暗示） */
+el('line', {x1:880, y1:430, x2:880, y2:740, stroke:INK, 'stroke-width':1.1, opacity:.6});
+el('line', {x1:830, y1:480, x2:950, y2:480, stroke:INK, 'stroke-width':.9, opacity:.5});
+el('line', {x1:830, y1:600, x2:950, y2:600, stroke:INK, 'stroke-width':.9, opacity:.5});
+el('rect', {x:846, y:444, width:56, height:34, fill:'url(#hatch)', stroke:INK, 'stroke-width':.8, opacity:.55});
+el('rect', {x:862, y:562, width:66, height:36, fill:'url(#hatch)', stroke:INK, 'stroke-width':.8, opacity:.55});
 
-  // 图注
-  txt(BX+BS/2, BY+BS+62, 'FIG. C1 — PARTICLE MASS · DENSITY 1.0', {'font-family':MONO,
-    'font-size':13, 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
-})();
+/* 机器人本体（侧视立绘） */
+el('circle', {cx:470, cy:706, r:28, fill:'none', stroke:INK80, 'stroke-width':1.3});
+el('circle', {cx:470, cy:706, r:19, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.5});
+el('circle', {cx:470, cy:706, r:2.6, fill:INK});
+el('circle', {cx:640, cy:706, r:28, fill:'none', stroke:INK80, 'stroke-width':1.3});
+el('circle', {cx:640, cy:706, r:19, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.5});
+el('circle', {cx:640, cy:706, r:2.6, fill:INK});
+el('rect', {x:442, y:668, width:226, height:12, fill:'none', stroke:INK, 'stroke-width':1.1, opacity:.8});
+/* 主壳体 */
+el('rect', {x:450, y:470, width:210, height:198, rx:12, fill:'none', stroke:INK80, 'stroke-width':1.4});
+el('rect', {x:466, y:488, width:178, height:160, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
+el('rect', {x:466, y:588, width:94, height:60, fill:'url(#hatch)', stroke:INK, 'stroke-width':.8, opacity:.6});
+el('line', {x1:580, y1:520, x2:636, y2:520, stroke:INK, 'stroke-width':.7, opacity:.4});
+el('line', {x1:580, y1:538, x2:636, y2:538, stroke:INK, 'stroke-width':.7, opacity:.4});
+/* 前置深度相机 */
+el('circle', {cx:452, cy:520, r:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.1});
+el('circle', {cx:452, cy:520, r:2.6, fill:INK});
+/* 急停触边 */
+el('rect', {x:444, y:640, width:222, height:24, rx:12, fill:'none', stroke:INK, 'stroke-width':1.1, opacity:.75});
+/* 举升平台 + 周转箱 */
+el('rect', {x:425, y:452, width:270, height:16, rx:4, fill:'none', stroke:INK80, 'stroke-width':1.2});
+el('rect', {x:455, y:390, width:200, height:62, fill:'url(#hatch)', stroke:INK80, 'stroke-width':1.2});
+el('line', {x1:478, y1:421, x2:632, y2:421, stroke:INK, 'stroke-width':.7, opacity:.4});
+/* 顶部激光雷达 */
+el('line', {x1:547, y1:390, x2:547, y2:362, stroke:INK, 'stroke-width':1, opacity:.7});
+el('line', {x1:563, y1:390, x2:563, y2:362, stroke:INK, 'stroke-width':1, opacity:.7});
+el('ellipse', {cx:555, cy:358, rx:27, ry:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.1});
+el('ellipse', {cx:555, cy:346, rx:27, ry:9, fill:'none', stroke:INK, 'stroke-width':.8, opacity:.6});
+el('line', {x1:528, y1:346, x2:528, y2:358, stroke:INK, 'stroke-width':.8, opacity:.6});
+el('line', {x1:582, y1:346, x2:582, y2:358, stroke:INK, 'stroke-width':.8, opacity:.6});
+
+/* 尺寸标注：总高 / 车宽 */
+el('line', {x1:400, y1:346, x2:400, y2:734, stroke:INK, 'stroke-width':.6, opacity:.5, 'stroke-dasharray':'3 5'});
+el('line', {x1:392, y1:346, x2:408, y2:346, stroke:INK, 'stroke-width':.9, opacity:.6});
+el('line', {x1:392, y1:734, x2:408, y2:734, stroke:INK, 'stroke-width':.9, opacity:.6});
+txt(388, 545, '940 MM', {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'middle',
+  fill:'rgba(25,25,23,.55)', transform:'rotate(-90 388 545)'});
+el('line', {x1:425, y1:772, x2:695, y2:772, stroke:INK, 'stroke-width':.6, opacity:.5, 'stroke-dasharray':'3 5'});
+el('line', {x1:425, y1:764, x2:425, y2:780, stroke:INK, 'stroke-width':.9, opacity:.6});
+el('line', {x1:695, y1:764, x2:695, y2:780, stroke:INK, 'stroke-width':.9, opacity:.6});
+txt(560, 794, '655 MM', {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
+
+/* ============ 右区：2×2 数据格（无边框纯排版，细线十字分隔） ============ */
+el('line', {x1:1440, y1:280, x2:1440, y2:810, stroke:INK, 'stroke-width':.6, opacity:.3});
+el('line', {x1:1080, y1:545, x2:1780, y2:545, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+function cell(cx, ty, num, label, note) {
+  txt(cx, ty, num, {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
+  txt(cx, ty + 42, label, {'font-family':SANS, 'font-weight':300, 'font-size':24, 'text-anchor':'middle', fill:'rgba(25,25,23,.8)'});
+  txt(cx, ty + 74, note, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  el('line', {x1:cx-30, y1:ty+92, x2:cx+30, y2:ty+92, stroke:INK, 'stroke-width':.7, opacity:.35});
+}
+cell(1260, 400, '42',    '在役机器人车队',   'FLEET ONLINE · 3 SITES');
+cell(1610, 400, '386',   '峰值吞吐（单/时）', 'PEAK THROUGHPUT · ORD/H');
+cell(1260, 665, '99.2%', '准时履约率',       'ON-TIME RATE · 30D AVG');
+cell(1610, 665, '-31%',  '拣选行走距离',     'WALK DISTANCE · VS MANUAL');
 
 stageFit();
 </script>

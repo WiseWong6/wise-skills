@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-g3 · 样本排行柱图</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — G3<br>SAMPLE RANKING BARS</div>
+  <div class="folio">G3 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <pattern id="hatch30" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width=".7" opacity=".35"/>
+      </pattern>
+      <pattern id="hatch30red" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#C0392B" stroke-width="1" opacity=".5"/>
+      </pattern>
+    </defs>
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">降序柱高承担排序叙事，Top3 上方垂挂标本缩略，让头部样本在数值之外同时被看见。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. G3 — SAMPLE RANKING BARS', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 数据（衡玑科技 · 仓储机器人调度平台） ---------- */
+var rows = [
+  {name:'苏州园区仓', code:'SITE-01', v:428, bot:'lift'},
+  {name:'东莞智造仓', code:'SITE-02', v:391, bot:'fork'},
+  {name:'成都双流仓', code:'SITE-03', v:355, bot:'tote'},
+  {name:'天津港仓',   code:'SITE-04', v:298},
+  {name:'武汉光谷仓', code:'SITE-05', v:264},
+  {name:'嘉兴枢纽仓', code:'SITE-06', v:227},
+  {name:'佛山分拨仓', code:'SITE-07', v:196},
+  {name:'合肥保税仓', code:'SITE-08', v:168}
+];
+var BASE = 820, X0 = 200, X1 = 1720, SC = 1.08, BW = 64;
+
+/* ---------- 左侧数值轴 + 横向构造栅格 ---------- */
+[0,100,200,300,400].forEach(function(v){
+  var y = BASE - v*SC;
+  if (v > 0) el('line', {x1:X0, y1:y, x2:X1, y2:y, stroke:INK, 'stroke-width':.5, opacity:.12, 'stroke-dasharray':'2 6'});
+  el('line', {x1:X0-8, y1:y, x2:X0, y2:y, stroke:INK, 'stroke-width':.9, opacity:.6});
+  txt(X0-16, y+4, String(v), {'font-family':MONO, 'font-size':12, 'text-anchor':'end', fill:INK45});
+});
+el('line', {x1:X0, y1:300, x2:X0, y2:BASE, stroke:INK, 'stroke-width':1, opacity:.6});
+txt(X0-16, 290, 'K TASKS / DAY', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+
+/* ---------- 底部共享基线尺 ---------- */
+el('line', {x1:X0, y1:BASE, x2:X1, y2:BASE, stroke:INK80, 'stroke-width':1.2});
+rows.forEach(function(r, i){
+  var cx = 300 + i*190;
+  el('line', {x1:cx, y1:BASE, x2:cx, y2:BASE+10, stroke:INK, 'stroke-width':1, opacity:.7});
+  if (i < rows.length-1)
+    el('line', {x1:cx+95, y1:BASE, x2:cx+95, y2:BASE+6, stroke:INK, 'stroke-width':.5, opacity:.4});
+});
+
+/* ---------- 降序线稿柱 ---------- */
+/* 主角判定：Top1（苏州园区仓 428）是榜单焦点 → 柱体描边 + 柱顶数值 + 内部 hatch 斜线全部跟随染色 */
+rows.forEach(function(r, i){
+  var cx = 300 + i*190;
+  var h = r.v*SC, y = BASE - h;
+  var top = ACCENT && i === 0;
+  el('rect', {x:cx-BW/2, y:y, width:BW, height:h,
+    fill: (i===0 && top) ? 'url(#hatch30red)' : (i===0 ? 'url(#hatch30)' : 'none'),
+    stroke: top ? RED : INK80, 'stroke-width': i===0 ? 1.4 : 1.2});
+  txt(cx, y-14, String(r.v), {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill: top ? RED : INK});
+  txt(cx, BASE+34, r.name, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
+  txt(cx, BASE+56, r.code, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+});
+
+/* ---------- Top3 垂挂标本缩略框（微场景：三种机型线稿） ---------- */
+function drawBot(bx, by, kind) {
+  var S = {stroke:INK80, 'stroke-width':1.1, fill:'none'};
+  if (kind === 'lift') {          /* 顶升机器人 */
+    el('rect', Object.assign({x:bx-27, y:by-6, width:54, height:12}, S));
+    el('line', Object.assign({x1:bx, y1:by-6, x2:bx, y2:by-24}, S));
+    el('line', Object.assign({x1:bx-15, y1:by-24, x2:bx+15, y2:by-24}, S));
+    el('circle', Object.assign({cx:bx-16, cy:by+10, r:4}, S));
+    el('circle', Object.assign({cx:bx+16, cy:by+10, r:4}, S));
+  } else if (kind === 'fork') {   /* 叉取机器人 */
+    el('rect', Object.assign({x:bx-28, y:by-14, width:26, height:20}, S));
+    el('line', Object.assign({x1:bx+2, y1:by-22, x2:bx+2, y2:by+6}, S));
+    el('line', Object.assign({x1:bx+2, y1:by-16, x2:bx+28, y2:by-16}, S));
+    el('line', Object.assign({x1:bx+2, y1:by-4,  x2:bx+28, y2:by-4},  S));
+    el('circle', Object.assign({cx:bx-20, cy:by+10, r:4}, S));
+    el('circle', Object.assign({cx:bx-6,  cy:by+10, r:4}, S));
+  } else {                        /* 料箱机器人 */
+    el('rect', Object.assign({x:bx-16, y:by-30, width:32, height:13}, S));
+    el('rect', Object.assign({x:bx-16, y:by-14, width:32, height:13}, S));
+    el('line', Object.assign({x1:bx-22, y1:by+2, x2:bx+22, y2:by+2}, S));
+    el('circle', Object.assign({cx:bx-13, cy:by+9, r:4}, S));
+    el('circle', Object.assign({cx:bx+13, cy:by+9, r:4}, S));
+  }
+}
+
+var FW = 200, FH = 118, FY = 206;
+rows.slice(0,3).forEach(function(r, i){
+  var cx = 300 + i*190, fx = cx - FW/2;
+  /* 垂挂虚线 */
+  el('line', {x1:cx, y1:FY+FH, x2:cx, y2:BASE-r.v*SC-4, stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+  el('circle', {cx:cx, cy:FY+FH+5, r:2.2, fill:INK, opacity:.6});
+  /* 双线框 */
+  el('rect', {x:fx, y:FY, width:FW, height:FH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
+  el('rect', {x:fx+5, y:FY+5, width:FW-10, height:FH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
+  /* 排名徽章 + 机型码 */
+  txt(fx+14, FY+24, '0'+(i+1), {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK});
+  txt(fx+FW-14, FY+24, r.bot.toUpperCase()+' BOT', {'font-family':MONO, 'font-size':10, 'letter-spacing':1, 'text-anchor':'end', fill:INK45});
+  drawBot(cx, FY+64, r.bot);
+  txt(cx, FY+FH-11, 'SAMPLE · '+r.code, {'font-family':MONO, 'font-size':10, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+});
+
+stageFit();
+</script>
+</body>
+</html>

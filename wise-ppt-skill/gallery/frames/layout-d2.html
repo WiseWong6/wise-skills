@@ -2,159 +2,152 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-d2 · 图标六宫格</title>
+<title>layout-d2 · 粒子大字尾卡</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
-  svg.scene { position: absolute; inset: 0; z-index: 1; }
-  .caption {
-    position: absolute; left: 0; right: 0; bottom: 118px;
+  canvas { position: absolute; inset: 0; z-index: 2; }
+  svg.marks { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+
+  /* 尾卡文字（DOM，居中） */
+  .sub-en {
+    position: absolute; left: 0; right: 0; top: 628px;
     text-align: center;
-    font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
-    color: var(--ink); z-index: 5;
+    font-family: var(--mono); font-size: 18px;
+    letter-spacing: .42em; text-indent: .42em;   /* 末字符补偿，保持视觉居中 */
+    color: var(--ink-70);
+    z-index: 5;
   }
+  .next-cn {
+    position: absolute; left: 0; right: 0; top: 726px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 300; font-size: 24px;
+    letter-spacing: .08em;
+    color: var(--ink);
+    z-index: 5;
+  }
+  .next-cn .q { color: var(--ink-70); }
 </style>
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — D2<br>ICON SIX-GRID</div>
+  <div class="doc tl">PAPER-INK GALLERY — D2<br>PARTICLE TYPE ENDCARD</div>
   <div class="folio">D2 / 59 — BY WISEWONG</div>
 
-  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
-    <defs>
-      <pattern id="hatch-d2" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width=".6" opacity=".3"/>
-      </pattern>
-    </defs>
+  <canvas id="cv" width="1920" height="1080"></canvas>
+
+  <svg class="marks" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">图标六宫格是兜底版式：概念抽象到画不出关系图时，用六枚墨色细线图标并列陈列。</div>
+  <div class="sub-en">HENGJI TECH · CANGXU OS V2.4</div>
+  <div class="next-cn">下一章 · 实测<span class="q">——百台机器人，一仓不乱。</span></div>
 </div>
 
 <script src="../assets/particles.js"></script>
 <script>
 var NS = 'http://www.w3.org/2000/svg';
-var INK = '#191917';
-var INK80 = 'rgba(25,25,23,.8)';
-var INK60 = 'rgba(25,25,23,.6)';
-var INK45 = 'rgba(25,25,23,.45)';
+var cv = document.getElementById('cv');
+var ctx = cv.getContext('2d');
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
   for (var k in attrs) e.setAttribute(k, attrs[k]);
   G.appendChild(e); return e;
 }
-function txt(x, y, str, attrs) {
-  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
-  t.textContent = str; return t;
-}
-var MONO = 'Courier Prime', SANS = 'Han Sans';
 
-/* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. D2 — ICON SIX-GRID', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
-el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+/* ---- 构图参数 ---- */
+var WORD = 'DISPATCH';
+var FS = 240;                                    // 采样字号
+var FONT = '500 ' + FS + 'px "Han Serif"';
+var CY = 420;                                    // 单词中心（中央偏上）
 
-/* ---------- 6 格：2 行 × 3 列，整体水平居中 ---------- */
-/* 画面 1920，每格宽 440，3 格总宽 1320，居中 → 左缘 (1920-1320)/2=300 */
-var COLS = [300, 740, 1180];          /* 三列左缘 x */
-var ROWS = [290, 620];                /* 两行顶部 y */
-var CW = 440;
+function draw() {
+  var w = PART.measure(WORD, FONT);
+  var x0 = 960 - w / 2;
+  var pts = PART.textPoints(WORD, x0, CY, FONT, 7);
 
-/* 通用：每格画图标(居中)+标题+说明 */
-function cell(col, row, drawIcon, title, en, desc1, desc2) {
-  var gx = COLS[col], gy = ROWS[row];
-  var cx = gx + CW/2;                 /* 格水平中心 */
-  /* 图标在格上半部居中 */
-  drawIcon(cx, gy + 70);
-  /* 标题 + EN code */
-  txt(cx, gy + 188, title, {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
-  txt(cx, gy + 212, en, {'font-family':MONO, 'font-size':12, 'letter-spacing':2.5, 'text-anchor':'middle', fill:INK45});
-  el('line', {x1:cx-24, y1:gy+224, x2:cx+24, y2:gy+224, stroke:INK, 'stroke-width':.6, opacity:.4});
-  /* 说明两行 */
-  txt(cx, gy + 250, desc1, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
-  txt(cx, gy + 272, desc2, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
-}
+  var minY = 1e9, maxY = -1e9;
+  pts.forEach(function (p) { if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y; });
 
-/* ---------- 6 枚细线图标（cx=格中心, cy=图标中心） ---------- */
+  /* ① ASCII 乱序字面：0 / 1 / * / - / . 随机落位，打字机小字 */
+  var CH = '01*-.';
+  ctx.font = '10px "Courier Prime"';
+  ctx.fillStyle = '#191917';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  pts.forEach(function (p) {
+    var a = .45 + Math.random() * .35;
+    var ch = CH[(Math.random() * CH.length) | 0];
+    ctx.globalAlpha = a;
+    ctx.fillText(ch, p.x + (Math.random() - .5) * 1.5, p.y + (Math.random() - .5) * 1.5);
+  });
+  ctx.globalAlpha = 1;
 
-/* 1. 路径规划：分叉路径 + 节点 */
-cell(0, 0, function(cx, cy){
-  el('circle', {cx:cx-38, cy:cy, r:6, fill:'none', stroke:INK80, 'stroke-width':1.2});
-  el('circle', {cx:cx-38, cy:cy, r:2, fill:INK});
-  el('circle', {cx:cx+38, cy:cy-26, r:5, fill:'none', stroke:INK80, 'stroke-width':1.1});
-  el('circle', {cx:cx+38, cy:cy+26, r:5, fill:'none', stroke:INK80, 'stroke-width':1.1});
-  el('path', {d:'M '+(cx-32)+' '+cy+' Q '+(cx-2)+' '+cy+' '+(cx+2)+' '+cy+' Q '+(cx+14)+' '+cy+' '+(cx+20)+' '+(cy-16)+' L '+(cx+34)+' '+(cy-24),
-    fill:'none', stroke:INK80, 'stroke-width':1.3});
-  el('path', {d:'M '+(cx-32)+' '+cy+' Q '+(cx+14)+' '+cy+' '+(cx+20)+' '+(cy+16)+' L '+(cx+34)+' '+(cy+24),
-    fill:'none', stroke:INK80, 'stroke-width':1.3});
-  el('circle', {cx:cx+2, cy:cy, r:3, fill:INK, opacity:.7});
-}, '路径规划', 'PLANNER', '多机协同路径实时重算', '路口冲突消解 < 200ms');
-
-/* 2. 充电调度：电池 + 电量刻度 */
-cell(1, 0, function(cx, cy){
-  el('rect', {x:cx-34, y:cy-20, width:60, height:40, fill:'none', stroke:INK80, 'stroke-width':1.3});
-  el('rect', {x:cx+26, y:cy-10, width:6, height:20, fill:'none', stroke:INK80, 'stroke-width':1.2});
-  /* 电量三格（最后一格 hatch = 已充） */
-  el('rect', {x:cx-28, y:cy-14, width:16, height:28, fill:'url(#hatch-d2)', stroke:'none'});
-  el('rect', {x:cx-10, y:cy-14, width:16, height:28, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-  el('rect', {x:cx+8, y:cy-14, width:16, height:28, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-  /* 底部刻度 */
-  for (var i = 0; i < 4; i++)
-    el('line', {x1:cx-34+i*15, y1:cy+26, x2:cx-34+i*15, y2:cy+32, stroke:INK, 'stroke-width':.6, opacity:.4});
-}, '充电调度', 'CHARGING', '按电量阈值自动排程', '波谷时段错峰回充');
-
-/* 3. 库位管理：3×3 货架网格 + 热点 */
-cell(2, 0, function(cx, cy){
-  var gx = cx-33, gy = cy-33, cw = 22;
-  for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) {
-    el('rect', {x:gx+c*cw, y:gy+r*cw, width:cw-3, height:cw-3, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.55});
+  /* ② 字冠上沿零星未落位的浮字符 */
+  for (var k = 0; k < 40; k++) {
+    ctx.globalAlpha = .2 + Math.random() * .3;
+    ctx.fillText(CH[(Math.random() * CH.length) | 0],
+      x0 + Math.random() * w, minY - 2 + PART.gauss() * 7);
   }
-  /* 中心格 hatch = 热点 */
-  el('rect', {x:gx+cw, y:gy+cw, width:cw-3, height:cw-3, fill:'url(#hatch-d2)', stroke:INK80, 'stroke-width':1});
-  /* 热点引线 */
-  el('circle', {cx:gx+cw+9, cy:gy+cw+9, r:2, fill:INK});
-}, '库位管理', 'SLOTTING', '货位热度动态分区', '试点仓周转率提升 31%');
+  ctx.globalAlpha = 1;
 
-/* 4. 集群通信：三道信号弧 + 发射点 */
-cell(0, 1, function(cx, cy){
-  el('circle', {cx:cx, cy:cy+12, r:5, fill:'none', stroke:INK80, 'stroke-width':1.3});
-  el('circle', {cx:cx, cy:cy+12, r:2, fill:INK});
-  el('path', {d:'M '+(cx-16)+' '+(cy+2)+' A 18 18 0 0 1 '+(cx+16)+' '+(cy+2), fill:'none', stroke:INK80, 'stroke-width':1.2, opacity:.7});
-  el('path', {d:'M '+(cx-26)+' '+(cy-4)+' A 30 30 0 0 1 '+(cx+26)+' '+(cy-4), fill:'none', stroke:INK, 'stroke-width':1, opacity:.5});
-  el('path', {d:'M '+(cx-36)+' '+(cy-10)+' A 42 42 0 0 1 '+(cx+36)+' '+(cy-10), fill:'none', stroke:INK, 'stroke-width':.9, opacity:.3});
-}, '集群通信', 'MESH', '厂区 5G 局域组网', '断点任务自动接管');
+  /* ③ 版面大氛围尘（避开文字区，保持尾卡的静） */
+  PART.dust(ctx, 140, 150, 1640, 700, 70, .08);
 
-/* 5. 效能看板：刻度表盘 + 指针 */
-cell(1, 1, function(cx, cy){
-  el('path', {d:'M '+(cx-34)+' '+(cy+12)+' A 34 34 0 0 1 '+(cx+34)+' '+(cy+12), fill:'none', stroke:INK80, 'stroke-width':1.3});
-  /* 刻度 */
-  for (var i = -2; i <= 2; i++) {
-    var a = -Math.PI/2 + i * 0.32;
-    el('line', {x1:cx+Math.cos(a)*30, y1:cy+12+Math.sin(a)*30, x2:cx+Math.cos(a)*36, y2:cy+12+Math.sin(a)*36,
-      stroke:INK, 'stroke-width':.7, opacity:.5});
+  /* ============ 细线制图标记（SVG） ============ */
+  var LX = x0 - 34, RX = x0 + w + 34;            // 单词外扩框
+  var TY = minY - 158, BY = maxY + 30;
+
+  /* 套准十字：单词四角 */
+  [[LX, TY], [RX, TY], [LX, BY], [RX, BY]].forEach(function (c) {
+    el('line', {x1: c[0]-9, y1: c[1], x2: c[0]+9, y2: c[1], stroke:'#191917', 'stroke-width':.6, opacity:.3});
+    el('line', {x1: c[0], y1: c[1]-9, x2: c[0], y2: c[1]+9, stroke:'#191917', 'stroke-width':.6, opacity:.3});
+  });
+
+  /* 基线构造虚线：单词下沿 */
+  el('line', {x1: LX, y1: maxY + 12, x2: RX, y2: maxY + 12,
+    stroke:'#191917', 'stroke-width':.6, 'stroke-dasharray':'2 5', opacity:.3});
+
+  /* 字高尺寸标注：左侧引线 + 刻度 */
+  (function () {
+    var ax = LX - 46;
+    el('line', {x1: ax, y1: minY, x2: ax, y2: maxY, stroke:'#191917', 'stroke-width':.8, opacity:.55});
+    el('line', {x1: ax-6, y1: minY, x2: ax+6, y2: minY, stroke:'#191917', 'stroke-width':.8, opacity:.55});
+    el('line', {x1: ax-6, y1: maxY, x2: ax+6, y2: maxY, stroke:'#191917', 'stroke-width':.8, opacity:.55});
+    el('line', {x1: ax, y1: minY, x2: LX, y2: minY, stroke:'#191917', 'stroke-width':.6, 'stroke-dasharray':'2 4', opacity:.3});
+    el('line', {x1: ax, y1: maxY, x2: LX, y2: maxY, stroke:'#191917', 'stroke-width':.6, 'stroke-dasharray':'2 4', opacity:.3});
+    var t = el('text', {x: ax - 14, y: (minY + maxY) / 2, 'text-anchor':'middle',
+      'font-family':'Courier Prime', 'font-size':13, 'letter-spacing':2,
+      fill:'rgba(25,25,23,.45)', transform:'rotate(-90 ' + (ax - 14) + ' ' + ((minY + maxY) / 2) + ')'});
+    t.textContent = 'X-HEIGHT 240';
+  })();
+
+  /* 分隔细线：英文行下方，两端小刻度 */
+  (function () {
+    var y = 690, x1 = 800, x2 = 1120;
+    el('line', {x1: x1, y1: y, x2: x2, y2: y, stroke:'#191917', 'stroke-width':.8, opacity:.55});
+    el('line', {x1: x1, y1: y-4, x2: x1, y2: y+4, stroke:'#191917', 'stroke-width':.8, opacity:.55});
+    el('line', {x1: x2, y1: y-4, x2: x2, y2: y+4, stroke:'#191917', 'stroke-width':.8, opacity:.55});
+  })();
+
+  /* 图注 */
+  var ft = el('text', {x: 960, y: 806, 'text-anchor':'middle',
+    'font-family':'Courier Prime', 'font-size':14, 'letter-spacing':5,
+    fill:'rgba(25,25,23,.45)'});
+  ft.textContent = 'FIG. D2 — END CARD';
+}
+
+/* 等思源宋体装完再采样，保证轮廓来自 Han Serif */
+function start() {
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load(FONT, WORD).then(function () {
+      document.fonts.ready.then(draw);
+    });
+  } else {
+    draw();
   }
-  /* 指针 */
-  el('line', {x1:cx, y1:cy+12, x2:cx+18, y2:cy-14, stroke:INK, 'stroke-width':1.6});
-  el('circle', {cx:cx, cy:cy+12, r:3, fill:INK});
-}, '效能看板', 'OEE', '逐仓逐班效能统计', '瓶颈工位自动标记');
-
-/* 6. 安全联锁：盾牌轮廓 + 对勾 */
-cell(2, 1, function(cx, cy){
-  el('path', {d:'M '+(cx-26)+' '+(cy-28)+' L '+(cx+26)+' '+(cy-28)+' L '+(cx+26)+' '+(cy+6)+
-    ' Q '+(cx+26)+' '+(cy+30)+' '+cx+' '+(cy+36)+' Q '+(cx-26)+' '+(cy+30)+' '+(cx-26)+' '+(cy+6)+' Z',
-    fill:'none', stroke:INK80, 'stroke-width':1.3});
-  el('path', {d:'M '+(cx-26)+' '+(cy-28)+' L '+(cx-26)+' '+(cy+6), fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-  el('path', {d:'M '+(cx-26)+' '+(cy-20)+' L '+(cx+26)+' '+(cy-20), fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-  /* 对勾 */
-  el('path', {d:'M '+(cx-12)+' '+cy+' L '+(cx-3)+' '+(cy+10)+' L '+(cx+14)+' '+(cy-12),
-    fill:'none', stroke:INK, 'stroke-width':1.8});
-}, '安全联锁', 'SAFETY', '人机混行区自动降速', '急停响应 < 80ms');
-
-/* 网格上下缘构造虚线 */
-el('line', {x1:300, y1:264, x2:1620, y2:264, stroke:INK, 'stroke-width':.6, opacity:.22, 'stroke-dasharray':'2 6'});
-el('line', {x1:300, y1:920, x2:1620, y2:920, stroke:INK, 'stroke-width':.6, opacity:.22, 'stroke-dasharray':'2 6'});
-
+}
+start();
 stageFit();
 </script>
 </body>
