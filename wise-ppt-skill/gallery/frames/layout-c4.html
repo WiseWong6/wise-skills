@@ -2,13 +2,13 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-c4 · 中国分布地图</title>
+<title>layout-c4 · 广东分布地图</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <!-- ECharts 纸墨化（规约见 references/components.md §3）：仅用于真实地理分布图 -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
-  /* ECharts 地图画布：铺在主图区，让 registerMap 渲染真实国境 */
+  /* ECharts 地图画布：铺在主图区，让 registerMap 渲染真实省/市界 */
   #chart {
     position: absolute;
     left: 180px; top: 208px;
@@ -33,7 +33,7 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — C4<br>CHINA DISTRIBUTION MAP</div>
+  <div class="doc tl">PAPER-INK GALLERY — C4<br>GUANGDONG DISTRIBUTION MAP</div>
   <div class="folio">C4 / 59 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
@@ -44,7 +44,7 @@
     <g id="nodes"></g>
   </svg>
 
-  <div class="caption">以真实中国国境为底，节点大小编码区域仓数，六枚节点讲完一张全国调度网。</div>
+  <div class="caption">以广东省真实市界为底，节点大小编码各市仓数，六枚节点讲完一张全省调度网。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -67,24 +67,24 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. C4 — CHINA DISTRIBUTION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
-el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+txt(200, 176, 'FIG. C4 — GUANGDONG DISTRIBUTION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:600, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 经纬构造线（测绘底稿，不擦除） ---------- */
+/* ---------- 经纬构造线（测绘底稿，不擦除）—— 广东约 109.7°–117.2°E / 20.2°–25.5°N ---------- */
 [740, 980].forEach(function(x, i){
   el('line', {x1:x, y1:208, x2:x, y2:832, stroke:INK, 'stroke-width':.5, opacity:.14, 'stroke-dasharray':'2 6'});
-  txt(x, 850, (100 + i*15) + '°E', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(x, 850, (112 + i*3) + '°E', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
 el('line', {x1:210, y1:520, x2:1340, y2:520, stroke:INK, 'stroke-width':.5, opacity:.14, 'stroke-dasharray':'2 6'});
-txt(1352, 524, '30°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
+txt(1352, 524, '23°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
 
 /* ---------- 右侧 KPI 栏（x1360–1780，细线分隔、无外框） ---------- */
-txt(1360, 226, 'NETWORK TOTALS', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
+txt(1360, 226, 'PROVINCE TOTALS', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
 el('line', {x1:1360, y1:242, x2:1770, y2:242, stroke:INK, 'stroke-width':.8, opacity:.5});
 var kpis = [
   ['117',   '在营仓总数（座）'],
   ['3,842', '在线机器人（台）'],
-  ['21',    '覆盖省级区域（个）'],
+  ['21',    '覆盖地级市（个）'],
   ['96',    '日均调度单量（万单）']
 ];
 kpis.forEach(function(k, i){
@@ -100,25 +100,27 @@ el('circle', {cx:212, cy:924, r:12, fill:'none', stroke:INK, 'stroke-width':1, o
 el('circle', {cx:212, cy:924, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
 txt(240, 929, 'Ø = SITES IN OPERATION · MAP DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
 
-/* ===================== ECharts 中国地图（纸墨化） =====================
-   分工：ECharts geo 只渲染真实国境（含省界/南海九段线/海南/台湾），
-   节点（双圈+数值+城市名）全部由 SVG overlay 在 canvas 之上绘制，
-   保证纸墨线稿手法与字体一致、层级干净。 */
+/* ===================== ECharts 广东省地图（纸墨化） =====================
+   分工：ECharts geo 只渲染真实市界（21 地级市），节点（双圈+数值+
+   城市名）全部由 SVG overlay 在 canvas 之上绘制，保证纸墨线稿手法
+   与字体一致、层级干净。 */
 
-/* 节点半径：按 value 映射到 24–60px（视觉权重，与图例同心圆呼应） */
+/* 节点半径：按 value 映射到 24–58px（视觉权重，与图例同心圆呼应） */
 function radiusOf(v){
-  var mn = 6, mx = 42;
-  return Math.round(24 + (v - mn) / (mx - mn) * 36);
+  var mn = 5, mx = 42;
+  return Math.round(24 + (v - mn) / (mx - mn) * 34);
 }
 
-/* 六个节点：真实城市经纬度 + 仓数 + 中英文标签 */
+/* 六个节点：广东省内真实城市经纬度 + 仓数 + 中英文标签
+   labelDir：标签外推方向（弧度），用于规避珠三角城市群的密集重叠。
+   珠三角广/佛/深/莞/珠五城经纬度极近，必须把标签沿引线甩到不同方向。 */
 var NODES = [
-  {lng:121.47,lat:31.23,v:42,tag:'上海',en:'EAST'},
-  {lng:113.26,lat:23.13,v:27,tag:'广州',en:'SOUTH'},
-  {lng:116.40,lat:39.90,v:19,tag:'北京',en:'NORTH'},
-  {lng:104.07,lat:30.57,v:14,tag:'成都',en:'SOUTHWEST'},
-  {lng:114.31,lat:30.59,v:9, tag:'武汉',en:'CENTRAL'},
-  {lng:123.43,lat:41.81,v:6, tag:'沈阳',en:'NORTHEAST'}
+  {lng:113.26,lat:23.13,v:42,tag:'广州',en:'GUANGZHOU', dir:-2.4},  /* 左上 */
+  {lng:114.06,lat:22.55,v:27,tag:'深圳',en:'SHENZHEN',  dir: 0.5},  /* 右下 */
+  {lng:113.12,lat:23.02,v:19,tag:'佛山',en:'FOSHAN',    dir: 2.5},  /* 左下 */
+  {lng:113.75,lat:23.05,v:14,tag:'东莞',en:'DONGGUAN',  dir:-0.6},  /* 右上 */
+  {lng:113.58,lat:22.27,v:9, tag:'珠海',en:'ZHUHAI',    dir: 1.7},  /* 下方 */
+  {lng:116.68,lat:23.35,v:6, tag:'汕头',en:'SHANTOU',   dir: 0.0}   /* 右侧 */
 ];
 
 /* overlay 层的绘制工具（独立于 #draw，因 overlay 在更高 z 层） */
@@ -135,25 +137,25 @@ function oTxt(x, y, str, attrs){
 
 /* 地图数据：优先本地相对路径（file:// 放映零 CORS），CDN 兜底 */
 function loadMap(){
-  return fetch('../assets/china-geo.json')
+  return fetch('../assets/guangdong-geo.json')
     .then(function(r){ if(!r.ok) throw new Error('local miss'); return r.json(); })
     .catch(function(){
-      return fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+      return fetch('https://geo.datav.aliyun.com/areas_v3/bound/440000_full.json')
         .then(function(r){ return r.json(); });
     });
 }
 
 loadMap().then(function(geo){
-  echarts.registerMap('china', geo);
+  echarts.registerMap('guangdong', geo);
 
   var chart = echarts.init(document.getElementById('chart'));
   chart.setOption({
     animation: false,
     backgroundColor: 'transparent',
     geo: {
-      map: 'china',
+      map: 'guangdong',
       roam: false,
-      /* 国境 + 省界全部只描边、零填色：纸墨化核心 */
+      /* 市界全部只描边、零填色：纸墨化核心 */
       itemStyle: {
         areaColor: 'transparent',
         borderColor: INK,
@@ -164,31 +166,56 @@ loadMap().then(function(geo){
         itemStyle: { areaColor: INK15, borderColor: INK, borderWidth: 0.8 },
         label: { show: false }
       },
-      label: { show: false },
+      /* 各市名用 mono 小字、墨 32%，标注但不抢戏 */
+      label: {
+        show: true,
+        color: 'rgba(25,25,23,.32)',
+        fontFamily: MONO,
+        fontSize: 11
+      },
       layoutCenter: ['50%', '50%'],
-      layoutSize: '115%'
+      layoutSize: '122%'
     }
   });
 
   /* ---- 节点：用 convertToPixel 把经纬度反查为屏幕坐标，画在 overlay ----
-     convertToPixel 给的是 #chart 容器内坐标；overlay 与全局 SVG 同坐标系，
-     需加 #chart 偏移（left=180, top=208）。 */
+     珠三角五城密集，标签沿 dir 方向引线外推到地图空白区，避免文字重叠。 */
   var OFFX = 180, OFFY = 208;
-  NODES.forEach(function(p){
-    var xy;
-    try { xy = chart.convertToPixel('geo', [p.lng, p.lat]); } catch(e) { xy = null; }
-    if (!xy) return;
-    var x = xy[0] + OFFX, y = xy[1] + OFFY, r = radiusOf(p.v);
-    /* 外圈：透明填 + 1.2px 实描边 */
-    oEl('circle', {cx:x, cy:y, r:r, fill:'rgba(255,255,255,.30)', stroke:INK, 'stroke-width':1.2, opacity:.88});
-    /* 内圈：双圈手法 */
-    oEl('circle', {cx:x, cy:y, r:r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-    /* 圆心数值（mono，字号随半径） */
-    oTxt(x, y + r*.18, p.v, {'font-family':MONO, 'font-size':Math.round(r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
-    /* 节点正下：中文城市名 + mono EN 注 */
-    oTxt(x, y + r + 24, p.tag, {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'middle', fill:INK});
-    oTxt(x, y + r + 44, p.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-  });
+  function drawNodes(){
+    ONodes.innerHTML = '';
+    NODES.forEach(function(p){
+      var xy;
+      try { xy = chart.convertToPixel('geo', [p.lng, p.lat]); } catch(e) { xy = null; }
+      if (!xy) return;
+      var x = xy[0] + OFFX, y = xy[1] + OFFY, r = radiusOf(p.v);
+      /* 外圈：透明填 + 1.2px 实描边 */
+      oEl('circle', {cx:x, cy:y, r:r, fill:'rgba(255,255,255,.35)', stroke:INK, 'stroke-width':1.2, opacity:.88});
+      /* 内圈：双圈手法 */
+      oEl('circle', {cx:x, cy:y, r:r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+      /* 圆心数值（mono，字号随半径） */
+      oTxt(x, y + r*.18, p.v, {'font-family':MONO, 'font-size':Math.round(r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
+
+      /* 标签锚点：从圆心沿 dir 方向延伸（引线长度随节点半径递增） */
+      var lead = r + 26;
+      var ax = x + Math.cos(p.dir) * lead;
+      var ay = y + Math.sin(p.dir) * lead;
+      /* 引线（细虚，墨 30%）—— 仅当标签需要外推时画 */
+      oEl('line', {x1:x + Math.cos(p.dir)*r, y1:y + Math.sin(p.dir)*r,
+                   x2:ax, y2:ay, stroke:INK, 'stroke-width':.6, opacity:.3});
+      /* 引线末端小圆点（套准感） */
+      oEl('circle', {cx:ax, cy:ay, r:1.6, fill:INK, opacity:.5});
+      /* 文字对齐方向：左半平面右对齐，右半平面左对齐 */
+      var anchor = Math.cos(p.dir) >= 0 ? 'start' : 'end';
+      var tx = ax + (anchor === 'start' ? 6 : -6);
+      /* 中文城市名 + mono EN 注 */
+      oTxt(tx, ay + 2, p.tag, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':anchor, fill:INK});
+      oTxt(tx, ay + 22, p.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':anchor, fill:INK45});
+    });
+  }
+
+  /* setOption 同步完成 layout（无动画），finished 事件兜底确保 convertToPixel 可用 */
+  chart.on('finished', drawNodes);
+  drawNodes();
 });
 
 stageFit();
