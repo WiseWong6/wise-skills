@@ -10,12 +10,13 @@
   .say { position: absolute; z-index: 3; }
   .say .who {
     font-family: var(--mono); font-size: 14px; letter-spacing: .25em;
-    color: var(--ink-45); margin-bottom: 10px;
+    color: var(--ink-45); margin-bottom: var(--space-3);
   }
   .say .bubble {
-    border: 1.5px solid var(--ink);
+    border: 1px solid rgba(25,25,23,.38);
     background: rgba(255,255,255,.22);
-    padding: 20px 28px;
+    padding: var(--space-5) 28px;
+    box-shadow: var(--shadow-soft);
     font-family: var(--sans); font-weight: 300;
     font-size: 26px; line-height: 1.6;
   }

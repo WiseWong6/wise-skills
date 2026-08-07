@@ -45,6 +45,25 @@
   --cinnabar: #191917;          /* 单色系统：强调色 = 墨色，靠线型/字重表达强调 */
   --accent-blue: #002FA7;       /* 高饱和·克莱因蓝（?accent 开启后激活）：数据焦点/当前值/达标 */
   --accent-red: #C0392B;        /* 高饱和·番茄红：否决/警示/异常/未达标 */
+  /* 间距网格（4pt baseline）—— 见 design-tokens §4.7；所有 padding/margin/gap 落于此 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-30: 120px;
+  --space-40: 160px;
+  /* 组件质感阴影 —— 见 design-tokens §1.2；色取边框墨色的极淡版（跟随主题），同层级不叠影 */
+  --shadow-soft: 0 0 4px color-mix(in srgb, var(--ink) 2%, transparent);       /* 通用轻阴影：卡片/面板标配（零偏移·极淡·均匀扩散） */
+  --shadow-specimen: 2px 2px 0 color-mix(in srgb, var(--ink) 4%, transparent);  /* 标本贴纸偏移影：硬边·极小偏移 */
   /* 四族字体，分工不重叠（用户圈定 2026-08-07） */
   --serif: 'Han Serif', 'Songti SC', serif;        /* 思源宋体 Medium：大字标题/结论/提问符号 */
   --sans: 'Han Sans', 'PingFang SC', sans-serif;   /* 思源黑体 Light：正文 */
@@ -222,7 +241,7 @@ body {
 }
 .verdict .sub {
   display: block;
-  margin-top: 14px;
+  margin-top: var(--space-4);
   font-family: var(--sans);
   font-weight: 300;
   font-size: 18px;
