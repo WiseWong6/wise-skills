@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-h6 · 能力盘点矩阵 · AI Agent</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 110px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 32px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">AI LAYOUT GALLERY — H6<br>CAPABILITY INVENTORY MATRIX</div>
+  <div class="folio">H6 / 63 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width="0.6" opacity="0.32"/>
+      </pattern>
+    </defs>
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">一条通栏主能力 + 六个能力盒——单 Agent 的能力盘点与进度，盒内逐条状态编码。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS='http://www.w3.org/2000/svg';
+var INK='#191917',INK80='rgba(25,25,23,.8)',INK70='rgba(25,25,23,.7)';
+var INK55='rgba(25,25,23,.55)',INK45='rgba(25,25,23,.45)';
+var G=document.getElementById('draw');
+function el(tag,attrs){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);G.appendChild(e);return e;}
+function txt(x,y,str,attrs){var t=el('text',Object.assign({x:x,y:y},attrs||{}));t.textContent=str;return t;}
+var MONO='Courier Prime',SANS='Han Sans';
+var ACCENT=document.documentElement.classList.contains('accent');
+var CINNABAR=ACCENT?'#C0392B':'#191917';
+
+function statusGlyph(cx,cy,st){
+  if(st==='live'){el('circle',{cx:cx,cy:cy,r:2.6,fill:INK});}
+  else if(st==='wip'){el('circle',{cx:cx,cy:cy,r:3.2,fill:'none',stroke:INK80,'stroke-width':.9});el('circle',{cx:cx,cy:cy,r:1.3,fill:INK});}
+  else if(st==='new'){el('circle',{cx:cx,cy:cy,r:2.6,fill:INK});}
+  else{el('circle',{cx:cx,cy:cy,r:2.8,fill:'none',stroke:INK55,'stroke-width':.8});}
+}
+function sFill(st){return(st==='live'||st==='new')?'url(#hatch)':'none';}
+function sStroke(st){return st==='todo'?{stroke:INK55,'stroke-width':.9,'stroke-dasharray':'3 3'}:{stroke:INK80,'stroke-width':1};}
+function rowItem(x,y,w,label,st){
+  var s=sStroke(st);
+  el('rect',{x:x,y:y,width:14,height:14,fill:sFill(st),stroke:s.stroke,'stroke-width':s['stroke-width'],'stroke-dasharray':s['stroke-dasharray']||'none',rx:1.5,ry:1.5});
+  statusGlyph(x+7,y+7,st);
+  var op=st==='todo'?.5:.9;
+  txt(x+22,y+11,label,{'font-family':SANS,'font-weight':300,'font-size':14,fill:'rgba(25,25,23,'+op+')'});
+}
+function capBox(x,y,w,h,title,st,items){
+  var s=st==='todo'?{stroke:INK55,'stroke-width':1,'stroke-dasharray':'4 4'}:{stroke:INK80,'stroke-width':1.2};
+  el('rect',{x:x,y:y,width:w,height:h,fill:'rgba(255,255,255,.14)',stroke:s.stroke,'stroke-width':s['stroke-width'],'stroke-dasharray':s['stroke-dasharray']||'none',rx:2,ry:2});
+  el('rect',{x:x,y:y,width:w,height:34,fill:sFill(st),stroke:s.stroke,'stroke-width':s['stroke-width'],'stroke-dasharray':s['stroke-dasharray']||'none',rx:2,ry:2});
+  el('line',{x1:x,y1:y+34,x2:x+w,y2:y+34,stroke:INK,'stroke-width':.7,opacity:.3});
+  statusGlyph(x+18,y+17,st);
+  txt(x+30,y+22,title,{'font-family':SANS,'font-weight':400,'font-size':16,fill:INK});
+  if(st==='new'){el('path',{d:'M '+(x+w-3)+' '+y+' L '+(x+w-13)+' '+y+' L '+(x+w-3)+' '+(y+10)+' Z',fill:CINNABAR,opacity:.85});}
+  var ix=x+14,iy=y+48,colW=(w-28)/2;
+  items.forEach(function(it,i){
+    var col=i%2,row=Math.floor(i/2);
+    rowItem(ix+col*colW,iy+row*26,colW-8,it.label,it.st);
+  });
+}
+
+txt(150,150,'FIG. H6 — CAPABILITY INVENTORY MATRIX',{'font-family':MONO,'font-size':15,'letter-spacing':3,fill:INK45});
+el('line',{x1:150,y1:166,x2:560,y2:166,stroke:INK,'stroke-width':.6,opacity:.3});
+
+var LX=1240,LY=142;
+txt(LX,LY,'LEGEND',{'font-family':MONO,'font-size':12,'letter-spacing':2.5,fill:INK45});
+[['live','LIVE'],['wip','WIP'],['new','NEW'],['todo','TODO']].forEach(function(p,i){
+  var lx=LX+70+i*145,ly=138,st=p[0],ms=sStroke(st);
+  el('rect',{x:lx,y:ly,width:18,height:13,fill:sFill(st),stroke:ms.stroke,'stroke-width':.9,'stroke-dasharray':ms['stroke-dasharray']||'none',rx:1.5,ry:1.5});
+  statusGlyph(lx+6,ly+6.5,st);
+  if(st==='new'){el('path',{d:'M '+(lx+16)+' '+ly+' L '+(lx+10)+' '+ly+' L '+(lx+16)+' '+(ly+6)+' Z',fill:CINNABAR,opacity:.85});}
+  txt(lx+24,ly+10,p[1],{'font-family':MONO,'font-size':11,'letter-spacing':1,fill:INK70});
+});
+
+/* 通栏主能力：Agent 意图覆盖（质检评分 86） */
+var FX=150,FY=210,FW=1620,FH=150;
+el('rect',{x:FX,y:FY,width:FW,height:FH,fill:'rgba(255,255,255,.14)',stroke:INK80,'stroke-width':1.3,rx:2,ry:2});
+el('rect',{x:FX,y:FY,width:FW,height:38,fill:'url(#hatch)',stroke:INK80,'stroke-width':1.3,rx:2,ry:2});
+el('line',{x1:FX,y1:FY+38,x2:FX+FW,y2:FY+38,stroke:INK,'stroke-width':.7,opacity:.3});
+txt(FX+20,FY+25,'Agent 意图覆盖  ·  质检评分 86',{'font-family':SANS,'font-weight':400,'font-size':18,fill:INK});
+txt(FX+FW-20,FY+25,'WIP',{'font-family':MONO,'font-size':12,'letter-spacing':2,'text-anchor':'end',fill:INK70});
+var fullItems=[
+  {label:'代码生成',st:'live'},{label:'代码补全',st:'live'},{label:'缺陷修复',st:'live'},
+  {label:'文档解读',st:'live'},{label:'测试生成',st:'wip'},{label:'重构建议',st:'live'},
+  {label:'调优诊断',st:'todo'},{label:'寒暄闲聊',st:'live'},{label:'人工降级',st:'live'}
+];
+var fcx=FX+20,fcy=FY+50,fcolW=(FW-40)/3;
+fullItems.forEach(function(it,i){var col=i%3,row=Math.floor(i/3);rowItem(fcx+col*fcolW,fcy+row*28,fcolW-12,it.label,it.st);});
+
+/* 六能力盒：Agent 六维 */
+var boxes=[
+  {title:'性能 Performance',st:'live',items:[
+    {label:'首字耗时',st:'live'},{label:'并发吞吐',st:'live'},
+    {label:'队列调度',st:'live'},{label:'降级熔断',st:'live'}
+  ]},
+  {title:'上下文 Context',st:'wip',items:[
+    {label:'溢出丢弃',st:'live'},{label:'压缩摘要',st:'todo'},
+    {label:'缓存命中',st:'todo'},{label:'持久记忆',st:'live'}
+  ]},
+  {title:'工具 Tools',st:'todo',items:[
+    {label:'代码执行',st:'todo'},{label:'文件读写',st:'todo'},
+    {label:'网络请求',st:'todo'},{label:'数据库查询',st:'todo'}
+  ]},
+  {title:'检索增强 RAG',st:'wip',items:[
+    {label:'多路召回',st:'new'},{label:'重排去重',st:'todo'},
+    {label:'级联检索',st:'todo'},{label:'相邻切片',st:'todo'}
+  ]},
+  {title:'会话 Session',st:'wip',items:[
+    {label:'中断续接',st:'live'},{label:'流式接收',st:'todo'},
+    {label:'多轮管理',st:'todo'},{label:'记忆回放',st:'todo'}
+  ]},
+  {title:'体验 UX',st:'todo',items:[
+    {label:'推荐追问',st:'todo'},{label:'快捷指令',st:'todo'},
+    {label:'语音输入',st:'todo'},{label:'Diff 卡片',st:'todo'}
+  ]}
+];
+var GX=150,GY=400,GW=1620,GH=540,bGap=16,cols=3,rows=2;
+var bw=(GW-bGap*(cols-1))/cols,bh=(GH-bGap*(rows-1))/rows;
+boxes.forEach(function(b,i){var col=i%cols,row=Math.floor(i/cols);capBox(GX+col*(bw+bGap),GY+row*(bh+bGap),bw,bh,b.title,b.st,b.items);});
+
+var allItems=fullItems.concat([]);
+boxes.forEach(function(b){b.items.forEach(function(it){allItems.push(it);});});
+var done=0;allItems.forEach(function(it){if(it.st==='live'||it.st==='new')done++;});
+var pct=Math.round(done/allItems.length*100);
+txt(960,1000,'COVERAGE '+pct+'%  ·  '+done+'/'+allItems.length+' ITEMS LIVE  ·  '+(allItems.length-done)+' PENDING',
+  {'font-family':MONO,'font-size':13,'letter-spacing':2.5,'text-anchor':'middle',fill:INK45});
+
+stageFit();
+</script>
+</body>
+</html>

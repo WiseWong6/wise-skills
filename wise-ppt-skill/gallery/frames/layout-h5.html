@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-h5 · 状态分层架构图</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 110px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 32px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — H5<br>STATUS-LAYERED ARCHITECTURE</div>
+  <div class="folio">H5 / 63 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width="0.6" opacity="0.32"/>
+      </pattern>
+      <pattern id="hatch-dense" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="5" stroke="#191917" stroke-width="0.7" opacity="0.4"/>
+      </pattern>
+    </defs>
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">左列层标，右带能力件按状态编码——平台分几层、每层建到哪，一屏读完。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK55 = 'rgba(25,25,23,.55)';
+var INK45 = 'rgba(25,25,23,.45)';
+var INK30 = 'rgba(25,25,23,.3)';
+var CIN = '#191917';   /* 默认墨；accent 模式 stageFit 已加 .accent，但 SVG fill 用变量需手写覆盖 */
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+var ACCENT = document.documentElement.classList.contains('accent');
+var CINNABAR = ACCENT ? '#C0392B' : '#191917';   /* 朱批/新上线角标色 */
+
+/* ============ 状态编码系统（线型 + 填充密度，零彩色） ============
+   live    已上线：实线框 + hatch 斜线 + 实心墨点
+   wip     进行中：实线框 + 空心 + 双圈点
+   todo    未启动：虚线框 + 空心 + 空心圈
+   new     新上线：实线框 + hatch + 朱批小三角（accent 变番茄红）
+   sync    已同步：实线框 + 密 hatch + 实心方点
+*/
+var SW = 1.2;   /* 能力件主线宽 */
+function statusGlyph(cx, cy, st) {
+  if (st === 'live' || st === 'sync') {
+    el('circle', {cx:cx, cy:cy, r:3.2, fill:INK});
+  } else if (st === 'wip') {
+    el('circle', {cx:cx, cy:cy, r:4, fill:'none', stroke:INK80, 'stroke-width':1});
+    el('circle', {cx:cx, cy:cy, r:1.6, fill:INK});
+  } else if (st === 'new') {
+    el('circle', {cx:cx, cy:cy, r:3.2, fill:INK});
+  } else { /* todo */
+    el('circle', {cx:cx, cy:cy, r:3.4, fill:'none', stroke:INK55, 'stroke-width':1});
+  }
+}
+function statusFill(st) {
+  if (st === 'live') return 'url(#hatch)';
+  if (st === 'sync') return 'url(#hatch-dense)';
+  if (st === 'new') return 'url(#hatch)';
+  return 'none';   /* wip / todo 空心 */
+}
+function statusStroke(st) {
+  if (st === 'todo') return {'stroke':INK55, 'stroke-width':1, 'stroke-dasharray':'4 4'};
+  return {'stroke':INK80, 'stroke-width':SW};
+}
+/* 能力件：横长小卡（w 宽 h 高），左侧状态图元 + 右侧文字 */
+function tile(x, y, w, h, label, st) {
+  var dash = statusStroke(st);
+  el('rect', {x:x, y:y, width:w, height:h, fill: statusFill(st), stroke:dash.stroke,
+    'stroke-width':dash['stroke-width'], 'stroke-dasharray': dash['stroke-dasharray']||'none', rx:2, ry:2});
+  statusGlyph(x + 16, y + h/2, st);
+  var op = (st === 'todo') ? .5 : 1;
+  txt(x + 32, y + h/2 + 5, label, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:'rgba(25,25,23,'+ (op*0.9) +')'});
+  if (st === 'new') {
+    /* 朱批小三角角标：右上角 */
+    el('path', {d:'M '+(x+w-2)+' '+y+' L '+(x+w-12)+' '+y+' L '+(x+w-2)+' '+(y+10)+' Z',
+      fill:CINNABAR, opacity:.85});
+  }
+}
+
+/* ---------- FIG 图题 ---------- */
+txt(150, 150, 'FIG. H5 — STATUS-LAYERED ARCHITECTURE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:150, y1:166, x2:560, y2:166, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 状态图例带（顶部右侧） ---------- */
+var LX = 1180, LY = 142;
+txt(LX, LY, 'LEGEND', {'font-family':MONO, 'font-size':12, 'letter-spacing':2.5, fill:INK45});
+var legendItems = [
+  {st:'live', label:'LIVE 已上线'},
+  {st:'wip',  label:'WIP 进行中'},
+  {st:'new',  label:'NEW 新上线'},
+  {st:'todo', label:'TODO 未启动'}
+];
+legendItems.forEach(function(it, i){
+  var lx = LX + 70 + i * 165, ly = 138;
+  /* 缩小版状态图元 */
+  var mf = {live:'url(#hatch)', new:'url(#hatch)', wip:'none', todo:'none'}[it.st];
+  var ms = statusStroke(it.st);
+  el('rect', {x:lx, y:ly, width:20, height:14, fill:mf, stroke:ms.stroke,
+    'stroke-width':1, 'stroke-dasharray': ms['stroke-dasharray']||'none', rx:1.5, ry:1.5});
+  statusGlyph(lx+7, ly+7, it.st);
+  if (it.st === 'new') {
+    el('path', {d:'M '+(lx+18)+' '+ly+' L '+(lx+12)+' '+ly+' L '+(lx+18)+' '+(ly+6)+' Z', fill:CINNABAR, opacity:.85});
+  }
+  txt(lx + 28, ly + 11, it.label, {'font-family':MONO, 'font-size':12, 'letter-spacing':1, fill:INK70});
+});
+
+/* ---------- 骨架：6 层横带 ---------- */
+var BT = 210, BH = 112, LX0 = 150, LX1 = 310, RX = 1780;
+var layers = [
+  {no:'L1', cn:'前台应用', en:'FRONTEND', items:[
+    {label:'商城小程序', st:'live'}, {label:'会员中心', st:'live'},
+    {label:'导购工作台', st:'live'}, {label:'客服对话框', st:'new'}
+  ]},
+  {no:'L2', cn:'业务中台', en:'BUSINESS', items:[
+    {label:'商品中心', st:'live'}, {label:'订单中心', st:'live'},
+    {label:'库存中心', st:'live'}, {label:'营销中心', st:'wip'}, {label:'结算中心', st:'wip'}
+  ]},
+  {no:'L3', cn:'数据资产', en:'DATA', items:[
+    {label:'用户画像', st:'live'}, {label:'行为埋点', st:'live'},
+    {label:'标签工厂', st:'wip'}, {label:'指标平台', st:'live'}, {label:'数据沙箱', st:'todo'}
+  ]},
+  {no:'L4', cn:'智能引擎', en:'INTELLIGENCE', items:[
+    {label:'推荐召回', st:'live'}, {label:'搜索排序', st:'live'},
+    {label:'风控规则', st:'live'}, {label:'选品助手', st:'new'}, {label:'智能补货', st:'todo'}
+  ]},
+  {no:'L5', cn:'接入网关', en:'GATEWAY', items:[
+    {label:'统一鉴权', st:'live'}, {label:'限流熔断', st:'live'},
+    {label:'协议转换', st:'live'}, {label:'灰度路由', st:'wip'}
+  ]},
+  {no:'L6', cn:'基础底座', en:'INFRA', items:[
+    {label:'容器编排', st:'live'}, {label:'配置中心', st:'live'},
+    {label:'日志治理', st:'live'}, {label:'密钥托管', st:'todo'}
+  ]}
+];
+
+/* 层间横线贯通 */
+for (var i = 0; i <= layers.length; i++) {
+  var y = BT + i * BH;
+  el('line', {x1:LX0, y1:y, x2:RX, y2:y, stroke:INK,
+    'stroke-width': (i===0||i===layers.length) ? .8 : .6, opacity: (i===0||i===layers.length) ? .4 : .25});
+}
+/* 层标列右分隔线 */
+el('line', {x1:LX1, y1:BT, x2:LX1, y2:BT + layers.length*BH, stroke:INK, 'stroke-width':.6, opacity:.25});
+
+layers.forEach(function(L, r){
+  var yTop = BT + r * BH, midY = yTop + BH/2;
+  /* 左列层标 */
+  txt(LX0 + 20, midY - 14, L.no, {'font-family':MONO, 'font-size':18, 'letter-spacing':2, fill:INK});
+  txt(LX0 + 20, midY + 12, L.cn, {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK});
+  txt(LX0 + 20, midY + 34, L.en, {'font-family':MONO, 'font-size':10, 'letter-spacing':2, fill:INK45});
+  el('line', {x1:LX0+20, y1:midY+44, x2:LX0+90, y2:midY+44, stroke:INK, 'stroke-width':.5, opacity:.25});
+
+  /* 带内能力件均布 */
+  var n = L.items.length;
+  var areaX = LX1 + 32, areaW = RX - LX1 - 64;
+  var gap = 14;
+  var tw = (areaW - gap * (n - 1)) / n;
+  var th = 46, ty = midY - th/2 + 2;
+  L.items.forEach(function(it, i){
+    var tx = areaX + i * (tw + gap);
+    tile(tx, ty, tw, th, it.label, it.st);
+  });
+});
+
+/* ---------- 底部 mono 注脚（总账：完成率） ---------- */
+var done = 0, total = 0;
+layers.forEach(function(L){ L.items.forEach(function(it){ total++; if(it.st==='live'||it.st==='new'||it.st==='sync') done++; }); });
+var pct = Math.round(done/total*100);
+txt(960, BT + layers.length*BH + 36, 'COVERAGE '+ pct +'%  ·  '+ done +'/'+ total +' ITEMS LIVE  ·  '+ (total-done) +' PENDING',
+  {'font-family':MONO, 'font-size':13, 'letter-spacing':2.5, 'text-anchor':'middle', fill:INK45});
+
+stageFit();
+</script>
+</body>
+</html>
