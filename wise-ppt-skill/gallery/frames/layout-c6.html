@@ -55,17 +55,17 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. C6 — KPI BIG-NUMBER BAND', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 引子（衡玑科技 · 仓储机器人调度平台） ---------- */
-txt(960, 316, '平台上线 18 个月 · 四仓联调总账', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK70});
-txt(960, 350, 'HENGJI DISPATCH · FY2026 H1 REVIEW', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+/* ---------- 引子 ---------- */
+txt(960, 316, '上线 18 个月 · 半年增长总账', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK70});
+txt(960, 350, 'GROWTH REVIEW · 2026 H1', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 主角：通栏大数字横带（x120–1800，y380–640，4 格均分） ---------- */
 var CW = 64.8;   /* mono 108px 单字符宽 */
 var cells = [
-  {num:'3,214', unit:'台',   uw:24, label:'在线调度机器人', en:'BOTS ONLINE'},
-  {num:'99.97', unit:'%',    uw:24, label:'调度指令达成率', en:'SUCCESS RATE'},
-  {num:'42',    unit:'ms',   uw:34, label:'路径重算均时',   en:'REPLAN LATENCY'},
-  {num:'68',    unit:'万单', uw:48, label:'日峰值处理量',   en:'DAILY PEAK'}
+  {num:'3,214', unit:'万',   uw:24, label:'日活用户',   en:'DAU'},
+  {num:'42',    unit:'%',    uw:24, label:'次日留存率', en:'DAY-1 RETENTION'},
+  {num:'6.8',   unit:'%',    uw:24, label:'付费转化率', en:'PAID CONVERSION'},
+  {num:'9.97',  unit:'亿',   uw:24, label:'半年 GMV',   en:'H1 GROSS GMV'}
 ];
 cells.forEach(function(C, i){
   var cx = 120 + 420*i + 210;
@@ -89,7 +89,7 @@ cells.forEach(function(C, i){
 });
 
 /* ---------- 底部 mono 口号行（竖线分隔） ---------- */
-var words = ['MEASURE', 'DISPATCH', 'VERIFY', 'SCALE'];
+var words = ['ATTRACT', 'ENGAGE', 'CONVERT', 'RETAIN'];
 var wx = [762, 908, 1048, 1170];
 var sx = [832, 984, 1112];
 words.forEach(function(wd, i){
