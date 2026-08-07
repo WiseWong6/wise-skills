@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>分镜总览 · 纸墨线稿</title>
+<!--
+  纸墨线稿 · 单文件双模式模板（画板 ↔ 全屏）
+  使用：复制为 deck 目录的 index.html，填写下方 CONFIG / ACTS / SHOTS。
+    - SHOTS 每行：[幕组 id, 页码, 中文标题, 时间码(可空), 一句话 VO]
+    - ACTS 定义幕组顺序与名称；不需要分幕时只留一组
+    - frames/shot-NN.html 必须存在；frames/thumb-NN.png 是画板缩略图（由 shot-screenshot.sh thumb 模式生成）
+    - 画板：缩略图网格，点击进入全屏放映（同页切换，非新标签页）
+    - 全屏：←/→ ↑/↓ 空格 PageUp/Down Home/End 翻页，触屏滑动，ESC 或右下角按钮回画板
+    - 预加载：翻到第 N 页时后台预热第 N+1 页，切页秒开无白屏
+    - 深链：#3 直接打开第 3 页全屏；无 hash 为画板
+-->
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #D6D7D0;
+    color: #191917;
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== 画板视图 ===== */
+  body.mode-board { overflow: auto; }
+  #board { padding: 48px 40px 80px; }
+  #board > header { max-width: 1560px; margin: 0 auto 36px; }
+  #board > header h1 { font-size: 30px; font-weight: 700; }
+  #board > header p {
+    margin-top: 10px; color: rgba(25,25,23,.55);
+    font-size: 14px; font-family: ui-monospace, Menlo, monospace; letter-spacing: .08em;
+  }
+  .act {
+    max-width: 1560px; margin: 36px auto 18px;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
+    color: rgba(25,25,23,.55);
+    border-bottom: 1px solid rgba(25,25,23,.3);
+    padding-bottom: 10px;
+  }
+  .grid {
+    max-width: 1560px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .shot { display: block; text-decoration: none; color: inherit; cursor: pointer; }
+  .frame {
+    width: 100%; aspect-ratio: 16/9;
+    overflow: hidden; border-radius: 6px;
+    border: 1px solid rgba(25,25,23,.35);
+    position: relative; background: #DFE0D9;
+    /* 用 transform + outline 替代 box-shadow，避免大尺寸元素重绘掉帧 */
+    transition: transform .18s ease, border-color .18s ease;
+    will-change: transform;
+  }
+  .frame img {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+    pointer-events: none; user-select: none;
+  }
+  .shot:hover .frame { transform: translateY(-3px); border-color: rgba(25,25,23,.6); }
+  /* 从全屏返回时高亮当前页 */
+  .shot.active .frame { border-color: #191917; border-width: 2px; }
+  .meta { margin-top: 10px; }
+  .meta .row1 {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  .meta .no { color: rgba(25,25,23,.8); font-size: 13px; letter-spacing: .12em; }
+  .meta .tc { color: rgba(25,25,23,.45); font-size: 12px; }
+  .meta .vo { margin-top: 5px; font-size: 13px; line-height: 1.6; color: rgba(25,25,23,.6); }
+
+  /* ===== 全屏视图 ===== */
+  body.mode-deck { overflow: hidden; background: #111; }
+  body.mode-deck #board { display: none; }
+  #deck { display: none; }
+  body.mode-deck #deck { display: block; }
+  #deck .view, #deck .prefetch {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    border: 0; background: #111;
+  }
+  #deck .prefetch {
+    visibility: hidden;      /* 预加载但不显示，不占合成层可见性 */
+    z-index: 0;
+  }
+  #deck .view { z-index: 1; }   /* 当前页盖在预加载层之上 */
+  #pager {
+    position: fixed; right: 28px; bottom: 20px;
+    z-index: 10;
+    font-size: 13px; letter-spacing: .22em;
+    color: rgba(255,255,255,.42);
+    user-select: none; pointer-events: none;
+    transition: opacity .4s;
+    font-family: ui-monospace, Menlo, monospace;
+  }
+  body.idle #pager { opacity: 0; }
+  /* 右下角模式切换按钮（全屏时显示，用于返回画板） */
+  #toggle {
+    position: fixed; right: 28px; bottom: 52px;
+    z-index: 11;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(255,255,255,.3);
+    background: rgba(17,17,17,.6);
+    color: rgba(255,255,255,.7);
+    border-radius: 6px;
+    cursor: pointer;
+    display: none;            /* 默认画板态不显示 */
+    align-items: center; justify-content: center;
+    transition: opacity .4s, border-color .2s, color .2s;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  #toggle:hover { border-color: rgba(255,255,255,.6); color: rgba(255,255,255,.95); }
+  body.idle #toggle { opacity: 0; pointer-events: none; }
+  #toggle svg { width: 18px; height: 18px; fill: currentColor; }
+  body.mode-deck #toggle { display: flex; }
+
+  /* 减少动效偏好：尊重 prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .frame { transition: none; }
+    #pager, #toggle { transition: none; }
+  }
+</style>
+</head>
+<body class="mode-board">
+
+<!-- ===== 画板视图 ===== -->
+<main id="board">
+  <header>
+    <h1 id="deck-title">《标题》分镜总览</h1>
+    <p id="deck-sub">N SHOTS · 精细线稿版 · 点击任意镜头进入全屏放映</p>
+  </header>
+  <div id="acts"></div>
+</main>
+
+<!-- ===== 全屏视图 ===== -->
+<section id="deck">
+  <iframe class="prefetch" id="prefetch" title="preload"></iframe>
+  <iframe class="view" id="view" title="slide"></iframe>
+  <div id="pager"></div>
+  <button id="toggle" type="button" aria-label="返回画板" title="返回画板 (ESC)">
+    <!-- 四格缩略图图标，语义=回到画板总览 -->
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+  </button>
+</section>
+
+<script>
+/* ===== 配置区：改这里 ===== */
+var CONFIG = {
+  title: '《三大 Agent 上下文工程》分镜总览',
+  framesDir: 'frames',
+  framePrefix: 'shot-',
+  thumbPrefix: 'thumb-',
+  thumbExt: '.png'
+};
+var ACTS = [
+  ['g1', 'ACT 1 · 开篇 — 为什么是上下文工程'],
+  ['g2', 'ACT 2 · 定义 — 上下文工程是什么'],
+  ['g3', 'ACT 3 · 三大 Agent — Claude Code / OpenClaw / Hermes'],
+  ['g4', 'ACT 4 · 启发 — 给我们做 Agent 的 5 条启发']
+];
+var SHOTS = [
+  ['g1', '01', '封面',         '', '三大 Agent 上下文工程深度解析。'],
+  ['g1', '02', '目录',         '', '四个 Part 导航：为什么 / 是什么 / 三大 Agent / 五条启发。'],
+  ['g1', '03', '金句',         '', '提示词决定怎么运行，上下文决定看见什么。'],
+  ['g2', '04', '七层上下文',   '', '模型推理时"看见"的全部内容 = 7 类上下文。'],
+  ['g2', '05', '四维框架',     '', 'LangChain 四维框架：Write / Select / Compress / Isolate。'],
+  ['g2', '06', '五大问题',     '', '上下文工程解决的 5 大问题。'],
+  ['g3', '07', '章节隔页',     '', '第三章：三大 Agent 机制对比。'],
+  ['g3', '08', 'Claude Code',  '', '渐进式压缩：5 层流水线 + 压缩后恢复工作集。'],
+  ['g3', '09', 'OpenClaw',     '', '极度开放的上下文框架：内置策略 vs 开放平台。'],
+  ['g3', '10', 'OC vs CC',     '', 'OpenClaw 与 Claude Code 字段级对照。'],
+  ['g3', '11', 'Hermes',       '', '双层压缩 + 交接文档：压缩不是总结，是交接清单。'],
+  ['g4', '12', '五条启发',     '', '给我们做 Agent 的 5 条设计启发。'],
+  ['g4', '13', '金句',         '', 'AI 时代不仅止于技术创新，更在于用户可感知。'],
+  ['g4', '14', '参考资料',     '', '精选 6 条参考资料与延伸阅读。'],
+  ['g4', '15', 'Outro',        '', '收尾致谢。']
+];
+/* ===== 配置区结束 ===== */
+
+var PREFIXES = {
+  html: CONFIG.framesDir + '/' + CONFIG.framePrefix,
+  thumb: CONFIG.framesDir + '/' + CONFIG.thumbPrefix
+};
+
+/* ---------- 初始化画板 ---------- */
+document.getElementById('deck-title').textContent = CONFIG.title;
+document.getElementById('deck-sub').textContent =
+  SHOTS.length + ' SHOTS · 精细线稿版 · 点击任意镜头进入全屏放映';
+
+var actsRoot = document.getElementById('acts');
+ACTS.forEach(function(a) {
+  var label = document.createElement('div');
+  label.className = 'act';
+  label.textContent = a[1];
+  var grid = document.createElement('div');
+  grid.className = 'grid';
+  grid.id = a[0];
+  actsRoot.appendChild(label);
+  actsRoot.appendChild(grid);
+});
+
+/* 缩略图用 <img loading="lazy">，彻底告别 N 个 iframe 同屏 */
+SHOTS.forEach(function(s, idx) {
+  var grid = document.getElementById(s[0]);
+  if (!grid) return;
+  var no = s[1], title = s[2], tc = s[3], vo = s[4];
+  var card = document.createElement('div');
+  card.className = 'shot';
+  card.dataset.idx = idx;
+  card.innerHTML =
+    '<div class="frame">' +
+      '<img alt="S' + no + ' ' + title + '" ' +
+           'src="' + PREFIXES.thumb + no + CONFIG.thumbExt + '">' +
+    '</div>' +
+    '<div class="meta"><div class="row1">' +
+      '<span class="no">S' + no + ' · ' + title + '</span>' +
+      '<span class="tc">' + (tc || '') + '</span>' +
+    '</div><div class="vo">' + vo + '</div></div>';
+  card.addEventListener('click', function() { enterDeck(idx); });
+  grid.appendChild(card);
+});
+
+/* ---------- 全屏放映逻辑 ---------- */
+var view = document.getElementById('view');
+var prefetch = document.getElementById('prefetch');
+var pager = document.getElementById('pager');
+var cur = 0;
+
+function pageUrl(i) {
+  return PREFIXES.html + SHOTS[i][1] + '.html?ppt';
+}
+
+function clamp(n) { return Math.max(0, Math.min(SHOTS.length - 1, n)); }
+
+function go(n, push) {
+  cur = clamp(n);
+  /* 双 iframe swap：预加载层已预热下一页时直接提升，避免白屏闪烁 */
+  var url = pageUrl(cur);
+  if (prefetch.src && prefetch.dataset.idx === String(cur)) {
+    /* 预加载层正好是目标页 → 交换两个 iframe 的角色 */
+    var tmp = view;
+    view = prefetch;
+    prefetch = tmp;
+    view.className = 'view';
+    view.style.visibility = '';
+    prefetch.className = 'prefetch';
+    prefetch.style.visibility = 'hidden';
+  } else {
+    /* 预加载层没命中（跳页/首次） → 直接加载到可见层 */
+    if (view.getAttribute('src') !== url) view.src = url;
+  }
+  /* 始终预热下一页到预加载层 */
+  warmNext();
+  pager.textContent = (cur + 1) + ' / ' + SHOTS.length;
+  if (push !== false) history.replaceState(null, '', '#' + (cur + 1));
+  wake();
+}
+
+/* 把下一页预热到 prefetch 层（不可见，不抢合成层） */
+function warmNext() {
+  var nextIdx = cur + 1;
+  if (nextIdx >= SHOTS.length) return;
+  var nextUrl = pageUrl(nextIdx);
+  if (prefetch.getAttribute('src') !== nextUrl) {
+    prefetch.src = nextUrl;
+    prefetch.dataset.idx = String(nextIdx);
+  }
+}
+
+function next() { go(cur + 1); }
+function prev() { go(cur - 1); }
+
+/* ---------- 模式切换 ---------- */
+function enterDeck(idx) {
+  document.body.classList.remove('mode-board');
+  document.body.classList.add('mode-deck');
+  scrollTo(0, 0);
+  go(idx);
+}
+
+function exitDeck() {
+  document.body.classList.remove('mode-deck');
+  document.body.classList.add('mode-board');
+  /* 清除上一轮高亮，标记当前页 */
+  var prev = document.querySelector('.shot.active');
+  if (prev) prev.classList.remove('active');
+  var card = document.querySelector('.shot[data-idx="' + cur + '"]');
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    /* 高亮 2.4s 后淡出，避免长期残留 */
+    setTimeout(function() { card.classList.remove('active'); }, 2400);
+  }
+  /* 退出全屏时停掉预加载层，释放内存 */
+  prefetch.src = 'about:blank';
+  prefetch.removeAttribute('data-idx');
+  history.replaceState(null, '', location.pathname);
+}
+
+/* ---------- 键盘 / 触屏 / 按钮 ---------- */
+addEventListener('keydown', function(e) {
+  if (document.body.classList.contains('mode-deck')) {
+    if (e.key === 'Escape') { e.preventDefault(); exitDeck(); return; }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') { e.preventDefault(); go(0); }
+    else if (e.key === 'End') { e.preventDefault(); go(SHOTS.length - 1); }
+  }
+});
+
+var tx = 0, ty = 0;
+addEventListener('touchstart', function(e) {
+  if (!document.body.classList.contains('mode-deck')) return;
+  tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+}, { passive: true });
+addEventListener('touchend', function(e) {
+  if (!document.body.classList.contains('mode-deck')) return;
+  var dx = e.changedTouches[0].clientX - tx;
+  var dy = e.changedTouches[0].clientY - ty;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 48) return;
+  if (Math.abs(dx) >= Math.abs(dy)) { dx < 0 ? next() : prev(); }
+  else { dy < 0 ? next() : prev(); }
+}, { passive: true });
+
+document.getElementById('toggle').addEventListener('click', exitDeck);
+
+/* 页码指示活动唤醒 */
+var idleTimer = null;
+function wake() {
+  document.body.classList.remove('idle');
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(function() { document.body.classList.add('idle'); }, 2500);
+}
+addEventListener('mousemove', wake);
+
+/* ---------- 深链 #N 直接进全屏 ---------- */
+(function init() {
+  var start = parseInt((location.hash || '').replace('#', ''), 10);
+  if (!isNaN(start) && start >= 1 && start <= SHOTS.length) {
+    enterDeck(start - 1);
+  }
+})();
+
+/* 浏览器后退/前进 */
+addEventListener('popstate', function() {
+  var n = parseInt((location.hash || '').replace('#', ''), 10);
+  if (document.body.classList.contains('mode-deck')) {
+    if (isNaN(n)) exitDeck();
+    else if (n - 1 !== cur) go(n - 1, false);
+  } else {
+    if (!isNaN(n)) enterDeck(n - 1);
+  }
+});
+</script>
+</body>
+</html>
