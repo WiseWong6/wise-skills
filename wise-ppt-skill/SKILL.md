@@ -151,12 +151,13 @@ wise-ppt-skill/
 │   ├── layouts.md            ← 版式目录 + MECE 内容形状选用速查（样张见 gallery/，原语实例库）
 │   ├── components.md         ← 自由 SVG 优先 + ECharts/FontAwesome 规约 + atlas 组件改造五步
 │   └── checklist.md          ← P0/P1/P2 自检清单 + 目检顺序
-├── gallery/                  ← 版式画册 · 运营/品牌/汇报等通用主题（左目录 + 等比预览，←/→ 键与箭头切换）
-│   ├── index.html            ← 画册浏览壳（LAYOUTS 配置数组即目录）
+├── gallery/                  ← 版式画册 · 通用主题（运营/品牌/汇报等）
+│   ├── index.html            ← 画册浏览壳（LAYOUTS 数组即目录，按 15 个结构族分组）
 │   └── frames/               ← 每种版式一页样张（数据全部自编）
-├── gallery-ai/               ← 版式画册 · AI 主题（Agent/RAG/评测/Infra…，与 gallery/ 结构完全一致、内容主题不同）
-│   ├── index.html            ← AI 画册浏览壳
-│   └── frames/               ← 每种版式一页样张（AI 场景，署名 BY @歪斯Wise）
+├── gallery-ai/               ← 版式画册 · AI 主题（Agent/RAG/评测/Infra…，与 gallery/ 同 59 版式、内容主题不同）
+│   ├── index.html            ← AI 画册浏览壳（与 gallery/ 同分类，署名 BY @歪斯Wise）
+│   └── frames/               ← 每种版式一页样张（AI 场景）
+│   ↑ 两套画册共用同一套 15 结构族分类（骨架/流程/对比/拆解/映射/合并/放射/漏斗/循环/嵌套/时序/矩阵/证据/数据/情绪），分类反映版式结构、与内容主题无关
 ├── scripts/
 │   ├── shot-screenshot.sh    ← headless Chrome 逐页截图（PNG）；第 4 参数 thumb 生成画板缩略图 frames/thumb-NN.png（640×360）
 │   ├── shot-lint.py          ← 机检闸门：彩色/深色底/粗线/字体串岗/三件套/同构 rect（先于截图复核运行）
