@@ -1,0 +1,259 @@
+/* ============================================================
+   Trace 视频 · 分镜关键帧共享样式 v3
+   风格：纸墨档案风（参考 Kimi K3 teaser）
+   字体规范（全部开源可商用，本地化加载）：
+     思源宋体 Medium → 大字标题 / 结论 / 提问符号（衬线气质族）
+     思源黑体 Light  → 正文 / 说明 / 标签（无衬线族）
+     Courier Prime   → 档案编号 / 图题 / 坐标数字（等宽族）
+     霞鹜文楷        → 朱批手写（手写族）
+   舞台：1920×1080
+   ============================================================ */
+
+@font-face {
+  font-family: 'Han Serif';
+  src: url('../assets/fonts/SourceHanSerifCN-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Han Sans';
+  src: url('../assets/fonts/SourceHanSansCN-Light.otf') format('opentype');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Han Sans';
+  src: url('../assets/fonts/SourceHanSansCN-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('../assets/fonts/CourierPrime-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'LXGW WenKai';
+  src: url('../assets/fonts/LXGWWenKai-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --paper: #DFE0D9;             /* f11 实测底色：冷调灰白纸 */
+  --paper-deep: #D4D5CD;
+  --ink: #191917;
+  --ink-70: rgba(25, 25, 23, .7);
+  --ink-45: rgba(25, 25, 23, .45);
+  --ink-25: rgba(25, 25, 23, .25);
+  --ink-12: rgba(25, 25, 23, .12);
+  --cinnabar: #191917;          /* 单色系统：强调色 = 墨色，靠线型/字重表达强调 */
+  /* 四族字体，分工不重叠（用户圈定 2026-08-07） */
+  --serif: 'Han Serif', 'Songti SC', serif;        /* 思源宋体 Medium：大字标题/结论/提问符号 */
+  --sans: 'Han Sans', 'PingFang SC', sans-serif;   /* 思源黑体 Light：正文 */
+  --mono: 'Courier Prime', Menlo, monospace;       /* 打字机体：编号/图题/坐标 */
+  --brush: 'LXGW WenKai', 'Xingkai SC', cursive;   /* 霞鹜文楷：朱批手写 */
+}
+
+/* ---------- 冷白实验室主题（?cool 开启） ---------- */
+:root.cool {
+  --paper: #EDF0EE;
+  --paper-deep: #E2E7E4;
+  --ink: #181C1E;
+  --ink-70: rgba(24, 28, 30, .7);
+  --ink-45: rgba(24, 28, 30, .45);
+  --ink-25: rgba(24, 28, 30, .25);
+  --ink-12: rgba(24, 28, 30, .12);
+  --cinnabar: #1D5C9E;          /* 蓝图青：冷版唯一强调色 */
+}
+
+/* ---------- 纯单色主题（?mono 开启，对齐 f11） ---------- */
+:root.mono {
+  --paper: #DFE0D9;
+  --paper-deep: #D4D5CD;
+  --ink: #191917;
+  --ink-70: rgba(25, 25, 23, .7);
+  --ink-45: rgba(25, 25, 23, .45);
+  --ink-25: rgba(25, 25, 23, .25);
+  --ink-12: rgba(25, 25, 23, .12);
+  --cinnabar: #191917;          /* 强调色 = 墨色：单色系统没有彩色 */
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: var(--sans);
+  font-weight: 300;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 舞台：宣纸 + 噪点 ---------- */
+.stage {
+  flex: none;
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+  overflow: hidden;
+  background: var(--paper);
+  transform-origin: center center;
+}
+
+/* 纸纹噪点 */
+.stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 4;
+  mix-blend-mode: multiply;
+}
+
+/* 两侧极淡档案格线 */
+.stage::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, transparent 63px, var(--ink-12) 63px, var(--ink-12) 64px, transparent 64px) left 0 / 64px 100% no-repeat,
+    linear-gradient(90deg, transparent 63px, var(--ink-12) 63px, var(--ink-12) 64px, transparent 64px) right 0 / 64px 100% no-repeat;
+  opacity: .5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage > * { position: relative; z-index: 1; }
+
+/* ---------- 档案角注（Plex Mono 小字） ---------- */
+.doc {
+  position: absolute;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+  line-height: 2.1;
+  z-index: 5;
+  white-space: pre;
+}
+.doc.tl { top: 44px; left: 48px; }
+
+/* ---------- 左下页脚：页码 + 制作人（?ppt 模式显示，视频模式隐藏） ---------- */
+.folio {
+  position: absolute;
+  left: 48px; bottom: 44px;
+  display: none;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-45);
+  z-index: 5;
+}
+:root.ppt .folio { display: block; }
+
+/* ---------- 文字层级（字号阶梯：用户定稿降两档） ---------- */
+.mono  { font-family: var(--mono); font-weight: 400; }
+.serif { font-family: var(--serif); font-weight: 400; }
+.sans  { font-family: var(--sans); font-weight: 300; }
+.kai   { font-family: var(--brush); font-weight: 400; }
+.dim   { color: var(--ink-45); }
+.cin   { color: var(--cinnabar); }
+
+.giant {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 76px;          /* 大字上限：96px 以内 */
+  line-height: 1.2;
+  letter-spacing: .04em;
+}
+.h1 { font-family: var(--serif); font-weight: 400; font-size: 60px; line-height: 1.3; letter-spacing: .03em; }
+.h2 { font-family: var(--serif); font-weight: 400; font-size: 40px; line-height: 1.35; letter-spacing: .03em; }
+.lead { font-family: var(--sans); font-weight: 300; font-size: 24px; line-height: 1.7; color: var(--ink-70); }
+
+/* ---------- 细线框 ---------- */
+.hairline { border: 1px solid var(--ink-25); }
+.hr-ink { height: 1px; background: var(--ink-25); border: 0; }
+
+/* ---------- 朱砂手绘批注 ---------- */
+.zhu-circle {
+  position: absolute;
+  border: 4px solid var(--cinnabar);
+  border-radius: 50%;
+  transform: rotate(-5deg);
+  pointer-events: none;
+}
+.zhu-circle::after {   /* 第二笔，叠出手绘感 */
+  content: "";
+  position: absolute; inset: -7px;
+  border: 3px solid var(--cinnabar);
+  border-radius: 48% 52% 51% 49%;
+  opacity: .55;
+  transform: rotate(9deg);
+}
+.zhu-note {
+  position: absolute;
+  font-family: var(--brush);
+  color: var(--cinnabar);
+  pointer-events: none;
+}
+.zhu-line {
+  position: absolute;
+  height: 4px;
+  background: var(--cinnabar);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* ---------- 底部结论 ---------- */
+.verdict {
+  position: absolute;
+  left: 0; right: 0; bottom: 108px;
+  text-align: center;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 34px;
+  letter-spacing: .06em;
+  color: var(--ink);
+  z-index: 5;
+}
+.verdict .sub {
+  display: block;
+  margin-top: 14px;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 18px;
+  letter-spacing: .14em;
+  color: var(--ink-45);
+}
+
+/* ---------- 粒子 ---------- */
+.dot {
+  position: absolute;
+  width: 5px; height: 5px;
+  background: var(--ink);
+  border-radius: 50%;
+}
+
+/* ---------- SVG 图版通用文字 ---------- */
+.fig-title {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: .3em;
+  fill: var(--ink-45);
+  text-transform: uppercase;
+}
+.fig-cap {
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 18px;
+  letter-spacing: .06em;
+  fill: var(--ink-70);
+}

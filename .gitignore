@@ -31,3 +31,10 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# 字体文件不进 git（体积过大，由各 skill 的 download-fonts.sh 按需下载）
+# 如 paper-ink-ppt/assets/fonts/download-fonts.sh
+*.otf
+*.ttf
+*.woff
+*.woff2

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-b45 · 双金字塔对照映射</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .doc.tl, .folio { color: rgba(25,25,23,.45); }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: #191917;
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — B45<br>TWIN PYRAMID MAPPING</div>
+  <div class="folio">B45 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">双金字塔把两套层级体系逐层对译：层要对着读，映射箭头才是主角，线宽即映射强度。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. B45 — TWIN PYRAMID MAPPING', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 双金字塔：传统班组职级 → 平台任务等级（数据虚构） ---------- */
+var TOP = 250, BASE = 610, HALF = 190;
+var mids = [295, 385, 475, 565];                  /* 四层中位线 */
+function halfAt(y){ return HALF * (y - TOP) / (BASE - TOP); }
+
+/* 对位构造虚线（先画，压在塔与箭头下）+ 中轴 */
+mids.forEach(function(y){
+  el('line', {x1:280, y1:y, x2:1640, y2:y, stroke:INK, 'stroke-width':.5, opacity:.18, 'stroke-dasharray':'2 6'});
+});
+el('line', {x1:960, y1:266, x2:960, y2:606, stroke:INK, 'stroke-width':.5, opacity:.2, 'stroke-dasharray':'2 6'});
+
+function tower(cx, layers){
+  el('path', {d:'M '+cx+' '+TOP+' L '+(cx+HALF)+' '+BASE+' L '+(cx-HALF)+' '+BASE+' Z',
+    fill:'none', stroke:INK80, 'stroke-width':1.3});
+  [340, 430, 520].forEach(function(y){
+    var h = halfAt(y);
+    el('line', {x1:cx-h, y1:y, x2:cx+h, y2:y, stroke:INK, 'stroke-width':.9, opacity:.5});
+  });
+  layers.forEach(function(L, i){
+    txt(cx, mids[i]+2, L[0], {'font-family':SANS, 'font-weight':400, 'font-size':19, 'text-anchor':'middle', fill:INK});
+    txt(cx, mids[i]+24, L[1], {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  });
+  /* 塔题在基座下 */
+  el('line', {x1:cx-80, y1:634, x2:cx+80, y2:634, stroke:INK, 'stroke-width':.6, opacity:.3});
+  txt(cx, 664, layers[4], {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+  txt(cx, 692, layers[5], {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+}
+tower(470,  ['总监','组长','专员','仓务','传统班组职级体系','LEGACY CREW LADDER'].map(function(v,i){return v;}) && [
+  ['总监','L4'],['组长','L3 · LEAD'],['专员','L2 · OPS'],['仓务','L1 · RUN'],
+  '传统班组职级体系','LEGACY CREW LADDER']);
+tower(1450, [
+  ['策略','S4'],['协调','S3 · COORD'],['执行','S2 · EXEC'],['辅助','S1 · AUX'],
+  '平台任务等级体系','PLATFORM TASK TIERS']);
+
+/* ---------- 主角：层间映射箭头（线宽 = 映射强度） ---------- */
+function arrow(x1, y1, x2, y2, w, dash, op){
+  el('line', {x1:x1, y1:y1, x2:x2, y2:y2, stroke:INK, 'stroke-width':w, opacity:op||1, 'stroke-dasharray':dash||'none'});
+  el('line', {x1:x2, y1:y2, x2:x2-14, y2:y2-7, stroke:INK, 'stroke-width':1.2, opacity:.8});
+  el('line', {x1:x2, y1:y2, x2:x2-14, y2:y2+7, stroke:INK, 'stroke-width':1.2, opacity:.8});
+}
+function edge(cx, y, dir){ return cx + dir * halfAt(y); }
+/* L4 → S4（弱，虚线） */
+arrow(edge(470,295,1)+16, 295, edge(1450,295,-1)-16, 295, .8, '4 5', .55);
+txt(960, 284, 'w .31', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+/* L3 → S3（最强，本页唯一强调线） */
+arrow(edge(470,385,1)+16, 385, edge(1450,385,-1)-16, 385, 2.2);
+txt(960, 374, 'w .92', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+/* L3 → S2（一对多扇出，弧线） */
+el('path', {d:'M '+(edge(470,385,1)+20)+' 392 C 780 424, 1040 442, '+(edge(1450,475,-1)-18)+' 470',
+  fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
+el('line', {x1:edge(1450,475,-1)-18, y1:470, x2:edge(1450,475,-1)-32, y2:462, stroke:INK, 'stroke-width':1.1, opacity:.7});
+el('line', {x1:edge(1450,475,-1)-18, y1:470, x2:edge(1450,475,-1)-33, y2:475, stroke:INK, 'stroke-width':1.1, opacity:.7});
+txt(915, 452, 'w .48', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+/* L2 → S2（中） */
+arrow(edge(470,475,1)+16, 475, edge(1450,475,-1)-16, 475, 1.3, null, .85);
+txt(960, 502, 'w .74', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+/* L1 → S1（轻） */
+arrow(edge(470,565,1)+16, 565, edge(1450,565,-1)-16, 565, .9, null, .65);
+txt(960, 556, 'w .36', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+
+/* ---------- 塔外侧弧形引线侧注 ---------- */
+el('path', {d:'M '+(470-halfAt(430))+' 430 C 300 452, 258 470, 242 496', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+el('circle', {cx:242, cy:496, r:2.4, fill:INK, opacity:.6});
+txt(150, 502, 'KNOW-HOW IN', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
+txt(150, 530, '老师傅的路线直觉', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK80});
+txt(150, 558, '沉淀为策略参数', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK70});
+
+el('path', {d:'M '+(1450+halfAt(475))+' 475 C 1620 500, 1658 522, 1672 552', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+el('circle', {cx:1672, cy:552, r:2.4, fill:INK, opacity:.6});
+txt(1770, 556, 'COMMAND OUT', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1770, 584, '调度指令下沉', {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill:INK80});
+txt(1770, 610, '直达单机执行层', {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill:INK70});
+
+stageFit();
+</script>
+</body>
+</html>

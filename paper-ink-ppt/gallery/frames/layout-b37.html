@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-b37 · 地理气泡地图</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — B37<br>GEO BUBBLE MAP</div>
+  <div class="folio">B37 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">简化轮廓为底、气泡大小编码区域仓数，六个气泡讲完一张全国调度网。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. B37 — GEO BUBBLE MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 经纬构造线（测绘底稿，不擦除） ---------- */
+[600, 900].forEach(function(x, i){
+  el('line', {x1:x, y1:230, x2:x, y2:800, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
+  txt(x, 818, (105 + i*10) + '°E', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+});
+el('line', {x1:210, y1:480, x2:1180, y2:480, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
+txt(1192, 484, '35°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
+
+/* ---------- 主角：简化中国轮廓（贝塞尔平滑闭合线稿，0.9px @ 墨60%） ---------- */
+var outline = [
+  [1010,285],[1075,320],[1050,370],[1005,395],[965,380],[930,405],[960,445],[995,465],
+  [950,500],[905,540],[895,585],[870,630],[835,655],[805,685],[755,680],[700,695],
+  [665,660],[610,635],[575,600],[520,615],[455,600],[395,575],[330,545],[275,510],
+  [245,455],[270,400],[330,365],[410,340],[500,320],[590,295],[700,285],[790,295],
+  [880,275],[950,275]
+];
+function smoothClosed(pts){
+  var n = pts.length;
+  var d = 'M ' + ((pts[n-1][0]+pts[0][0])/2) + ' ' + ((pts[n-1][1]+pts[0][1])/2);
+  for (var i = 0; i < n; i++) {
+    var p = pts[i], q = pts[(i+1)%n];
+    d += ' Q ' + p[0] + ' ' + p[1] + ' ' + ((p[0]+q[0])/2) + ' ' + ((p[1]+q[1])/2);
+  }
+  return d + ' Z';
+}
+el('path', {d:smoothClosed(outline), fill:'none', stroke:INK, 'stroke-width':.9, opacity:.6});
+/* 内描一道细影轮廓（制图双描手法） */
+el('path', {d:smoothClosed(outline), fill:'none', stroke:INK, 'stroke-width':.5, opacity:.18,
+  transform:'translate(7 5)'});
+
+/* ---------- 比例气泡（双圈圆，Ø = 在营仓数；圆心 mono 数值） ---------- */
+var bubbles = [
+  {x:905,  y:560, r:65, v:'42', cn:'华东', en:'EAST'},
+  {x:828,  y:652, r:50, v:'27', cn:'华南', en:'SOUTH'},
+  {x:952,  y:418, r:47, v:'19', cn:'华北', en:'NORTH'},
+  {x:646,  y:592, r:39, v:'14', cn:'西南', en:'SOUTHWEST'},
+  {x:858,  y:452, r:29, v:'9',  cn:'华中', en:'CENTRAL'},
+  {x:1008, y:328, r:27, v:'6',  cn:'东北', en:'NORTHEAST'}
+];
+bubbles.forEach(function(b){
+  el('circle', {cx:b.x, cy:b.y, r:b.r, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':1.2, opacity:.85});
+  el('circle', {cx:b.x, cy:b.y, r:b.r-4, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+  txt(b.x, b.y + b.r*.18, b.v, {'font-family':MONO, 'font-size':Math.round(b.r*.52), 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
+  /* 气泡正下：中文区名 + mono EN 注 */
+  txt(b.x, b.y + b.r + 24, b.cn, {'font-family':SANS, 'font-weight':400, 'font-size':17, 'text-anchor':'middle', fill:INK});
+  txt(b.x, b.y + b.r + 44, b.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+});
+
+/* ---------- 图例（左下）：Ø 编码说明 ---------- */
+el('circle', {cx:212, cy:836, r:12, fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
+el('circle', {cx:212, cy:836, r:8.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+txt(240, 841, 'Ø = SITES IN OPERATION (FICTIONAL DATA)', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+
+/* ---------- 右侧 KPI 栏（x1360–1780，细线分隔、无外框） ---------- */
+txt(1360, 226, 'NETWORK TOTALS', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
+el('line', {x1:1360, y1:242, x2:1770, y2:242, stroke:INK, 'stroke-width':.8, opacity:.5});
+var kpis = [
+  ['117',   '在营仓总数（座）'],
+  ['3,842', '在线机器人（台）'],
+  ['21',    '覆盖省级区域（个）'],
+  ['96',    '日均调度单量（万单）']
+];
+kpis.forEach(function(k, i){
+  var y = 340 + i * 140;
+  txt(1360, y, k[0], {'font-family':MONO, 'font-size':58, 'letter-spacing':1, fill:INK});
+  txt(1360, y+34, k[1], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
+  if (i < kpis.length - 1)
+    el('line', {x1:1360, y1:y+66, x2:1770, y2:y+66, stroke:INK, 'stroke-width':.6, opacity:.25});
+});
+
+stageFit();
+</script>
+</body>
+</html>

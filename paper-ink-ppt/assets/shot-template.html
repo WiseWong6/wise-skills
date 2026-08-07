@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-NN · 页面标题</title>
+<!--
+  纸墨线稿单页模板
+  使用：复制本文件为 frames/shot-NN.html，替换以下占位：
+    ① <title> 与 .doc.tl 两行角注（项目 — 章节 / 本页关键词，英文大写）
+    ② .folio 页码与署名（NN / TOTAL — BY 署名，仅 ?ppt 模式显示）
+    ③ FIG. NN 图题（工程制图页保留；叙事插画页 / UI 写实页可删）
+    ④ 主体图形（在 #draw 内程序化绘制，或用 DOM 面板；版式见 references/layouts.md）
+    ⑤ .caption 底部一句结论（陈述句、句号收尾；尾卡页可删）
+  规约：references/design-tokens.md · 自检：references/checklist.md
+-->
+<link rel="stylesheet" href="../assets/shared.css">
+<!-- 按需解开（纸墨化规约见 references/components.md 第二/三节）：
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+-->
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  canvas { position: absolute; inset: 0; z-index: 2; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PROJECT — SECTION<br>PAGE KEYWORD</div>
+  <div class="folio">NN / TOTAL — BY AUTHOR</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+  <canvas id="cv" width="1920" height="1080"></canvas>
+
+  <div class="caption">本页的一句话结论。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* FIG 图题（工程制图页标配，叙事页删除这两行） */
+txt(200, 176, 'FIG. NN — TITLE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:'rgba(25,25,23,.45)'});
+el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ===== 主体图形从这里开始（一页一个主角） ===== */
+
+
+/* ===== 主体图形结束 ===== */
+
+stageFit();
+</script>
+</body>
+</html>

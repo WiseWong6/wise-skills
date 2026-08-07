@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>纸墨线稿 · 版式画册</title>
+<!--
+  版式画册（gallery）—— paper-ink-ppt skill 的全部版式样张浏览壳
+  · 左侧 MECE 族目录，中央等比缩放样张预览（iframe 载入 frames/layout-XX.html）
+  · ←/→ 键、左右箭头按钮、目录点击切换
+  · LAYOUTS 配置数组即画册目录，新增版式时在此登记
+-->
+<style>
+  :root {
+    --ink: #191917;
+    --paper: #DFE0D9;
+    --mono: 'Courier Prime', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; border-radius: 0 !important; }
+  html, body { height: 100%; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Han Sans', 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ---------- 左侧目录 ---------- */
+  #side {
+    width: 292px; flex-shrink: 0;
+    border-right: 1px solid rgba(25,25,23,.35);
+    display: flex; flex-direction: column;
+    height: 100vh;
+  }
+  #side .brand {
+    padding: 26px 24px 20px;
+    border-bottom: 1px solid rgba(25,25,23,.35);
+  }
+  #side .brand .en {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .3em;
+    color: rgba(25,25,23,.5);
+  }
+  #side .brand .cn {
+    margin-top: 10px; font-size: 24px; font-weight: 400; letter-spacing: .06em;
+  }
+  #side .brand .count {
+    margin-top: 10px; font-family: var(--mono); font-size: 11px;
+    letter-spacing: .22em; color: rgba(25,25,23,.5);
+  }
+  #toc { flex: 1; overflow-y: auto; padding: 12px 0 40px; }
+  #toc .fam {
+    padding: 18px 24px 6px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .26em;
+    color: rgba(25,25,23,.45);
+    text-transform: uppercase;
+  }
+  #toc .item {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 7px 24px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  #toc .item .code {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .08em;
+    color: rgba(25,25,23,.55); width: 38px; flex-shrink: 0;
+  }
+  #toc .item .name { font-size: 15px; font-weight: 300; }
+  #toc .item:hover { background: rgba(255,255,255,.22); }
+  #toc .item.active {
+    border-left-color: var(--ink);
+    background: rgba(255,255,255,.22);
+  }
+  #toc .item.active .code { color: var(--ink); }
+  #toc .item.active .name { font-weight: 400; }
+
+  /* ---------- 主预览区 ---------- */
+  #main { flex: 1; display: flex; flex-direction: column; height: 100vh; min-width: 0; }
+  #bar {
+    display: flex; align-items: baseline; gap: 18px;
+    padding: 22px 36px 16px;
+    border-bottom: 1px solid rgba(25,25,23,.35);
+  }
+  #bar .code {
+    font-family: var(--mono); font-size: 26px; letter-spacing: .12em;
+  }
+  #bar .name { font-size: 22px; font-weight: 400; letter-spacing: .04em; }
+  #bar .use {
+    flex: 1;
+    font-size: 14px; font-weight: 300; color: rgba(25,25,23,.6);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #bar .idx {
+    font-family: var(--mono); font-size: 13px; letter-spacing: .2em;
+    color: rgba(25,25,23,.55);
+  }
+
+  #viewport { flex: 1; position: relative; overflow: hidden; }
+  #stagebox {
+    position: absolute;
+    width: 1920px; height: 1080px;
+    transform-origin: top left;
+  }
+  #stagebox iframe {
+    width: 1920px; height: 1080px; border: 0; display: block;
+    background: var(--paper);
+  }
+  /* 样张外框细线 */
+  #frame-line {
+    position: absolute; pointer-events: none;
+    border: 1px solid rgba(25,25,23,.35);
+  }
+
+  /* 左右切换箭头 */
+  .nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10;
+    border: 1px solid rgba(25,25,23,.35);
+    background: var(--paper);
+    font-family: var(--mono); font-size: 20px;
+    user-select: none;
+  }
+  .nav:hover { background: rgba(255,255,255,.4); }
+  #prev { left: 24px; }
+  #next { right: 24px; }
+
+  #foot {
+    padding: 12px 36px;
+    border-top: 1px solid rgba(25,25,23,.35);
+    font-family: var(--mono); font-size: 11px; letter-spacing: .24em;
+    color: rgba(25,25,23,.45);
+    display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div id="side">
+  <div class="brand">
+    <div class="en">PAPER-INK LAYOUT GALLERY</div>
+    <div class="cn">版式画册</div>
+    <div class="count" id="total"></div>
+  </div>
+  <div id="toc"></div>
+</div>
+
+<div id="main">
+  <div id="bar">
+    <span class="code" id="b-code"></span>
+    <span class="name" id="b-name"></span>
+    <span class="use" id="b-use"></span>
+    <span class="idx" id="b-idx"></span>
+  </div>
+  <div id="viewport">
+    <div id="stagebox"><iframe id="fr" src="about:blank"></iframe></div>
+    <div id="frame-line"></div>
+    <div class="nav" id="prev">←</div>
+    <div class="nav" id="next">→</div>
+  </div>
+  <div id="foot">
+    <span>PAPER-INK-PPT SKILL — LAYOUT SPECIMENS</span>
+    <span>← / → 切换 · 数据全部自编</span>
+  </div>
+</div>
+
+<script>
+/* ============ 画册目录（新增版式在此登记） ============ */
+var LAYOUTS = /*__LAYOUTS__*/[];
+
+var FAM_ORDER = [];
+LAYOUTS.forEach(function (l) { if (FAM_ORDER.indexOf(l.fam) < 0) FAM_ORDER.push(l.fam); });
+
+var cur = 0;
+
+/* ---------- 目录 ---------- */
+var toc = document.getElementById('toc');
+FAM_ORDER.forEach(function (fam) {
+  var h = document.createElement('div');
+  h.className = 'fam'; h.textContent = fam;
+  toc.appendChild(h);
+  LAYOUTS.forEach(function (l, i) {
+    if (l.fam !== fam) return;
+    var it = document.createElement('div');
+    it.className = 'item'; it.dataset.i = i;
+    it.innerHTML = '<span class="code">' + l.code + '</span><span class="name">' + l.name + '</span>';
+    it.addEventListener('click', function () { go(i); });
+    toc.appendChild(it);
+  });
+});
+document.getElementById('total').textContent =
+  'TOTAL — ' + LAYOUTS.length + ' LAYOUTS / ' + FAM_ORDER.length + ' FAMILIES';
+
+/* ---------- 预览缩放 ---------- */
+var viewport = document.getElementById('viewport');
+var stagebox = document.getElementById('stagebox');
+var frameLine = document.getElementById('frame-line');
+function fit() {
+  var vw = viewport.clientWidth - 140, vh = viewport.clientHeight - 60;
+  var s = Math.min(vw / 1920, vh / 1080);
+  var w = 1920 * s, h = 1080 * s;
+  var x = (viewport.clientWidth - w) / 2, y = (viewport.clientHeight - h) / 2;
+  stagebox.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+  frameLine.style.left = (x - 1) + 'px'; frameLine.style.top = (y - 1) + 'px';
+  frameLine.style.width = (w + 2) + 'px'; frameLine.style.height = (h + 2) + 'px';
+}
+window.addEventListener('resize', fit);
+
+/* ---------- 切换 ---------- */
+function go(i) {
+  cur = (i + LAYOUTS.length) % LAYOUTS.length;
+  var l = LAYOUTS[cur];
+  document.getElementById('fr').src = 'frames/' + l.file;
+  document.getElementById('b-code').textContent = l.code;
+  document.getElementById('b-name').textContent = l.name;
+  document.getElementById('b-use').textContent = l.use || '';
+  document.getElementById('b-idx').textContent =
+    String(cur + 1).padStart(2, '0') + ' / ' + String(LAYOUTS.length).padStart(2, '0');
+  var items = document.querySelectorAll('#toc .item');
+  items.forEach(function (it) { it.classList.toggle('active', +it.dataset.i === cur); });
+  var act = document.querySelector('#toc .item.active');
+  if (act) act.scrollIntoView({ block: 'nearest' });
+}
+document.getElementById('prev').addEventListener('click', function () { go(cur - 1); });
+document.getElementById('next').addEventListener('click', function () { go(cur + 1); });
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { go(cur - 1); e.preventDefault(); }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { go(cur + 1); e.preventDefault(); }
+});
+
+fit();
+if (LAYOUTS.length) go(0);
+</script>
+</body>
+</html>
