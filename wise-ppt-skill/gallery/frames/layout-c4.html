@@ -68,7 +68,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- 色阶配方：遵循强调色开关（design-tokens §1.5）----------
    默认单色系统 → 墨灰色阶；?accent 开启 → 番茄红色阶。
-   未覆盖城市一律透明（纸底透出），仅覆盖城市按仓数分档上色。
+   未覆盖城市一律填 C3 同款半透明白（rgba(255,255,255,.22)），仅覆盖城市按仓数分档上色。
    visualMap（地图）与左下角图例从同一 RAMP 生成，保证 1:1 对应。 */
 /* 直接读 URL 判定强调色（stageFit 末尾才加 .accent class，此处不能依赖它） */
 var ACCENT_ON = location.search.indexOf('accent') >= 0;
@@ -198,13 +198,13 @@ loadMap().then(function(geo){
     animation: false,
     backgroundColor: 'transparent',
     /* visualMap：按 value（仓数）自动映射 areaColor，分级填色的标准做法。
-       六个覆盖城市带 value 落入对应分段；其余城市无 value → outOfRange 透明。
+       六个覆盖城市带 value 落入对应分段；其余城市无 value → outOfRange 用 C3 卡片同款半透明白（rgba(255,255,255,.22)），与全省卡列阵底色一致。
        piecewise 分段比 continuous 更贴合「分档强调」语义。 */
     visualMap: {
       type: 'piecewise',
       /* 与左下角图例同配方（RAMP_PIECES）：墨灰（默认）/ 番茄红（?accent） */
       pieces: RAMP_PIECES,
-      outOfRange: { color: 'transparent' },
+      outOfRange: { color: 'rgba(255,255,255,.22)' },
       show: false
     },
     series: [{
