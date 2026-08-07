@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-c4 · 广东分布地图</title>
+<title>layout-c4 · 广东分布地图 · AI 覆盖</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <!-- ECharts 纸墨化（规约见 references/components.md §3）：仅用于真实地理分布图 -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
@@ -33,8 +33,8 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — C4<br>GUANGDONG DISTRIBUTION MAP</div>
-  <div class="folio">C4 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — C4<br>BUBBLE MAP · AI COVERAGE</div>
+  <div class="folio">C4 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
@@ -44,7 +44,7 @@
     <g id="nodes"></g>
   </svg>
 
-  <div class="caption">以广东省真实市界为底，墨色深浅编码各市仓数，六座城市讲完一张全省调度网。</div>
+  <div class="caption">以广东省真实市界为底，红色深浅编码各市部署节点数，六座城市讲完一张全省 AI 服务覆盖网。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -67,7 +67,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题（基线 y=226，与右侧 PROVINCE TOTALS 水平对齐） ---------- */
-txt(200, 226, 'FIG. C4 — GUANGDONG DISTRIBUTION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 226, 'FIG. C4 — AI COVERAGE MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:242, x2:600, y2:242, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 经纬构造线（测绘底稿，不擦除）—— 广东约 109.7°–117.2°E / 20.2°–25.5°N ---------- */
@@ -82,10 +82,10 @@ txt(1352, 524, '23°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2,
 txt(1360, 226, 'PROVINCE TOTALS', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
 el('line', {x1:1360, y1:242, x2:1770, y2:242, stroke:INK, 'stroke-width':.8, opacity:.5});
 var kpis = [
-  ['117',   '在营仓总数（座）'],
-  ['3,842', '在线机器人（台）'],
-  ['21',    '覆盖地级市（个）'],
-  ['96',    '日均调度单量（万单）']
+  ['117',   '部署节点总数（个）'],
+  ['3,842', '在线推理实例（路）'],
+  ['21',    '覆盖城市（个）'],
+  ['96',    '日均调用量（万次）']
 ];
 kpis.forEach(function(k, i){
   var y = 340 + i * 140;
@@ -96,40 +96,41 @@ kpis.forEach(function(k, i){
 });
 
 /* ---------- 图例（左下）：墨色强度色阶 —— 文字基线 y=850，与 112°E 标注对齐 ---------- */
-/* 五档色阶方块：从浅(墨12%)到深(墨55%)，编码仓数强度 */
+/* 五档色阶方块：从浅(红30%)到深(红85%)，编码部署节点强度 */
 var rampY = 845, rampX = 200, rampStep = 22, rampH = 12;
-[.12, .22, .32, .43, .55].forEach(function(a, i){
+[.30, .45, .60, .72, .85].forEach(function(a, i){
   el('rect', {x:rampX + i*rampStep, y:rampY - rampH/2, width:rampStep-2, height:rampH,
-    fill:'rgba(25,25,23,'+a+')', stroke:INK, 'stroke-width':.5, opacity:.85});
+    fill:'rgba(192,57,43,'+a+')', stroke:INK, 'stroke-width':.5, opacity:.9});
 });
 txt(rampX,            rampY + rampH/2 + 14, '少', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
 txt(rampX + 4*rampStep + (rampStep-2), rampY + rampH/2 + 14, '多', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
-txt(rampX + 5*rampStep + 8, rampY + 4, 'FILL INTENSITY = SITES · DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
+txt(rampX + 5*rampStep + 8, rampY + 4, 'FILL INTENSITY = NODES · DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
 
 /* ===================== ECharts 广东省地图（纸墨化） =====================
    分工：ECharts geo 只渲染真实市界（21 地级市），节点（双圈+数值+
    城市名）全部由 SVG overlay 在 canvas 之上绘制，保证纸墨线稿手法
    与字体一致、层级干净。 */
 
-/* 墨色透明度分级：仓数越高，城市填色越深（纯单色，纸墨线稿默认规约） */
-function inkAlpha(v){
-  /* 6→.12, 42→.55，线性映射，clamp */
-  var mn = 6, mx = 42, lo = .12, hi = .55;
+/* 强调色（番茄红 #C0392B）透明度分级：部署节点越多，城市填色越饱和。
+   用户明确允许填充，强调强度优先于单色规约。6→.30, 42→.85。 */
+var ACCENT = '#C0392B';
+function fillAlpha(v){
+  var mn = 6, mx = 42, lo = .30, hi = .85;
   if (v <= mn) return lo;
   if (v >= mx) return hi;
   return (lo + (v - mn) / (mx - mn) * (hi - lo)).toFixed(3);
 }
 
-/* 六个覆盖城市：广东省内真实城市名 + 仓数 + 经纬度 + 延伸线方向（弧度）
-   labelDir 用于规避珠三角城市群的密集重叠：仓数标签沿引线甩到不同方向。
+/* 六个覆盖城市：广东省内真实城市名 + 部署节点数 + 经纬度 + 延伸线方向（弧度）
+   labelDir 用于规避珠三角城市群的密集重叠：节点数标签沿引线甩到不同方向。
    城市名必须与 GeoJSON properties.name 完全一致（含「市」），供 series.map 匹配。 */
 var NODES = [
-  {city:'广州市',lng:113.26,lat:23.13,v:42,tag:'广州',en:'GUANGZHOU', dir:-2.5}, /* 左 */
-  {city:'深圳市',lng:114.06,lat:22.55,v:27,tag:'深圳',en:'SHENZHEN',  dir: 0.4},  /* 右下 */
-  {city:'佛山市',lng:113.12,lat:23.02,v:19,tag:'佛山',en:'FOSHAN',    dir: 2.95}, /* 正下偏左，与广州(左)拉开纵向 */
-  {city:'东莞市',lng:113.75,lat:23.05,v:14,tag:'东莞',en:'DONGGUAN',  dir:-0.5},  /* 右上 */
-  {city:'珠海市',lng:113.58,lat:22.27,v:9, tag:'珠海',en:'ZHUHAI',    dir: 1.6},  /* 下方 */
-  {city:'汕头市',lng:116.68,lat:23.35,v:6, tag:'汕头',en:'SHANTOU',   dir: 0.0}   /* 右 */
+  {city:'广州市',lng:113.26,lat:23.13,v:42,tag:'广州',en:'GUANGZHOU', dir:Math.PI},        /* 正左，出图 */
+  {city:'深圳市',lng:114.06,lat:22.55,v:27,tag:'深圳',en:'SHENZHEN',  dir:0.55},           /* 右下，出图 */
+  {city:'佛山市',lng:113.12,lat:23.02,v:19,tag:'佛山',en:'FOSHAN',    dir:-2.36},          /* 左上，出图 */
+  {city:'东莞市',lng:113.75,lat:23.05,v:14,tag:'东莞',en:'DONGGUAN',  dir:-0.45},          /* 右上，出图 */
+  {city:'珠海市',lng:113.58,lat:22.27,v:9, tag:'珠海',en:'ZHUHAI',    dir:1.15},           /* 下方偏右，出图 */
+  {city:'汕头市',lng:116.68,lat:23.35,v:6, tag:'汕头',en:'SHANTOU',   dir:0}               /* 正右，出图 */
 ];
 
 /* overlay 层的绘制工具（独立于 #draw，因 overlay 在更高 z 层） */
@@ -157,10 +158,10 @@ function loadMap(){
 loadMap().then(function(geo){
   echarts.registerMap('guangdong', geo);
 
-  /* 各覆盖城市的墨色填充透明度（仓数越高越深）；其余城市透明 */
+  /* 各覆盖城市的墨色填充透明度（节点数越多越深）；其余城市透明 */
   var cityColor = {};
   NODES.forEach(function(n){
-    cityColor[n.city] = 'rgba(25,25,23,' + inkAlpha(n.v) + ')';
+    cityColor[n.city] = 'rgba(192,57,43,' + fillAlpha(n.v) + ')';
   });
 
   var chart = echarts.init(document.getElementById('chart'));
@@ -201,7 +202,7 @@ loadMap().then(function(geo){
     }]
   });
 
-  /* ---- 仓数标注：延伸线从城市中心拉到地图外，圆点气泡不再使用 ----
+  /* ---- 节点数标注：延伸线从城市中心拉到地图外，圆点气泡不再使用 ----
      convertToPixel 在 series.map 下用 'series' 坐标系反查经纬度。 */
   var OFFX = 180, OFFY = 208;
   function drawCallouts(){
@@ -215,7 +216,7 @@ loadMap().then(function(geo){
       oEl('circle', {cx:x, cy:y, r:2.4, fill:INK, opacity:.7});
 
       /* 延伸线终点：沿 dir 方向外推固定长度 */
-      var lead = 78;
+      var lead = 135;
       var ax = x + Math.cos(p.dir) * lead;
       var ay = y + Math.sin(p.dir) * lead;
       /* 延伸线（细实线，墨 35%） */
@@ -229,8 +230,8 @@ loadMap().then(function(geo){
       /* 文字对齐方向：右半平面左对齐，左半平面右对齐 */
       var anchor = Math.cos(p.dir) >= 0 ? 'start' : 'end';
       var tx = ax + (anchor === 'start' ? 8 : -8);
-      /* 仓数（mono 大字）+ 城市名（中文）+ mono EN 注 */
-      oTxt(tx, ay - 6, p.v + ' 仓', {'font-family':MONO, 'font-size':20, 'letter-spacing':1, 'text-anchor':anchor, fill:INK});
+      /* 节点数（mono 大字）+ 城市名（中文）+ mono EN 注 */
+      oTxt(tx, ay - 6, p.v + ' 节点', {'font-family':MONO, 'font-size':20, 'letter-spacing':1, 'text-anchor':anchor, fill:INK});
       oTxt(tx, ay + 18, p.tag + ' · ' + p.en, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'letter-spacing':1, 'text-anchor':anchor, fill:INK70});
     });
   }
