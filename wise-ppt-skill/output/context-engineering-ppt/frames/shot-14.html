@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-14 · 参考资料 · 延伸阅读</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">CONTEXT ENGINEERING — REF<br>6 SOURCES · FURTHER READING</div>
+  <div class="folio">14 / 15 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- 页头 ---------- */
+txt(300, 218, 'REFERENCES', {'font-family':MONO, 'font-size':15, 'letter-spacing':4, fill:'rgba(25,25,23,.45)'});
+el('line', {x1:438, y1:212, x2:560, y2:212, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 6 条参考资料（左右两列各 3 条） ---------- */
+var refs = [
+  {no:'01', src:'Anthropic Engineering', title:'Effective context engineering for AI agents', url:'anthropic.com/engineering/effective-context-engineering'},
+  {no:'02', src:'LangChain Blog', title:'Context Engineering · Write / Select / Compress / Isolate', url:'blog.langchain.com/context-engineering-for-agents'},
+  {no:'03', src:'HarrisonSec', title:'Claude Code 5-Level Compression Pipeline', url:'harrisonsec.com/blog/claude-code-context-engineering'},
+  {no:'04', src:'Anthropic Blog', title:'Using Claude Code · session management and 1M context', url:'claude.com/blog/using-claude-code-session-management'},
+  {no:'05', src:'OpenClaw Docs', title:'Context Engine · 可替换的上下文管理策略', url:'docs.openclaw.ai/concepts/context-engine'},
+  {no:'06', src:'Hermes Agent Docs', title:'Context Compression and Caching', url:'hermes-agent.nousresearch.com/docs/developer-guide/context-compression'}
+];
+
+/* 两列布局 */
+var colX = [300, 1000];
+var colW = 620;
+var startY = 280;
+var rowH = 180;
+
+refs.forEach(function(r, i){
+  var col = i % 2;
+  var row = Math.floor(i / 2);
+  var x = colX[col], y = startY + row * rowH;
+
+  /* 文献线稿标本框 */
+  el('rect', {x:x, y:y, width:colW, height:140, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
+  el('rect', {x:x+5, y:y+5, width:colW-10, height:130, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.25});
+
+  /* 报头横线 + 编号 */
+  el('line', {x1:x+20, y1:y+28, x2:x+colW-20, y2:y+28, stroke:INK, 'stroke-width':.8, opacity:.4});
+  txt(x+20, y+22, 'REF.' + r.no, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+  txt(x+colW-20, y+22, r.src.toUpperCase(), {'font-family':MONO, 'font-size':11, 'letter-spacing':1.5, 'text-anchor':'end', fill:INK45});
+
+  /* 标题行 */
+  txt(x+20, y+62, r.title, {'font-family':SANS, 'font-weight':300, 'font-size':19, fill:INK});
+
+  /* URL（mono） */
+  txt(x+20, y+90, r.url, {'font-family':MONO, 'font-size':13, 'letter-spacing':.5, fill:INK70});
+
+  /* 底部 mono 读数行 */
+  el('line', {x1:x+20, y1:y+108, x2:x+80, y2:y+108, stroke:INK, 'stroke-width':.6, opacity:.3});
+  txt(x+20, y+126, '↗ FURTHER READING', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.4)'});
+});
+
+stageFit();
+</script>
+</body>
+</html>

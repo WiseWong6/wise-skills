@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-10 · OpenClaw vs Claude Code · 分水岭双栏</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 100px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">CONTEXT ENGINEERING — CH03<br>OC VS CC · WATERSHED</div>
+  <div class="folio">10 / 15 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">同为压缩与裁剪，一个重工作集恢复，一个重开放可替换。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. 10 — OPENCLAW × CLAUDE CODE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:530, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 分水岭中轴 x960 ---------- */
+var VX = 960, VT = 240, VB = 820, VY = 510;
+el('line', {x1:VX, y1:VT, x2:VX, y2:VY-30, stroke:INK80, 'stroke-width':1.3});
+el('line', {x1:VX, y1:VY+56, x2:VX, y2:VB, stroke:INK80, 'stroke-width':1.3});
+for (var ty = VT + 20; ty <= VB - 10; ty += 38) {
+  if (ty > VY - 46 && ty < VY + 72) continue;
+  el('line', {x1:VX-8, y1:ty, x2:VX+8, y2:ty, stroke:INK, 'stroke-width':.8, opacity:.5});
+}
+el('line', {x1:VX-14, y1:VT, x2:VX+14, y2:VT, stroke:INK, 'stroke-width':.8, opacity:.5});
+el('line', {x1:VX-14, y1:VB, x2:VX+14, y2:VB, stroke:INK, 'stroke-width':.8, opacity:.5});
+el('line', {x1:VX-26, y1:VY+14, x2:VX-14, y2:VY+14, stroke:INK, 'stroke-width':.6, opacity:.35});
+el('line', {x1:VX+14, y1:VY+14, x2:VX+26, y2:VY+14, stroke:INK, 'stroke-width':.6, opacity:.35});
+txt(VX, VY-6, 'VS', {'font-family':MONO, 'font-size':20, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(VX, VY+20, 'OC × CC', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+
+/* ---------- 两栏字段对照 ---------- */
+var HY = 300, RY0 = 352, RH = 118;
+var cols = [
+  {
+    x: 200, w: 680,
+    title: 'Claude Code · 渐进式恢复',
+    tag: 'MODE: PROGRESSIVE · RESTORE-FIRST',
+    rows: [
+      {label:'初始占用', code:'FOOTPRINT', d:['系统提示词 + CLAUDE.md', '+ 自动记忆，占用克制']},
+      {label:'压缩策略', code:'COMPACT',   d:['5 层渐进式压缩', '先高噪音再裁剪再折叠']},
+      {label:'会话重置', code:'RESET',     d:['压缩后自动恢复', '最近 5 文件 + Skills + 任务']},
+      {label:'扩展性', code:'EXTEND',     d:['内建策略为主', '调优精细但不可替换引擎']}
+    ]
+  },
+  {
+    x: 1040, w: 680,
+    title: 'OpenClaw · 开放生命周期',
+    tag: 'MODE: PLUGGABLE · LIFECYCLE-OPEN',
+    rows: [
+      {label:'初始占用', code:'FOOTPRINT', d:['Soul + Identity + User 等', '文件列表更多，易超限']},
+      {label:'压缩策略', code:'COMPACT',   d:['丢弃旧工具输出', '与 Claude Code 相似']},
+      {label:'会话重置', code:'RESET',     d:['无工作集恢复强调', '重置后需自行重建上下文']},
+      {label:'扩展性', code:'EXTEND',     d:['context-engine 可替换', '自定义压缩/存储/结构']}
+    ]
+  }
+];
+
+cols.forEach(function(c){
+  var x = c.x, xr = c.x + c.w;
+  txt(x, HY, c.title, {'font-family':SANS, 'font-weight':300, 'font-size':22, fill:INK});
+  txt(xr, HY, c.tag, {'font-family':MONO, 'font-size':12, 'letter-spacing':1.5, 'text-anchor':'end', fill:INK45});
+  el('line', {x1:x, y1:HY+22, x2:xr, y2:HY+22, stroke:INK, 'stroke-width':.8, opacity:.5});
+  el('line', {x1:x, y1:HY+27, x2:x+120, y2:HY+27, stroke:INK, 'stroke-width':.6, opacity:.3});
+  var lx1 = (x < VX) ? xr : VX + 8, lx2 = (x < VX) ? VX - 8 : x;
+  el('line', {x1:lx1, y1:HY+22, x2:lx2, y2:HY+22, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 5'});
+
+  c.rows.forEach(function(r, i){
+    var ry = RY0 + i * RH;
+    el('circle', {cx:x, cy:ry+36, r:2.6, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.8});
+    txt(x+18, ry+43, r.label, {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK});
+    txt(x+18, ry+71, r.code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
+    el('line', {x1:x+182, y1:ry+12, x2:x+182, y2:ry+RH-24, stroke:INK, 'stroke-width':.6, opacity:.2, 'stroke-dasharray':'2 5'});
+    r.d.forEach(function(line, j){
+      txt(x+206, ry+40 + j*30, line, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
+    });
+    if (i < c.rows.length - 1) {
+      el('line', {x1:x, y1:ry+94, x2:xr, y2:ry+94, stroke:INK, 'stroke-width':.6, opacity:.3});
+    }
+  });
+});
+
+stageFit();
+</script>
+</body>
+</html>

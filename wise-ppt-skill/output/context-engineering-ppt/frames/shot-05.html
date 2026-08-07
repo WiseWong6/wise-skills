@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-05 · 四维框架 · LangChain Write/Select/Compress/Isolate</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 100px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">CONTEXT ENGINEERING — WHAT<br>4D FRAMEWORK · LANGCHAIN</div>
+  <div class="folio">05 / 15 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <defs>
+      <pattern id="hatch05" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width=".7" opacity=".35"/>
+      </pattern>
+    </defs>
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">管理上下文的四个动作：写出去、选进来、压瘦身、隔开来。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. 05 — 4D CONTEXT FRAMEWORK', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 四栏（等宽均分 x150–1770） ---------- */
+var COLS = [
+  {x:150,  en:'WRITE',    cn:'写出去',  desc:'把信息分门别类记录，', desc2:'记忆、状态写到窗口外', glyph:'write'},
+  {x:565,  en:'SELECT',   cn:'选进来',  desc:'按需选择信息，', desc2:'工具、记忆、知识库', glyph:'select'},
+  {x:980,  en:'COMPRESS', cn:'压瘦身',  desc:'总结裁剪上下文，', desc2:'保留高价值的信息', glyph:'compress'},
+  {x:1395, en:'ISOLATE',  cn:'隔开来',  desc:'隔离上下文，', desc2:'不同 Agent 不同内容', glyph:'isolate'}
+];
+var CW = 375, GAP = 40;
+
+/* 栏间分隔虚线 */
+[545, 960, 1375].forEach(function(x){
+  el('line', {x1:x, y1:260, x2:x, y2:820, stroke:INK, 'stroke-width':.6, 'stroke-dasharray':'2 6', opacity:.22});
+});
+
+COLS.forEach(function(c){
+  var x = c.x;
+  /* 栏题 */
+  txt(x, 280, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':28, fill:INK});
+  txt(x, 308, c.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
+  el('line', {x1:x, y1:326, x2:x+80, y2:326, stroke:INK, 'stroke-width':.8, opacity:.5});
+  el('line', {x1:x, y1:332, x2:x+CW-GAP, y2:332, stroke:INK, 'stroke-width':.6, opacity:.22});
+
+  /* 微图元（居中于栏宽 CW-GAP） */
+  var cx = x + (CW - GAP) / 2, cy = 480;
+
+  if (c.glyph === 'write') {
+    /* 上下文窗口（方框）+ 向右出去的箭头 + 外部存储标记 */
+    el('rect', {x:cx-70, y:cy-50, width:100, height:60, fill:'none', stroke:INK80, 'stroke-width':1.3});
+    for (var r = 0; r < 4; r++) el('line', {x1:cx-60, y1:cy-36+r*12, x2:cx+20, y2:cy-36+r*12, stroke:INK, 'stroke-width':.6, opacity:.4});
+    /* 箭头 → 外部 */
+    el('line', {x1:cx+30, y1:cy-20, x2:cx+70, y2:cy-20, stroke:INK80, 'stroke-width':1.3});
+    el('path', {d:'M '+(cx+62)+' '+(cy-26)+' L '+(cx+72)+' '+(cy-20)+' L '+(cx+62)+' '+(cy-14), fill:'none', stroke:INK80, 'stroke-width':1.3, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
+    /* 外部存储（虚线圆） */
+    el('circle', {cx:cx+95, cy:cy-20, r:18, fill:'none', stroke:INK80, 'stroke-width':1, opacity:.5, 'stroke-dasharray':'3 4'});
+    el('circle', {cx:cx+95, cy:cy-20, r:2, fill:INK, opacity:.6});
+  }
+
+  if (c.glyph === 'select') {
+    /* 漏斗：上宽下窄 + 筛选点 */
+    el('path', {d:'M '+(cx-60)+' '+(cy-50)+' L '+(cx+60)+' '+(cy-50)+' L '+(cx+12)+' '+(cy-6)+' L '+(cx+12)+' '+(cy+24)+' L '+(cx-12)+' '+(cy+24)+' L '+(cx-12)+' '+(cy-6)+' Z', fill:'none', stroke:INK80, 'stroke-width':1.3, 'stroke-linejoin':'round'});
+    /* 上方多个入料点 */
+    [-40, -13, 13, 40].forEach(function(dx){
+      el('circle', {cx:cx+dx, cy:cy-66, r:3, fill:'none', stroke:INK, 'stroke-width':1, opacity:.6});
+      el('line', {x1:cx+dx, y1:cy-62, x2:cx+dx, y2:cy-52, stroke:INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'2 3'});
+    });
+    /* 下方出料 */
+    el('circle', {cx:cx, cy:cy+44, r:2.6, fill:INK, opacity:.7});
+  }
+
+  if (c.glyph === 'compress') {
+    /* 两条平行线（长→短）+ 压缩箭头 */
+    el('line', {x1:cx-64, y1:cy-32, x2:cx+64, y2:cy-32, stroke:INK, 'stroke-width':1.2, opacity:.7});
+    el('line', {x1:cx-64, y1:cy-8, x2:cx+64, y2:cy-8, stroke:INK, 'stroke-width':1.2, opacity:.7});
+    el('line', {x1:cx-64, y1:cy+16, x2:cx+64, y2:cy+16, stroke:INK, 'stroke-width':1.2, opacity:.7});
+    /* 压缩箭头（上下对向） */
+    el('line', {x1:cx+80, y1:cy-40, x2:cx+80, y2:cy+40, stroke:INK80, 'stroke-width':1.3});
+    el('path', {d:'M '+(cx+74)+' '+(cy-32)+' L '+(cx+80)+' '+(cy-40)+' L '+(cx+86)+' '+(cy-32), fill:'none', stroke:INK80, 'stroke-width':1.3, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
+    el('path', {d:'M '+(cx+74)+' '+(cy+32)+' L '+(cx+80)+' '+(cy+40)+' L '+(cx+86)+' '+(cy+32), fill:'none', stroke:INK80, 'stroke-width':1.3, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
+    /* 压缩后的短线（更短） */
+    el('line', {x1:cx-30, y1:cy+58, x2:cx+30, y2:cy+58, stroke:INK, 'stroke-width':1.2, opacity:.5});
+  }
+
+  if (c.glyph === 'isolate') {
+    /* 两个虚线框（隔离的上下文域） + 中间虚线分隔 */
+    el('rect', {x:cx-72, y:cy-46, width:56, height:76, fill:'none', stroke:INK80, 'stroke-width':1.3, 'stroke-dasharray':'4 4'});
+    el('rect', {x:cx+16, y:cy-46, width:56, height:76, fill:'none', stroke:INK80, 'stroke-width':1.3, 'stroke-dasharray':'4 4'});
+    /* 左框内容（实心） */
+    el('circle', {cx:cx-44, cy:cy-8, r:8, fill:'url(#hatch05)', stroke:INK80, 'stroke-width':1});
+    /* 右框内容（空心） */
+    el('circle', {cx:cx+44, cy:cy-8, r:8, fill:'none', stroke:INK80, 'stroke-width':1});
+    /* 中间 // 分隔 */
+    el('line', {x1:cx-4, y1:cy-30, x2:cx+4, y2:cy+30, stroke:INK, 'stroke-width':1, opacity:.4});
+  }
+
+  /* 说明文字（图元下方） */
+  txt(cx, cy + 130, c.desc, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK70});
+  txt(cx, cy + 160, c.desc2, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
+
+  /* 栏底 mono 标签 */
+  txt(x + CW - GAP, 812, '→ ' + c.en, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+});
+
+stageFit();
+</script>
+</body>
+</html>
