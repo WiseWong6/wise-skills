@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-a4 · 左策略右证据墙</title>
+<title>layout-a4 · 左策略右证据墙 · Agent 工程化</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   /* B22 左策略右证据墙 · 纸底 */
@@ -20,8 +20,8 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — A4<br>STRATEGY × EVIDENCE WALL</div>
-  <div class="folio">A4 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — A4<br>STRATEGY × EVIDENCE WALL</div>
+  <div class="folio">A4 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <defs>
@@ -32,7 +32,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">左边写打法、右边摆实据：四条策略各自对应一格已经落地的证据。</div>
+  <div class="caption">左边写工程化打法、右边摆落地实据：四条策略各自对应一格已上线的证据。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -59,15 +59,15 @@ txt(200, 176, 'FIG. A4 — STRATEGY × EVIDENCE WALL', {'font-family':MONO, 'fon
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 左栏：策略列表（x150–670） ---------- */
-txt(150, 262, 'STRATEGY · PLAYBOOK', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
-txt(150, 300, '四条打法，各有实据', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
+txt(150, 262, 'STRATEGY · HARNESS ENG', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
+txt(150, 300, '四条工程化打法，各有实据', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
 el('line', {x1:150, y1:320, x2:670, y2:320, stroke:INK, 'stroke-width':.8, opacity:.5});
 
 var strategies = [
-  ['01', '全局同图',   '取消分区割据，全仓一张地图实时编排', '冲突在派单之前就被消解'],
-  ['02', '弹性波次',   '大促不按峰值买车，波次引擎削峰填谷', '同一支车队复用到三个班次'],
-  ['03', '预测补位',   '热销品在下单前移到作业口', '拣货半径比旧仓缩短一半'],
-  ['04', '人机混行',   '人车同场分区限速，安全是硬约束', '风险区域毫秒级减速让行']
+  ['01', '上下文管控',   '摘要做成交接文档，窗口只留当下任务', '幻觉率比裸调下降一半'],
+  ['02', '评测前置',     '每个版本先过基准集再灰度，不靠手感', '回归用例从 40 条涨到 600 条'],
+  ['03', '工具护栏',     '高风险动作加确认门，Agent 不能擅自执行', '越权调用被拦在执行前'],
+  ['04', '全链可溯',     '每一步推理留 Trace，错了能定位到哪一跳', '故障定位从小时级到分钟级']
 ];
 strategies.forEach(function(s, i){
   var y = 372 + i * 139;
@@ -107,7 +107,7 @@ function specLabel(px, py, str) {
 /* 格 1 · 调度台界面线稿（地图网格 + 机器人落点 + 路径） */
 (function(){
   var px = COL1X, py = ROW_TOP;
-  specFrame(px, py, 'EXHIBIT 01 — DISPATCH CONSOLE');
+  specFrame(px, py, 'EXHIBIT 01 — CONTEXT MGR');
   var mx = px+40, my = py+58, mw = CW-80, mh = 116;
   el('rect', {x:mx, y:my, width:mw, height:mh, fill:'none', stroke:INK, 'stroke-width':1.1, opacity:.8});
   for (var i = 1; i < 4; i++) {
@@ -122,13 +122,13 @@ function specLabel(px, py, str) {
   });
   el('path', {d:'M '+(mx+.14*mw)+' '+(my+.72*mh)+' L '+(mx+.32*mw)+' '+(my+.3*mh)+' L '+(mx+.7*mw)+' '+(my+.22*mh),
     fill:'none', stroke:INK, 'stroke-width':.8, opacity:.55, 'stroke-dasharray':'4 4'});
-  specLabel(px, py, 'FLEET ONLINE · 1240 UNITS');
+  specLabel(px, py, 'HALLUCINATION −48%');
 })();
 
 /* 格 2 · 吞吐曲线（峰值落点） */
 (function(){
   var px = COL2X, py = ROW_TOP;
-  specFrame(px, py, 'EXHIBIT 02 — THROUGHPUT');
+  specFrame(px, py, 'EXHIBIT 02 — EVAL SUITE');
   var ax = px+48, ay = py+58, aw = CW-96, ah = 116;
   el('line', {x1:ax, y1:ay+ah, x2:ax+aw, y2:ay+ah, stroke:INK, 'stroke-width':.9, opacity:.7});
   el('line', {x1:ax, y1:ay, x2:ax, y2:ay+ah, stroke:INK, 'stroke-width':.9, opacity:.7});
@@ -140,13 +140,13 @@ function specLabel(px, py, str) {
   el('circle', {cx:ax+aw*.58, cy:ay+16, r:5, fill:'none', stroke:INK80, 'stroke-width':1.1});
   el('circle', {cx:ax+aw*.58, cy:ay+16, r:2, fill:INK});
   el('line', {x1:ax, y1:ay+16, x2:ax+aw*.58, y2:ay+16, stroke:INK, 'stroke-width':.5, opacity:.35, 'stroke-dasharray':'2 5'});
-  specLabel(px, py, 'PEAK · 4800 ORD / H');
+  specLabel(px, py, 'CASES · 40 → 600');
 })();
 
 /* 格 3 · 机器人实物轮廓（立绘） */
 (function(){
   var px = COL1X, py = ROW_BOT;
-  specFrame(px, py, 'EXHIBIT 03 — GEN-2 AMR');
+  specFrame(px, py, 'EXHIBIT 03 — GUARDRAIL');
   var cx = px + CW/2, base = py + 178;
   el('rect', {x:px+40, y:base+8, width:CW-80, height:12, fill:'url(#hatch22)', stroke:'none'});
   el('line', {x1:px+40, y1:base+8, x2:px+CW-40, y2:base+8, stroke:INK, 'stroke-width':.9, opacity:.6});
@@ -160,13 +160,13 @@ function specLabel(px, py, str) {
   el('rect', {x:cx-30, y:base-128, width:60, height:20, fill:'none', stroke:INK80, 'stroke-width':1.1});
   el('line', {x1:cx-18, y1:base-118, x2:cx+18, y2:base-118, stroke:INK, 'stroke-width':.6, opacity:.4});
   el('circle', {cx:cx, cy:base-136, r:3, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.7});
-  specLabel(px, py, 'PATH CONFLICT −63%');
+  specLabel(px, py, 'BLOCKED · 312 CALLS');
 })();
 
 /* 格 4 · 波次甘特（三条错峰带） */
 (function(){
   var px = COL2X, py = ROW_BOT;
-  specFrame(px, py, 'EXHIBIT 04 — WAVE PLAN');
+  specFrame(px, py, 'EXHIBIT 04 — TRACE');
   var gx = px+48, gw = CW-96, gy = py+76;
   el('line', {x1:gx, y1:gy+84, x2:gx+gw, y2:gy+84, stroke:INK, 'stroke-width':.9, opacity:.7});
   for (var i = 0; i <= 6; i++)
@@ -178,7 +178,7 @@ function specLabel(px, py, str) {
     el('line', {x1:bx, y1:by-6, x2:bx, y2:by+28, stroke:INK, 'stroke-width':.9, opacity:.6});
     el('line', {x1:bx+bw, y1:by-6, x2:bx+bw, y2:by+28, stroke:INK, 'stroke-width':.9, opacity:.6});
   });
-  specLabel(px, py, 'WAVE BALANCE · ±7%');
+  specLabel(px, py, 'MTTR · 8 MIN');
 })();
 
 stageFit();

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-g4 · 中心枢纽 + 环绕卫星</title>
+<title>layout-g4 · 中心枢纽 + 环绕卫星 · AI 平台中枢</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
@@ -18,14 +18,14 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — G4<br>HUB AND SATELLITES</div>
-  <div class="folio">G4 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — G4<br>HUB + SATELLITES · AI PLATFORM</div>
+  <div class="folio">G4 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">一个调度内核被六颗能力卫星环绕，注释块左右对位，是页面的信息主体。</div>
+  <div class="caption">一个 AI 平台中枢被六颗能力卫星环绕，注释块左右对位，是页面的信息主体。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -59,21 +59,21 @@ el('line', {x1:CX, y1:200, x2:CX, y2:880, stroke:INK, 'stroke-width':.5, opacity
 /* ---------- 轨道虚线圆 ---------- */
 el('circle', {cx:CX, cy:CY, r:R, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.4, 'stroke-dasharray':'4 7'});
 
-/* ---------- 中心实心墨核（核心词纸色刻字） ---------- */
+/* ---------- 中心空心墨核（双圈+实心核，与卫星同语言；墨字非反白） ---------- */
 el('circle', {cx:CX, cy:CY, r:134, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.45});
-el('circle', {cx:CX, cy:CY, r:120, fill:INK, stroke:'none'});
-txt(CX, CY-6, '调度中枢', {'font-family':SANS, 'font-weight':300, 'font-size':38, 'letter-spacing':4, 'text-anchor':'middle', fill:'#DFE0D9'});
-txt(CX, CY+34, 'DISPATCH CORE', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(223,224,217,.75)'});
+el('circle', {cx:CX, cy:CY, r:120, fill:'none', stroke:INK, 'stroke-width':1.6});
+txt(CX, CY-6, 'AI 平台中枢', {'font-family':SANS, 'font-weight':400, 'font-size':38, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(CX, CY+34, 'MAAS CORE', {'font-family':MONO, 'font-size':11, 'letter-spacing':4, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 六颗卫星：双圈节点 + mono 码 ---------- */
 /* 角度：左 150/180/210，右 30/0/330（顶底留空，呼吸） */
 var SAT = [
-  {a:150, code:'PATH'},
-  {a:180, code:'SYNC'},
-  {a:210, code:'PWR'},
-  {a:30,  code:'FLEET'},
-  {a:0,   code:'EXCP'},
-  {a:330, code:'REPL'}
+  {a:150, code:'SERV'},
+  {a:180, code:'DATA'},
+  {a:210, code:'EVAL'},
+  {a:30,  code:'GATE'},
+  {a:0,   code:'METER'},
+  {a:330, code:'GOVN'}
 ];
 SAT.forEach(function(s){
   var rad = s.a * Math.PI / 180;
@@ -101,23 +101,23 @@ function elbow(pts, endX, endY) {
   el('circle', {cx:endX, cy:endY, r:2.2, fill:INK, opacity:.6});
 }
 
-/* 左列：PATH(150°)→上，SYNC(180°)→中，PWR(210°)→下 */
+/* 左列：SERV(150°)→上，DATA(180°)→中，EVAL(210°)→下 */
 var L = SAT[0], M = SAT[1], B = SAT[2];
 elbow([[L.x-35, L.y],[570, L.y],[570, 300],[536, 300]], 536, 300);
 elbow([[M.x-35, M.y],[536, 540]], 536, 540);
 elbow([[B.x-35, B.y],[570, B.y],[570, 780],[536, 780]], 536, 780);
-block('L', 300, 'MOD 01 · PATH', '路径引擎', '动态避障与实时重规划', '路径解算 0.4 秒级');
-block('L', 540, 'MOD 02 · SYNC', '库存同步', '库位状态毫秒级回写', '账实一致率 99.9%');
-block('L', 780, 'MOD 03 · PWR',  '能源调度', '充电排队与峰谷策略', '电量预测误差 ±4%');
+block('L', 300, 'MOD 01 · SERV', '模型服务', '多模型统一接入与路由', '首字延迟 0.4 秒级');
+block('L', 540, 'MOD 02 · DATA', '数据管线', '语料采集清洗到训练就绪', '管线日处理亿级');
+block('L', 780, 'MOD 03 · EVAL',  '评测体系', '离线基准与线上 A/B 双轨', '评测集覆盖率 99%');
 
-/* 右列：FLEET(30°)→上，EXCP(0°)→中，REPL(330°)→下 */
+/* 右列：GATE(30°)→上，METER(0°)→中，GOVN(330°)→下 */
 var RT = SAT[3], RM = SAT[4], RB = SAT[5];
 elbow([[RT.x+35, RT.y],[1350, RT.y],[1350, 300],[1380, 300]], 1380, 300);
 elbow([[RM.x+35, RM.y],[1380, 540]], 1380, 540);
 elbow([[RB.x+35, RB.y],[1350, RB.y],[1350, 780],[1380, 780]], 1380, 780);
-block('R', 300, 'MOD 04 · FLEET', '车队协同', '多车路权分配与解锁', '死锁检测 200ms 内');
-block('R', 540, 'MOD 05 · EXCP',  '异常接管', '故障降级与人工遥控', '接管响应 3 秒内');
-block('R', 780, 'MOD 06 · REPL',  '遥测回放', '全量事件留存与复现', '回放定位到帧级');
+block('R', 300, 'MOD 04 · GATE', '部署网关', '灰度发布与流量调度', '切流 200ms 内');
+block('R', 540, 'MOD 05 · METER',  '监控告警', '延迟·成本·质量三维监控', '告警响应 3 秒内');
+block('R', 780, 'MOD 06 · GOVN',  '治理合规', '内容安全与隐私脱敏审计', '审计定位到调用级');
 
 stageFit();
 </script>

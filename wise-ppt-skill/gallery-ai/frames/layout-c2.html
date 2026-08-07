@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-c2 · 图表联排墙</title>
+<title>layout-c2 · 图表联排墙 · 模型基准</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
@@ -18,8 +18,8 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — C2<br>CHART WALL</div>
-  <div class="folio">C2 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — C2<br>CHART GRID · MODEL BENCHMARK</div>
+  <div class="folio">C2 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <defs>
@@ -30,7 +30,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">同主题数据用 1+2 图表拼版一页讲完，全墨色阶梯、每格带 mono 小图题。</div>
+  <div class="caption">同主题数据用 1+2 图表拼版一页讲完，全墨色阶梯、每格带 mono 小图题——这里讲模型 benchmark。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
@@ -62,16 +62,16 @@ function chartTitle(x, y, label){
   el('line', {x1:x, y1:y+10, x2:x+210, y2:y+10, stroke:INK, 'stroke-width':.6, opacity:.3});
 }
 
-/* ========== 顶图：周订单趋势折线 ========== */
-chartTitle(150, 232, 'CHART 01 — WEEKLY ORDERS (K UNITS)');
+/* ========== 顶图：周准确率趋势折线 ========== */
+chartTitle(150, 232, 'CHART 01 — WEEKLY BENCHMARK SCORE');
 /* 坐标轴 */
-el('line', {x1:220, y1:260, x2:220, y2:490, stroke:INK, 'stroke-width':1, opacity:.6});
-el('line', {x1:220, y1:490, x2:1800, y2:490, stroke:INK, 'stroke-width':1, opacity:.6});
+el('line', {x1:200, y1:260, x2:200, y2:490, stroke:INK, 'stroke-width':1, opacity:.6});
+el('line', {x1:200, y1:490, x2:1800, y2:490, stroke:INK, 'stroke-width':1, opacity:.6});
 [0, 20, 40, 60].forEach(function(v, i){
   var y = 490 - v * 3.833;
-  el('line', {x1:214, y1:y, x2:220, y2:y, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(210, y+4, String(v), {'font-family':MONO, 'font-size':11, 'text-anchor':'end', fill:INK45});
-  el('line', {x1:220, y1:y, x2:1800, y2:y, stroke:INK, 'stroke-width':.4, opacity:.15, 'stroke-dasharray':'2 5'});
+  el('line', {x1:194, y1:y, x2:200, y2:y, stroke:INK, 'stroke-width':.8, opacity:.5});
+  txt(190, y+4, String(v), {'font-family':MONO, 'font-size':11, 'text-anchor':'end', fill:INK45});
+  el('line', {x1:200, y1:y, x2:1800, y2:y, stroke:INK, 'stroke-width':.4, opacity:.15, 'stroke-dasharray':'2 5'});
 });
 /* 折线 + 数据点 */
 var weeks = [31, 34, 33, 38, 42, 41, 47, 52];
@@ -88,28 +88,30 @@ PX.forEach(function(p){
 /* 峰值注释 */
 var peak = PX[PX.length - 1];
 el('line', {x1:peak[0], y1:peak[1]-8, x2:peak[0], y2:256, stroke:INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'3 4'});
-txt(peak[0], 248, 'PEAK 52K', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(peak[0], 248, 'PEAK 52', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 /* X 轴标签 */
 weeks.forEach(function(v, i){
   txt(300 + i * 200, 514, 'W' + String(24 + i), {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
 });
 
-/* ========== 底左：库区分区利用率柱图 ========== */
-chartTitle(150, 612, 'CHART 02 — ZONE UTILIZATION (%)');
-el('line', {x1:200, y1:640, x2:200, y2:830, stroke:INK, 'stroke-width':1, opacity:.6});
-el('line', {x1:200, y1:830, x2:900, y2:830, stroke:INK, 'stroke-width':1, opacity:.6});
+/* ========== 底左：各任务 benchmark 得分柱图 ========== */
+chartTitle(150, 612, 'CHART 02 — TASK BENCHMARK (%)');
+/* 整组下移 13px：使底部 Z 标签(ZF) 与 chart03「退货」标签 y 对齐；柱高系数不变 */
+var C2BASE = 843, C2YTOP = 653, C2ZLAB = 865;
+el('line', {x1:200, y1:C2YTOP, x2:200, y2:C2BASE, stroke:INK, 'stroke-width':1, opacity:.6});
+el('line', {x1:200, y1:C2BASE, x2:900, y2:C2BASE, stroke:INK, 'stroke-width':1, opacity:.6});
 var zones = [92, 87, 81, 76, 68, 61];
 zones.forEach(function(v, i){
-  var x = 240 + i * 108, h = v * 1.9, y = 830 - h;
+  var x = 240 + i * 108, h = v * 1.9, y = C2BASE - h;
   var fill = i === 0 ? 'url(#hatch33)' : 'none';
   el('rect', {x:x, y:y, width:60, height:h, fill:fill, stroke:INK80, 'stroke-width':1.2});
   txt(x + 30, y - 8, String(v) + '%', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill:INK});
-  txt(x + 30, 852, 'Z' + String.fromCharCode(65 + i), {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
+  txt(x + 30, C2ZLAB, ['MMLU','HEVAL','GSM8K','BBH','TRUTH','ARC'][i], {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
 });
 
-/* ========== 底右：订单结构环图（线稿 donut） ========== */
-chartTitle(1030, 612, 'CHART 03 — ORDER MIX');
-var CCX = 1280, CCY = 745, RO = 86, RI = 52;
+/* ========== 底右：模型调用构成环图（线稿 donut） ========== */
+chartTitle(1030, 612, 'CHART 03 — CALL MIX');
+var CCX = 1166, CCY = 745, RO = 86, RI = 52;  /* X 与 chart02 标题'C'间距=50（同 chart02 Y轴缩进） */
 function seg(ang1, ang2, fill){
   var a1 = ang1 * Math.PI / 180, a2 = ang2 * Math.PI / 180;
   var ox = CCX + RO * Math.cos(a1), oy = CCY - RO * Math.sin(a1);
@@ -122,9 +124,9 @@ function seg(ang1, ang2, fill){
     fill:fill, stroke:INK80, 'stroke-width':.9});
 }
 /* 三段：46% / 33% / 21%（从顶部 -90° 起顺时针） */
-seg(-90, 75.6, 'url(#hatch33)');      /* 整箱 46% */
-seg(75.6, 194.4, 'none');             /* 拆零 33% */
-seg(194.4, 270, 'none');              /* 退货 21% */
+seg(-90, 75.6, 'url(#hatch33)');      /* 推理 46% */
+seg(75.6, 194.4, 'none');             /* 训练 33% */
+seg(194.4, 270, 'none');              /* 嵌入 21% */
 /* 分隔线 */
 [75.6, 194.4].forEach(function(a){
   var rd = a * Math.PI / 180;
@@ -144,12 +146,12 @@ function segLabel(ang, en, cn, anchor){
   txt(lx, ly - 6, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':anchor, fill:INK});
   txt(lx, ly + 16, cn, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':anchor, fill:INK70});
 }
-segLabel(-7.2, '46%', '整箱', 'middle');
-segLabel(135, '33%', '拆零', 'middle');
-segLabel(232.2, '21%', '退货', 'middle');
+segLabel(-7.2, '46%', '推理', 'middle');
+segLabel(135, '33%', '训练', 'middle');
+segLabel(232.2, '21%', '嵌入', 'middle');
 
 /* ---------- 来源注 ---------- */
-txt(1800, 878, 'SOURCE · HENGJI OPS REVIEW W31 — SAMPLE DATA', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1800, 749, 'SOURCE · WISE-BENCH REVIEW W31 — SAMPLE DATA', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 stageFit();
 </script>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-d3 · 极简 Outro · AI Engineering</title>
+<!--
+  纸墨线稿样张 · C4 极简 Outro
+  @歪斯Wise「AI 工程化实战」分享
+  版式纪律（layouts C4）：一句大字 + mono 署名行 + 一处极细装饰；留白 >60%；无 FIG、无 caption
+-->
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .doc.tl, .folio { color: rgba(25,25,23,.45); }
+  .big {
+    position: absolute; left: 0; right: 0; top: 430px;
+    text-align: center;
+    font-family: var(--serif); font-weight: 400;
+    font-size: 68px; letter-spacing: .06em;
+    color: #191917;
+    z-index: 5;
+  }
+  .sig {
+    position: absolute; left: 0; right: 0; top: 580px;
+    text-align: center;
+    font-family: var(--mono); font-weight: 400;
+    font-size: 13px; letter-spacing: .3em; text-indent: .3em;
+    color: rgba(25,25,23,.45);
+    text-transform: uppercase;
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">AI LAYOUT GALLERY — D3<br>OUTRO · AI ENGINEERING</div>
+  <div class="folio">D3 / 59 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="big">进一寸有进一寸的欢喜。</div>
+  <div class="sig">@歪斯Wise · AI Engineering — Thank You</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+
+/* ===== 唯一一处极细装饰：大字上方的短横 + 小圆 + 十字准星 ===== */
+/* 短横（大字之上，居中） */
+el('line', {x1:920, y1:372, x2:1000, y2:372, stroke:INK, 'stroke-width':.8, opacity:.55});
+/* 短横右端小圆（双圈+实心核的极简化） */
+el('circle', {cx:1018, cy:372, r:4.5, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.7});
+el('circle', {cx:1018, cy:372, r:1.6, fill:INK, opacity:.8});
+/* 署名行下方的十字准星（套准标记感） */
+el('line', {x1:951, y1:648, x2:969, y2:648, stroke:INK, 'stroke-width':.7, opacity:.4});
+el('line', {x1:960, y1:639, x2:960, y2:657, stroke:INK, 'stroke-width':.7, opacity:.4});
+
+stageFit();
+</script>
+</body>
+</html>

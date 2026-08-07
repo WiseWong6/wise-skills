@@ -151,9 +151,12 @@ wise-ppt-skill/
 │   ├── layouts.md            ← 版式目录 + MECE 内容形状选用速查（样张见 gallery/，原语实例库）
 │   ├── components.md         ← 自由 SVG 优先 + ECharts/FontAwesome 规约 + atlas 组件改造五步
 │   └── checklist.md          ← P0/P1/P2 自检清单 + 目检顺序
-├── gallery/
-│   ├── index.html            ← 版式画册（左目录 + 等比预览，←/→ 键与箭头切换）
+├── gallery/                  ← 版式画册 · 运营/品牌/汇报等通用主题（左目录 + 等比预览，←/→ 键与箭头切换）
+│   ├── index.html            ← 画册浏览壳（LAYOUTS 配置数组即目录）
 │   └── frames/               ← 每种版式一页样张（数据全部自编）
+├── gallery-ai/               ← 版式画册 · AI 主题（Agent/RAG/评测/Infra…，与 gallery/ 结构完全一致、内容主题不同）
+│   ├── index.html            ← AI 画册浏览壳
+│   └── frames/               ← 每种版式一页样张（AI 场景，署名 BY @歪斯Wise）
 ├── scripts/
 │   ├── shot-screenshot.sh    ← headless Chrome 逐页截图（PNG）；第 4 参数 thumb 生成画板缩略图 frames/thumb-NN.png（640×360）
 │   ├── shot-lint.py          ← 机检闸门：彩色/深色底/粗线/字体串岗/三件套/同构 rect（先于截图复核运行）
