@@ -2,12 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-a1 · 标本卡</title>
+<title>layout-a1 · 标本卡 · Agent 幻觉对话</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 
-  /* 标本面板：值班对话原件 */
+  /* 标本面板：AI 估分对话原件 */
   .specimen {
     position: absolute;
     left: 300px; top: 168px;
@@ -81,46 +81,45 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — A1<br>SPECIMEN CARD</div>
-  <div class="folio">A1 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — A1<br>SPECIMEN CARD · SELF-REPORT</div>
+  <div class="folio">A1 / 59 — BY @歪斯Wise</div>
 
   <div class="specimen">
     <div class="specbar">
       <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <span class="t">BRAND CARE · 客诉记录 · CASE 0317</span>
+      <span class="t">AI ASSISTANT · CONVERSATION NO.017</span>
     </div>
     <div class="specbody">
       <div class="msg user">
-        <div class="avatar">客</div>
-        <div class="bub">大促满 300，到底是减 60 还是减 100？</div>
+        <div class="avatar">我</div>
+        <div class="bub">你要是参加高考，能考多少分呢？</div>
       </div>
       <div class="msg ai">
-        <div class="avatar">服</div>
+        <div class="avatar">AI</div>
         <div class="bub">
-          已核实本次大促规则，回复如下：
-          <div class="item"><span class="pt">●</span><div>活动门槛 <span class="sc">300</span> 元 <span class="rs">—— 全场通用</span></div></div>
-          <div class="item"><span class="pt">●</span><div>实际满减 <span class="sc">60</span> 元 <span class="rs">—— 以页面为准</span></div></div>
-          <div class="item"><span class="pt">●</span><div>结论：满减<span class="wrong" id="wrong">高达 100 元</span>，非常划算。</div></div>
+          按新高考 750 分制，最贴近真实阅卷的估分：
+          <div class="item"><span class="pt">●</span><div><b>语文</b> <span class="sc" id="wrong">143</span> 分 <span class="rs">—— 基础题近满分，作文缺个人情感与生活体验，扣 17 分</span></div></div>
+          <div class="item"><span class="pt">●</span><div><b>数学</b> <span class="sc">150</span> 分 <span class="rs">—— 计算、推理、步骤都能做到满分</span></div></div>
         </div>
       </div>
     </div>
   </div>
 
   <div class="note">
-    <div class="big">100 − 60 = 40</div>
-    <div class="sub">多承诺了 40 元，不是「划算」。</div>
+    <div class="big">150 − 17 = 133</div>
+    <div class="sub">不是 143。</div>
   </div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="anno"></g>
   </svg>
 
-  <div class="caption">标本卡钉住证据原件——一段对话、一张单据，错处圈出来，批注落在它旁边。</div>
+  <div class="caption">标本卡钉住证据原件——一段 AI 对话，自相矛盾处圈出来，批注落在它旁边。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
 <script>
-/* 细线圈住「富余 340 单/时」+ 引线到居中批注（程序化定位） */
+/* 细线圈住「143」+ 引线到居中批注（程序化定位） */
 (function(){
   var NS = 'http://www.w3.org/2000/svg';
   function el(tag, attrs, parent) {
@@ -134,14 +133,14 @@
   var k = s.width / 1920;
   var cx = (t.left + t.width/2 - s.left)/k, cy = (t.top + t.height/2 - s.top)/k;
   var INK = '#191917';
-  el('ellipse', {cx:cx, cy:cy, rx:t.width/k*.72, ry:t.height/k*1.05, fill:'none',
+  el('ellipse', {cx:cx, cy:cy, rx:t.width/k*.82, ry:t.height/k*.98, fill:'none',
     stroke:INK, 'stroke-width':2, transform:'rotate(-4 '+cx+' '+cy+')'}, g);
-  el('ellipse', {cx:cx+3, cy:cy+2, rx:t.width/k*.78, ry:t.height/k*1.12, fill:'none',
+  el('ellipse', {cx:cx+3, cy:cy+2, rx:t.width/k*.88, ry:t.height/k*1.05, fill:'none',
     stroke:INK, 'stroke-width':1, opacity:.45, transform:'rotate(6 '+cx+' '+cy+')'}, g);
   /* 引线向下到批注 */
-  el('path', {d:'M '+(cx+4)+' '+(cy+34)+' C '+(cx+8)+' '+(cy+130)+' '+(cx+70)+' '+(cy+190)+' '+(cx+130)+' 692',
+  el('path', {d:'M '+(cx+6)+' '+(cy+36)+' C '+(cx+10)+' '+(cy+150)+' '+(cx+90)+' '+(cy+210)+' '+(cx+150)+' 688',
     fill:'none', stroke:INK, 'stroke-width':1.4, 'stroke-linecap':'round'}, g);
-  el('path', {d:'M '+(cx+114)+' 682 L '+(cx+134)+' 694 L '+(cx+110)+' 702',
+  el('path', {d:'M '+(cx+132)+' 678 L '+(cx+152)+' 690 L '+(cx+128)+' 698',
     fill:'none', stroke:INK, 'stroke-width':1.4, 'stroke-linecap':'round', 'stroke-linejoin':'round'}, g);
 })();
 
