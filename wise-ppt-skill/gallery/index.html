@@ -290,7 +290,13 @@ accBtn.addEventListener('click', function () {
 });
 
 /* ---------- 切换 ---------- */
-function go(i) {
+/* 当前版式同步进 URL hash（如 #A2），刷新自动停留、链接可直达 */
+function codeToIndex(code) {
+  if (!code) return -1;
+  for (var i = 0; i < LAYOUTS.length; i++) if (LAYOUTS[i].code === code) return i;
+  return -1;
+}
+function go(i, opts) {
   cur = (i + LAYOUTS.length) % LAYOUTS.length;
   var l = LAYOUTS[cur];
   document.getElementById('fr').src = 'frames/' + l.file + (accentOn ? '?accent=1' : '');
@@ -303,7 +309,17 @@ function go(i) {
   items.forEach(function (it) { it.classList.toggle('active', +it.dataset.i === cur); });
   var act = document.querySelector('#toc .item.active');
   if (act) act.scrollIntoView({ block: 'nearest' });
+  /* 写入 hash（opts.silent 跳过，避免与 hashchange 互相触发） */
+  if (!opts || !opts.silent) {
+    var want = '#' + l.code;
+    if (location.hash !== want) location.hash = want;
+  }
 }
+/* 浏览器前进/后退或手动改地址栏 → 驱动切换 */
+window.addEventListener('hashchange', function () {
+  var i = codeToIndex(location.hash.slice(1));
+  if (i >= 0 && i !== cur) go(i, { silent: true });
+});
 document.getElementById('prev').addEventListener('click', function () { go(cur - 1); });
 document.getElementById('next').addEventListener('click', function () { go(cur + 1); });
 document.addEventListener('keydown', function (e) {
@@ -312,7 +328,11 @@ document.addEventListener('keydown', function (e) {
 });
 
 fit();
-if (LAYOUTS.length) go(0);
+/* 刷新时按 URL hash 停留在原位（如 index.html#A2），无 hash 则回第一页 */
+if (LAYOUTS.length) {
+  var startI = codeToIndex(location.hash.slice(1));
+  go(startI >= 0 ? startI : 0);
+}
 </script>
 </body>
 </html>
