@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-01 · 封面 · 三大 Agent 上下文工程</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .kicker {
+    position: absolute; left: 300px; top: 330px;
+    font-family: var(--mono); font-size: 14px;
+    letter-spacing: .3em; color: var(--ink-45);
+    z-index: 2;
+  }
+  .title {
+    position: absolute; left: 294px; top: 372px;
+    font-family: var(--serif); font-weight: 400;
+    font-size: 92px; letter-spacing: .04em;
+    color: var(--ink); z-index: 2;
+  }
+  .title-bar {
+    position: absolute; left: 302px; top: 530px;
+    width: 72px; height: 0;
+    border-top: 2px solid var(--ink);
+    z-index: 2;
+  }
+  .subtitle {
+    position: absolute; left: 300px; top: 566px;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 26px; letter-spacing: .08em;
+    color: var(--ink-70); z-index: 2;
+  }
+  .meta {
+    position: absolute; left: 300px; bottom: 120px;
+    font-family: var(--mono); font-size: 13px;
+    letter-spacing: .3em; line-height: 2.3;
+    color: var(--ink-45); text-align: left;
+    z-index: 2; white-space: pre;
+  }
+  .meta b { font-weight: 400; color: var(--ink-70); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">CONTEXT ENGINEERING — 3 AGENTS<br>CLAUDE CODE / OPENCLAW / HERMES</div>
+  <div class="folio">01 / 15 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="kicker">AGENT ENGINEERING — 2026 SUMMER</div>
+  <div class="title">上下文工程</div>
+  <div class="title-bar"></div>
+  <div class="subtitle">Claude Code · OpenClaw · Hermes 的设计哲学对比</div>
+
+  <div class="meta"><b>SPEAKER</b> — @歪斯Wise
+<b>DATE</b> — 2026.08
+<b>VERSION</b> — V1.0
+<b>KEYWORDS</b> — CONTEXT / COMPRESSION / HANDOFF</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime';
+
+/* ===== 右侧极细线稿小图：上下文窗口隐喻（层叠 token 流 + 压缩箭头） ===== */
+(function(){
+  var X = 1180, Y = 350, W = 280, H = 200, S = 1.5;
+  var layer = el('g', {transform:'translate(' + X + ',' + Y + ') scale(' + S + ') translate(' + (-X) + ',' + (-Y) + ')'});
+  var _el = el;
+  el = function(tag, attrs){ var e = document.createElementNS(NS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); layer.appendChild(e); return e; };
+
+  /* 虚线窗口容器 + 四角十字套准 */
+  el('rect', {x:X, y:Y, width:W, height:H, fill:'none', stroke:INK80, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+  [[X,Y],[X+W,Y],[X,Y+H],[X+W,Y+H]].forEach(function(c){
+    el('line', {x1:c[0]-6, y1:c[1], x2:c[0]+6, y2:c[1], stroke:INK80, 'stroke-width':.6, opacity:.4});
+    el('line', {x1:c[0], y1:c[1]-6, x2:c[0], y2:c[1]+6, stroke:INK80, 'stroke-width':.6, opacity:.4});
+  });
+
+  /* token 流行（从下往上逐层递减，底部密集顶部稀疏 → 压缩隐喻） */
+  var rowH = 22, baseY = Y + H - 30;
+  for (var row = 0; row < 6; row++) {
+    var ry = baseY - row * rowH;
+    var ntok = 9 - row;
+    var gap = (W - 30) / ntok;
+    for (var t = 0; t < ntok; t++) {
+      var tx = X + 15 + t * gap;
+      var op = .15 + row * .13;
+      el('line', {x1:tx, y1:ry, x2:tx+gap-6, y2:ry, stroke:INK, 'stroke-width':.8, opacity:op});
+    }
+  }
+
+  /* 压缩箭头（右侧竖向向上） */
+  var ax = X + W + 16;
+  el('line', {x1:ax, y1:Y+H-24, x2:ax, y2:Y+24, stroke:INK80, 'stroke-width':1.2, opacity:.6});
+  el('path', {d:'M '+(ax-5)+' '+(Y+36)+' L '+ax+' '+(Y+24)+' L '+(ax+5)+' '+(Y+36), fill:'none', stroke:INK80, 'stroke-width':1.2, 'stroke-linecap':'round', 'stroke-linejoin':'round', opacity:.6});
+
+  /* 小图注 */
+  txt(X+W/2, Y+H+68, 'CONTEXT WINDOW — TOKEN FLOW', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
+})();
+
+stageFit();
+</script>
+</body>
+</html>

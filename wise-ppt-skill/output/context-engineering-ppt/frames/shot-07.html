@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-07 · 章节隔页 · 三大 Agent 机制</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .chapter {
+    position: absolute; left: 1000px; top: 469px;
+    font-family: var(--serif); font-weight: 400;
+    font-size: 72px; letter-spacing: .08em;
+    color: #191917;
+    z-index: 5;
+  }
+  .lead {
+    position: absolute; left: 1004px; top: 593px;
+    font-family: var(--mono); font-weight: 400;
+    font-size: 14px; letter-spacing: .3em;
+    color: rgba(25,25,23,.5);
+    text-transform: uppercase;
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">CONTEXT ENGINEERING — CH03<br>THREE AGENTS · MECHANISM</div>
+  <div class="folio">07 / 15 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="chapter">三大 Agent 机制</div>
+  <div class="lead">Chapter 03 — Claude Code / OpenClaw / Hermes</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime';
+
+/* ① 超大空心章节编号 */
+txt(560, 645, '03', {'font-family':MONO, 'font-size':300, fill:'none', stroke:INK, 'stroke-width':1.2, opacity:.5});
+
+/* ② 十字准星（右上空区） */
+el('line', {x1:1382, y1:300, x2:1418, y2:300, stroke:INK, 'stroke-width':.8, opacity:.4});
+el('line', {x1:1400, y1:282, x2:1400, y2:318, stroke:INK, 'stroke-width':.8, opacity:.4});
+el('circle', {cx:1400, cy:300, r:26, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.25});
+
+stageFit();
+</script>
+</body>
+</html>

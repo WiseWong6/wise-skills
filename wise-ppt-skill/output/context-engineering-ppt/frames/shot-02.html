@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>shot-02 · 目录导航</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">CONTEXT ENGINEERING — TOC<br>FOUR PARTS · OVERVIEW</div>
+  <div class="folio">02 / 15 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ===== 页头：mono 小标 + 短横 ===== */
+txt(300, 218, 'CONTENTS', {'font-family':MONO, 'font-size':15, 'letter-spacing':4, fill:'rgba(25,25,23,.45)'});
+el('line', {x1:438, y1:212, x2:560, y2:212, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ===== 条目纵列：4 个 Part ===== */
+var rows = [
+  {no:'01', cn:'为什么是上下文工程', en:'WHY CONTEXT',    note:'提示词是冰山一角，上下文才是模型真正的视野', cur:true},
+  {no:'02', cn:'上下文工程是什么',   en:'WHAT IS IT',     note:'7 类上下文 × 4 维框架 × 5 大问题',           cur:false},
+  {no:'03', cn:'三大 Agent 机制',    en:'THREE AGENTS',   note:'Claude Code 渐进压缩 / OpenClaw 开放 / Hermes 交接', cur:false},
+  {no:'04', cn:'5 条设计启发',       en:'5 TAKEAWAYS',    note:'从三大 Agent 提炼的 Agent 设计心法',         cur:false}
+];
+var X0 = 300, X1 = 1620, Y0 = 280, GAP = 140;
+
+rows.forEach(function(r, i){
+  var y = Y0 + i * GAP;
+  var op = r.cur ? 1 : .45;
+
+  /* 序号圆 */
+  var cx = X0 + 34, cy = y + 42;
+  if (r.cur) {
+    el('circle', {cx:cx, cy:cy, r:26, fill:INK, opacity:op});
+    el('circle', {cx:cx, cy:cy, r:31, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+    txt(cx, cy+9, r.no, {'font-family':MONO, 'font-size':26, 'text-anchor':'middle', fill:'#DFE0D9'});
+    el('line', {x1:cx+44, y1:cy, x2:cx+72, y2:cy, stroke:INK, 'stroke-width':1.8});
+  } else {
+    el('circle', {cx:cx, cy:cy, r:26, fill:'none', stroke:INK, 'stroke-width':1, opacity:op});
+    txt(cx, cy+8, r.no, {'font-family':MONO, 'font-size':24, 'text-anchor':'middle', fill:INK, opacity:op});
+  }
+
+  var tx = X0 + 116;
+  txt(tx, cy+2, r.cn, {'font-family':SANS, 'font-weight':300, 'font-size':30, fill:INK, opacity:op});
+  var cnw = r.cn.length * 32 + 26;
+  txt(tx+cnw, cy-1, r.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.6)', opacity:op});
+  txt(tx, cy+38, r.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)', opacity:op});
+
+  txt(X1, cy+2, 'P.' + (i*4+3), {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)', opacity:op});
+
+  if (i < rows.length-1)
+    el('line', {x1:X0, y1:y+GAP-26, x2:X1, y2:y+GAP-26, stroke:INK, 'stroke-width':.6, opacity:.22});
+});
+el('line', {x1:X0, y1:Y0-26, x2:X1, y2:Y0-26, stroke:INK, 'stroke-width':.6, opacity:.22});
+
+stageFit();
+</script>
+</body>
+</html>
