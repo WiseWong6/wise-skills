@@ -41,7 +41,7 @@
     color: rgba(25,25,23,.5);
   }
   #side .brand .cn {
-    margin-top: 10px; font-size: 24px; font-weight: 400; letter-spacing: .06em;
+    margin-top: 10px; font-size: 24px; font-weight: 300; letter-spacing: .06em;
   }
   #side .brand .count {
     margin-top: 10px; font-family: var(--mono); font-size: 11px;
@@ -93,6 +93,19 @@
     font-family: var(--mono); font-size: 13px; letter-spacing: .2em;
     color: rgba(25,25,23,.55);
   }
+  /* 强调色开关：高饱和点缀，不做底色填充 */
+  #bar .acc-btn {
+    margin-left: auto;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .2em;
+    padding: 6px 14px;
+    border: 1px solid rgba(25,25,23,.45);
+    cursor: pointer; user-select: none;
+    color: rgba(25,25,23,.7);
+  }
+  #bar .acc-btn:hover { border-color: var(--ink); color: var(--ink); }
+  #bar .acc-btn.on {
+    border-color: #002FA7; color: #002FA7;
+  }
 
   #viewport { flex: 1; position: relative; overflow: hidden; }
   #stagebox {
@@ -139,7 +152,6 @@
   <div class="brand">
     <div class="en">PAPER-INK LAYOUT GALLERY</div>
     <div class="cn">版式画册</div>
-    <div class="count" id="total"></div>
   </div>
   <div id="toc"></div>
 </div>
@@ -150,6 +162,7 @@
     <span class="name" id="b-name"></span>
     <span class="use" id="b-use"></span>
     <span class="idx" id="b-idx"></span>
+    <span class="acc-btn" id="acc-btn">强调色</span>
   </div>
   <div id="viewport">
     <div id="stagebox"><iframe id="fr" src="about:blank"></iframe></div>
@@ -235,7 +248,7 @@ LAYOUTS.forEach(function (l) { if (FAM_ORDER.indexOf(l.fam) < 0) FAM_ORDER.push(
 
 var cur = 0;
 
-/* ---------- 目录 ---------- */
+/* ---------- 目录（按族分组，组内 code 连续） ---------- */
 var toc = document.getElementById('toc');
 FAM_ORDER.forEach(function (fam) {
   var h = document.createElement('div');
@@ -250,8 +263,6 @@ FAM_ORDER.forEach(function (fam) {
     toc.appendChild(it);
   });
 });
-document.getElementById('total').textContent =
-  'TOTAL — ' + LAYOUTS.length + ' LAYOUTS / ' + FAM_ORDER.length + ' FAMILIES';
 
 /* ---------- 预览缩放 ---------- */
 var viewport = document.getElementById('viewport');
@@ -268,11 +279,24 @@ function fit() {
 }
 window.addEventListener('resize', fit);
 
+/* ---------- 强调色开关 ---------- */
+var accentOn = false;
+var accBtn = document.getElementById('acc-btn');
+function applyAccent() {
+  accBtn.classList.toggle('on', accentOn);
+  accBtn.textContent = accentOn ? '强调色 ●' : '强调色';
+  if (LAYOUTS.length) go(cur);
+}
+accBtn.addEventListener('click', function () {
+  accentOn = !accentOn;
+  applyAccent();
+});
+
 /* ---------- 切换 ---------- */
 function go(i) {
   cur = (i + LAYOUTS.length) % LAYOUTS.length;
   var l = LAYOUTS[cur];
-  document.getElementById('fr').src = 'frames/' + l.file;
+  document.getElementById('fr').src = 'frames/' + l.file + (accentOn ? '?accent=1' : '');
   document.getElementById('b-code').textContent = l.code;
   document.getElementById('b-name').textContent = l.name;
   document.getElementById('b-use').textContent = l.use || '';

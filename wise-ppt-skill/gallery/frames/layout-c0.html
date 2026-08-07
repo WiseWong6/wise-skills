@@ -32,6 +32,9 @@
     font-size: 26px; letter-spacing: .1em;
     color: var(--ink-70); z-index: 2;
   }
+  /* 主角判定：封面标题"仓序"是全页焦点 → 标题整词 + 下划线 bar 一起染色，形成落版焦点；右侧仓库线稿（图形）保持墨黑，不上彩 */
+  :root.accent .title { color: var(--accent-red); }
+  :root.accent .title-bar { border-top-color: var(--accent-red); }
 
   /* 右下 mono 元数据块 */
   .meta {
@@ -107,9 +110,9 @@ var MONO = 'Courier Prime';
   rack(X+150, Y+156, 148);
 
   // 拣货路径：实线去程 + 虚线回程
-  el('path', {d:'M '+(X+166)+' '+(Y+H+34)+' L '+(X+166)+' '+(Y+128)+' L '+(X+120)+' '+(Y+128)+' L '+(X+120)+' '+(Y+75)',
+  el('path', {d:'M '+(X+166)+' '+(Y+H+34)+' L '+(X+166)+' '+(Y+128)+' L '+(X+120)+' '+(Y+128)+' L '+(X+120)+' '+(Y+75),
     fill:'none', stroke:INK80, 'stroke-width':1.3});
-  el('path', {d:'M '+(X+120)+' '+(Y+75)+' L '+(X+228)+' '+(Y+75)+' L '+(X+228)+' '+(Y+H+34)',
+  el('path', {d:'M '+(X+120)+' '+(Y+75)+' L '+(X+228)+' '+(Y+75)+' L '+(X+228)+' '+(Y+H+34),
     fill:'none', stroke:INK80, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
 
   // 机器人：双圈 + 实心核（落点）

@@ -22,12 +22,6 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Han Sans';
-  src: url('../assets/fonts/SourceHanSansCN-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
   font-family: 'Courier Prime';
   src: url('../assets/fonts/CourierPrime-Regular.ttf') format('truetype');
   font-weight: 400;
@@ -49,6 +43,8 @@
   --ink-25: rgba(25, 25, 23, .25);
   --ink-12: rgba(25, 25, 23, .12);
   --cinnabar: #191917;          /* 单色系统：强调色 = 墨色，靠线型/字重表达强调 */
+  --accent-blue: #002FA7;       /* 高饱和·克莱因蓝（?accent 开启后激活）：数据焦点/当前值/达标 */
+  --accent-red: #C0392B;        /* 高饱和·番茄红：否决/警示/异常/未达标 */
   /* 四族字体，分工不重叠（用户圈定 2026-08-07） */
   --serif: 'Han Serif', 'Songti SC', serif;        /* 思源宋体 Medium：大字标题/结论/提问符号 */
   --sans: 'Han Sans', 'PingFang SC', sans-serif;   /* 思源黑体 Light：正文 */
@@ -161,7 +157,7 @@ body {
 
 /* ---------- 文字层级（字号阶梯：用户定稿降两档） ---------- */
 .mono  { font-family: var(--mono); font-weight: 400; }
-.serif { font-family: var(--serif); font-weight: 400; }
+.serif { font-family: var(--serif); font-weight: 500; }
 .sans  { font-family: var(--sans); font-weight: 300; }
 .kai   { font-family: var(--brush); font-weight: 400; }
 .dim   { color: var(--ink-45); }
@@ -169,13 +165,13 @@ body {
 
 .giant {
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: 500;
   font-size: 76px;          /* 大字上限：96px 以内 */
   line-height: 1.2;
   letter-spacing: .04em;
 }
-.h1 { font-family: var(--serif); font-weight: 400; font-size: 60px; line-height: 1.3; letter-spacing: .03em; }
-.h2 { font-family: var(--serif); font-weight: 400; font-size: 40px; line-height: 1.35; letter-spacing: .03em; }
+.h1 { font-family: var(--serif); font-weight: 500; font-size: 60px; line-height: 1.3; letter-spacing: .03em; }
+.h2 { font-family: var(--serif); font-weight: 500; font-size: 40px; line-height: 1.35; letter-spacing: .03em; }
 .lead { font-family: var(--sans); font-weight: 300; font-size: 24px; line-height: 1.7; color: var(--ink-70); }
 
 /* ---------- 细线框 ---------- */
@@ -218,7 +214,7 @@ body {
   left: 0; right: 0; bottom: 108px;
   text-align: center;
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: 500;
   font-size: 34px;
   letter-spacing: .06em;
   color: var(--ink);

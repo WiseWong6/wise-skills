@@ -95,13 +95,13 @@ for (var b = 0; b < 360; b += 30) {
 
 /* 内核：调度内核 */
 txt(CX, CY-8, 'SCHEDULER', {'font-family':MONO, 'font-size':16, 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
-txt(CX, CY+22, '调度内核', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(CX, CY+22, '调度内核', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
 
 /* 环标签：mono 编号 + 中文节标题（置环带上） */
 txt(CX, 184, 'GUARDRAIL · LAYER', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-txt(CX, 212, '安全防护', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(CX, 212, '安全防护', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
 txt(CX, 272, 'VALIDATION · LAYER', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-txt(CX, 300, '指令校验', {'font-family':SANS, 'font-weight':400, 'font-size':22, 'text-anchor':'middle', fill:INK});
+txt(CX, 300, '指令校验', {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
 
 /* 环外侧条目：环上落点 → 短引线 → 外置小字（左右自动换锚） */
 function ringItem(rRing, angleDeg, str, fontFam, fontSize) {
@@ -133,7 +133,7 @@ el('rect', {x:BX+5, y:BY+5, width:BW-10, height:BH-10, fill:'none', stroke:INK, 
 txt(BX+34, BY+58, '01', {'font-family':MONO, 'font-size':26, fill:INK});
 el('line', {x1:BX+32, y1:BY+74, x2:BX+88, y2:BY+74, stroke:INK, 'stroke-width':1.2});
 el('rect', {x:BX+BW-60, y:BY+24, width:30, height:30, fill:'url(#hatch)', stroke:INK80, 'stroke-width':1.2});
-txt(BX+34, BY+112, 'FALLBACK 兜底接管', {'font-family':SANS, 'font-weight':400, 'font-size':22, fill:INK});
+txt(BX+34, BY+112, 'FALLBACK 兜底接管', {'font-family':SANS, 'font-weight':300, 'font-size':22, fill:INK});
 txt(BX+34, BY+136, 'FALLBACK · LAYER', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:'rgba(25,25,23,.5)'});
 el('line', {x1:BX+34, y1:BY+152, x2:BX+BW-34, y2:BY+152, stroke:INK, 'stroke-width':.8, opacity:.5});
 el('line', {x1:BX+34, y1:BY+156, x2:BX+BW-34, y2:BY+156, stroke:INK, 'stroke-width':.6, opacity:.25});

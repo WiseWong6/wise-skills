@@ -26,6 +26,9 @@
       <pattern id="hatch30" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
         <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width=".7" opacity=".35"/>
       </pattern>
+      <pattern id="hatch30red" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="0" x2="0" y2="7" stroke="#C0392B" stroke-width="1" opacity=".5"/>
+      </pattern>
     </defs>
     <g id="draw"></g>
   </svg>
@@ -40,6 +43,9 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -56,7 +62,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B30 — SAMPLE RANKING BARS', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 数据（衡玑科技 · 仓储机器人调度平台，全虚构） ---------- */
+/* ---------- 数据（衡玑科技 · 仓储机器人调度平台） ---------- */
 var rows = [
   {name:'苏州园区仓', code:'SITE-01', v:428, bot:'lift'},
   {name:'东莞智造仓', code:'SITE-02', v:391, bot:'fork'},
@@ -89,13 +95,15 @@ rows.forEach(function(r, i){
 });
 
 /* ---------- 降序线稿柱 ---------- */
+/* 主角判定：Top1（苏州园区仓 428）是榜单焦点 → 柱体描边 + 柱顶数值 + 内部 hatch 斜线全部跟随染色 */
 rows.forEach(function(r, i){
   var cx = 300 + i*190;
   var h = r.v*SC, y = BASE - h;
+  var top = ACCENT && i === 0;
   el('rect', {x:cx-BW/2, y:y, width:BW, height:h,
-    fill: i===0 ? 'url(#hatch30)' : 'none',
-    stroke:INK80, 'stroke-width': i===0 ? 1.4 : 1.2});
-  txt(cx, y-14, String(r.v), {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill:INK});
+    fill: (i===0 && top) ? 'url(#hatch30red)' : (i===0 ? 'url(#hatch30)' : 'none'),
+    stroke: top ? RED : INK80, 'stroke-width': i===0 ? 1.4 : 1.2});
+  txt(cx, y-14, String(r.v), {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill: top ? RED : INK});
   txt(cx, BASE+34, r.name, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
   txt(cx, BASE+56, r.code, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });

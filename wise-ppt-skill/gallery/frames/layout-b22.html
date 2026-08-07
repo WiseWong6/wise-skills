@@ -60,7 +60,7 @@ el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opaci
 
 /* ---------- 左栏：策略列表（x150–670） ---------- */
 txt(150, 262, 'STRATEGY · PLAYBOOK', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
-txt(150, 300, '四条打法，各有实据', {'font-family':SANS, 'font-weight':400, 'font-size':25, fill:INK});
+txt(150, 300, '四条打法，各有实据', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
 el('line', {x1:150, y1:320, x2:670, y2:320, stroke:INK, 'stroke-width':.8, opacity:.5});
 
 var strategies = [
@@ -73,7 +73,7 @@ strategies.forEach(function(s, i){
   var y = 372 + i * 139;
   txt(150, y, s[0], {'font-family':MONO, 'font-size':18, 'letter-spacing':2, fill:INK});
   el('line', {x1:150, y1:y+12, x2:186, y2:y+12, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(206, y, s[1], {'font-family':SANS, 'font-weight':400, 'font-size':24, fill:INK});
+  txt(206, y, s[1], {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
   txt(206, y+34, s[2], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
   txt(206, y+60, s[3], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK45});
   if (i < strategies.length-1)

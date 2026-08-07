@@ -66,9 +66,9 @@ el('line', {x1:AX_R+6, y1:CY, x2:AX_R-8, y2:CY-7, stroke:INK80, 'stroke-width':1
 el('line', {x1:AX_R+6, y1:CY, x2:AX_R-8, y2:CY+7, stroke:INK80, 'stroke-width':1.2});
 
 /* 轴端标签 */
-txt(CX, AX_T-22, '高协同', {'font-family':SANS, 'font-weight':400, 'font-size':18, 'text-anchor':'middle', fill:INK45});
+txt(CX, AX_T-22, '高协同', {'font-family':SANS, 'font-weight':300, 'font-size':18, 'text-anchor':'middle', fill:INK45});
 txt(CX, AX_T-44, 'COLLAB ↑', {'font-family':MONO, 'font-size':12, 'letter-spacing':2.5, 'text-anchor':'middle', fill:INK45});
-txt(AX_R+24, CY-10, '高自主 →', {'font-family':SANS, 'font-weight':400, 'font-size':18, fill:INK45});
+txt(AX_R+24, CY-10, '高自主 →', {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK45});
 txt(AX_R+24, CY-32, 'AUTONOMY', {'font-family':MONO, 'font-size':12, 'letter-spacing':2.5, fill:INK45});
 
 /* 原点标记 */
@@ -98,7 +98,7 @@ quads.forEach(function(q, i){
   txt(q.qx, q.qy+62, q.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2.5, fill:INK45});
   el('line', {x1:q.qx, y1:q.qy+76, x2:q.qx+60, y2:q.qy+76, stroke:INK, 'stroke-width':.8, opacity:.5});
   /* 中文小标题 */
-  txt(q.qx, q.qy+112, q.cn, {'font-family':SANS, 'font-weight':400, 'font-size':26, fill:INK});
+  txt(q.qx, q.qy+112, q.cn, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
   /* 说明两行 */
   txt(q.qx, q.qy+146, q.d,  {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)'});
   txt(q.qx, q.qy+170, q.d2, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});

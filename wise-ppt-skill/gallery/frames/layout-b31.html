@@ -51,7 +51,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. B31 — JOURNEY CURVE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ---------- 顶部 chevron 阶段带（订单履约旅程，全虚构） ---------- */
+/* ---------- 顶部 chevron 阶段带（订单履约旅程） ---------- */
 var stages = [
   ['01','INBOUND','入库预约'],
   ['02','WAVING','波次规划'],
@@ -102,7 +102,7 @@ nodes.forEach(function(n){
   var ly = up ? n.y - 46 : n.y + 58;
   el('line', {x1:n.x, y1:up ? n.y-13 : n.y+13, x2:n.x, y2:up ? n.y-32 : n.y+34,
     stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 4'});
-  txt(n.x, ly, n.cn, {'font-family':SANS, 'font-weight':400, 'font-size':20, 'text-anchor':'middle', fill:INK});
+  txt(n.x, ly, n.cn, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
   txt(n.x, up ? ly-28 : ly+26, n.sc, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
 

@@ -186,7 +186,7 @@ layers.forEach(function(L, r){
   var midY = BT + r*BH + BH/2;
   /* 左列层标（与横带严格左对齐） */
   txt(160, midY-16, L.no, {'font-family':MONO, 'font-size':20, 'letter-spacing':2, fill:INK});
-  txt(160, midY+12, L.cn, {'font-family':SANS, 'font-weight':400, 'font-size':22, fill:INK});
+  txt(160, midY+12, L.cn, {'font-family':SANS, 'font-weight':300, 'font-size':22, fill:INK});
   txt(160, midY+34, L.en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
   el('line', {x1:160, y1:midY+48, x2:230, y2:midY+48, stroke:INK, 'stroke-width':.6, opacity:.3});
   /* 带内能力件 */
@@ -194,7 +194,7 @@ layers.forEach(function(L, r){
     var cx = IXS[i];
     it.g(cx-70, midY);
     txt(cx-16, midY-4, it.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':1.5, fill:'rgba(25,25,23,.55)'});
-    txt(cx-16, midY+22, it.cn, {'font-family':SANS, 'font-weight':400, 'font-size':18, fill:INK});
+    txt(cx-16, midY+22, it.cn, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK});
   });
 });
 

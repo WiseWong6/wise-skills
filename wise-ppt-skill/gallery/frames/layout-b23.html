@@ -82,7 +82,7 @@ var UY = 350;
   el('rect', {x:cx-66, y:UY+2, width:16, height:16, fill:'none', stroke:INK80, 'stroke-width':1.1});
   el('rect', {x:cx-10, y:UY-9, width:18, height:18, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':1.3});
   el('path', {d:'M '+(cx-96)+' '+(UY+30)+' L '+(cx-40)+' '+(UY+30), fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'2 4'});
-  txt(cx, 432, '大促峰值拥堵', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 432, '大促峰值拥堵', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* 因 2 · 空驶返程：实线去、虚线回 */
@@ -98,7 +98,7 @@ var UY = 350;
   el('path', {d:'M '+(cx-58)+' '+(UY+34)+' L '+(cx-40)+' '+(UY+28), fill:'none', stroke:INK, 'stroke-width':.8, opacity:.5});
   el('path', {d:'M '+(cx-58)+' '+(UY+34)+' L '+(cx-46)+' '+(UY+18), fill:'none', stroke:INK, 'stroke-width':.8, opacity:.5});
   txt(cx+4, UY+44, '空车折返', {'font-family':SANS, 'font-weight':300, 'font-size':13, fill:INK45});
-  txt(cx, 432, '空驶率过高', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 432, '空驶率过高', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* 因 3 · 错拣漏拣：吊牌 + ✕ */
@@ -111,7 +111,7 @@ var UY = 350;
   el('path', {d:'M '+(cx-28)+' '+(UY-13)+' L '+(cx-2)+' '+(UY+13), fill:'none', stroke:INK, 'stroke-width':1.6});
   el('path', {d:'M '+(cx-2)+' '+(UY-13)+' L '+(cx-28)+' '+(UY+13), fill:'none', stroke:INK, 'stroke-width':1.6});
   el('line', {x1:cx-40, y1:UY-40, x2:cx+16, y2:UY-40, stroke:INK, 'stroke-width':.6, opacity:.35, 'stroke-dasharray':'2 4'});
-  txt(cx, 432, '错拣漏拣频发', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 432, '错拣漏拣频发', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* 因 4 · 跨仓割裂：两仓 + 断口 */
@@ -129,7 +129,7 @@ var UY = 350;
   el('rect', {x:cx-11, y:UY-7, width:22, height:18, fill:'#DFE0D9', stroke:'none'});
   el('path', {d:'M '+(cx-7)+' '+(UY-5)+' L '+(cx+7)+' '+(UY+9), fill:'none', stroke:INK, 'stroke-width':1.4});
   el('path', {d:'M '+(cx+7)+' '+(UY-5)+' L '+(cx-7)+' '+(UY+9), fill:'none', stroke:INK, 'stroke-width':1.4});
-  txt(cx, 432, '跨仓各自为政', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 432, '跨仓各自为政', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* ---------- 对位竖向开放箭头（因 → 策） ---------- */
@@ -154,7 +154,7 @@ var LY = 630;
   el('circle', {cx:cx, cy:LY, r:32, fill:'none', stroke:INK80, 'stroke-width':1.3});
   el('circle', {cx:cx, cy:LY, r:19, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
   el('circle', {cx:cx, cy:LY, r:2.6, fill:INK});
-  txt(cx, 712, '全局调度引擎', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 712, '全局调度引擎', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* 策 2 · 弹性波次编排：错峰甘特条 */
@@ -168,7 +168,7 @@ var LY = 630;
   el('rect', {x:gx, y:LY-34, width:56, height:14, fill:'none', stroke:INK80, 'stroke-width':1.1});
   el('rect', {x:gx+34, y:LY-8, width:70, height:14, fill:'url(#hatch23)', stroke:INK80, 'stroke-width':1.1});
   el('rect', {x:gx+84, y:LY+18, width:48, height:14, fill:'none', stroke:INK80, 'stroke-width':1.1});
-  txt(cx, 712, '弹性波次编排', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 712, '弹性波次编排', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* 策 3 · 拣选复核闭环：回环弧 + 单据 */
@@ -183,7 +183,7 @@ var LY = 630;
   el('path', {d:'M '+(cx-16)+' '+(LY-20)+' L '+(cx-26)+' '+(LY-24), fill:'none', stroke:INK80, 'stroke-width':1.2});
   el('path', {d:'M '+(cx-16)+' '+(LY-20)+' L '+(cx-12)+' '+(LY-30), fill:'none', stroke:INK80, 'stroke-width':1.2});
   txt(cx+8, LY+48, '复核回流', {'font-family':SANS, 'font-weight':300, 'font-size':13, fill:INK45});
-  txt(cx, 712, '拣选复核闭环', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 712, '拣选复核闭环', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 /* 策 4 · 跨仓协同调拨：双落点连线 */
@@ -200,7 +200,7 @@ var LY = 630;
   el('path', {d:'M '+(cx-50)+' '+(LY-16)+' A 52 26 0 0 1 '+(cx+50)+' '+(LY-16), fill:'none',
     stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
   txt(cx, LY-32, '调拨', {'font-family':SANS, 'font-weight':300, 'font-size':13, 'text-anchor':'middle', fill:INK45});
-  txt(cx, 712, '跨仓协同调拨', {'font-family':SANS, 'font-weight':400, 'font-size':21, 'text-anchor':'middle', fill:INK});
+  txt(cx, 712, '跨仓协同调拨', {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'middle', fill:INK});
 })();
 
 stageFit();
