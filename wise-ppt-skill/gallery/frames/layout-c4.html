@@ -66,9 +66,9 @@ function txt(x, y, str, attrs) {
 }
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
-/* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. C4 — GUANGDONG DISTRIBUTION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
-el('line', {x1:200, y1:192, x2:600, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+/* ---------- FIG 图题（基线 y=226，与右侧 PROVINCE TOTALS 水平对齐） ---------- */
+txt(200, 226, 'FIG. C4 — GUANGDONG DISTRIBUTION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:242, x2:600, y2:242, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 经纬构造线（测绘底稿，不擦除）—— 广东约 109.7°–117.2°E / 20.2°–25.5°N ---------- */
 [740, 980].forEach(function(x, i){
@@ -174,7 +174,7 @@ loadMap().then(function(geo){
         fontSize: 11
       },
       layoutCenter: ['50%', '50%'],
-      layoutSize: '122%'
+      layoutSize: '100%'
     }
   });
 
