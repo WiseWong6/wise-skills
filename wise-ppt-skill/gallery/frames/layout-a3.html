@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-a3 · 文献摘引页</title>
+<title>layout-a3 · 文献摘引页 · 生成式AI管理办法</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
@@ -18,8 +18,8 @@
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — A3<br>EXCERPT &amp; SOURCE</div>
-  <div class="folio">A3 / 59 — BY WISEWONG</div>
+  <div class="doc tl">AI LAYOUT GALLERY — A3<br>EXCERPT &amp; SOURCE</div>
+  <div class="folio">A3 / 59 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
@@ -54,20 +54,20 @@ el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opaci
 /* ============ 上半部 · 转述摘要（整段 300/21，关键句双线 underline） ============ */
 txt(200, 224, 'ABSTRACT', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, fill:INK45});
 txt(320, 224, '转述', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK45});
-txt(200, 272, '《智能仓储装备协同发展指导意见（征求意见稿）》提出：到 2028 年，重点仓储园区移动机器人的',
+txt(200, 272, '《生成式人工智能服务管理暂行办法》提出：提供者应当对训练数据来源的合法性负责，并采取',
   {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-txt(200, 314, '单机日均有效作业时长应不低于 14 小时，并鼓励企业以「调度中台」方式统一接入多品牌设备。',
+txt(200, 314, '有效措施防范未成年人过度依赖，同时不得生成煽动颠覆国家政权的内容。',
   {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
 
 /* 关键句：升 400 + 双线 underline（不用彩色高亮） */
-var KX = 200, KY = 372, KW = 640;
-txt(KX, KY, '文件首次将「跨品牌统一调度」写入省级指导意见。',
-  {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+var KX = 200, KY = 372, KW = 720;
+txt(KX, KY, '文件首次将「训练数据合规」与「生成内容可溯源」并列写入。',
+  {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
 el('line', {x1:KX, y1:KY+13, x2:KX+KW, y2:KY+13, stroke:INK, 'stroke-width':.8, opacity:.7});
 el('line', {x1:KX, y1:KY+18, x2:KX+KW, y2:KY+18, stroke:INK, 'stroke-width':.6, opacity:.35});
 
-txt(200, 424, '—— 衡玑仓储机器人调度平台的立项依据，正来自这一条。',
-  {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK70});
+txt(200, 424, '—— 每一个上线 AI 产品的合规清单，正来自这一条。',
+  {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK70});
 
 /* ============ 下半部 · 原文标本框（双线框模拟红头文件版式） ============ */
 var FX = 300, FY = 478, FW = 1320, FH = 396;
@@ -80,17 +80,17 @@ txt(918, FY+7, 'SOURCE', {'font-family':MONO, 'font-size':15, 'letter-spacing':2
 txt(938, FY+7, '原文标本', {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK});
 
 /* 报头：机构名 + 文号 + 横线 */
-txt(960, FY+76, '澜江省智能制造推进办公室', {'font-family':SANS, 'font-weight':300, 'font-size':27, 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
-txt(960, FY+106, 'LANZHIZAO [2026] NO.14', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+txt(960, FY+76, '国家互联网信息办公室', {'font-family':SANS, 'font-weight':300, 'font-size':27, 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
+txt(960, FY+106, 'CAC [2023] NO.7', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 el('line', {x1:FX+44, y1:FY+126, x2:FX+FW-44, y2:FY+126, stroke:INK80, 'stroke-width':1.4});
 el('line', {x1:FX+44, y1:FY+131, x2:FX+560, y2:FY+131, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* 标题行 */
-txt(960, FY+176, '智能仓储装备协同发展指导意见（征求意见稿）', {'font-family':SANS, 'font-weight':300, 'font-size':28, 'text-anchor':'middle', fill:INK});
-txt(960, FY+206, 'DRAFT FOR COMMENT · CHAPTER III', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+txt(960, FY+176, '生成式人工智能服务管理暂行办法', {'font-family':SANS, 'font-weight':300, 'font-size':28, 'text-anchor':'middle', fill:INK});
+txt(960, FY+206, 'INTERIM MEASURES · CHAPTER IV', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
 /* 正文灰行暗示（条文号 + 圆点字段行） */
-txt(FX+80, FY+252, 'ART. 12', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK45});
+txt(FX+80, FY+252, 'ART. 15', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK45});
 [[FY+252, 1010], [FY+282, 1080], [FY+312, 860], [FY+342, 620]].forEach(function(L, i){
   el('circle', {cx:FX+96, cy:L[0]-6, r:2, fill:INK, opacity:.55});
   el('line', {x1:FX+112, y1:L[0], x2:FX+112+L[1], y2:L[0], stroke:INK, 'stroke-width':.8, opacity:.4});
