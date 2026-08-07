@@ -158,39 +158,38 @@ function loadMap(){
 loadMap().then(function(geo){
   echarts.registerMap('guangdong', geo);
 
-  /* 各覆盖城市的墨色填充透明度（节点数越多越深）；其余城市透明 */
-  var cityColor = {};
-  NODES.forEach(function(n){
-    cityColor[n.city] = 'rgba(192,57,43,' + fillAlpha(n.v) + ')';
-  });
-
   var chart = echarts.init(document.getElementById('chart'));
   chart.setOption({
     animation: false,
     backgroundColor: 'transparent',
+    /* visualMap：按 value（仓数）自动映射 areaColor，分级填色的标准做法。
+       六个覆盖城市带 value 落入对应分段；其余城市无 value → outOfRange 透明。
+       piecewise 分段比 continuous 更贴合「分档强调」语义。 */
+    visualMap: {
+      type: 'piecewise',
+      pieces: [
+        { min: 35, max: 100, color: 'rgba(192,57,43,.85)' }, /* 广州 42 */
+        { min: 24, max: 35,  color: 'rgba(192,57,43,.62)' }, /* 深圳 27 */
+        { min: 15, max: 24,  color: 'rgba(192,57,43,.50)' }, /* 佛山 19 */
+        { min: 11, max: 15,  color: 'rgba(192,57,43,.42)' }, /* 东莞 14 */
+        { min: 7,  max: 11,  color: 'rgba(192,57,43,.35)' }, /* 珠海 9  */
+        { min: 0,  max: 7,   color: 'rgba(192,57,43,.30)' }  /* 汕头 6  */
+      ],
+      outOfRange: { color: 'transparent' },
+      show: false  /* 不用 echarts 自带图例，左下角已有自绘图例 */
+    },
     series: [{
       type: 'map',
       map: 'guangdong',
       roam: false,
-      /* 六个覆盖城市带 value（用于分级填色），其余城市无 value 自动留白 */
       data: NODES.map(function(n){ return {name: n.city, value: n.v}; }),
-      /* 统一描边；填色按城市名查表，覆盖城市上墨色，其余透明 */
       itemStyle: {
-        areaColor: 'transparent',
         borderColor: INK,
         borderWidth: 0.8,
         shadowBlur: 0
       },
-      /* 各市填色：用 data 的 value 不会自动映射 areaColor，这里靠
-         regions 逐市指定 areaColor（未列出的默认 transparent） */
-      regions: NODES.map(function(n){
-        return { name: n.city, itemStyle: { areaColor: cityColor[n.city] } };
-      }),
+      emphasis: { disabled: true, label: { show: false } },
       select: { disabled: true },
-      emphasis: {
-        itemStyle: { areaColor: cityColor, borderColor: INK, borderWidth: 0.8 },
-        label: { show: false }
-      },
       label: {
         show: true,
         color: 'rgba(25,25,23,.32)',
