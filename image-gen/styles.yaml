@@ -1,0 +1,478 @@
+# image-prompter 风格配置 v3.0
+# 数据结构驱动设计：每个风格是结构化对象，包含完整配置
+
+# ============================================================
+# 风格定义（按用途排序，非 ID 排序）
+# ============================================================
+styles:
+  # --------------------------------------------------------
+  # 公众号横版风格（4:3）
+  # --------------------------------------------------------
+  infographic:
+    id: "infographic"
+    name: "扁平风"
+    aspect_ratio: "4:3"
+    platforms: ["wechat", "xiaohongshu"]
+
+    # 用途与适用场景
+    description: "概念解释、原理说明、步骤展示"
+    recommended_for: ["科普", "教程", "原理讲解", "技术说明"]
+
+    # 触发信号
+    signals:
+      keywords: ["解释", "原理", "是什么", "如何", "步骤"]
+      content_type: "factual"
+      text_density: "low"
+
+    # 视觉基因
+    colors:
+      primary: "white background"
+      accent: "single bright accent color"
+    elements:
+      - "thin-outline icons"
+      - "arrows, flow lines"
+      - "contrast boxes, step numbers"
+      - "simple icons: checkmark, ban, exclamation, question"
+
+    # 提示词模板
+    prompt_prefix: |
+      Create a clean 4:3 horizontal infographic (1200×900 or larger).
+      Flat vector style, white background, simple thin-outline icons, single bright accent color.
+      Minimal text: a large Chinese title + 3–4 ultra-short labels max.
+      No gradients, no heavy shadows.
+
+    # careful 模式配置
+    careful_mode:
+      default_template: "16x9-infographic"
+      text_budget: "标题1行 + 3-4个标签"
+      max_chars_per_label: 5
+
+  handdrawn:
+    id: "handdrawn"
+    name: "方格纸手绘"
+    aspect_ratio: "4:3"
+    platforms: ["wechat"]
+
+    description: "笔记手绘、学习感"
+    recommended_for: ["学习笔记", "手绘风格", "知识整理"]
+
+    signals:
+      keywords: ["笔记", "手绘", "草图", "学习"]
+      content_type: "educational"
+      text_density: "medium"
+
+    colors:
+      primary: "light gray background with paper texture and grid lines"
+      accent: "High saturation colors at 90% transparency"
+      meaning:
+        green: "正确/成功"
+        red: "警告/错误"
+        blue: "信息/结构"
+        yellow: "高亮/活跃"
+    elements:
+      - "rough ink lines, uneven width 2px-4px"
+      - "curved arrows, wavy lines"
+      - "stars ✨, exclamation marks ❗"
+      - "handwritten text, hand-drawn icons"
+
+    prompt_prefix: |
+      Hand-drawn notebook style on grid paper, marker pen and ballpoint pen
+      light gray background with paper texture and grid lines
+      rough ink lines, uneven width 2px-4px
+      High saturation colors at 90% transparency
+      Use emerald green for correct/success, vibrant coral red for warning/error, sky blue for info, sunny yellow for highlight
+      Add curved arrows, wavy lines, stars ✨, exclamation marks ❗ for decoration
+      clean 4:3 horizontal layout
+
+    careful_mode:
+      default_template: "16x9-infographic"
+      text_budget: "标题 + 3-4个标签"
+      max_chars_per_label: 5
+
+  # --------------------------------------------------------
+  # 小红书竖版风格（3:4）
+  # --------------------------------------------------------
+  minimalist-sketch:
+    id: "minimalist-sketch"
+    name: "极简手绘"
+    aspect_ratio: "3:4"
+    platforms: ["wechat", "xiaohongshu"]
+
+    description: "纯白背景、黑色粗线条、斜线阴影、手绘感"
+    recommended_for: ["手绘笔记", "极简风格", "知识整理", "概念图解"]
+
+    signals:
+      keywords: ["极简", "手绘笔记", "概念图", "笔记"]
+      content_type: "educational"
+      text_density: "medium"
+
+    colors:
+      primary: "pure white background"
+      accent: "black bold lines (2-3px)"
+      meaning:
+        yellow: "高亮块/强调"
+        cyan: "图标背景/边框"
+        red: "下划线/警示"
+
+    elements:
+      - "hatching/cross-hatching shadows"
+      - "hand-drawn arrows (slightly curved)"
+      - "speech bubbles, dialog boxes"
+      - "yellow highlight blocks with irregular hand-drawn edges"
+      - "stars, wavy lines"
+
+    prompt_prefix: |
+      Minimalist hand-drawn notebook style, pure white background
+      Black bold lines (2-3px), clean but hand-drawn feel, slightly irregular
+      Hatching/cross-hatching for shadows and depth
+      Yellow highlight blocks for emphasis, cyan/teal (#4ECDC4) for icon backgrounds
+      Hand-drawn arrows, speech bubbles, stars, wavy lines
+      Chinese text clear and readable, bold black font
+      3:4 vertical poster layout
+
+    careful_mode:
+      default_template: "16x9-infographic"
+      text_budget: "标题 + 3-5个标签"
+      max_chars_per_label: 6
+
+  healing:
+    id: "healing"
+    name: "治愈系插画"
+    aspect_ratio: "3:4"
+    platforms: ["wechat", "xiaohongshu"]
+
+    description: "情绪叙事、场景氛围、治愈感"
+    recommended_for: ["情感故事", "生活分享", "治愈系内容"]
+
+    signals:
+      keywords: ["情绪", "故事", "场景", "人物", "治愈"]
+      content_type: "emotional"
+      text_density: "medium"
+
+    colors:
+      primary: "warm pastel color"
+      accent: "soft light"
+    elements:
+      - "clean lineart, gentle shading"
+      - "left-right split screen / time contrast"
+      - "indoor warm light, window side"
+      - "ginkgo leaves/seasonal feeling"
+      - "family photo/album"
+
+    prompt_prefix: |
+      warm pastel color, soft light, cozy healing illustration, clean lineart, gentle shading
+      left-right split screen / time contrast storytelling poster
+      Chinese text overlay, clear typography, high contrast for readability
+
+    careful_mode:
+      default_template: "16x9-contrast-2cards"
+      text_budget: "标题 + 3-5行文案"
+      max_chars_per_line: 12
+
+  sokamono:
+    id: "sokamono"
+    name: "描边插画"
+    aspect_ratio: "3:4"
+    platforms: ["xiaohongshu"]
+
+    description: "清新文艺、简洁治愈"
+    recommended_for: ["文艺风格", "清新内容", "小红书风格"]
+
+    signals:
+      keywords: ["清新", "治愈", "简洁", "文艺"]
+      content_type: "aesthetic"
+      text_density: "low"
+
+    colors:
+      primary: "light blue background"
+      accent: "clean and fresh color"
+    elements:
+      - "simple and vivid lines"
+      - "calm healing atmosphere"
+      - "fresh outlined characters, healing scenes"
+      - "elegant colors, clean lines"
+      - "white space"
+
+    prompt_prefix: |
+      Cartoon illustration, minimalist, simple and vivid lines
+      calm healing atmosphere, clean and fresh color
+      light blue background, style by sokamono
+      clean 3:4 vertical poster layout
+
+    careful_mode:
+      default_template: "16x9-contrast-2cards"
+      text_budget: "标题 + 3-5行文案"
+      max_chars_per_line: 10
+
+  xhs-cartoon:
+    id: "xhs-cartoon"
+    name: "小红书卡通"
+    aspect_ratio: "3:4"
+    platforms: ["xiaohongshu"]
+
+    description: "小红书专用卡通信息图，莫兰迪温柔色调，手绘文字，可爱清新"
+    recommended_for: ["小红书封面", "系列信息图", "干货分享", "教程图文"]
+
+    signals:
+      keywords: ["小红书", "卡通", "系列图", "封面", "干货"]
+      content_type: "social"
+      text_density: "medium"
+
+    colors:
+      primary: "Morandi colors / cream / beige / light pink / mint green"
+      accent: "soft pastel tones"
+    elements:
+      - "hand-drawn style text"
+      - "highlighter marker effect for keywords"
+      - "cute cartoon icons, emoji-style"
+      - "hand-drawn stickers, sticky notes texture"
+      - "speech bubbles"
+      - "plenty of white space"
+
+    prompt_prefix: |
+      Xiaohongshu style infographic, vertical (3:4), cartoon style, hand-drawn style text
+      Morandi colors / cream / beige background, soft pastel tones
+      Hand-drawn style text with highlighter marker effect for keywords
+      Cute cartoon elements, emoji-style icons, hand-drawn stickers, speech bubbles
+      Clean layout, plenty of white space, information simplified, focus on key points
+      All images and text must be hand-drawn/cartoon style, no photorealistic elements
+
+    careful_mode:
+      default_template: "16x9-contrast-2cards"
+      text_budget: "标题 + 3-5行文案"
+      max_chars_per_line: 10
+
+  editorial:
+    id: "editorial"
+    name: "社论全景"
+    aspect_ratio: "16:9"
+    platforms: ["wechat", "xiaohongshu"]
+
+    description: "社论风格全景信息图，复古色调，黑色描边，几何化处理，适合深度分析对比"
+    recommended_for: ["深度分析", "对比评测", "数据可视化", "主题总结"]
+
+    signals:
+      keywords: ["分析", "对比", "评测", "总结", "全景"]
+      content_type: "analytical"
+      text_density: "high"
+
+    colors:
+      primary: "cream/off-white background with paper texture"
+      accent: "coral red, mint green, mustard yellow, burnt orange, rock blue"
+    elements:
+      - "flat vector illustration with uniform black outline (monoline)"
+      - "geometric simplification (toy-like, cute)"
+      - "2.5D isometric-ish perspective"
+      - "pills-shaped clouds, radial lines, dots, stars"
+      - "retro serif title font"
+      - "data grids, circular charts"
+
+    prompt_prefix: |
+      Editorial style panoramic infographic, 16:9 horizontal layout
+      Flat vector illustration with clean uniform black outline (monoline/stroke)
+      Geometric simplification, toy-like cute style, no gradients, no 3D
+      Cream/off-white background with paper texture
+      Accent colors: coral red, mint green, mustard yellow, burnt orange, rock blue
+      2.5D perspective, layered depth without atmospheric fade
+      Retro serif title font, geometric sans-serif body text
+      Decorative elements: pill-shaped clouds, radial lines, dots, stars
+      Clear visual hierarchy, bold black lines separating sections
+
+    careful_mode:
+      default_template: "16x9-infographic"
+      text_budget: "标题 + 对比模块 + 数据网格"
+      max_chars_per_block: 8
+
+  # --------------------------------------------------------
+  # 通用横版风格（16:9）- 默认风格
+  # --------------------------------------------------------
+  cream-paper:
+    id: "cream-paper"
+    name: "奶油纸手绘"
+    aspect_ratio: "16:9"
+    platforms: ["wechat", "xiaohongshu"]
+
+    description: "彩铅线稿+淡水彩上色，暖色调轻涂鸦装饰，趣味但干净"
+    recommended_for: ["配图", "信息图", "概览", "框架图", "路线图"]
+
+    signals:
+      keywords: ["配图", "信息图", "概览", "框架", "路线图"]
+      content_type: "versatile"
+      text_density: "flexible"
+
+    colors:
+      primary: "cream paper background (visible texture)"
+      accent: "warm pastel colors"
+    elements:
+      - "colored pencil lines (visible strokes)"
+      - "light watercolor wash (light bleeding)"
+      - "light graffiti decoration"
+      - "stars ✨"
+
+    prompt_prefix: |
+      Cream paper background (visible paper texture)
+      Colored pencil line art (visible brush strokes) + light watercolor wash (light bleeding)
+      Warm color tones, light graffiti decoration, fun but clean
+      Chinese text must be clear and readable, no gibberish; large font size; short phrases
+      clean 16:9 horizontal layout
+
+    careful_mode:
+      default_template: "16x9-infographic"
+      text_budget: "标题 + 5块标题 + 底栏2行"
+      max_chars_per_block: 10
+
+# ============================================================
+# 全局配置
+# ============================================================
+
+# 负面约束（所有风格共用）
+negative_constraints:
+  - "no watermark, no logo, no random letters, no gibberish text"
+  - "no T1/T2 labels, no QR code"
+  - "avoid overcrowded layout, avoid messy typography"
+
+# 平台默认比例
+platform_defaults:
+  wechat:
+    default_ratio: "4:3"
+    cover_ratio: "16:9"
+  xiaohongshu:
+    default_ratio: "3:4"
+    cover_ratio: "16:9"
+
+# 五阶段流程全局默认
+stages_defaults:
+  default_aspect_ratio: "16:9"
+  default_style: "cream-paper"
+  iteration_enabled: true
+  copy_spec_required: true
+
+# ============================================================
+# 布局定义（Layout 维度）
+# ============================================================
+layouts:
+  balanced:
+    id: "balanced"
+    name: "通用信息图"
+    template: "16x9-infographic.md"
+    description: "均衡布局，信息密度适中，适合解释原理"
+    signals:
+      keywords: ["解释", "原理", "是什么", "如何", "概念"]
+      info_density: "medium"
+      whitespace: "40-50%"
+    points_per_image: "3-4"
+
+  comparison:
+    id: "comparison"
+    name: "对比两卡"
+    template: "16x9-contrast-2cards.md"
+    description: "左右/上下对比，适合 A vs B 场景"
+    signals:
+      keywords: ["对比", "vs", "区别", "差异", "比较", "两种"]
+      info_density: "medium"
+      whitespace: "40-50%"
+    points_per_image: "2 sections"
+
+  list:
+    id: "list"
+    name: "三卡洞察"
+    template: "16x9-3cards-insights.md"
+    description: "要点罗列，适合清单/洞察/要点"
+    signals:
+      keywords: ["要点", "三个", "清单", "洞察", "建议", "方法"]
+      info_density: "medium-high"
+      whitespace: "30-40%"
+    points_per_image: "3-5 items"
+
+  flow:
+    id: "flow"
+    name: "五格漫画/流程"
+    template: "16x9-5panel-comic.md"
+    description: "流程/故事线，适合步骤展示或叙事"
+    signals:
+      keywords: ["流程", "步骤", "故事", "过程", "阶段", "顺序"]
+      info_density: "medium"
+      whitespace: "40-50%"
+    points_per_image: "3-6 steps"
+
+  sparse:
+    id: "sparse"
+    name: "封面路线图"
+    template: "16x9-cover-roadmap.md"
+    description: "低密度大留白，适合封面/目录/概览"
+    signals:
+      keywords: ["封面", "目录", "路线", "概览", "框架", "课程"]
+      info_density: "low"
+      whitespace: "60-70%"
+    points_per_image: "1-2 or 4-6 titles"
+
+# ============================================================
+# Style × Layout 兼容性矩阵
+# ============================================================
+# ✅✅ = highly recommended | ✅ = compatible | ⚠️ = use with caution | ❌ = not recommended
+compatibility:
+  cream-paper:       [balanced, list, sparse, flow, comparison]
+  infographic:       [balanced, list, flow, comparison, sparse]
+  handdrawn:         [balanced, list, flow, sparse, comparison]
+  minimalist-sketch: [balanced, list, flow, comparison, sparse]
+  healing:           [list, flow, balanced, sparse, comparison]
+  sokamono:          [list, flow, balanced, sparse, comparison]
+  xhs-cartoon:       [list, flow, balanced, sparse, comparison]
+  editorial:         [comparison, balanced, list, sparse, flow]
+
+# 兼容性说明（供 AI 推荐时参考）
+compatibility_notes:
+  "healing+comparison": "治愈系不太适合硬对比，建议用前后变化叙事"
+  "healing+dense": "治愈系需要呼吸感，避免信息过密"
+  "editorial+flow": "社论风格可以用于流程，但更擅长对比分析"
+  "xhs-cartoon+sparse": "小红书风格适合封面，但通常信息量更多"
+
+# ============================================================
+# 风格选择逻辑（信号 → 风格映射）
+# ============================================================
+style_selection:
+  # 优先级顺序：从高到低匹配
+  priority:
+    - infographic  # 科普内容最常见
+    - healing      # 叙事内容次之
+    - cream-paper  # 通用默认
+    - handdrawn    # 特定场景
+    - sokamono     # 特定场景
+
+  # 信号权重（关键词匹配）
+  signal_weights:
+    # 科普信号
+    "解释|原理|是什么|如何|步骤": infographic
+
+    # 叙事信号
+    "情绪|故事|场景|人物|治愈": healing
+
+    # 文艺信号
+    "清新|简洁|文艺": sokamono
+
+    # 手绘信号
+    "笔记|手绘|草图|学习": handdrawn
+
+    # 通用信号
+    "配图|信息图|概览|框架|路线图": cream-paper
+
+# ============================================================
+# 布局选择逻辑（信号 → 布局映射）
+# ============================================================
+layout_selection:
+  # 信号权重（关键词匹配）
+  signal_weights:
+    # 对比信号
+    "对比|vs|区别|差异|比较|两种": comparison
+
+    # 列表信号
+    "要点|三个|清单|洞察|建议|方法": list
+
+    # 流程信号
+    "流程|步骤|故事|过程|阶段|顺序": flow
+
+    # 封面/概览信号
+    "封面|目录|路线|概览|框架|课程": sparse
+
+    # 默认
+    "default": balanced
