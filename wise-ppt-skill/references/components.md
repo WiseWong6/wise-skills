@@ -38,6 +38,28 @@
 
 ---
 
+### 4.0 前置：atlas 未安装时
+
+本节导出命令依赖本地 skill `ppt-component-atlas`（运行期硬路径 `~/.codex/skills/ppt-component-atlas/`）。首次使用前先确认存在：
+
+```bash
+[ -d ~/.codex/skills/ppt-component-atlas ] && echo OK || echo MISSING
+```
+
+若 MISSING，从 wise-skills 仓库安装（atlas 与本 skill 是同仓库姊妹目录）：
+
+```bash
+git clone git@github.com:WiseWong6/wise-skills.git /tmp/wise-skills
+mkdir -p ~/.codex/skills
+cp -r /tmp/wise-skills/ppt-component-atlas ~/.codex/skills/
+# 验证导出脚本可跑
+node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --list
+```
+
+不想装也能先看图选件：线上图册 `https://wisewong.com/#tab=html-ppt-components` 始终可用（catalog 源码权威在 `WiseWong6/wise-labs/tree/main/html-ppt-components`，本地装好后用 `--verify-source` 对齐）。
+
+---
+
 ### 4.1 导出组件
 
 ```bash
