@@ -64,15 +64,16 @@ function nodeDot(cx, cy){
 }
 
 /* ---------- 细线开放箭头（托举语义，自下而上） ---------- */
-function liftArrow(x, y1, y2){          /* y1 下 → y2 上 */
+function liftArrow(x, y1, y2, label){          /* y1 下 → y2 上 */
   el('line', {x1:x, y1:y1, x2:x, y2:y2, stroke:INK, 'stroke-width':1.2, opacity:.7});
   el('line', {x1:x-8, y1:y2+11, x2:x, y2:y2, stroke:INK, 'stroke-width':1.2, opacity:.7});
   el('line', {x1:x+8, y1:y2+11, x2:x, y2:y2, stroke:INK, 'stroke-width':1.2, opacity:.7});
-  txt(x+16, (y1+y2)/2+4, 'LIFT', {'font-family':MONO, 'font-size':10, 'letter-spacing':2, fill:INK45});
+  if (label) txt(x+16, (y1+y2)/2+4, label, {'font-family':MONO, 'font-size':10, 'letter-spacing':2, fill:INK45});
 }
-[760, 1160].forEach(function(x){
-  liftArrow(x, 770, 700);               /* 底座 → 能力层 */
-  liftArrow(x, 527, 436);               /* 能力层 → 产品层 */
+/* 3 组箭头，每组对齐对应模块的水平中心（产品卡/能力卡中心 x=460/960/1460），自下而上逐级托举 */
+[460, 960, 1460].forEach(function(x){
+  liftArrow(x, 776, 692, 'LIFT');               /* 底座 → 能力层 */
+  liftArrow(x, 533, 424);                       /* 能力层 → 产品层 */
 });
 
 /* ---------- 卡带图元（形态随语义变化） ---------- */
