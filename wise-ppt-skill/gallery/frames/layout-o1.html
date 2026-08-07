@@ -75,12 +75,12 @@ for (var i = 0; i <= 20; i++) {
 }
 
 var layers = [
-  {y0:topY, y1:440, n:'≈ 12,000', tag:'PENDING',    t:'任务池', en:'POOL',
-   notes:['订单波次','预约补货任务','盘点指令','临时插单']},
-  {y0:440,  y1:600, n:'≈ 860',    tag:'ELIGIBLE',   t:'过滤',   en:'FILTER',
-   notes:['电量达标','区域可达','载重匹配','冲突消解']},
-  {y0:600,  y1:740, n:'≈ 96',     tag:'DISPATCHED', t:'派车',   en:'ASSIGN',
-   notes:['指派机器人','路径下发','时效承诺','回执确认']}
+  {y0:topY, y1:440, n:'≈ 1,200万', tag:'IMPRESSION', t:'曝光', en:'REACH',
+   notes:['信息流广告','KOL 投放','搜索竞价','品牌开屏']},
+  {y0:440,  y1:600, n:'≈ 86万',    tag:'CLICK',      t:'点击', en:'TRAFFIC',
+   notes:['素材吸睛','定向精准','落地页承接','兴趣激发']},
+  {y0:600,  y1:740, n:'≈ 9.6万',   tag:'ORDER',      t:'成交', en:'CONVERT',
+   notes:['加购决策','优惠券促单','支付完成','复购引导']}
 ];
 
 layers.forEach(function(L, i){
@@ -105,22 +105,22 @@ el('line', {x1:cX, y1:botY, x2:cX, y2:botY+30, stroke:INK, 'stroke-width':1.2});
 el('circle', {cx:cX, cy:botY+38, r:3.5, fill:INK});
 el('rect', {x:cX-70, y:botY+46, width:140, height:44, fill:'none', stroke:INK80, 'stroke-width':1.2});
 el('rect', {x:cX-66, y:botY+50, width:132, height:36, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-txt(cX, botY+74, 'TO FLEET', {'font-family':MONO, 'font-size':17, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(cX, botY+74, 'TO REVENUE', {'font-family':MONO, 'font-size':17, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 
-/* ---------- 右侧规格单：本波次派车清单（标本面板） ---------- */
+/* ---------- 右侧规格单：成交订单清单（标本面板） ---------- */
 (function(){
   var x = 1380, y = 330, w = 400;
   el('rect', {x:x, y:y, width:w, height:330, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('rect', {x:x+5, y:y+5, width:w-10, height:320, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(x+26, y+42, 'FINAL DISPATCH LIST', {'font-family':MONO, 'font-size':16, 'letter-spacing':2, fill:INK});
+  txt(x+26, y+42, 'TOP ORDERS', {'font-family':MONO, 'font-size':16, 'letter-spacing':2, fill:INK});
   el('line', {x1:x+26, y1:y+56, x2:x+90, y2:y+56, stroke:INK, 'stroke-width':1});
-  txt(x+26, y+88, '本波次派车 · 96 单', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
+  txt(x+26, y+88, '大促当日 · 成交 9.6 万单', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
   var rows = [
-    ['TASK #D-0412', 'AGV-07', 'ZONE A'],
-    ['TASK #D-0398', 'AGV-12', 'ZONE C'],
-    ['TASK #D-0355', 'AGV-03', 'ZONE B'],
-    ['TASK #D-0301', 'AGV-18', 'ZONE A'],
-    ['TASK #D-0277', 'AGV-09', 'ZONE D']
+    ['ORD #08172', '直播间', '¥ 2,899'],
+    ['ORD #08168', '信息流', '¥ 1,580'],
+    ['ORD #08155', '搜索',   '¥ 3,200'],
+    ['ORD #08141', '开屏',   '¥   799'],
+    ['ORD #08127', 'KOL',    '¥ 4,599']
   ];
   rows.forEach(function(r, i){
     var ry = y + 128 + i * 38;
