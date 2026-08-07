@@ -102,10 +102,11 @@ cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页�
 
 ### Step 4 · 逐页生成
 
-1. 按分镜表给每页选版式 → 打开 `references/layouts.md` 找对应版式的结构与坐标基准。
-2. 主体图形**优先自由绘制程序化 SVG**（细线可控、构造线保留）；layouts 没覆盖且自绘成本过高的形状 → 按 `references/components.md` 从 html-ppt-components 导出组件做"改造五步"兜底。
-3. 每页都是 `shot-template.html` 的实例：改角注、folio、FIG 图题、主体图形、caption。
-4. 图标用 FontAwesome（墨色）；复杂数据图表用 ECharts（去色改造）——规约见 `references/components.md`；粒子质感用 `particles.js`（仅粒子海报页/崩解语义）。
+1. **先识别内容的关系形状**（对立？序列？嵌套？辐射？收敛？）→ 按 `references/layout-primitives.md` 的"关系形状"表选 1 个主原语 + 1-2 个辅助原语。这是排版决策的起点，不是查表选版式号。
+2. **参考版式成品**：查 `references/layouts.md` / `gallery/` 找用同样原语组合的版式样本，借鉴坐标和图元画法。**版式是参考不是约束**——如果内容需要原语的新组合或超出 59 版式覆盖，有权发明新版式（只要守 design-tokens 空间纪律）。
+3. 主体图形**优先自由绘制程序化 SVG**（细线可控、构造线保留）；layouts 没覆盖且自绘成本过高的形状 → 按 `references/components.md` 从 html-ppt-components 导出组件做"改造五步"兜底。
+4. 每页都是 `shot-template.html` 的实例：改角注、folio、FIG 图题、主体图形、caption。
+5. 图标用 FontAwesome（墨色）；复杂数据图表用 ECharts（去色改造）——规约见 `references/components.md`；粒子质感用 `particles.js`（仅粒子海报页/崩解语义）。
 
 ### Step 5 · 机检 + 截图复核 + 缩略图生成（三道闸门都不可省）
 
@@ -146,7 +147,8 @@ wise-ppt-skill/
 │   └── fonts/                ← 5 个开源字体（不进 git）+ download-fonts.sh（首次使用自动下载）+ README（来源/版权/CN 命名说明）
 ├── references/
 │   ├── design-tokens.md      ← ★ 设计标准：背景色/字体字重/线宽/留白/质感/外部依赖（动手前必读）
-│   ├── layouts.md            ← 版式目录 + MECE 内容形状选用速查（样张见 gallery/）
+│   ├── layout-primitives.md  ← ★ 排版原语：12 个可组合的空间结构原语 + 内容关系形状映射（排版决策起点）
+│   ├── layouts.md            ← 版式目录 + MECE 内容形状选用速查（样张见 gallery/，原语实例库）
 │   ├── components.md         ← 自由 SVG 优先 + ECharts/FontAwesome 规约 + atlas 组件改造五步
 │   └── checklist.md          ← P0/P1/P2 自检清单 + 目检顺序
 ├── gallery/
@@ -159,7 +161,7 @@ wise-ppt-skill/
 ```
 
 **加载顺序建议**：
-1. 读完本文件 → 2. `references/design-tokens.md` 全文 → 3. 选版式查 `references/layouts.md` → 4. 需要组件查 `references/components.md` → 5. 交付前 `references/checklist.md`。
+1. 读完本文件 → 2. `references/design-tokens.md` 全文 → 3. `references/layout-primitives.md`（学排版语法，理解内容关系形状怎么映射到空间结构）→ 4. 选/参考版式查 `references/layouts.md` + `gallery/` → 5. 需要组件查 `references/components.md` → 6. 交付前 `references/checklist.md`。
 
 ## 参考样本
 
