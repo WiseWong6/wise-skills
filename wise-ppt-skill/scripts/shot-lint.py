@@ -3,7 +3,8 @@
 """纸墨线稿 · 单页机检（checklist P0 中可机检部分的闸门）
 
 用法：
-    shot-lint.py <deck目录 | 单个shot.html> [--strict]
+    shot-lint.py <deck目录 | 单个shot.html> [--strict] [--accent]
+    --accent  放行强调色（番茄红 #C0392B / 克莱因蓝 #002FA7），用于验证 ?accent 帧
 
 检查项（对应 references/checklist.md P0）：
     L1 彩色：除墨色阶梯/纸底/柔白外的 hex、rgb(a)、命名色
@@ -28,8 +29,12 @@ INK_OK = {
     '#191917', '#dfe0d9', '#d4d5cd',          # 墨 / 纸底 / 纸底深档
     '#edf0ee', '#181c1e', '#1d5c9e',          # ?cool 主题（蓝图青仅 cool 允许）
 }
+ACCENT_OK = {
+    '#c0392b', '#002fa7',                     # ?accent 强调色：番茄红 / 克莱因蓝（仅 --accent 放行）
+}
 NAMED_OK = {'none', 'currentcolor', 'inherit', 'transparent'}
 CJK = re.compile(r'[一-鿿　-〿＀-￯]')
+ACCENT_MODE = False                           # 由 main() 读 --accent 设置；True 时 L1 放行强调色
 
 def lint_file(path):
     fails, warns = [], []
@@ -38,7 +43,7 @@ def lint_file(path):
     # L1 彩色 hex
     for m in re.finditer(r'#[0-9a-fA-F]{6}\b', src):
         hx = m.group(0).lower()
-        if hx not in INK_OK:
+        if hx not in INK_OK and not (ACCENT_MODE and hx in ACCENT_OK):
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L1 彩色 hex {hx} (line {line})')
     for m in re.finditer(r'#[0-9a-fA-F]{3}\b', src):
@@ -58,7 +63,11 @@ def lint_file(path):
         is_paper = (abs(r - 223) < 2 and abs(g - 224) < 2 and abs(b - 217) < 2) or \
                    (abs(r - 212) < 2 and abs(g - 213) < 2 and abs(b - 205) < 2)   # 纸色擦除/刻字
         is_cool = (abs(r - 29) < 2 and abs(g - 92) < 2 and abs(b - 158) < 2)
-        if not (is_ink or is_softwhite or is_paper or is_cool):
+        is_accent = ACCENT_MODE and (
+            (abs(r - 192) < 3 and abs(g - 57) < 3 and abs(b - 43) < 3) or   # 番茄红 #C0392B
+            (abs(r) < 3 and abs(g - 47) < 3 and abs(b - 167) < 3)           # 克莱因蓝 #002FA7
+        )
+        if not (is_ink or is_softwhite or is_paper or is_cool or is_accent):
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L1 彩色 rgba({m.group(1)}) (line {line})')
     # L1 命名色（stroke/fill/color 语境）
@@ -166,6 +175,8 @@ def main():
         sys.exit(2)
     target = sys.argv[1]
     strict = '--strict' in sys.argv
+    global ACCENT_MODE
+    ACCENT_MODE = '--accent' in sys.argv
     if os.path.isdir(target):
         frames = os.path.join(target, 'frames')
         files = sorted(

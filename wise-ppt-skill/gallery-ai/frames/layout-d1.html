@@ -69,6 +69,8 @@
 
 <script src="../assets/particles.js"></script>
 <script>
+/* accent 触发：立即读 URL 加 .accent 类，让 :root.accent .title 染色不依赖 stageFit() 末尾时序 */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var NS = 'http://www.w3.org/2000/svg';
 var INK80 = 'rgba(25,25,23,.8)';
 var G = document.getElementById('draw');

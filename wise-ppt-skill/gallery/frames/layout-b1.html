@@ -33,6 +33,10 @@
 var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -69,22 +73,22 @@ var nodes = [
 
 nodes.forEach(function(n){
   if (n.hot) {
-    el('circle', {cx:n.x, cy:AXIS, r:5, fill:INK});
-    el('circle', {cx:n.x, cy:AXIS, r:16, fill:'none', stroke:INK, 'stroke-width':1.4});
-    el('circle', {cx:n.x, cy:AXIS, r:20, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
+    el('circle', {cx:n.x, cy:AXIS, r:5, fill:(n.hot && ACCENT) ? RED : INK});
+    el('circle', {cx:n.x, cy:AXIS, r:16, fill:'none', stroke:(n.hot && ACCENT) ? RED : INK, 'stroke-width':1.4});
+    el('circle', {cx:n.x, cy:AXIS, r:20, fill:'none', stroke:(n.hot && ACCENT) ? RED : INK, 'stroke-width':.6, opacity:.4});
   } else {
     el('circle', {cx:n.x, cy:AXIS, r:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
     el('circle', {cx:n.x, cy:AXIS, r:3, fill:INK});
   }
   /* 上方：年份 / 名称 / 机构三段 + 短引线 */
-  txt(n.x, AXIS-104, String(n.y), {'font-family':MONO, 'font-size': n.hot?34:28, 'text-anchor':'middle', fill:INK});
+  txt(n.x, AXIS-104, String(n.y), {'font-family':MONO, 'font-size': n.hot?34:28, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK});
   txt(n.x, AXIS-66, n.name, {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill:INK80});
   txt(n.x, AXIS-42, n.org, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
   el('line', {x1:n.x, y1:AXIS-28, x2:n.x, y2:AXIS-12, stroke:INK, 'stroke-width':.6, opacity:.4});
   /* 下方注释 */
   if (n.note) {
-    txt(n.x, AXIS+52, n.note, {'font-family':SANS, 'font-weight': n.hot?400:300, 'font-size':20, 'text-anchor':'middle', fill: n.hot?INK:'rgba(25,25,23,.6)'});
-    if (n.hot) el('line', {x1:n.x-120, y1:AXIS+66, x2:n.x+120, y2:AXIS+66, stroke:INK, 'stroke-width':1.2, opacity:.8});
+    txt(n.x, AXIS+52, n.note, {'font-family':SANS, 'font-weight': n.hot?400:300, 'font-size':20, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : (n.hot?INK:'rgba(25,25,23,.6)')});
+    if (n.hot) el('line', {x1:n.x-120, y1:AXIS+66, x2:n.x+120, y2:AXIS+66, stroke:(n.hot && ACCENT) ? RED : INK, 'stroke-width':1.2, opacity:.8});
   }
 });
 

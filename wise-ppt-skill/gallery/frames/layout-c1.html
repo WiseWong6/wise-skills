@@ -39,6 +39,10 @@ var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -127,16 +131,17 @@ txt(560, 794, '655 MM', {'font-family':MONO, 'font-size':13, 'letter-spacing':1,
 el('line', {x1:1440, y1:280, x2:1440, y2:810, stroke:INK, 'stroke-width':.6, opacity:.3});
 el('line', {x1:1080, y1:545, x2:1780, y2:545, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-function cell(cx, ty, num, label, note) {
-  txt(cx, ty, num, {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:INK});
-  txt(cx, ty + 42, label, {'font-family':SANS, 'font-weight':300, 'font-size':24, 'text-anchor':'middle', fill:'rgba(25,25,23,.8)'});
+function cell(cx, ty, num, label, note, focus) {
+  var fc = (ACCENT && focus) ? RED : INK;
+  txt(cx, ty, num, {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:fc});
+  txt(cx, ty + 42, label, {'font-family':SANS, 'font-weight':300, 'font-size':24, 'text-anchor':'middle', fill:(ACCENT && focus) ? 'rgba(192,57,43,.85)' : 'rgba(25,25,23,.8)'});
   txt(cx, ty + 74, note, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   el('line', {x1:cx-30, y1:ty+92, x2:cx+30, y2:ty+92, stroke:INK, 'stroke-width':.7, opacity:.35});
 }
 cell(1260, 400, '42',    '在役机器人车队',   'FLEET ONLINE · 3 SITES');
 cell(1610, 400, '386',   '峰值吞吐（单/时）', 'PEAK THROUGHPUT · ORD/H');
 cell(1260, 665, '99.2%', '准时履约率',       'ON-TIME RATE · 30D AVG');
-cell(1610, 665, '-31%',  '拣选行走距离',     'WALK DISTANCE · VS MANUAL');
+cell(1610, 665, '-31%',  '拣选行走距离',     'WALK DISTANCE · VS MANUAL', true);  /* 主角：负增长契合番茄红"降幅"语义 */
 
 stageFit();
 </script>

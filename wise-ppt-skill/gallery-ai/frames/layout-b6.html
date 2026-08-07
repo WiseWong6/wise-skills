@@ -37,6 +37,10 @@ var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -115,10 +119,11 @@ var notes = [
 notes.forEach(function(N, i){
   var p = cpoint(N.t);
   var above = (i % 2 === 0);
+  var future = (i === notes.length - 1);
   /* 节点：双圈 + 实心核 */
-  el('circle', {cx:p[0], cy:p[1], r:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
-  el('circle', {cx:p[0], cy:p[1], r:5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.5});
-  el('circle', {cx:p[0], cy:p[1], r:2.2, fill:INK});
+  el('circle', {cx:p[0], cy:p[1], r:9, fill:'#DFE0D9', stroke: future && ACCENT ? RED : INK80, 'stroke-width':1.2});
+  el('circle', {cx:p[0], cy:p[1], r:5, fill:'none', stroke: future && ACCENT ? RED : INK, 'stroke-width':.6, opacity:.5});
+  el('circle', {cx:p[0], cy:p[1], r:2.2, fill: future && ACCENT ? RED : INK});
   /* 注记块（上下交替） */
   var ax = Math.max(430, Math.min(1500, p[0]));
   var yEn = p[1] + (above ? -152 : 98);
@@ -130,9 +135,9 @@ notes.forEach(function(N, i){
   el('circle', {cx:(p[0]+ax)/2, cy:(p[1]+ly)/2, r:2.4, fill:INK, opacity:.6});
   /* 三行：mono EN 标签 → 年份+中文标题 → 注 */
   txt(ax, yEn, N.en, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-  txt(ax-8, yYr, N.yr, {'font-family':MONO, 'font-size':23, 'letter-spacing':2, 'text-anchor':'end', fill:INK});
-  txt(ax+8, yYr, N.ti, {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'start', fill:INK});
-  txt(ax, yTx, N.tx, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
+  txt(ax-8, yYr, N.yr, {'font-family':MONO, 'font-size':23, 'letter-spacing':2, 'text-anchor':'end', fill: future && ACCENT ? RED : INK});
+  txt(ax+8, yYr, N.ti, {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'start', fill: future && ACCENT ? RED : INK});
+  txt(ax, yTx, N.tx, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill: future && ACCENT ? RED : INK70});
 });
 
 stageFit();

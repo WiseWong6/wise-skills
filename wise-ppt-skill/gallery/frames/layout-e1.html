@@ -34,6 +34,10 @@ var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
 var INK80 = 'rgba(25,25,23,.8)';
 var INK45 = 'rgba(25,25,23,.45)';
+/* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -92,7 +96,7 @@ txt(560, 806, '一个人在巷道里往返奔波', {'font-family':SANS, 'font-we
 
 /* ---------- 右面板：货来找人 ✓ ---------- */
 txt(1360, 420, '货来找人', {'font-family':SANS, 'font-weight':300, 'font-size':34, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
-el('path', {d:'M 1452 404 L 1464 418 L 1488 388', fill:'none', stroke:INK, 'stroke-width':3.5, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
+el('path', {d:'M 1452 404 L 1464 418 L 1488 388', fill:'none', stroke: ACCENT ? RED : INK, 'stroke-width':3.5, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
 txt(1360, 462, 'GOODS-TO-PERSON RELAY', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* 小图形：机器人驮货架直线送达工位 */
