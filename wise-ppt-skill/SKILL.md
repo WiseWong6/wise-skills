@@ -102,7 +102,7 @@ cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页�
 
 ### Step 4 · 逐页生成
 
-1. **先识别内容的关系形状**（对立？序列？嵌套？辐射？收敛？）→ 按 `references/layout-primitives.md` 的"关系形状"表选 1 个主原语 + 1-2 个辅助原语。这是排版决策的起点，不是查表选版式号。
+1. **先识别内容的关系形状**（对立？序列？嵌套？辐射？收敛？）→ 按 `references/layout-primitives.md` 的**决策方法论**（Step A-D：提炼论点 → 拆信息单元 → 定主原语 → 叠辅助原语）选 1 个主原语 + 1-2 个辅助原语。常见汇报场景可直接套用文档里的"场景配方"（述职/发布/数据/架构/流程/漏斗/证据）；遇到歧义查"歧义判例"。
 2. **参考版式成品**：查 `references/layouts.md` / `gallery/` 找用同样原语组合的版式样本，借鉴坐标和图元画法。**版式是参考不是约束**——如果内容需要原语的新组合或超出 59 版式覆盖，有权发明新版式（只要守 design-tokens 空间纪律）。
 3. 主体图形**优先自由绘制程序化 SVG**（细线可控、构造线保留）；layouts 没覆盖且自绘成本过高的形状 → 按 `references/components.md` 从 html-ppt-components 导出组件做"改造五步"兜底。
 4. 每页都是 `shot-template.html` 的实例：改角注、folio、FIG 图题、主体图形、caption。
