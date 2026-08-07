@@ -2,42 +2,38 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>layout-c5 · 目录导航页</title>
-<!--
-  纸墨线稿样张 · C5 目录导航页
-  虚构主题：衡玑科技「仓储机器人调度平台」产品汇报
-  版式纪律（layouts C5）：编号纵列 + 行间细线；当前章一处高亮，其余 45%；右侧一处小线稿；无 FIG
--->
+<title>layout-c5 · 环形进度环列阵</title>
 <link rel="stylesheet" href="../assets/shared.css">
 <style>
   svg.scene { position: absolute; inset: 0; z-index: 1; }
-  .doc.tl, .folio { color: rgba(25,25,23,.45); }
   .caption {
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
     font-size: 33px; letter-spacing: .04em;
-    color: #191917;
+    color: var(--ink);
     z-index: 5;
   }
 </style>
 </head>
 <body>
 <div class="stage">
-  <div class="doc tl">PAPER-INK GALLERY — C5<br>TABLE OF CONTENTS</div>
+  <div class="doc tl">PAPER-INK GALLERY — C5<br>RING PROGRESS ARRAY</div>
   <div class="folio">C5 / 59 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">目录页用编号纵列立起全篇地图，当前章只留一处高亮。</div>
+  <div class="caption">环形进度环列阵把一笔总额拆成若干构成份额——顶部给总量，每个圆环各占一份。</div>
 </div>
 
 <script src="../assets/particles.js"></script>
 <script>
 var NS = 'http://www.w3.org/2000/svg';
 var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK45 = 'rgba(25,25,23,.45)';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -50,53 +46,58 @@ function txt(x, y, str, attrs) {
 }
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
-/* ===== 页头：mono 小标 + 短横 ===== */
-txt(300, 218, 'CONTENTS', {'font-family':MONO, 'font-size':15, 'letter-spacing':4, fill:'rgba(25,25,23,.45)'});
-el('line', {x1:438, y1:212, x2:560, y2:212, stroke:INK, 'stroke-width':.6, opacity:.3});
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. C5 — RING PROGRESS ARRAY', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
-/* ===== 条目纵列：x300–1500，y250 起，行高 126 ===== */
-var rows = [
-  {no:'01', cn:'平台全景', en:'PLATFORM OVERVIEW',  note:'产品定位、系统边界与四类角色分工', cur:false},
-  {no:'02', cn:'调度引擎', en:'DISPATCH ENGINE',   note:'任务拆解、路径规划与冲突仲裁',     cur:false},
-  {no:'03', cn:'集群协同', en:'FLEET SYNC',        note:'多机协同、交通管制与充电调度',     cur:true},
-  {no:'04', cn:'运行数据', en:'OPERATIONS DATA',   note:'首座试运行仓的九十天指标与复盘',   cur:false},
-  {no:'05', cn:'落地路线', en:'ROLLOUT ROADMAP',   note:'三阶段复制计划与商务模式',         cur:false}
-];
-var X0 = 300, X1 = 1620, Y0 = 250, GAP = 126;
+/* ============ 顶部总量：大数字 + 一行注（衡玑科技 · 虚构演示数据） ============ */
+txt(960, 246, 'TOTAL COMPUTE BUDGET / FY2026', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
+txt(960, 336, '¥ 42,000,000', {'font-family':MONO, 'font-size':92, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(960, 382, '年度算力预算总额 · 按调度子系统拆分为四份', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+el('line', {x1:560, y1:312, x2:660, y2:312, stroke:INK, 'stroke-width':.8, opacity:.45});
+el('line', {x1:1260, y1:312, x2:1360, y2:312, stroke:INK, 'stroke-width':.8, opacity:.45});
+el('circle', {cx:548, cy:312, r:2.4, fill:INK});
+el('circle', {cx:1372, cy:312, r:2.4, fill:INK});
 
-rows.forEach(function(r, i){
-  var y = Y0 + i * GAP;                 /* 行基线带顶部 */
-  var op = r.cur ? 1 : .45;             /* 非当前章整行淡墨 */
-
-  /* 序号：当前章实心墨圆反白，其余空心单圈 */
-  var cx = X0 + 34, cy = y + 42;
-  if (r.cur) {
-    el('circle', {cx:cx, cy:cy, r:26, fill:INK, opacity:op});
-    el('circle', {cx:cx, cy:cy, r:31, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-    txt(cx, cy+9, r.no, {'font-family':MONO, 'font-size':26, 'text-anchor':'middle', fill:'#DFE0D9'});
-    /* 高亮短横引出（全页唯一强调线） */
-    el('line', {x1:cx+44, y1:cy, x2:cx+72, y2:cy, stroke:INK, 'stroke-width':1.8});
-  } else {
-    el('circle', {cx:cx, cy:cy, r:26, fill:'none', stroke:INK, 'stroke-width':1, opacity:op});
-    txt(cx, cy+8, r.no, {'font-family':MONO, 'font-size':24, 'text-anchor':'middle', fill:INK, opacity:op});
+/* ============ 四个环形进度圈 ============ */
+function donut(cx, cy, pct, zh, en, money) {
+  var R = 95, a0 = -Math.PI / 2, a1 = a0 + pct * 2 * Math.PI;
+  /* 外圈构造圆 + 刻度齿（仪器感） */
+  el('circle', {cx:cx, cy:cy, r:118, fill:'none', stroke:INK, 'stroke-width':.5, 'stroke-dasharray':'2 6', opacity:.28});
+  for (var i = 0; i < 12; i++) {
+    var a = i * Math.PI / 6, major = (i % 3 === 0);
+    el('line', {x1:cx + Math.cos(a) * 108, y1:cy + Math.sin(a) * 108,
+                x2:cx + Math.cos(a) * (major ? 116 : 112), y2:cy + Math.sin(a) * (major ? 116 : 112),
+                stroke:INK, 'stroke-width': major ? .8 : .5, opacity:.4});
   }
+  /* 底环 + 比例弧 */
+  el('circle', {cx:cx, cy:cy, r:R, fill:'none', stroke:INK, 'stroke-width':.8, opacity:.3});
+  var x0 = cx + R * Math.cos(a0), y0 = cy + R * Math.sin(a0);
+  var x1 = cx + R * Math.cos(a1), y1 = cy + R * Math.sin(a1);
+  el('path', {d:'M ' + x0 + ' ' + y0 + ' A ' + R + ' ' + R + ' 0 ' + (pct > .5 ? 1 : 0) + ' 1 ' + x1 + ' ' + y1,
+    fill:'none', stroke:INK80, 'stroke-width':1.4});
+  el('circle', {cx:x1, cy:y1, r:3, fill:INK});
+  /* 环心百分比 + 环下标签 */
+  txt(cx, cy + 9, (pct * 100).toFixed(0) + '%', {'font-family':MONO, 'font-size':32, 'text-anchor':'middle', fill:INK});
+  txt(cx, cy + 32, money, {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
+  txt(cx, cy + 152, zh, {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
+  txt(cx, cy + 180, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+}
 
-  /* 中文章题 + EN 副题 + 内容预告 */
-  var tx = X0 + 116;
-  txt(tx, cy+2, r.cn, {'font-family':SANS, 'font-weight':300, 'font-size':30, fill:INK, opacity:op});
-  var cnw = r.cn.length * 32 + 26;
-  txt(tx+cnw, cy-1, r.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.6)', opacity:op});
-  txt(tx, cy+38, r.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)', opacity:op});
+var CY = 580;
+donut(320,  CY, .38, '路径规划',   'ROUTE PLAN',   '¥15.96M');
+donut(760,  CY, .27, '派单引擎',   'DISPATCH',     '¥11.34M');
+donut(1200, CY, .21, '冲突预测',   'CONFLICT AI',  '¥ 8.82M');
+donut(1640, CY, .14, '视觉定位',   'VISION LOC',   '¥ 5.88M');
 
-  /* 行右端 mono 页码锚 */
-  txt(X1, cy+2, 'P.' + (i*4+3), {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)', opacity:op});
-
-  /* 行间 0.6px 分隔线 */
-  if (i < rows.length-1)
-    el('line', {x1:X0, y1:y+GAP-26, x2:X1, y2:y+GAP-26, stroke:INK, 'stroke-width':.6, opacity:.22});
+/* ============ 共享基线（合计校验） ============ */
+el('line', {x1:200, y1:800, x2:1720, y2:800, stroke:INK, 'stroke-width':.8, opacity:.5});
+el('line', {x1:200, y1:794, x2:200, y2:806, stroke:INK80, 'stroke-width':1.2});
+el('line', {x1:1720, y1:794, x2:1720, y2:806, stroke:INK80, 'stroke-width':1.2});
+[320, 760, 1200, 1640].forEach(function(x){
+  el('line', {x1:x, y1:700, x2:x, y2:800, stroke:INK, 'stroke-width':.6, 'stroke-dasharray':'3 6', opacity:.3});
 });
-/* 首行上方分隔线 */
-el('line', {x1:X0, y1:Y0-26, x2:X1, y2:Y0-26, stroke:INK, 'stroke-width':.6, opacity:.22});
+txt(1720, 826, 'ALLOCATION SUM · 100%', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
 
 stageFit();
 </script>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>layout-g4 · 中心枢纽 + 环绕卫星</title>
+<link rel="stylesheet" href="../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="doc tl">PAPER-INK GALLERY — G4<br>HUB AND SATELLITES</div>
+  <div class="folio">G4 / 59 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">一个调度内核被六颗能力卫星环绕，注释块左右对位，是页面的信息主体。</div>
+</div>
+
+<script src="../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+var CX = 960, CY = 540, R = 320;
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. G4 — HUB & SATELLITE SYSTEM', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 构造基准：十字虚线 ---------- */
+el('line', {x1:600, y1:CY, x2:1320, y2:CY, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
+el('line', {x1:CX, y1:200, x2:CX, y2:880, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
+
+/* ---------- 轨道虚线圆 ---------- */
+el('circle', {cx:CX, cy:CY, r:R, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.4, 'stroke-dasharray':'4 7'});
+
+/* ---------- 中心实心墨核（核心词纸色刻字） ---------- */
+el('circle', {cx:CX, cy:CY, r:134, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.45});
+el('circle', {cx:CX, cy:CY, r:120, fill:INK, stroke:'none'});
+txt(CX, CY-6, '调度中枢', {'font-family':SANS, 'font-weight':300, 'font-size':38, 'letter-spacing':4, 'text-anchor':'middle', fill:'#DFE0D9'});
+txt(CX, CY+34, 'DISPATCH CORE', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(223,224,217,.75)'});
+
+/* ---------- 六颗卫星：双圈节点 + mono 码 ---------- */
+/* 角度：左 150/180/210，右 30/0/330（顶底留空，呼吸） */
+var SAT = [
+  {a:150, code:'PATH'},
+  {a:180, code:'SYNC'},
+  {a:210, code:'PWR'},
+  {a:30,  code:'FLEET'},
+  {a:0,   code:'EXCP'},
+  {a:330, code:'REPL'}
+];
+SAT.forEach(function(s){
+  var rad = s.a * Math.PI / 180;
+  s.x = CX + R * Math.cos(rad);
+  s.y = CY - R * Math.sin(rad);
+  el('circle', {cx:s.x, cy:s.y, r:35, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
+  el('circle', {cx:s.x, cy:s.y, r:27, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
+  txt(s.x, s.y+4, s.code, {'font-family':MONO, 'font-size':12, 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK});
+});
+
+/* ---------- 注释块 + 肘形引线 ---------- */
+function block(side, y, code, cn, d1, d2) {
+  var x = side === 'L' ? 150 : 1400;
+  var rx = side === 'L' ? 136 : 1386;
+  el('line', {x1:rx, y1:y-58, x2:rx, y2:y+62, stroke:INK, 'stroke-width':.8, opacity:.5});
+  txt(x, y-40, code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
+  txt(x, y-8, cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+  txt(x, y+26, d1, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+  txt(x, y+52, d2, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+}
+function elbow(pts, endX, endY) {
+  var d = 'M ' + pts[0][0] + ' ' + pts[0][1];
+  for (var i = 1; i < pts.length; i++) d += ' L ' + pts[i][0] + ' ' + pts[i][1];
+  el('path', {d:d, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+  el('circle', {cx:endX, cy:endY, r:2.2, fill:INK, opacity:.6});
+}
+
+/* 左列：PATH(150°)→上，SYNC(180°)→中，PWR(210°)→下 */
+var L = SAT[0], M = SAT[1], B = SAT[2];
+elbow([[L.x-35, L.y],[570, L.y],[570, 300],[536, 300]], 536, 300);
+elbow([[M.x-35, M.y],[536, 540]], 536, 540);
+elbow([[B.x-35, B.y],[570, B.y],[570, 780],[536, 780]], 536, 780);
+block('L', 300, 'MOD 01 · PATH', '路径引擎', '动态避障与实时重规划', '路径解算 0.4 秒级');
+block('L', 540, 'MOD 02 · SYNC', '库存同步', '库位状态毫秒级回写', '账实一致率 99.9%');
+block('L', 780, 'MOD 03 · PWR',  '能源调度', '充电排队与峰谷策略', '电量预测误差 ±4%');
+
+/* 右列：FLEET(30°)→上，EXCP(0°)→中，REPL(330°)→下 */
+var RT = SAT[3], RM = SAT[4], RB = SAT[5];
+elbow([[RT.x+35, RT.y],[1350, RT.y],[1350, 300],[1380, 300]], 1380, 300);
+elbow([[RM.x+35, RM.y],[1380, 540]], 1380, 540);
+elbow([[RB.x+35, RB.y],[1350, RB.y],[1350, 780],[1380, 780]], 1380, 780);
+block('R', 300, 'MOD 04 · FLEET', '车队协同', '多车路权分配与解锁', '死锁检测 200ms 内');
+block('R', 540, 'MOD 05 · EXCP',  '异常接管', '故障降级与人工遥控', '接管响应 3 秒内');
+block('R', 780, 'MOD 06 · REPL',  '遥测回放', '全量事件留存与复现', '回放定位到帧级');
+
+stageFit();
+</script>
+</body>
+</html>
