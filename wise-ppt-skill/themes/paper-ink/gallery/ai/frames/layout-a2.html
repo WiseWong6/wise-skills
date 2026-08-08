@@ -63,6 +63,9 @@
 <script>
 var NS = 'http://www.w3.org/2000/svg';
 var INK = 'rgba(25,25,23,.82)';
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -185,8 +188,8 @@ for (var gx = 180; gx < 1760; gx += 42) {
 (function(){
   el('path', {d:'M 790 706 Q 900 690 992 690', fill:'none', stroke:INK, 'stroke-width':1.8, 'stroke-dasharray':'4 9', opacity:.7});
   el('path', {d:'M 984 682 L 1000 690 L 986 700', fill:'none', stroke:INK, 'stroke-width':2, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
-  el('ellipse', {cx:314, cy:672, rx:150, ry:96, fill:'none', stroke:INK, 'stroke-width':1.4, transform:'rotate(-3 314 672)', opacity:.85});
-  txt(250, 556, '车：那我呢？', {'font-family':'LXGW WenKai', 'font-size':44, fill:INK, transform:'rotate(-3 250 556)'});
+  el('ellipse', {id:'accent-outline', 'data-accent-group':'narrative-focus', cx:314, cy:672, rx:150, ry:96, fill:'none', stroke:ACCENT ? RED : INK, 'stroke-width':1.4, transform:'rotate(-3 314 672)', opacity:.85});
+  txt(250, 556, '车：那我呢？', {id:'accent-dialogue', 'data-accent-group':'narrative-focus', 'font-family':'LXGW WenKai', 'font-size':44, fill:ACCENT ? RED : INK, transform:'rotate(-3 250 556)'});
 })();
 
 stageFit();

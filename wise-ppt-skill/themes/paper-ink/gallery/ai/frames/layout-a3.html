@@ -49,6 +49,11 @@ function txt(x, y, str, attrs) {
   var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
   t.textContent = str; return t;
 }
+function tspan(parent, str, attrs) {
+  var s = document.createElementNS(NS, 'tspan');
+  for (var k in (attrs || {})) s.setAttribute(k, attrs[k]);
+  s.textContent = str; parent.appendChild(s); return s;
+}
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
@@ -58,8 +63,9 @@ el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opaci
 /* ============ 上半部 · 转述摘要（整段 300/21，关键句双线 underline） ============ */
 txt(200, 224, 'ABSTRACT', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, fill:INK45});
 txt(320, 224, '转述', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK45});
-txt(200, 272, '《生成式人工智能服务管理暂行办法》提出：提供者应当对训练数据来源的合法性负责，并采取',
-  {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
+var sourceLine = txt(200, 272, '', {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
+tspan(sourceLine, '《生成式人工智能服务管理暂行办法》', {id:'accent-source-citation', 'data-accent-group':'source-identity', fill:ACCENT ? RED : INK});
+tspan(sourceLine, '提出：提供者应当对训练数据来源的合法性负责，并采取', {fill:INK});
 txt(200, 314, '有效措施防范未成年人过度依赖，同时不得生成煽动颠覆国家政权的内容。',
   {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
 
@@ -84,13 +90,13 @@ txt(918, FY+7, 'SOURCE', {'font-family':MONO, 'font-size':15, 'letter-spacing':2
 txt(938, FY+7, '原文标本', {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK});
 
 /* 报头：机构名 + 文号 + 横线 */
-txt(960, FY+76, '国家互联网信息办公室', {'font-family':SANS, 'font-weight':300, 'font-size':27, 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
+txt(960, FY+76, '国家互联网信息办公室', {id:'accent-source-authority', 'data-accent-group':'source-identity', 'font-family':SANS, 'font-weight':300, 'font-size':27, 'letter-spacing':6, 'text-anchor':'middle', fill:ACCENT ? RED : INK});
 txt(960, FY+106, 'CAC [2023] NO.7', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 el('line', {x1:FX+44, y1:FY+126, x2:FX+FW-44, y2:FY+126, stroke:INK80, 'stroke-width':1.4});
 el('line', {x1:FX+44, y1:FY+131, x2:FX+560, y2:FY+131, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* 标题行 */
-txt(960, FY+176, '生成式人工智能服务管理暂行办法', {'font-family':SANS, 'font-weight':300, 'font-size':28, 'text-anchor':'middle', fill:(ACCENT ? RED : INK)});
+txt(960, FY+176, '生成式人工智能服务管理暂行办法', {id:'accent-source-title', 'data-accent-group':'source-identity', 'font-family':SANS, 'font-weight':300, 'font-size':28, 'text-anchor':'middle', fill:(ACCENT ? RED : INK)});
 txt(960, FY+206, 'INTERIM MEASURES · CHAPTER IV', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
 /* 正文灰行暗示（条文号 + 圆点字段行） */
