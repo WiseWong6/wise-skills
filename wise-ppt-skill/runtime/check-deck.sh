@@ -1,7 +1,18 @@
 #!/bin/bash
 # wise-ppt · single-html 无截图浏览器检查
 set -euo pipefail
-DECK="${1:?用法: check-deck.sh <deck目录>}"
+DECK="${1:?用法: check-deck.sh <deck目录> [--mode normal|accent]}"
+shift
+MODE="normal"
+if [ "${1:-}" = "--mode" ]; then
+  MODE="${2:-}"
+  shift 2
+fi
+[ "$#" -eq 0 ] || { echo "未知参数: $*" >&2; exit 2; }
+case "$MODE" in
+  normal|accent) ;;
+  *) echo "--mode 只允许 normal 或 accent" >&2; exit 2 ;;
+esac
 DECK="$(cd "$DECK" && pwd)"
 HTML="$DECK/index.html"
 [ -f "$HTML" ] || { echo "缺少 $HTML" >&2; exit 1; }
@@ -30,10 +41,11 @@ cleanup() {
   rm -rf "$TMP_ROOT"
 }
 trap cleanup EXIT INT TERM
-URL="$(python3 - "$HTML" <<'PY'
+URL="$(python3 - "$HTML" "$MODE" <<'PY'
 from pathlib import Path
 import sys
-print(Path(sys.argv[1]).resolve().as_uri()+'?selftest=1')
+query = '?accent&selftest=1' if sys.argv[2] == 'accent' else '?selftest=1'
+print(Path(sys.argv[1]).resolve().as_uri()+query)
 PY
 )"
 "$CHROME" --headless --disable-gpu --hide-scrollbars --allow-file-access-from-files --disable-background-networking --disable-component-update --disable-default-apps --disable-sync --no-first-run --no-default-browser-check --metrics-recording-only --user-data-dir="$TMP_ROOT/profile" --virtual-time-budget=12000 --dump-dom "$URL" >"$TMP_ROOT/dom.html" 2>"$TMP_ROOT/chrome.log" &
@@ -48,4 +60,4 @@ rg -q 'data-deck-ready="true"' "$TMP_ROOT/dom.html" || { echo "deck readiness �
 rg -q 'data-runtime-check="pass"' "$TMP_ROOT/dom.html" || { echo "runtime 交互检查失败" >&2; rg -o 'data-runtime-check-error="[^"]*"' "$TMP_ROOT/dom.html" >&2 || true; exit 1; }
 if rg -q 'data-render-error=|data-deck-error=' "$TMP_ROOT/dom.html"; then echo "页面资源或渲染失败" >&2; exit 1; fi
 COUNT="$(rg -o 'class="slide[^"]*"' "$HTML" | wc -l | tr -d ' ')"
-echo "PASS browser single-html slides=$COUNT board=ok canvas=ok deeplink=ok navigation=ok esc=ok"
+echo "PASS browser single-html mode=$MODE slides=$COUNT board=ok canvas=ok deeplink=ok navigation=ok esc=ok"

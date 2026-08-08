@@ -12,23 +12,7 @@
       }
     ]
   },
-  "density": "balanced",
   "rationale": "Gallery 的结构与两个组件都完整满足当前内容需求，直接精确复用。",
-  "capacity_status": "fit",
-  "core_primitive": "linear-sequence",
-  "html_attributes": {
-    "data-page-id": "page.one",
-    "data-page-role": "explain",
-    "data-theme": "minimal-neutral",
-    "data-layout-source": "gallery",
-    "data-layout": "demo.argument.sequence",
-    "data-density": "balanced",
-    "data-reuse-mode": "copy",
-    "data-page-title": "Retention reached 55%",
-    "data-page-summary": "The release moved the metric",
-    "data-section-id": "section.main",
-    "data-section-title": "Result"
-  },
   "slots": [
     {
       "slot_id": "main",
@@ -41,7 +25,10 @@
       "renderer": {
         "provider": "svg",
         "component": "sequence-path",
-        "content_refs": ["item.metric", "atom.rate"],
+        "content_refs": [
+          "item.metric",
+          "atom.rate"
+        ],
         "theme_adapter": "minimal-neutral.svg"
       }
     },
@@ -56,9 +43,15 @@
       "renderer": {
         "provider": "typography",
         "component": "takeaway",
-        "content_refs": ["item.metric"],
+        "content_refs": [
+          "item.metric"
+        ],
         "theme_adapter": "minimal-neutral.typography"
       }
     }
-  ]
+  ],
+  "emphasis": {
+    "mode": "none",
+    "reason": "本页保持默认单色，不声明语义强调焦点。"
+  }
 }

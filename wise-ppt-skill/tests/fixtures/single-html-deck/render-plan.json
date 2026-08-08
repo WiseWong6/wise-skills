@@ -20,23 +20,7 @@
           }
         ]
       },
-      "density": "balanced",
       "rationale": "四步输入输出是线性流，保留三段结构并替换结果组件，三个语义单元在版式容量内。",
-      "capacity_status": "fit",
-      "core_primitive": "linear-sequence",
-      "html_attributes": {
-        "data-page-id": "page.example-flow-kpi",
-        "data-page-role": "sequence",
-        "data-theme": "paper-ink",
-        "data-layout-source": "gallery",
-        "data-layout": "paper-ink.flow.pipeline",
-        "data-density": "balanced",
-        "data-reuse-mode": "adapt",
-        "data-page-title": "四步可追溯流水线把交付周期压到 2 天",
-        "data-page-summary": "横向流程说明机制，结果带证明价值。",
-        "data-section-id": "section.flow",
-        "data-section-title": "交付机制"
-      },
       "slots": [
         {
           "slot_id": "steps",
@@ -49,9 +33,13 @@
           "renderer": {
             "provider": "svg",
             "component": "pipeline",
-            "content_refs": ["item.delivery-process"],
+            "content_refs": [
+              "item.delivery-process"
+            ],
             "data_ref": "item.delivery-process",
-            "encode": {"order": "steps"},
+            "encode": {
+              "order": "steps"
+            },
             "theme_adapter": "paper-ink.svg"
           }
         },
@@ -66,7 +54,9 @@
           "renderer": {
             "provider": "typography",
             "component": "kpi-band",
-            "content_refs": ["item.delivery-outcomes"],
+            "content_refs": [
+              "item.delivery-outcomes"
+            ],
             "theme_adapter": "paper-ink.typography"
           }
         },
@@ -81,11 +71,17 @@
           "renderer": {
             "provider": "typography",
             "component": "takeaway",
-            "content_refs": ["item.flow-takeaway"],
+            "content_refs": [
+              "item.flow-takeaway"
+            ],
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     },
     {
       "page_id": "page.example-dense-ui",
@@ -101,23 +97,7 @@
           }
         ]
       },
-      "density": "dense",
       "rationale": "保留界面、图表、批注与结论的规范顺序，并替换前三个组件以承载真实证据。",
-      "capacity_status": "fit",
-      "core_primitive": "evidence-annotation",
-      "html_attributes": {
-        "data-page-id": "page.example-dense-ui",
-        "data-page-role": "prove",
-        "data-theme": "paper-ink",
-        "data-layout-source": "gallery",
-        "data-layout": "paper-ink.evidence.admin-ui",
-        "data-density": "dense",
-        "data-reuse-mode": "adapt",
-        "data-page-title": "一次 620ms 峰值触发重试，随后系统恢复",
-        "data-page-summary": "界面、趋势和批注共享一个证据面。",
-        "data-section-id": "section.ops",
-        "data-section-title": "异常证据"
-      },
       "slots": [
         {
           "slot_id": "product-ui",
@@ -130,7 +110,9 @@
           "renderer": {
             "provider": "native-html",
             "component": "admin-dashboard",
-            "content_refs": ["item.product-ui-state"],
+            "content_refs": [
+              "item.product-ui-state"
+            ],
             "theme_adapter": "paper-ink.native-html"
           }
         },
@@ -145,9 +127,14 @@
           "renderer": {
             "provider": "echarts",
             "component": "line",
-            "content_refs": ["item.product-latency-series"],
+            "content_refs": [
+              "item.product-latency-series"
+            ],
             "data_ref": "item.product-latency-series",
-            "encode": {"x": "time", "y": "latency_ms"},
+            "encode": {
+              "x": "time",
+              "y": "latency_ms"
+            },
             "theme_adapter": "paper-ink.echarts"
           }
         },
@@ -162,7 +149,9 @@
           "renderer": {
             "provider": "svg",
             "component": "elbow-callout",
-            "content_refs": ["item.product-anomaly-note"],
+            "content_refs": [
+              "item.product-anomaly-note"
+            ],
             "theme_adapter": "paper-ink.svg"
           }
         },
@@ -177,11 +166,23 @@
           "renderer": {
             "provider": "typography",
             "component": "takeaway",
-            "content_refs": ["item.ui-takeaway"],
+            "content_refs": [
+              "item.ui-takeaway"
+            ],
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "semantic-focus",
+        "content_ref": "item.product-anomaly-note",
+        "member_roles": [
+          "status",
+          "outline",
+          "annotation"
+        ],
+        "reason": "强调异常判断，使状态、轮廓和批注共同指向同一语义焦点。"
+      }
     }
   ]
 }

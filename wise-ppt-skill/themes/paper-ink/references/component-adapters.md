@@ -18,7 +18,7 @@
 - `data-content-ref` 必须能追到 `content.json`，不能把事实只写死在绘制代码里。
 - 页面只能有一个主要视觉角色；表格、标注、KPI、来源注可作为支持组件。
 - 不允许 decoration-only 组件。每个组件必须承载主张、证据或导航。
-- `render_plan` 中的 provider、component、data_ref、encode 与 HTML 属性必须一致。
+- `render-plan.json` 中的 provider、component、data_ref、encode 与 HTML 属性必须一致。
 
 ## Typography 与 Table
 
@@ -61,7 +61,7 @@ render plan 至少声明：
 ```
 
 - 图表类型按 [ECharts 官方 option 文档](https://echarts.apache.org/en/option.html)选择，不维护本地 series 白名单；`radar`、`sankey`、`custom` 等可正常使用。
-- 当前纸墨主题运行时为 ECharts 5；所选配置必须兼容该 major，本次不升级运行时。
+- ECharts major 以 `theme.json.runtimes.echarts.major` 为唯一权威；所选配置必须兼容该 major。
 - 色板只用墨色阶梯；`?accent` 只染 encode 指定的唯一主角。
 - 轴线与网格 0.6–1px；去渐变、圆角、面积重填充和阴影。
 - 图例、刻度、单位永不使用强调色；图表必须有来源或数据口径。
