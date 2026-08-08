@@ -13,7 +13,7 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "1.0"
+      "const": "2.0"
     },
     "content_file": {
       "type": "string",
@@ -27,6 +27,13 @@
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*$"
     },
+    "document_mode": {
+      "const": "single-html"
+    },
+    "output_file": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*[.][.]/).+[.]html$"
+    },
     "pages": {
       "type": "array",
       "minItems": 1,
@@ -35,6 +42,63 @@
       }
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "document_mode"
+        ],
+        "properties": {
+          "document_mode": {
+            "const": "single-html"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "output_file"
+        ],
+        "properties": {
+          "pages": {
+            "items": {
+              "allOf": [
+                {
+                  "not": {
+                    "required": [
+                      "output_file"
+                    ]
+                  }
+                },
+                {
+                  "properties": {
+                    "html_attributes": {
+                      "required": [
+                        "data-page-title",
+                        "data-page-summary",
+                        "data-section-id",
+                        "data-section-title"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "pages": {
+            "items": {
+              "required": [
+                "output_file"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "content_ref": {
       "type": "string",
@@ -55,6 +119,223 @@
         "converging-path",
         "evidence-annotation"
       ]
+    },
+    "candidate_evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "layout_id",
+        "verdict",
+        "reason"
+      ],
+      "properties": {
+        "layout_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.-]*$"
+        },
+        "verdict": {
+          "enum": [
+            "fit",
+            "reject"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 12
+        }
+      }
+    },
+    "capacity_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max"
+      ],
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "custom_region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot_id",
+        "block_id",
+        "visual_role",
+        "min_items",
+        "max_items"
+      ],
+      "properties": {
+        "slot_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "block_id": {
+          "type": "string",
+          "pattern": "^block[.]"
+        },
+        "visual_role": {
+          "enum": [
+            "primary",
+            "support"
+          ]
+        },
+        "min_items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_items": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "custom_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reading_order",
+        "capacity",
+        "regions"
+      ],
+      "properties": {
+        "reading_order": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "capacity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "semantic_units"
+          ],
+          "properties": {
+            "semantic_units": {
+              "$ref": "#/$defs/capacity_range"
+            },
+            "primary_items": {
+              "$ref": "#/$defs/capacity_range"
+            }
+          }
+        },
+        "regions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/custom_region"
+          }
+        }
+      }
+    },
+    "layout_decision": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/gallery_layout_decision"
+        },
+        {
+          "$ref": "#/$defs/custom_layout_decision"
+        }
+      ]
+    },
+    "gallery_layout_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "reuse_mode",
+        "layout_id",
+        "candidate_evaluations"
+      ],
+      "properties": {
+        "source": {
+          "const": "gallery"
+        },
+        "reuse_mode": {
+          "enum": [
+            "copy",
+            "adapt"
+          ]
+        },
+        "layout_id": {
+          "type": "string",
+          "pattern": "^(?!custom[.])[a-z0-9][a-z0-9.-]*$"
+        },
+        "candidate_evaluations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/candidate_evaluation"
+          }
+        }
+      }
+    },
+    "custom_layout_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "reuse_mode",
+        "layout_id",
+        "candidate_evaluations",
+        "custom_contract"
+      ],
+      "properties": {
+        "source": {
+          "const": "custom"
+        },
+        "reuse_mode": {
+          "const": "custom"
+        },
+        "layout_id": {
+          "type": "string",
+          "pattern": "^custom[.][a-z0-9][a-z0-9.-]*$"
+        },
+        "candidate_evaluations": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/candidate_evaluation"
+          }
+        },
+        "custom_contract": {
+          "$ref": "#/$defs/custom_contract"
+        }
+      }
+    },
+    "component_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action",
+        "reason"
+      ],
+      "properties": {
+        "action": {
+          "enum": [
+            "keep",
+            "replace",
+            "select"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
     },
     "renderer": {
       "type": "object",
@@ -115,6 +396,7 @@
         "slot_id",
         "block_id",
         "visual_role",
+        "component_decision",
         "renderer"
       ],
       "properties": {
@@ -132,6 +414,9 @@
             "support"
           ]
         },
+        "component_decision": {
+          "$ref": "#/$defs/component_decision"
+        },
         "renderer": {
           "$ref": "#/$defs/renderer"
         }
@@ -144,6 +429,7 @@
         "data-page-id",
         "data-page-role",
         "data-theme",
+        "data-layout-source",
         "data-layout",
         "data-density",
         "data-reuse-mode"
@@ -171,6 +457,12 @@
           "type": "string",
           "minLength": 1
         },
+        "data-layout-source": {
+          "enum": [
+            "gallery",
+            "custom"
+          ]
+        },
         "data-layout": {
           "type": "string",
           "minLength": 1
@@ -186,9 +478,24 @@
           "enum": [
             "copy",
             "adapt",
-            "compose",
-            "novel"
+            "custom"
           ]
+        },
+        "data-page-title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data-page-summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "data-section-id": {
+          "type": "string",
+          "pattern": "^section[.]"
+        },
+        "data-section-title": {
+          "type": "string",
+          "minLength": 1
         }
       }
     },
@@ -197,14 +504,11 @@
       "additionalProperties": false,
       "required": [
         "page_id",
-        "output_file",
-        "layout_id",
+        "layout_decision",
         "density",
-        "reuse_mode",
         "rationale",
         "capacity_status",
         "core_primitive",
-        "theme_primitives",
         "html_attributes",
         "slots"
       ],
@@ -217,9 +521,8 @@
           "type": "string",
           "pattern": "^(?!/)(?!.*[.][.]/).+[.]html$"
         },
-        "layout_id": {
-          "type": "string",
-          "pattern": "^[a-z0-9][a-z0-9.-]*$"
+        "layout_decision": {
+          "$ref": "#/$defs/layout_decision"
         },
         "density": {
           "enum": [
@@ -227,18 +530,6 @@
             "balanced",
             "dense"
           ]
-        },
-        "reuse_mode": {
-          "enum": [
-            "copy",
-            "adapt",
-            "compose",
-            "novel"
-          ]
-        },
-        "reuse_source": {
-          "type": "string",
-          "minLength": 1
         },
         "rationale": {
           "type": "string",
@@ -255,16 +546,6 @@
         "core_primitive": {
           "$ref": "#/$defs/core_primitive"
         },
-        "theme_primitives": {
-          "type": "array",
-          "minItems": 1,
-          "maxItems": 3,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          },
-          "uniqueItems": true
-        },
         "html_attributes": {
           "$ref": "#/$defs/html_attributes"
         },
@@ -275,27 +556,7 @@
             "$ref": "#/$defs/slot"
           }
         }
-      },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "reuse_mode": {
-                "enum": [
-                  "copy",
-                  "adapt",
-                  "compose"
-                ]
-              }
-            }
-          },
-          "then": {
-            "required": [
-              "reuse_source"
-            ]
-          }
-        }
-      ]
+      }
     }
   }
 }

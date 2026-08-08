@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN" data-page-id="wise-ppt-how" data-page-role="explain" data-theme="paper-ink" data-layout-source="gallery" data-layout="paper-ink.flow.pipeline" data-density="balanced" data-reuse-mode="adapt">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wise PPT Skill 如何工作</title>
+  <link rel="stylesheet" href="../../themes/paper-ink/assets/shared.css">
+  <style>.scene{position:absolute;inset:0;width:100%;height:100%}.caption{position:absolute;left:0;right:0;bottom:118px;z-index:5;text-align:center;font-size:33px;font-weight:400;letter-spacing:.04em}</style>
+</head>
+<body>
+  <main class="stage" id="body" data-balance="structural" data-balance-frame="0,140,1920,980">
+    <div class="doc tl" data-balance-exclude="true">WISE PPT SKILL — 02<br>CONTENT TO PLAYBACK</div>
+    <div class="folio" data-balance-exclude="true">02 / 04 — WISE PPT</div>
+    <svg class="scene" viewBox="0 0 1920 1080" role="img" aria-labelledby="how-title how-desc"
+      data-block-id="wise-ppt.workflow" data-provider="svg" data-component="pipeline" data-content-ref="wise-ppt.story.workflow">
+      <title id="how-title">Wise PPT Skill 的内容编排流程</title>
+      <desc id="how-desc">Skill 依次分析内容、梳理叙事、判断版式、组合组件，并生成可放映的网页PPT。</desc>
+    </svg>
+    <div class="caption" data-block-id="wise-ppt.workflow-takeaway" data-provider="typography" data-component="takeaway" data-content-ref="wise-ppt.story.workflow">先理解内容，再安排重点、层级与关系。</div>
+  </main>
+  <script src="../../themes/paper-ink/assets/particles.js"></script>
+  <script>
+    (function(){
+      const svg=document.querySelector('.scene'),NS='http://www.w3.org/2000/svg';
+      const INK='#191917', INK80='rgba(25,25,23,.80)', INK70='rgba(25,25,23,.70)', INK45='rgba(25,25,23,.45)';
+      const SANS='var(--sans)',MONO='var(--mono)',SERIF='var(--serif)';
+      const el=(tag,attrs={},parent=svg)=>{const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n;};
+      const txt=(text,x,y,attrs={},parent=svg)=>{const n=el('text',{x,y,fill:INK,'font-family':SANS,...attrs},parent);n.textContent=text;return n;};
+      const line=(x1,y1,x2,y2,attrs={},parent=svg)=>el('line',{x1,y1,x2,y2,stroke:INK,'stroke-width':1.1,...attrs},parent);
+      const C=[250,580,910,1240,1570], BY=580;
+      txt('FIG. 02 — CONTENT → STRUCTURE → PLAYBACK',200,176,{'font-family':MONO,'font-size':14,'letter-spacing':2.2,fill:INK45});
+      line(200,194,560,194,{stroke:INK45,'stroke-width':.7});
+      line(190,BY,1730,BY,{stroke:INK45,'stroke-width':1});
+      C.forEach(x=>{el('line',{x1:x,y1:BY-9,x2:x,y2:BY+9,stroke:INK,'stroke-width':1});el('circle',{cx:x,cy:BY,r:3.6,fill:INK});});
+      for(let i=0;i<C.length-1;i++){const a=C[i]+88,b=C[i+1]-88;line(a,BY,b,BY,{stroke:INK80,'stroke-width':1.25});el('path',{d:`M ${b-11} ${BY-6} L ${b} ${BY} L ${b-11} ${BY+6}`,fill:'none',stroke:INK80,'stroke-width':1.25,'stroke-linecap':'round','stroke-linejoin':'round'});}
+
+      const doc=el('g');el('path',{d:'M 188 330 L 276 330 L 312 366 L 312 496 L 188 496 Z',fill:'rgba(255,255,255,.22)',stroke:INK80,'stroke-width':1.3},doc);el('path',{d:'M 276 330 L 276 366 L 312 366',fill:'none',stroke:INK,'stroke-width':.8,opacity:.6},doc);[390,418,446].forEach((y,i)=>line(212,y, i===1?282:268,y,{stroke:INK45,'stroke-width':1},doc));
+      const structure=el('g');[0,1,2].forEach(i=>{el('rect',{x:518+i*18,y:354-i*14,width:100,height:112,fill:'none',stroke:i===2?INK:INK45,'stroke-width':1.1},structure);line(536+i*18,382-i*14,590+i*18,382-i*14,{stroke:INK45,'stroke-width':.8},structure);line(536+i*18,410-i*14,580+i*18,410-i*14,{stroke:INK45,'stroke-width':.8},structure);});
+      const judge=el('g');el('circle',{cx:910,cy:410,r:82,fill:'rgba(255,255,255,.22)',stroke:INK80,'stroke-width':1.3},judge);for(let a=0;a<360;a+=30){const r=a*Math.PI/180;line(910+Math.cos(r)*60,410+Math.sin(r)*60,910+Math.cos(r)*73,410+Math.sin(r)*73,{stroke:INK45,'stroke-width':.8},judge);}line(910,410,954,378,{stroke:INK,'stroke-width':1.4},judge);el('circle',{cx:910,cy:410,r:4,fill:INK},judge);
+      const compose=el('g');[[1168,344,74,54],[1252,344,58,54],[1168,408,58,58],[1236,408,74,58]].forEach((r,i)=>{el('rect',{x:r[0],y:r[1],width:r[2],height:r[3],fill:i===3?'rgba(255,255,255,.22)':'none',stroke:i===3?INK:INK45,'stroke-width':i===3?1.2:1},compose);});
+      const deck=el('g');
+      el('rect',{x:1492,y:338,width:156,height:126,fill:'rgba(255,255,255,.22)',stroke:INK,'stroke-width':1.3},deck);
+      el('rect',{x:1500,y:346,width:140,height:110,fill:'none',stroke:INK,'stroke-width':.6,opacity:.35},deck);
+      line(1520,378,1617,378,{stroke:INK45,'stroke-width':1},deck);
+      line(1520,407,1590,407,{stroke:INK45,'stroke-width':1},deck);
+      el('circle',{cx:1530,cy:432,r:3,fill:INK},deck);
+      line(1541,432,1607,432,{stroke:INK45,'stroke-width':1},deck);
+      const steps=[['01','ANALYSE','分析内容'],['02','STRUCTURE','梳理叙事'],['03','JUDGE','判断版式'],['04','COMPOSE','组合组件'],['05','DELIVER','生成网页 PPT']];
+      steps.forEach((s,i)=>{const x=C[i];el('circle',{cx:x,cy:BY+59,r:19,fill:'#DFE0D9',stroke:INK,'stroke-width':1.2});txt(s[0],x,BY+64,{'font-family':MONO,'font-size':12,'text-anchor':'middle'});txt(s[1],x,BY+112,{'font-family':MONO,'font-size':14,'letter-spacing':1.8,'text-anchor':'middle',fill:INK70});txt(s[2],x,BY+146,{'font-size':18,'font-weight':300,'text-anchor':'middle',fill:INK70});});
+      txt('RAW MATERIAL',250,806,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,'text-anchor':'middle',fill:INK45});txt('NARRATIVE',580,806,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,'text-anchor':'middle',fill:INK45});txt('LAYOUT',910,806,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,'text-anchor':'middle',fill:INK45});txt('COMPONENTS',1240,806,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,'text-anchor':'middle',fill:INK45});txt('PLAYBACK',1570,806,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,'text-anchor':'middle',fill:INK45});
+    })();stageFit();
+  </script>
+</body>
+</html>

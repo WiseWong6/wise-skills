@@ -1,0 +1,47 @@
+<section class="slide"
+  data-page-id="page.example"
+  data-page-role="explain"
+  data-theme="paper-ink"
+  data-layout-source="gallery"
+  data-layout="paper-ink.flow.pipeline"
+  data-density="balanced"
+  data-reuse-mode="adapt"
+  data-page-title="页面标题"
+  data-page-summary="本页的一句话结论。"
+  data-section-id="section.main"
+  data-section-title="第一幕">
+  <div class="stage">
+    <div class="doc tl">PROJECT — SECTION<br>PAGE KEYWORD</div>
+    <div class="folio">NN / TOTAL — BY AUTHOR</div>
+
+    <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080"
+      data-block-id="block.primary" data-provider="svg" data-component="custom-visual"
+      data-content-ref="item.placeholder">
+      <g data-draw></g>
+    </svg>
+    <canvas data-canvas width="1920" height="1080"></canvas>
+
+    <div class="caption" data-block-id="block.takeaway" data-provider="typography"
+      data-component="takeaway" data-content-ref="item.placeholder">本页的一句话结论。</div>
+  </div>
+  <script>
+  (function(){
+    var slide=document.currentScript.closest('.slide');
+    var draw=slide.querySelector('[data-draw]');
+    var NS='http://www.w3.org/2000/svg',INK='#191917';
+    function el(tag,attrs){
+      var node=document.createElementNS(NS,tag);
+      Object.keys(attrs||{}).forEach(function(key){node.setAttribute(key,attrs[key])});
+      draw.appendChild(node);return node;
+    }
+    function txt(x,y,value,attrs){var node=el('text',Object.assign({x:x,y:y},attrs||{}));node.textContent=value;return node}
+
+    txt(200,176,'FIG. NN — TITLE',{'font-family':'Courier Prime','font-size':15,'letter-spacing':3,fill:'rgba(25,25,23,.45)'});
+    el('line',{x1:200,y1:192,x2:540,y2:192,stroke:INK,'stroke-width':.6,opacity:.3});
+
+    /* 主体图形从这里开始；所有查询都以 slide 为根。 */
+
+    WisePPT.markSlideReady(slide);
+  })();
+  </script>
+</section>

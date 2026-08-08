@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministically filter layout and component catalogs.
+"""Deterministically filter layout and optional Atlas catalogs.
 
 The command reports manifest metadata only.  It does not score candidates or
 decide which semantic expression a slide should use; that remains a Core
@@ -31,7 +31,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="catalog.py",
         description="只按 manifest 元数据过滤候选，不替 Core 做语义选择。",
     )
-    parser.add_argument("kind", choices=("layouts", "components"), help="查询目录类型")
+    parser.add_argument("kind", choices=("layouts", "components"), help="查询布局或 Atlas 组件目录")
     parser.add_argument("--root", help="wise-ppt-skill 根目录")
     parser.add_argument("--theme", help="主题 ID；省略时使用 themes/registry.json 的默认主题")
     _append_filter(parser, "--role", "按 role 精确过滤；可重复")
@@ -53,6 +53,12 @@ def main(argv: list[str] | None = None) -> int:
             theme, records, _ = load_layout_catalog(root, args.theme)
             source_path = theme.layout_manifest_path
         else:
+            unsupported = sorted(set(args.provider) - {"atlas"})
+            if unsupported:
+                raise ContractError(
+                    "components 只查询可选的 PPT Component Atlas；"
+                    f"不支持 provider={unsupported}。ECharts 请查官方文档，原生 renderer 无需目录。"
+                )
             theme, records, source_path = load_component_catalog(root, args.theme)
         matches = filter_catalog(
             records,

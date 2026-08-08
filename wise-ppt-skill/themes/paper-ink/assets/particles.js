@@ -97,7 +97,7 @@ var PART = (function () {
            arc: arc, brokenArc: brokenArc, textPoints: textPoints, measure: measure };
 })();
 
-/* 每镜通用：主题开关 + 舞台适配 */
+/* 旧独立 frame 兼容入口；新 single-html deck 的舞台缩放由 runtime 统一负责。 */
 function stageFit() {
   var T = location.search;
   if (T.indexOf('cool') >= 0) document.documentElement.classList.add('cool');
@@ -115,9 +115,7 @@ function stageFit() {
 }
 
 /*
- * 截图协议：所有字体、图片和至少两帧布局完成后才标记 ready。
- * 异步图表/地图页面在 <html> 设置 data-render-pending="true"，并在组件完成后
- * 显式调用 markRenderReady()。runtime/screenshot.sh 会把缺少该标记视为失败。
+ * 旧 frame readiness 协议。新 slide 使用 WisePPT.markSlideReady(slide)。
  */
 function markRenderReady() {
   var done = false;

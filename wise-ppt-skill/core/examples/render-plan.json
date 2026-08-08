@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "core-example",
@@ -7,20 +7,27 @@
     {
       "page_id": "page.opening",
       "output_file": "frames/page.opening.html",
-      "layout_id": "core-example.focus.statement",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "copy",
+        "layout_id": "core-example.focus.statement",
+        "candidate_evaluations": [
+          {
+            "layout_id": "core-example.focus.statement",
+            "verdict": "fit",
+            "reason": "单一主张、焦点关系、阅读顺序和容量均完整满足。"
+          }
+        ]
+      },
       "density": "breathing",
-      "reuse_mode": "copy",
-      "reuse_source": "core-example.catalog.focus-statement",
       "rationale": "页面只有一个反直觉判断，关系、容量和文字主角槽位均与已验证样例完全匹配。",
       "capacity_status": "fit",
       "core_primitive": "focus-field",
-      "theme_primitives": [
-        "focus-field"
-      ],
       "html_attributes": {
         "data-page-id": "page.opening",
         "data-page-role": "hook",
         "data-theme": "core-example",
+        "data-layout-source": "gallery",
         "data-layout": "core-example.focus.statement",
         "data-density": "breathing",
         "data-reuse-mode": "copy"
@@ -30,6 +37,10 @@
           "slot_id": "hero",
           "block_id": "block.opening-claim",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "keep",
+            "reason": "原 Typography 组件能完整承载单一判断。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "assertion-title",
@@ -46,21 +57,27 @@
     {
       "page_id": "page.six-stage-loop",
       "output_file": "frames/page.six-stage-loop.html",
-      "layout_id": "core-example.flow.looped-sequence",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "adapt",
+        "layout_id": "core-example.flow.looped-sequence",
+        "candidate_evaluations": [
+          {
+            "layout_id": "core-example.flow.looped-sequence",
+            "verdict": "fit",
+            "reason": "六阶段顺序、回流关系、双槽区域和高密容量全部满足。"
+          }
+        ]
+      },
       "density": "dense",
-      "reuse_mode": "adapt",
-      "reuse_source": "core-example.catalog.looped-sequence",
-      "rationale": "六项信息有明确先后并需要回流箭头，复用序列骨架并为第六节点增加闭环连接，比六宫格更准确。",
+      "rationale": "六项信息有明确先后并需要回流箭头，保留序列骨架并替换主路径 renderer，比六宫格更准确。",
       "capacity_status": "fit",
       "core_primitive": "linear-sequence",
-      "theme_primitives": [
-        "linear-sequence",
-        "converging-path"
-      ],
       "html_attributes": {
         "data-page-id": "page.six-stage-loop",
         "data-page-role": "sequence",
         "data-theme": "core-example",
+        "data-layout-source": "gallery",
         "data-layout": "core-example.flow.looped-sequence",
         "data-density": "dense",
         "data-reuse-mode": "adapt"
@@ -70,6 +87,10 @@
           "slot_id": "main-path",
           "block_id": "block.stage-path",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "replace",
+            "reason": "保留区域结构，改用 SVG 精确表达六阶段回流。"
+          },
           "renderer": {
             "provider": "svg",
             "component": "looped-sequence-path",
@@ -96,6 +117,10 @@
           "slot_id": "return-note",
           "block_id": "block.loop-note",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "原注释组件与支持信息的角色和容量完全匹配。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "edge-annotation",
@@ -111,28 +136,54 @@
     {
       "page_id": "page.close",
       "output_file": "frames/page.close.html",
-      "layout_id": "core-example.focus.close",
+      "layout_decision": {
+        "source": "custom",
+        "reuse_mode": "custom",
+        "layout_id": "custom.core-example.close",
+        "candidate_evaluations": [],
+        "custom_contract": {
+          "reading_order": [
+            "closing-statement"
+          ],
+          "capacity": {
+            "semantic_units": {
+              "min": 1,
+              "max": 2
+            }
+          },
+          "regions": [
+            {
+              "slot_id": "closing-statement",
+              "block_id": "block.close-claim",
+              "visual_role": "primary",
+              "min_items": 1,
+              "max_items": 2
+            }
+          ]
+        }
+      },
       "density": "breathing",
-      "reuse_mode": "novel",
-      "rationale": "收尾只保留一个行动判断，使用单一焦点原语并省略重复流程信息。",
+      "rationale": "Gallery 没有满足当前收束要求的候选，按页内契约自由构建单一焦点区域。",
       "capacity_status": "fit",
       "core_primitive": "focus-field",
-      "theme_primitives": [
-        "focus-field"
-      ],
       "html_attributes": {
         "data-page-id": "page.close",
         "data-page-role": "close",
         "data-theme": "core-example",
-        "data-layout": "core-example.focus.close",
+        "data-layout-source": "custom",
+        "data-layout": "custom.core-example.close",
         "data-density": "breathing",
-        "data-reuse-mode": "novel"
+        "data-reuse-mode": "custom"
       },
       "slots": [
         {
           "slot_id": "closing-statement",
           "block_id": "block.close-claim",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "select",
+            "reason": "根据收束语义重新选择原生 Typography 表达。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "closing-assertion",
