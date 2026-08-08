@@ -410,6 +410,7 @@ var RED = '#C0392B';
 - CDN：`https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css`
 - 强制墨色：`color: var(--ink)` 或墨色阶梯透明度；禁彩色图标、禁动效图标。
 - 尺寸克制：≤32px，配合 mono 小标签使用；图标是标注件，不当主角。
+- 禁止使用 emoji（😀🚀📊💡 等彩色象形字符）充当图标或装饰，任何页面、caption、标签、数据标注中均不得出现；`→`、`✕`、`✓`、`✗`、`↔` 等单色排版符号属于纸墨线型语言，不受此禁令约束。
 
 ### 6.2 ECharts 5（仅复杂数据图表）
 

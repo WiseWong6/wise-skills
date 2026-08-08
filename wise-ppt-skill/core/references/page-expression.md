@@ -43,6 +43,8 @@ Grid 是并列或双维度关系的有效答案，但不是元素多时的自动
 
 `dense` 不等于字号变小。它允许更多结构层级，但仍须满足可读字号、安全区、溢出和主次门禁。超过 12 个独立单元时，优先拆页或分层交互；不要继续压缩。
 
+**语义单元计数**：一个被页面 `content_refs` 引用的内容项（item）或原子值（atom）各算 1 个单元。例：封面只放核心论点（1 个 item）= 1 单元，符合 breathing；若同页还引用该论点的 3 个数字 atom = 4 单元，超过 breathing 上限。正确做法：封面只引用 item，带数字的 atom 放到后续 evidence/data 页引用——覆盖校验仍会逐一追踪这些 must atom，不会因为不挤进封面而丢失。
+
 ## 4. 主角与支持件
 
 每页只能有一个 `importance: primary` 的 semantic block，也只能有一个 `visual_role: primary` 的渲染 slot。支持组件可以多个，但必须服务于同一 takeaway，例如：
