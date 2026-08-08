@@ -125,17 +125,12 @@
             "reason": "以真实延迟趋势替换样例中的通用图表。"
           },
           "renderer": {
-            "provider": "echarts",
-            "component": "line",
+            "provider": "native-html",
+            "component": "canvas-line-chart",
             "content_refs": [
               "item.product-latency-series"
             ],
-            "data_ref": "item.product-latency-series",
-            "encode": {
-              "x": "time",
-              "y": "latency_ms"
-            },
-            "theme_adapter": "paper-ink.echarts"
+            "theme_adapter": "paper-ink.native-html"
           }
         },
         {
@@ -147,12 +142,12 @@
             "reason": "以异常落点批注替换样例中的通用标注。"
           },
           "renderer": {
-            "provider": "svg",
-            "component": "elbow-callout",
+            "provider": "typography",
+            "component": "anomaly-note",
             "content_refs": [
               "item.product-anomaly-note"
             ],
-            "theme_adapter": "paper-ink.svg"
+            "theme_adapter": "paper-ink.typography"
           }
         },
         {

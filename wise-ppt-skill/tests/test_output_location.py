@@ -75,7 +75,7 @@ class OutputLocationTests(unittest.TestCase):
             self.skill_root,
             require_workspace=True,
         )
-        self.assertTrue(examples_result.ok)
+        self.assert_has_code(examples_result, "output.inside_skill")
         self.assert_has_code(examples_delivery, "output.inside_skill")
 
     def test_normal_validation_rejects_skill_output(self) -> None:
