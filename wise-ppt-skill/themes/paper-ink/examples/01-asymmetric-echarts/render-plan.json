@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0", "content_file": "content.json", "deck_plan_file": "deck-plan.json", "theme_id": "paper-ink",
+  "pages": [{
+    "page_id": "page.example-asymmetric-echarts", "output_file": "frames/shot-01.html", "layout_id": "paper-ink.data.visual-kpi-split", "density": "dense", "reuse_mode": "compose", "reuse_source": "paper-ink.data.visual-kpi-split",
+    "rationale": "三项内容是一条趋势证据链，左侧约三分之二承载连续变化，右侧只提炼结果；非对称分栏保留主次并符合 2–7 个语义单元容量。", "capacity_status": "fit",
+    "core_primitive": "bilateral-split", "theme_primitives": ["asymmetric-split", "kpi-matrix"],
+    "html_attributes": {"data-page-id": "page.example-asymmetric-echarts", "data-page-role": "prove", "data-theme": "paper-ink", "data-layout": "paper-ink.data.visual-kpi-split", "data-density": "dense", "data-reuse-mode": "compose"},
+    "slots": [
+      {"slot_id": "visual", "block_id": "block.metric-trend", "visual_role": "primary", "renderer": {"provider": "echarts", "component": "line", "content_refs": ["item.metric-retention-series"], "data_ref": "item.metric-retention-series", "encode": {"x": "week", "y": ["old", "new"], "focus": "new"}, "theme_adapter": "paper-ink.echarts"}},
+      {"slot_id": "support", "block_id": "block.metric-kpis", "visual_role": "support", "renderer": {"provider": "typography", "component": "kpi-stack", "content_refs": ["item.metric-retention-summary"], "theme_adapter": "paper-ink.typography"}},
+      {"slot_id": "takeaway", "block_id": "block.metric-takeaway", "visual_role": "support", "renderer": {"provider": "typography", "component": "takeaway", "content_refs": ["item.metric-takeaway"], "theme_adapter": "paper-ink.typography"}}
+    ]
+  }]
+}

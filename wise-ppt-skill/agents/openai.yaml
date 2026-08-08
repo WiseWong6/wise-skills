@@ -1,0 +1,5 @@
+interface:
+  display_name: "Wise PPT 编排内核"
+  short_description: "从原始资料到叙事、逐页表达与主题渲染的标准网页 PPT 内核"
+  brand_color: "#191917"
+  default_prompt: "使用 $wise-ppt-skill 把我的原始资料整理成有叙事依据、可校验的 HTML 演示文稿。"

@@ -1,4 +1,7 @@
+.DS_Store
 .playwright-mcp/
-
-# 产出 deck 里的 assets 拷贝和字体（可再生，不进 git）
-output/*/assets/
+.zcode/
+logs/
+output/
+__pycache__/
+*.py[cod]

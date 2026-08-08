@@ -1,0 +1,8 @@
+{
+  "name": "valid",
+  "mode": "sourced",
+  "source": "brief.md",
+  "items": [
+    {"id": "item.one", "weight": 3}
+  ]
+}

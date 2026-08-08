@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "brief": {"title": "可追溯交付流水线", "objective": "解释四步流水线如何同时缩短交付时间并降低返工。", "audience": "业务与工程负责人", "scenario": "能力介绍", "language": "zh-CN", "page_limits": {"min": 1, "max": 1, "requested": 1}, "must_include": ["四步流程", "两个结果指标", "因果结论"], "must_avoid": ["把步骤做成互不相干的四张卡"], "gaps": []},
+  "sources": [{"id": "src.pipeline-demo", "kind": "dataset", "title": "教学用交付流水线数据", "locator": "inline://pipeline-outcomes", "synthetic": true, "notes": "演示流程与结果指标的因果编排。"}],
+  "content_items": [
+    {"id": "item.delivery-process", "kind": "process", "statement": "原始资料依次经过事实化、语义编排、主题渲染、契约验证。", "priority": "must", "status": "sourced", "status_note": "合成教学流程。", "source_refs": ["src.pipeline-demo"], "atomic_values": [], "structured_data": {"steps": ["事实化", "语义编排", "主题渲染", "契约验证"], "count": 4}, "relations": [{"type": "supports", "target_ref": "item.delivery-outcomes", "reason": "标准流水线解释结果指标改善的机制。"}], "tags": ["flow", "4-steps"]},
+    {"id": "item.delivery-outcomes", "kind": "metric", "statement": "交付周期从 5 天降到 2 天，返工次数从 4 次降到 1 次。", "priority": "must", "status": "sourced", "status_note": "合成教学数据。", "source_refs": ["src.pipeline-demo"], "atomic_values": [], "structured_data": {"lead_time": {"before": 5, "after": 2, "unit": "天"}, "rework": {"before": 4, "after": 1, "unit": "次"}}, "relations": [{"type": "supports", "target_ref": "item.flow-takeaway", "reason": "两个 KPI 验证流水线带来的结果。"}], "tags": ["kpi", "outcome"]},
+    {"id": "item.flow-takeaway", "kind": "assertion", "statement": "先读机制、再读结果，KPI 应作为流程的结果带，而不是另起一组卡片。", "priority": "must", "status": "sourced", "status_note": "合成教学结论。", "source_refs": ["src.pipeline-demo"], "atomic_values": [], "relations": [{"type": "depends_on", "target_ref": "item.delivery-process", "reason": "结论依赖流程机制。"}, {"type": "depends_on", "target_ref": "item.delivery-outcomes", "reason": "结论依赖结果证据。"}], "tags": ["takeaway"]}
+  ]
+}
