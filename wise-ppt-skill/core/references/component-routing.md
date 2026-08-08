@@ -25,6 +25,7 @@ Layout 决定空间关系，renderer 决定某个 slot 如何呈现内容。Gall
 | `atlas` | 可选参考源 | 本地目录中可精确命名的结构组件 | 只按精确名称查询；不让 Atlas 替代语义选择 |
 
 页面可以完全不使用 Atlas 或 ECharts。provider 是否可用仍受当前主题 `providers` 声明约束。
+provider 表示实际渲染机制，不是页面意图标签：手写 `<canvas>` 归 `native-html`；`svg`、`image`、`table` 的包装节点必须分别实际包含对应元素；只有调用 `WisePPT.createEChart()` 的图表才能声明 `echarts`。
 
 ## 3. ECharts 的进入条件
 
