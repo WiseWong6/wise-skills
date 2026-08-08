@@ -9,12 +9,12 @@
 1. 写出唯一 takeaway；
 2. 确定观众需要看见的证据；
 3. 判断内容之间的 `relation_shape`，并据此确定唯一 `spatial_primitive`；
-4. 估算语义单元数量与 `density_intent`；
+4. 写入 `semantic_unit_count` 并确定 `density_intent`；
 5. 把关系翻译成所需区域、阅读顺序、容量与组件角色；
 6. 再到主题 Gallery manifest 查询候选并逐项判断；
 7. 选择 `gallery` 或 `custom`，然后为每个 slot 选择 renderer。
 
-组件永远排在关系和空间需求之后，但复杂组件的容量约束可以让上一步回退重选布局。进入渲染后，`render.pages[].core_primitive` 必须原样继承对应语义页的 `spatial_primitive`。只有决定采用 Gallery 后，才读取对应样张 HTML；不得先看样张再倒推内容。
+组件永远排在关系和空间需求之后，但复杂组件的容量约束可以让上一步回退重选布局。Render 校验直接读取语义页的 `spatial_primitive` 和 `semantic_unit_count`，Render Plan 不重复声明。只有决定采用 Gallery 后，才读取对应样张 HTML；不得先看样张再倒推内容。
 
 ## 2. 相同数量不代表相同版式
 
@@ -37,7 +37,7 @@ Grid 是并列或双维度关系的有效答案，但不是元素多时的自动
 
 | 密度 | 容量参考 | 适用页面 |
 |---|---:|---|
-| `breathing` | 不超过 2 个语义单元，留白通常不少于 60% | hook、金句、单一判断、close |
+| `breathing` | 1–2 个语义单元 | hook、金句、单一判断、close |
 | `balanced` | 3–5 个语义单元 | 常规解释、比较、证据页 |
 | `dense` | 6–12 个语义单元，或一个完整表格、数据图、界面、架构复合体 | 数据总账、规格、复杂系统、界面审阅 |
 
@@ -56,12 +56,7 @@ Grid 是并列或双维度关系的有效答案，但不是元素多时的自动
 
 ## 5. 页面容量回退
 
-主题 layout 的 capacity 是门禁，不是建议：
-
-- `fit`：按计划渲染；
-- `underfill`：合并相邻内容，或换更强调单一对象的 layout；
-- `overflow`：拆页、删非必须支持件，或换高容量 layout；
-- `unsupported`：Gallery 没有可靠表达，进入 `custom` 并声明页内布局契约；只有主题能力或 renderer 本身无法完成时才向用户说明。
+主题 layout 的 capacity 是门禁，不是写入 Render Plan 的状态字段。若 `semantic_unit_count` 低于下限则合并相邻内容或换低容量 layout；超过上限则拆页、删非必须支持件或换高容量 layout；候选不支持所需关系、原语或区域时进入 `custom` 并声明页内布局契约。
 
 禁止用缩小字体、溢出裁切或隐去 must 事实来伪装 `fit`。
 

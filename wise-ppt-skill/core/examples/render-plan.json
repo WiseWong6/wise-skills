@@ -20,23 +20,7 @@
           }
         ]
       },
-      "density": "breathing",
       "rationale": "页面只有一个反直觉判断，关系、容量和文字主角槽位均与已验证样例完全匹配。",
-      "capacity_status": "fit",
-      "core_primitive": "focus-field",
-      "html_attributes": {
-        "data-page-id": "page.opening",
-        "data-page-role": "hook",
-        "data-theme": "core-example",
-        "data-layout-source": "gallery",
-        "data-layout": "core-example.focus.statement",
-        "data-density": "breathing",
-        "data-reuse-mode": "copy",
-        "data-page-title": "上线只是过程中的一个节点",
-        "data-page-summary": "学习结果必须进入下一轮发现。",
-        "data-section-id": "section.opening",
-        "data-section-title": "建立判断"
-      },
       "slots": [
         {
           "slot_id": "hero",
@@ -57,7 +41,11 @@
             "theme_adapter": "core-example.type-emphasis"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     },
     {
       "page_id": "page.six-stage-loop",
@@ -73,23 +61,7 @@
           }
         ]
       },
-      "density": "dense",
       "rationale": "六项信息有明确先后并需要回流箭头，保留序列骨架并替换主路径 renderer，比六宫格更准确。",
-      "capacity_status": "fit",
-      "core_primitive": "linear-sequence",
-      "html_attributes": {
-        "data-page-id": "page.six-stage-loop",
-        "data-page-role": "sequence",
-        "data-theme": "core-example",
-        "data-layout-source": "gallery",
-        "data-layout": "core-example.flow.looped-sequence",
-        "data-density": "dense",
-        "data-reuse-mode": "adapt",
-        "data-page-title": "六个阶段首尾相接，而不是六个孤立格子",
-        "data-page-summary": "发现、界定、构建、验证、发布与学习按顺序推进，并由学习回流到发现。",
-        "data-section-id": "section.mechanism",
-        "data-section-title": "展示机制"
-      },
       "slots": [
         {
           "slot_id": "main-path",
@@ -139,7 +111,11 @@
             "theme_adapter": "core-example.annotation"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     },
     {
       "page_id": "page.close",
@@ -169,23 +145,7 @@
           ]
         }
       },
-      "density": "breathing",
       "rationale": "Gallery 没有满足当前收束要求的候选，按页内契约自由构建单一焦点区域。",
-      "capacity_status": "fit",
-      "core_primitive": "focus-field",
-      "html_attributes": {
-        "data-page-id": "page.close",
-        "data-page-role": "close",
-        "data-theme": "core-example",
-        "data-layout-source": "custom",
-        "data-layout": "custom.core-example.close",
-        "data-density": "breathing",
-        "data-reuse-mode": "custom",
-        "data-page-title": "每次发布都应留下下一轮可用的学习",
-        "data-page-summary": "没有回流的发布，只完成了交付，没有完成学习。",
-        "data-section-id": "section.close",
-        "data-section-title": "收束行动"
-      },
       "slots": [
         {
           "slot_id": "closing-statement",
@@ -206,7 +166,11 @@
             "theme_adapter": "core-example.type-emphasis"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     }
   ]
 }

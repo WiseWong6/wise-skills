@@ -48,20 +48,63 @@
       "type": "string",
       "pattern": "^(item|atom)[.]"
     },
-    "core_primitive": {
-      "enum": [
-        "focus-field",
-        "bilateral-split",
-        "peer-array",
-        "linear-sequence",
-        "parallel-tracks",
-        "radial-burst",
-        "nested-regions",
-        "layered-stack",
-        "matrix-field",
-        "network-field",
-        "converging-path",
-        "evidence-annotation"
+    "emphasis": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "reason"
+          ],
+          "properties": {
+            "mode": {
+              "const": "none"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 8
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "content_ref",
+            "member_roles",
+            "reason"
+          ],
+          "properties": {
+            "mode": {
+              "const": "semantic-focus"
+            },
+            "content_ref": {
+              "$ref": "#/$defs/content_ref"
+            },
+            "member_roles": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "enum": [
+                  "value",
+                  "label",
+                  "outline",
+                  "status",
+                  "symbol",
+                  "texture",
+                  "annotation"
+                ]
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 8
+            }
+          }
+        }
       ]
     },
     "candidate_evaluation": {
@@ -366,98 +409,14 @@
         }
       }
     },
-    "html_attributes": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "data-page-id",
-        "data-page-role",
-        "data-theme",
-        "data-layout-source",
-        "data-layout",
-        "data-density",
-        "data-reuse-mode",
-        "data-page-title",
-        "data-page-summary",
-        "data-section-id",
-        "data-section-title"
-      ],
-      "properties": {
-        "data-page-id": {
-          "type": "string",
-          "pattern": "^page[.]"
-        },
-        "data-page-role": {
-          "enum": [
-            "hook",
-            "orient",
-            "explain",
-            "prove",
-            "compare",
-            "sequence",
-            "synthesize",
-            "decide",
-            "act",
-            "close"
-          ]
-        },
-        "data-theme": {
-          "type": "string",
-          "minLength": 1
-        },
-        "data-layout-source": {
-          "enum": [
-            "gallery",
-            "custom"
-          ]
-        },
-        "data-layout": {
-          "type": "string",
-          "minLength": 1
-        },
-        "data-density": {
-          "enum": [
-            "breathing",
-            "balanced",
-            "dense"
-          ]
-        },
-        "data-reuse-mode": {
-          "enum": [
-            "copy",
-            "adapt",
-            "custom"
-          ]
-        },
-        "data-page-title": {
-          "type": "string",
-          "minLength": 1
-        },
-        "data-page-summary": {
-          "type": "string",
-          "minLength": 1
-        },
-        "data-section-id": {
-          "type": "string",
-          "pattern": "^section[.]"
-        },
-        "data-section-title": {
-          "type": "string",
-          "minLength": 1
-        }
-      }
-    },
     "render_page": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "page_id",
         "layout_decision",
-        "density",
         "rationale",
-        "capacity_status",
-        "core_primitive",
-        "html_attributes",
+        "emphasis",
         "slots"
       ],
       "properties": {
@@ -468,30 +427,12 @@
         "layout_decision": {
           "$ref": "#/$defs/layout_decision"
         },
-        "density": {
-          "enum": [
-            "breathing",
-            "balanced",
-            "dense"
-          ]
-        },
         "rationale": {
           "type": "string",
           "minLength": 12
         },
-        "capacity_status": {
-          "enum": [
-            "fit",
-            "underfill",
-            "overflow",
-            "unsupported"
-          ]
-        },
-        "core_primitive": {
-          "$ref": "#/$defs/core_primitive"
-        },
-        "html_attributes": {
-          "$ref": "#/$defs/html_attributes"
+        "emphasis": {
+          "$ref": "#/$defs/emphasis"
         },
         "slots": {
           "type": "array",

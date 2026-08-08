@@ -18,23 +18,7 @@
           }
         ]
       },
-      "density": "dense",
       "rationale": "三项内容是一条趋势证据链，左侧约三分之二承载连续变化，右侧只提炼结果；非对称分栏保留主次并符合 2–7 个语义单元容量。",
-      "capacity_status": "fit",
-      "core_primitive": "bilateral-split",
-      "html_attributes": {
-        "data-page-id": "page.example-asymmetric-echarts",
-        "data-page-role": "prove",
-        "data-theme": "paper-ink",
-        "data-layout": "paper-ink.data.visual-kpi-split",
-        "data-density": "dense",
-        "data-reuse-mode": "adapt",
-        "data-layout-source": "gallery",
-        "data-page-title": "留存提升持续扩大到 +25pp",
-        "data-page-summary": "趋势是主证据，KPI 是解释，不应被均分成同权重格子。",
-        "data-section-id": "section.proof",
-        "data-section-title": "结果证明"
-      },
       "slots": [
         {
           "slot_id": "visual",
@@ -96,7 +80,15 @@
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "semantic-focus",
+        "content_ref": "item.metric-retention-series",
+        "member_roles": [
+          "outline"
+        ],
+        "reason": "强调新版留存序列的折线与数据点轮廓，不把坐标和辅助标签误染。"
+      }
     }
   ],
   "document_mode": "single-html",

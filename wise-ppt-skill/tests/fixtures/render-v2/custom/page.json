@@ -12,10 +12,19 @@
       }
     ],
     "custom_contract": {
-      "reading_order": ["main", "takeaway"],
+      "reading_order": [
+        "main",
+        "takeaway"
+      ],
       "capacity": {
-        "semantic_units": {"min": 2, "max": 4},
-        "primary_items": {"min": 2, "max": 4}
+        "semantic_units": {
+          "min": 2,
+          "max": 4
+        },
+        "primary_items": {
+          "min": 2,
+          "max": 4
+        }
       },
       "regions": [
         {
@@ -35,23 +44,7 @@
       ]
     }
   },
-  "density": "balanced",
   "rationale": "Gallery 候选无法满足独立区域要求，按页内布局契约使用原生能力自由构建。",
-  "capacity_status": "fit",
-  "core_primitive": "linear-sequence",
-  "html_attributes": {
-    "data-page-id": "page.one",
-    "data-page-role": "explain",
-    "data-theme": "minimal-neutral",
-    "data-layout-source": "custom",
-    "data-layout": "custom.page.one",
-    "data-density": "balanced",
-    "data-reuse-mode": "custom",
-    "data-page-title": "Retention reached 55%",
-    "data-page-summary": "The release moved the metric",
-    "data-section-id": "section.main",
-    "data-section-title": "Result"
-  },
   "slots": [
     {
       "slot_id": "main",
@@ -64,7 +57,10 @@
       "renderer": {
         "provider": "svg",
         "component": "sequence-path",
-        "content_refs": ["item.metric", "atom.rate"],
+        "content_refs": [
+          "item.metric",
+          "atom.rate"
+        ],
         "theme_adapter": "minimal-neutral.svg"
       }
     },
@@ -79,9 +75,15 @@
       "renderer": {
         "provider": "typography",
         "component": "takeaway",
-        "content_refs": ["item.metric"],
+        "content_refs": [
+          "item.metric"
+        ],
         "theme_adapter": "minimal-neutral.typography"
       }
     }
-  ]
+  ],
+  "emphasis": {
+    "mode": "none",
+    "reason": "本页保持默认单色，不声明语义强调焦点。"
+  }
 }

@@ -11,7 +11,7 @@
     "assertion_title": "留存提升持续扩大到 +25pp", "audience_question": "这次改版是真的有效，还是一个偶然峰值？", "takeaway": "趋势是主证据，KPI 是解释，不应被均分成同权重格子。",
     "content_refs": ["item.metric-retention-series", "item.metric-retention-summary", "item.metric-takeaway"], "evidence_refs": ["item.metric-retention-series", "item.metric-retention-summary"],
     "relation_shape": {"primary": "evidence", "secondary": ["comparison"], "reason": "时间序列先证明持续性，KPI 再提炼最终差异。"},
-    "spatial_primitive": "bilateral-split", "density_intent": "dense",
+    "spatial_primitive": "bilateral-split", "semantic_unit_count": 7, "density_intent": "dense",
     "blocks": [
       {"block_id": "block.metric-trend", "purpose": "用时间序列承担主要证明", "importance": "primary", "semantic_form": "metrics", "content_refs": ["item.metric-retention-series"]},
       {"block_id": "block.metric-kpis", "purpose": "提炼最终值、增幅与拐点", "importance": "support", "semantic_form": "metrics", "content_refs": ["item.metric-retention-summary"]},

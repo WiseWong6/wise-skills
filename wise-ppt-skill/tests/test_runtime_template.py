@@ -22,28 +22,40 @@ class RuntimeTemplateTests(unittest.TestCase):
         self.assertNotIn("var shots", lowered)
         self.assertNotIn("var acts", lowered)
         self.assertIn('data-document-mode="single-html"', self.source)
-        self.assertIn('<section class="slide"', self.source)
+        self.assertNotIn('<section class="slide"', self.source)
+        self.assertIn('id="track"', self.source)
 
     def test_board_clones_live_slides_safely(self) -> None:
-        for source in (self.source, self.runtime):
-            self.assertIn("cloneNode(true)", source)
-            self.assertIn("querySelectorAll('script')", source)
-            self.assertIn("clone.inert=true", source)
-            self.assertIn("setAttribute('aria-hidden','true')", source)
-            self.assertIn("copyCanvasPixels", source)
-            self.assertIn("dataset.canvasCopied='true'", source)
-
-    def test_runtime_uses_slide_metadata_and_local_page_script(self) -> None:
-        for attribute in (
-            "data-page-title",
-            "data-page-summary",
-            "data-section-id",
-            "data-section-title",
+        self.assertNotIn("cloneNode(true)", self.source)
+        for token in (
+            "cloneNode(true)",
+            "querySelectorAll('script')",
+            "clone.inert=true",
+            "setAttribute('aria-hidden','true')",
+            "copyCanvasPixels",
+            "dataset.canvasCopied='true'",
         ):
-            self.assertIn(attribute, self.source)
-        self.assertIn("document.currentScript.closest('.slide')", self.source)
-        self.assertIn("WisePPT.markSlideReady(slide)", self.source)
-        self.assertIn("renderer:'svg'", self.source)
+            self.assertIn(token, self.runtime)
+
+    def test_template_has_one_external_runtime_authority(self) -> None:
+        self.assertEqual(self.source.count('src="assets/deck-runtime.js"'), 1)
+        self.assertNotIn("function initialize()", self.source)
+        self.assertNotIn("global.WisePPT", self.source)
+
+    def test_runtime_uses_slide_metadata_and_semantic_emphasis(self) -> None:
+        for attribute in (
+            "dataset.pageTitle",
+            "dataset.pageSummary",
+            "dataset.sectionId",
+            "dataset.sectionTitle",
+            "dataset.emphasisMode",
+            "dataset.emphasisRef",
+            "dataset.emphasisRoles",
+        ):
+            self.assertIn(attribute, self.runtime)
+        self.assertIn("emphasisColor", self.runtime)
+        self.assertIn("renderer:'svg'", self.runtime)
+        self.assertIn("registerSlideTask", self.runtime)
 
     def test_navigation_print_and_readiness_contracts_exist(self) -> None:
         for token in (
@@ -60,11 +72,11 @@ class RuntimeTemplateTests(unittest.TestCase):
             "data-deck-ready",
         ):
             if token == "?print=1":
-                self.assertIn("get('print')==='1'", self.source)
+                self.assertIn("get('print')==='1'", self.runtime)
             elif token == "data-deck-ready":
-                self.assertIn("dataset.deckReady", self.source)
+                self.assertIn("dataset.deckReady", self.runtime)
             else:
-                self.assertIn(token, self.source)
+                self.assertIn(token, self.runtime)
 
 
 if __name__ == "__main__":

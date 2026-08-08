@@ -27,7 +27,7 @@
         <line x1="0" y1="0" x2="0" y2="7" stroke="#191917" stroke-width=".7" opacity=".35"/>
       </pattern>
       <pattern id="hatch30red" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
-        <line x1="0" y1="0" x2="0" y2="7" stroke="#C0392B" stroke-width="1" opacity=".5"/>
+        <line x1="0" y1="0" x2="0" y2="7" stroke="var(--accent-red)" stroke-width="1" opacity=".5"/>
       </pattern>
     </defs>
     <g id="draw"></g>
@@ -45,7 +45,7 @@ var INK70 = 'rgba(25,25,23,.7)';
 var INK45 = 'rgba(25,25,23,.45)';
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
