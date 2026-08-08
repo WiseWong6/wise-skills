@@ -110,6 +110,82 @@ def resolve_root(explicit: str | os.PathLike[str] | None = None) -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def _deck_directory(target: Path) -> Path:
+    resolved = target.expanduser().resolve()
+    if resolved.is_file() or (not resolved.exists() and resolved.suffix.casefold() == ".json"):
+        return resolved.parent
+    return resolved
+
+
+def _relative_to(path: Path, parent: Path) -> Path | None:
+    try:
+        return path.relative_to(parent)
+    except ValueError:
+        return None
+
+
+def _is_internal_contract_path(relative: Path) -> bool:
+    parts = relative.parts
+    if len(parts) >= 2 and parts[:2] == ("core", "examples"):
+        return True
+    if len(parts) >= 3 and parts[0] == "themes" and parts[2] in {"examples", "gallery"}:
+        return True
+    return bool(parts and parts[0] == "tests")
+
+
+def validate_output_location(
+    target: Path,
+    root: Path,
+    workspace: Path | None = None,
+    *,
+    allow_internal: bool = False,
+    require_workspace: bool = False,
+) -> ValidationResult:
+    """Validate that a deliverable deck belongs to the user's workspace.
+
+    Contract examples, galleries and test fixtures may be validated in-place by
+    normal validation commands. The explicit ``location`` preflight never
+    treats repository-internal paths as user deliverables.
+    """
+
+    result = ValidationResult()
+    deck = _deck_directory(target)
+    skill_root = root.expanduser().resolve()
+
+    if require_workspace and workspace is None:
+        result.error(
+            "config.workspace",
+            str(deck),
+            "location 预检必须通过 --workspace 指定用户当前工作区根目录",
+        )
+        return result
+
+    relative_to_skill = _relative_to(deck, skill_root)
+    if relative_to_skill is not None:
+        if not (allow_internal and _is_internal_contract_path(relative_to_skill)):
+            result.error(
+                "output.inside_skill",
+                str(deck),
+                "正式 PPT 产物必须位于用户工作区，不能写入 wise-ppt-skill 根目录或其 output/outputs 子目录",
+            )
+
+    if workspace is not None:
+        workspace_root = workspace.expanduser().resolve()
+        if not workspace_root.is_dir():
+            result.error(
+                "config.workspace",
+                str(workspace_root),
+                "用户工作区根目录不存在或不是目录",
+            )
+        elif _relative_to(deck, workspace_root) is None:
+            result.error(
+                "output.outside_workspace",
+                str(deck),
+                f"正式 PPT 产物必须位于用户工作区内：{workspace_root}",
+            )
+    return result
+
+
 def _json_pointer_get(document: Any, pointer: str) -> Any:
     if pointer in ("", "#"):
         return document
@@ -2184,6 +2260,10 @@ def validate_gallery_target(target: Path, root: Path) -> ValidationResult:
 
 def validate_all(target: Path, root: Path) -> ValidationResult:
     result = ValidationResult()
+    location = validate_output_location(target, root, allow_internal=True)
+    result.extend(location)
+    if not location.ok:
+        return result
     result.extend(validate_content_target(target, root))
     result.extend(validate_plan_target(target, root))
     result.extend(validate_render_target(target, root))
@@ -2206,4 +2286,8 @@ VALIDATORS = {
 def run_validation(kind: str, target: Path, root: Path) -> ValidationResult:
     if kind not in VALIDATORS:
         raise ContractError(f"未知校验类型：{kind}")
+    if kind in {"content", "plan", "render", "coverage"}:
+        location = validate_output_location(target, root, allow_internal=True)
+        if not location.ok:
+            return location
     return VALIDATORS[kind](target, root)
