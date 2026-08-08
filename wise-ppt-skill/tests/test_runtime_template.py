@@ -31,7 +31,7 @@ class RuntimeTemplateTests(unittest.TestCase):
             self.assertIn("clone.inert=true", source)
             self.assertIn("setAttribute('aria-hidden','true')", source)
             self.assertIn("copyCanvasPixels", source)
-            self.assertIn("data.canvasCopied='true'", source)
+            self.assertIn("dataset.canvasCopied='true'", source)
 
     def test_runtime_uses_slide_metadata_and_local_page_script(self) -> None:
         for attribute in (

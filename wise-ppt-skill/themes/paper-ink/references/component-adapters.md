@@ -36,7 +36,7 @@
 
 - 适合产品 UI、表格、筛选器、规格单和高密度界面。
 - 统一移除圆角、渐变、彩色状态底和重阴影；状态差异改用线型、hatch、字阶和受控强调色。
-- 交互不是交付依赖；PDF/PNG 导出时关键状态必须静态可见。
+- 交互不是交付依赖；PDF 导出时关键状态必须静态可见。
 
 ## ECharts
 
@@ -65,7 +65,7 @@ render plan 至少声明：
 - 色板只用墨色阶梯；`?accent` 只染 encode 指定的唯一主角。
 - 轴线与网格 0.6–1px；去渐变、圆角、面积重填充和阴影。
 - 图例、刻度、单位永不使用强调色；图表必须有来源或数据口径。
-- 异步图表页先在 `<html>` 写 `data-render-pending="true"`；字体、图片和图表全部完成后调用 `markRenderReady()`，由它在页面根节点写唯一的 `data-render-ready="true"`。不要另造 `data-page-ready` 协议。
+- 异步图表页在对应 `.slide` 写 `data-render-pending="true"`；使用 `document.currentScript.closest('.slide')` 和局部查询，默认通过 `WisePPT.createEChart()` 选择 SVG renderer。字体、图片和图表全部完成后调用 `WisePPT.markSlideReady(slide)`。不要另造 `data-page-ready` 协议。
 
 ## Atlas
 
