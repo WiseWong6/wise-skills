@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "brief": {"title": "延迟异常定位界面", "objective": "用一个高密度后台界面同时展示运行状态、延迟趋势和异常解释。", "audience": "运维与产品负责人", "scenario": "异常复盘", "language": "zh-CN", "page_limits": {"min": 1, "max": 1, "requested": 1}, "must_include": ["后台界面状态", "延迟折线", "异常批注", "复盘结论"], "must_avoid": ["把界面、图表和批注拆成三张独立卡"], "gaps": []},
+  "sources": [{"id": "src.ops-demo", "kind": "dataset", "title": "教学用运行监控数据", "locator": "inline://ops-dashboard", "synthetic": true, "notes": "用于演示界面、图表与锚定标注的复合证据。"}],
+  "content_items": [
+    {"id": "item.product-ui-state", "kind": "evidence", "statement": "后台界面显示 12 个任务中 11 个成功、1 个进入重试。", "priority": "must", "status": "sourced", "status_note": "合成教学界面状态。", "source_refs": ["src.ops-demo"], "atomic_values": [], "structured_data": {"total": 12, "success": 11, "retry": 1}, "relations": [{"type": "supports", "target_ref": "item.product-anomaly-note", "reason": "失败行提供异常批注的界面锚点。"}], "tags": ["ui", "state"]},
+    {"id": "item.product-latency-series", "kind": "metric", "statement": "14:20 延迟从 180ms 跃升到 620ms，随后恢复到 210ms。", "priority": "must", "status": "sourced", "status_note": "合成教学时序数据。", "source_refs": ["src.ops-demo"], "atomic_values": [], "structured_data": {"points": [["14:00", 180], ["14:10", 190], ["14:20", 620], ["14:30", 260], ["14:40", 210]]}, "relations": [{"type": "supports", "target_ref": "item.product-anomaly-note", "reason": "峰值时间与失败任务时间一致。"}], "tags": ["chart", "anomaly"]},
+    {"id": "item.product-anomaly-note", "kind": "evidence", "statement": "失败任务与 14:20 延迟峰值同源，重试后恢复。", "priority": "must", "status": "sourced", "status_note": "合成教学异常判断。", "source_refs": ["src.ops-demo"], "atomic_values": [], "relations": [{"type": "depends_on", "target_ref": "item.product-ui-state", "reason": "判断依赖失败任务行。"}, {"type": "depends_on", "target_ref": "item.product-latency-series", "reason": "判断依赖延迟峰值。"}], "tags": ["annotation", "correlation"]},
+    {"id": "item.ui-takeaway", "kind": "assertion", "statement": "界面是证据面，图表揭示时间变化，批注只连接异常行与峰值。", "priority": "must", "status": "sourced", "status_note": "合成教学结论。", "source_refs": ["src.ops-demo"], "atomic_values": [], "relations": [{"type": "depends_on", "target_ref": "item.product-anomaly-note", "reason": "结论来自界面与趋势的锚定关系。"}], "tags": ["takeaway"]}
+  ]
+}
