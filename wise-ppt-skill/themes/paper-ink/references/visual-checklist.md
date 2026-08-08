@@ -10,7 +10,7 @@ python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai
 python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 ```
 
-机器检查通过后，再对实际浏览器截图逐页目检。构建成功不能替代视觉验收。
+机器检查通过后，由用户在实际浏览器逐页目检。只有用户明确要求视觉代验或截图交付时才生成截图；构建成功不能替代人工视觉验收。
 
 ## P0：必须通过
 
@@ -22,7 +22,7 @@ python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 - 事实、数字、表格、图表和截图都能追到 `content.json`；推断或占位没有伪装成来源事实。
 - density 与承载量一致：breathing 留白 ≥60%；balanced 为 3–5 个语义单元；dense 通过安全区、字号、遮挡、层级与溢出检查。
 - 居中只用于中心型原语；非对称、时间轴、UI、证据墙、架构和流程按自身结构线对齐。
-- ECharts、图片和字体加载完成后才由 `markRenderReady()` 设置页面根节点的 `data-render-ready="true"`；截图工具只接受这个唯一 ready 标记。
+- ECharts、图片和字体加载完成后才调用 `WisePPT.markSlideReady(slide)`；全部页面完成后根节点必须是 `data-deck-ready="true"`。
 - caption 没有被主体压住；最小正文 16px；图表刻度与来源可读。
 
 ## P1：主题一致
@@ -44,7 +44,7 @@ python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 - 大字、金句、粒子、手写批注都克制使用；重复是为了形成节奏，而非暴露模板痕迹。
 - general 与 ai 两册同一 layout 的结构一致，内容主题不同；画册总数与 manifest 完全一致。
 
-## 截图目检顺序
+## 浏览器目检顺序
 
 1. 远观：主张、主角和阅读方向是否一眼可见。
 2. 中距：证据、层级、组件组合和留白是否服务主张。
