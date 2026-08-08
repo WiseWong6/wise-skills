@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "content_file": "content.json",
+  "deck_plan_file": "deck-plan.json",
+  "theme_id": "core-example",
+  "pages": [
+    {
+      "page_id": "page.opening",
+      "output_file": "frames/page.opening.html",
+      "layout_id": "core-example.focus.statement",
+      "density": "breathing",
+      "reuse_mode": "copy",
+      "reuse_source": "core-example.catalog.focus-statement",
+      "rationale": "页面只有一个反直觉判断，关系、容量和文字主角槽位均与已验证样例完全匹配。",
+      "capacity_status": "fit",
+      "core_primitive": "focus-field",
+      "theme_primitives": [
+        "focus-field"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.opening",
+        "data-page-role": "hook",
+        "data-theme": "core-example",
+        "data-layout": "core-example.focus.statement",
+        "data-density": "breathing",
+        "data-reuse-mode": "copy"
+      },
+      "slots": [
+        {
+          "slot_id": "hero",
+          "block_id": "block.opening-claim",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "typography",
+            "component": "assertion-title",
+            "variant": "single-statement",
+            "content_refs": [
+              "item.deck-thesis",
+              "atom.loop-outcome"
+            ],
+            "theme_adapter": "core-example.type-emphasis"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.six-stage-loop",
+      "output_file": "frames/page.six-stage-loop.html",
+      "layout_id": "core-example.flow.looped-sequence",
+      "density": "dense",
+      "reuse_mode": "adapt",
+      "reuse_source": "core-example.catalog.looped-sequence",
+      "rationale": "六项信息有明确先后并需要回流箭头，复用序列骨架并为第六节点增加闭环连接，比六宫格更准确。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "linear-sequence",
+        "converging-path"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.six-stage-loop",
+        "data-page-role": "sequence",
+        "data-theme": "core-example",
+        "data-layout": "core-example.flow.looped-sequence",
+        "data-density": "dense",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "main-path",
+          "block_id": "block.stage-path",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "looped-sequence-path",
+            "variant": "six-stage",
+            "content_refs": [
+              "item.launch-path",
+              "atom.stage.discover",
+              "atom.stage.scope",
+              "atom.stage.build",
+              "atom.stage.verify",
+              "atom.stage.launch",
+              "atom.stage.learn"
+            ],
+            "data_ref": "item.launch-path.atomic_values",
+            "encode": {
+              "order": "array-order",
+              "node_label": "value",
+              "return_edge": "atom.loop-outcome"
+            },
+            "theme_adapter": "core-example.line-system"
+          }
+        },
+        {
+          "slot_id": "return-note",
+          "block_id": "block.loop-note",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "edge-annotation",
+            "variant": null,
+            "content_refs": [
+              "atom.loop-outcome"
+            ],
+            "theme_adapter": "core-example.annotation"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.close",
+      "output_file": "frames/page.close.html",
+      "layout_id": "core-example.focus.close",
+      "density": "breathing",
+      "reuse_mode": "novel",
+      "rationale": "收尾只保留一个行动判断，使用单一焦点原语并省略重复流程信息。",
+      "capacity_status": "fit",
+      "core_primitive": "focus-field",
+      "theme_primitives": [
+        "focus-field"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.close",
+        "data-page-role": "close",
+        "data-theme": "core-example",
+        "data-layout": "core-example.focus.close",
+        "data-density": "breathing",
+        "data-reuse-mode": "novel"
+      },
+      "slots": [
+        {
+          "slot_id": "closing-statement",
+          "block_id": "block.close-claim",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "typography",
+            "component": "closing-assertion",
+            "variant": null,
+            "content_refs": [
+              "item.deck-thesis",
+              "atom.loop-outcome"
+            ],
+            "theme_adapter": "core-example.type-emphasis"
+          }
+        }
+      ]
+    }
+  ]
+}

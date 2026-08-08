@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "default_theme_id": "paper-ink",
+  "themes": [
+    {
+      "theme_id": "paper-ink",
+      "name": "纸墨线稿",
+      "description": "冷灰纸底、单色墨线、出版物字阶与工程制图语言。",
+      "path": "themes/paper-ink/theme.json",
+      "layout_manifest": "themes/paper-ink/layout-manifest.json",
+      "enabled": true
+    }
+  ]
+}

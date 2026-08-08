@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "theme_id": "paper-ink",
+  "name": "纸墨线稿",
+  "status": "default",
+  "description": "以纸底、墨色阶梯、精密细线和出版物字体构成的 16:9 网页 PPT 主题。",
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "aspect_ratio": "16:9",
+    "overflow": "hidden"
+  },
+  "tokens": "themes/paper-ink/references/design-tokens.md",
+  "layout_manifest": "themes/paper-ink/layout-manifest.json",
+  "visual_checklist": "themes/paper-ink/references/visual-checklist.md",
+  "layout_guidance": "themes/paper-ink/references/layout-selection.md",
+  "component_adapters": "themes/paper-ink/references/component-adapters.md",
+  "reference_exemplars": [
+    "themes/paper-ink/references/provenance.md"
+  ],
+  "assets": {
+    "bundle": "themes/paper-ink/assets",
+    "stylesheet": "themes/paper-ink/assets/shared.css",
+    "shot_template": "themes/paper-ink/assets/shot-template.html",
+    "particles": "themes/paper-ink/assets/particles.js",
+    "fonts": "themes/paper-ink/assets/fonts"
+  },
+  "galleries": {
+    "general": "themes/paper-ink/gallery/general/index.html",
+    "ai": "themes/paper-ink/gallery/ai/index.html"
+  },
+  "densities": {
+    "breathing": {
+      "semantic_units": "1-2",
+      "whitespace_min_percent": 60,
+      "rule": "只承载一个主张或转场，不加入第二主角。"
+    },
+    "balanced": {
+      "semantic_units": "3-5",
+      "content_visual_guideline": "65/35",
+      "rule": "65/35 是纸墨主题的起始比例，不是固定配额。"
+    },
+    "dense": {
+      "semantic_units": "6-12-or-one-composite",
+      "whitespace_min_percent": null,
+      "rule": "允许表格、数据、UI 或架构复合；必须通过安全区、字号、溢出和层级检查。"
+    }
+  },
+  "providers": [
+    "typography",
+    "table",
+    "image",
+    "native-html",
+    "echarts",
+    "atlas",
+    "svg"
+  ],
+  "output_formats": [
+    "html",
+    "pdf",
+    "png"
+  ]
+}
