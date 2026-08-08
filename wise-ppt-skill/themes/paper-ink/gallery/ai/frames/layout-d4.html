@@ -16,7 +16,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -52,7 +52,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ===== 页头：mono 小标 + 短横 ===== */
-txt(300, 218, 'CONTENTS', {'font-family':MONO, 'font-size':15, 'letter-spacing':4, fill:'rgba(25,25,23,.45)'});
+txt(300, 218, 'CONTENTS', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':4, fill:'rgba(25,25,23,.45)'});
 el('line', {x1:438, y1:212, x2:560, y2:212, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ===== 条目纵列：x300–1500，y250 起，行高 126 ===== */
@@ -74,23 +74,23 @@ rows.forEach(function(r, i){
   if (r.cur) {
     el('circle', {cx:cx, cy:cy, r:26, fill:INK, opacity:op});
     el('circle', {cx:cx, cy:cy, r:31, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-    txt(cx, cy+9, r.no, {'font-family':MONO, 'font-size':26, 'text-anchor':'middle', fill:'#DFE0D9'});
+    txt(cx, cy+9, r.no, {'font-family':MONO, 'font-size':'var(--type-subheading)', 'text-anchor':'middle', fill:'#DFE0D9'});
     /* 高亮短横引出（全页唯一强调线） */
     el('line', {x1:cx+44, y1:cy, x2:cx+72, y2:cy, stroke:INK, 'stroke-width':1.8});
   } else {
     el('circle', {cx:cx, cy:cy, r:26, fill:'none', stroke:INK, 'stroke-width':1, opacity:op});
-    txt(cx, cy+8, r.no, {'font-family':MONO, 'font-size':24, 'text-anchor':'middle', fill:INK, opacity:op});
+    txt(cx, cy+8, r.no, {'font-family':MONO, 'font-size':'var(--type-subheading)', 'text-anchor':'middle', fill:INK, opacity:op});
   }
 
   /* 中文章题 + EN 副题 + 内容预告 */
   var tx = X0 + 116;
-  txt(tx, cy+2, r.cn, {'font-family':SANS, 'font-weight':300, 'font-size':30, fill:INK, opacity:op});
+  txt(tx, cy+2, r.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK, opacity:op});
   var cnw = r.cn.length * 32 + 26;
-  txt(tx+cnw, cy-1, r.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.6)', opacity:op});
-  txt(tx, cy+38, r.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)', opacity:op});
+  txt(tx+cnw, cy-1, r.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:'rgba(25,25,23,.6)', opacity:op});
+  txt(tx, cy+38, r.note, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.7)', opacity:op});
 
   /* 行右端 mono 页码锚 */
-  txt(X1, cy+2, 'P.' + (i*4+3), {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)', opacity:op});
+  txt(X1, cy+2, 'P.' + (i*4+3), {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)', opacity:op});
 
   /* 行间 0.6px 分隔线 */
   if (i < rows.length-1)

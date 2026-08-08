@@ -15,6 +15,7 @@
     L7 Gallery 样页未调用 stageFit()，或 single-html 未声明统一 runtime
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
+    L10 字阶：页面只能引用共享 --type-* token；CSS/SVG/Canvas/ECharts 禁止裸字号
 
 退出码：有 FAIL 则 1（--strict 时 WARN 也为 1），否则 0。
 注意：静态检查有边界——循环里用变量画的 rect/线无法计数，机检全过 ≠ 目检通过，
@@ -30,10 +31,16 @@ INK_OK = {
 }
 NAMED_OK = {'none', 'currentcolor', 'inherit', 'transparent'}
 CJK = re.compile(r'[一-鿿　-〿＀-￯]')
+TYPE_ROLES = {
+    'display-mark', 'particle-sample', 'display', 'hero', 'title', 'metric',
+    'heading', 'emphasis', 'caption', 'subheading', 'body', 'body-small',
+    'label', 'meta', 'micro',
+}
 
 def lint_file(path):
     fails, warns = [], []
-    src = open(path, encoding='utf-8').read()
+    with open(path, encoding='utf-8') as handle:
+        src = handle.read()
     # L1 彩色 hex
     for m in re.finditer(r'#[0-9a-fA-F]{6}\b', src):
         hx = m.group(0).lower()
@@ -158,6 +165,36 @@ def lint_file(path):
         if lum is not None and lum < 0.5:
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L9 深色页面底色 {bm.group(1).strip()[:24]} (line {line})：拒绝暗色系，必须纸底')
+
+    # L10 全局字阶。布局只能选择语义 token，不能用局部字号补丁绕开类型系统。
+    raw_type_patterns = (
+        r'font-size\s*:\s*[0-9.]+px',
+        r'font\s*:\s*(?:[^;{}]*\s)?[0-9.]+px(?:\s*/\s*[0-9.]+)?',
+        r'["\']font-size["\']\s*:\s*["\']?[0-9.]+',
+        r'font-size\s*=\s*["\'][0-9.]+',
+        r'\bfontSize\s*:\s*[0-9.]+',
+        r'\.font\s*=\s*["\'][^"\']*[0-9.]+px',
+    )
+    seen_raw_lines = set()
+    for pattern in raw_type_patterns:
+        for m in re.finditer(pattern, src):
+            line = src[:m.start()].count('\n') + 1
+            if line in seen_raw_lines:
+                continue
+            seen_raw_lines.add(line)
+            fails.append(f'L10 裸字号（必须引用 --type-* token）(line {line})')
+    for m in re.finditer(r'["\']font-size["\']\s*:\s*([^,}\n]+)', src):
+        if 'var(--type-' in m.group(1):
+            continue
+        line = src[:m.start()].count('\n') + 1
+        if line not in seen_raw_lines:
+            seen_raw_lines.add(line)
+            fails.append(f'L10 动态字号绕过字阶（必须引用 --type-* token）(line {line})')
+    for m in re.finditer(r'var\(--type-([a-z-]+)\)', src):
+        role = m.group(1)
+        if role not in TYPE_ROLES:
+            line = src[:m.start()].count('\n') + 1
+            fails.append(f'L10 未声明字阶 --type-{role} (line {line})')
 
     return fails, warns
 

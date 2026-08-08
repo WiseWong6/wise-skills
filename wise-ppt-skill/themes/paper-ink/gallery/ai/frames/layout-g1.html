@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -48,15 +48,15 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. G1 — EXPLODED TRI-RADIAL', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. G1 — EXPLODED TRI-RADIAL', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 中央主节点（双线框），中心 (960,520) ---------- */
 var NW = 380, NH = 116, NX = 960 - NW/2, NY = 520 - NH/2;
 el('rect', {x:NX, y:NY, width:NW, height:NH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.4});
 el('rect', {x:NX+5, y:NY+5, width:NW-10, height:NH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
-txt(960, NY+46, 'MODEL NODE', {'font-family':MONO, 'font-size':24, 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
-txt(960, NY+84, 'LLM 调用节点', {'font-family':SANS, 'font-weight':300, 'font-size':23, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(960, NY+46, 'MODEL NODE', {'font-family':MONO, 'font-size':'var(--type-subheading)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
+txt(960, NY+84, 'LLM 调用节点', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
 
 /* ---------- 分支线：左输入 / 右输出 / 下参数 ---------- */
 var LTX = 560, RTX = 1360;
@@ -64,13 +64,13 @@ el('line', {x1:NX, y1:520, x2:LTX, y2:520, stroke:INK, 'stroke-width':.8, opacit
 el('line', {x1:NX+NW, y1:520, x2:RTX, y2:520, stroke:INK, 'stroke-width':.8, opacity:.5});
 el('line', {x1:960, y1:NY+NH, x2:960, y2:700, stroke:INK, 'stroke-width':.8, opacity:.5});
 [[LTX,520],[RTX,520],[960,700]].forEach(function(p){ el('circle', {cx:p[0], cy:p[1], r:2.4, fill:INK, opacity:.7}); });
-txt((NX+LTX)/2, 506, 'IN',  {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt((NX+NW+RTX)/2, 506, 'OUT', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt((NX+LTX)/2, 506, 'IN',  {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt((NX+NW+RTX)/2, 506, 'OUT', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* 字段行：mono 上行 + 中文 300/16 下行 */
 function field(x, y, en, cn, anchor) {
-  txt(x, y, en, {'font-family':MONO, 'font-size':17, 'text-anchor':anchor, fill:INK});
-  txt(x, y+26, cn, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':anchor, fill:'rgba(25,25,23,.6)'});
+  txt(x, y, en, {'font-family':MONO, 'font-size':'var(--type-body-small)', 'text-anchor':anchor, fill:INK});
+  txt(x, y+26, cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':anchor, fill:'rgba(25,25,23,.6)'});
 }
 
 /* ---------- 左支 · 输入（右对齐） ---------- */
@@ -80,8 +80,8 @@ var inRows = [
   ['context',        '上下文与检索片段'],
   ['tools',          '可调用工具声明']
 ];
-txt(LTX, 268, '输 入', {'font-family':SANS, 'font-weight':300, 'font-size':26, 'text-anchor':'end', fill:INK});
-txt(LTX, 296, 'INPUT', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(LTX, 268, '输 入', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', 'text-anchor':'end', fill:INK});
+txt(LTX, 296, 'INPUT', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 el('line', {x1:LTX, y1:320, x2:LTX, y2:800, stroke:INK, 'stroke-width':.8, opacity:.5});
 inRows.forEach(function(r, j){
   var ry = 348 + j * 116;
@@ -98,8 +98,8 @@ var outRows = [
   ['logprobs',         '对数概率回传'],
   ['latency',          '首字与总耗时']
 ];
-txt(RTX, 268, '输 出', {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
-txt(RTX, 296, 'OUTPUT', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK45});
+txt(RTX, 268, '输 出', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+txt(RTX, 296, 'OUTPUT', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK45});
 el('line', {x1:RTX, y1:320, x2:RTX, y2:860, stroke:INK, 'stroke-width':.8, opacity:.5});
 outRows.forEach(function(r, j){
   var ry = 348 + j * 100;
@@ -115,14 +115,14 @@ var paramRows = [
   ['frequency_penalty','频率惩罚'],
   ['stop',             '停止序列']
 ];
-txt(984, 668, '参 数', {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
-txt(984, 696, 'PARAMS', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK45});
+txt(984, 668, '参 数', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+txt(984, 696, 'PARAMS', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK45});
 el('line', {x1:620, y1:700, x2:1300, y2:700, stroke:INK, 'stroke-width':.8, opacity:.5});
 paramRows.forEach(function(r, j){
   var rx = 660 + j * 150;
   el('line', {x1:rx, y1:700, x2:rx, y2:716, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(rx, 744, r[0], {'font-family':MONO, 'font-size':17, 'text-anchor':'middle', fill:INK});
-  txt(rx, 772, r[1], {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+  txt(rx, 744, r[0], {'font-family':MONO, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK});
+  txt(rx, 772, r[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 });
 
 stageFit();

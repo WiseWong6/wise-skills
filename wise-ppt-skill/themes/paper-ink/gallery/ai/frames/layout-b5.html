@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -52,7 +52,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. B5 — ASCENDING STAIR PATH', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. B5 — ASCENDING STAIR PATH', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 主角：左下→右上的楼梯折线（五级，1.4px） ---------- */
@@ -84,17 +84,17 @@ steps.forEach(function(s, i){
   el('circle', {cx:s.lx, cy:s.tread, r:1.8, fill: top && ACCENT ? RED : INK});
   el('line', {x1:s.lx, y1:s.tread-6, x2:s.lx, y2:s.ty+78, stroke:INK, 'stroke-width':.7, opacity:.45});
   /* 文字块 */
-  txt(s.x, s.ty, s.year, {'font-family':MONO, 'font-size':20, 'letter-spacing':2, fill: top && ACCENT ? RED : INK});
+  txt(s.x, s.ty, s.year, {'font-family':MONO, 'font-size':'var(--type-body)', 'letter-spacing':2, fill: top && ACCENT ? RED : INK});
   el('line', {x1:s.x, y1:s.ty+12, x2:s.x+58, y2:s.ty+12, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(s.x, s.ty+44, s.ev, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill: top && ACCENT ? RED : INK});
-  txt(s.x, s.ty+72, s.note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill: top && ACCENT ? RED : INK70});
+  txt(s.x, s.ty+44, s.ev, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill: top && ACCENT ? RED : INK});
+  txt(s.x, s.ty+72, s.note, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill: top && ACCENT ? RED : INK70});
 });
 
 /* ---------- 右下空白区：竖向高度标注（构造件） ---------- */
 el('line', {x1:1830, y1:340, x2:1830, y2:820, stroke:INK, 'stroke-width':.5, opacity:.3, 'stroke-dasharray':'2 6'});
 el('line', {x1:1822, y1:340, x2:1838, y2:340, stroke:INK, 'stroke-width':.7, opacity:.4});
 el('line', {x1:1822, y1:820, x2:1838, y2:820, stroke:INK, 'stroke-width':.7, opacity:.4});
-el('text', {x:1856, y:586, 'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45,
+el('text', {x:1856, y:586, 'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45,
   transform:'rotate(90 1856 586)'}).textContent = 'Δ STAGE × 5';
 
 stageFit();

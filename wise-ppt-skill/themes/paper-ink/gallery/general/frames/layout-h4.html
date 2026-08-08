@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -55,7 +55,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. H4 — PLATFORM LIFTING THREE TIERS', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. H4 — PLATFORM LIFTING THREE TIERS', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 function nodeDot(cx, cy){
@@ -68,7 +68,7 @@ function liftArrow(x, y1, y2, label){          /* y1 下 → y2 上 */
   el('line', {x1:x, y1:y1, x2:x, y2:y2, stroke:INK, 'stroke-width':1.2, opacity:.7});
   el('line', {x1:x-8, y1:y2+11, x2:x, y2:y2, stroke:INK, 'stroke-width':1.2, opacity:.7});
   el('line', {x1:x+8, y1:y2+11, x2:x, y2:y2, stroke:INK, 'stroke-width':1.2, opacity:.7});
-  if (label) txt(x+16, (y1+y2)/2+4, label, {'font-family':MONO, 'font-size':10, 'letter-spacing':2, fill:INK45});
+  if (label) txt(x+16, (y1+y2)/2+4, label, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
 }
 /* 3 组箭头，每组对齐对应模块的水平中心（产品卡/能力卡中心 x=460/960/1460），自下而上逐级托举 */
 [460, 960, 1460].forEach(function(x){
@@ -93,7 +93,7 @@ function gCross(cx, cy){
   el('line', {x1:cx-26, y1:cy-16, x2:cx+26, y2:cy+16, stroke:INK80, 'stroke-width':1.2});
   el('line', {x1:cx-26, y1:cy+16, x2:cx+26, y2:cy-16, stroke:INK, 'stroke-width':.9, opacity:.5, 'stroke-dasharray':'4 3'});
   el('circle', {cx:cx, cy:cy, r:9, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.1});
-  txt(cx, cy+3.5, '~', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill:INK});
+  txt(cx, cy+3.5, '~', {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK});
 }
 function gRobot(cx, cy){
   el('rect', {x:cx-19, y:cy-16, width:38, height:24, rx:5, fill:'none', stroke:INK80, 'stroke-width':1.2});
@@ -129,10 +129,10 @@ function card(x, y, w, h, item){
   el('rect', {x:x, y:y, width:w, height:h, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('rect', {x:x+5, y:y+5, width:w-10, height:h-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
   item.g(x+62, y+h/2);
-  txt(x+112, y+40, item.en, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
-  txt(x+112, y+72, item.cn, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
+  txt(x+112, y+40, item.en, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
+  txt(x+112, y+72, item.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
   el('line', {x1:x+112, y1:y+88, x2:x+w-28, y2:y+88, stroke:INK, 'stroke-width':.6, opacity:.25});
-  txt(x+112, y+114, item.note, {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
+  txt(x+112, y+114, item.note, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
 }
 
 /* 顶层：产品 / 场景卡带 y270–420 */
@@ -154,10 +154,10 @@ var midItems = [
 /* ---------- 底层：通栏底座带 y780–860 ---------- */
 el('rect', {x:150, y:780, width:1620, height:80, fill:'url(#hatch20)', stroke:INK80, 'stroke-width':1.3});
 el('rect', {x:156, y:786, width:1608, height:68, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
-txt(960, 819, 'HENGJI CORE — REALTIME SCHEDULING KERNEL', {'font-family':MONO, 'font-size':16, 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
-txt(960, 845, '衡玑实时调度底座 · 数字孪生仿真内核', {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
-txt(186, 845, 'REV 4.2', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
-txt(1734, 845, '2,400 AMR', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(960, 819, 'HENGJI CORE — REALTIME SCHEDULING KERNEL', {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK});
+txt(960, 845, '衡玑实时调度底座 · 数字孪生仿真内核', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK});
+txt(186, 845, 'REV 4.2', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
+txt(1734, 845, '2,400 AMR', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 stageFit();
 </script>

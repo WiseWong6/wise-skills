@@ -66,6 +66,7 @@ render plan 至少声明：
 - 轴线与网格 0.6–1px；去渐变、圆角、面积重填充和阴影。
 - 图例、刻度、单位永不使用强调色；图表必须有来源或数据口径。
 - 异步图表页在对应 `.slide` 写 `data-render-pending="true"`；使用 `document.currentScript.closest('.slide')` 和局部查询，默认通过 `WisePPT.createEChart()` 选择 SVG renderer。字体、图片和图表全部完成后调用 `WisePPT.markSlideReady(slide)`。不要另造 `data-page-ready` 协议。
+- ECharts 的 `fontSize` 只能用 `WisePPT.typeSize(role)`，不得在 option 中写数值字号；CSS/SVG 组件直接引用共享 `--type-*` token。
 
 ## Atlas
 

@@ -78,6 +78,25 @@ class RuntimeTemplateTests(unittest.TestCase):
             else:
                 self.assertIn(token, self.runtime)
 
+    def test_fullscreen_text_selection_and_copy_contract_exists(self) -> None:
+        for token in (
+            "user-select: text",
+            "user-select:none!important",
+        ):
+            self.assertIn(token, self.source if "none" in token else (RUNTIME.parent / "themes/paper-ink/assets/shared.css").read_text(encoding="utf-8"))
+        for token in (
+            "hasTextSelection",
+            "hasEditableTarget",
+            "navigationIsReserved",
+            "dataset.copyCheck='pass'",
+            "文本选区被翻页快捷键抢占",
+        ):
+            self.assertIn(token, self.runtime)
+
+    def test_runtime_exposes_theme_type_scale_for_canvas_and_charts(self) -> None:
+        self.assertIn("typeSize:typeSize", self.runtime)
+        self.assertIn("--type-", self.runtime)
+
 
 if __name__ == "__main__":
     unittest.main()
