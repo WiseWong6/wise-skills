@@ -16,7 +16,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 命令退出码必须可靠：任一 P0 失败返回非零；不存在的文件、未知主题或无法读取的 manifest 都不得报告成功。
 
-`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、`themes/*/examples`、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。
+`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。
 
 ## 2. Content 门禁
 
@@ -41,16 +41,20 @@ python3 scripts/validate.py all      <deck-dir>
 - must 内容有 include 决策和页面承载；
 - `needs_confirmation` 时停止进入 render。
 
-## 4. Render 门禁
+## 4. Render v2 门禁
 
+- `schema_version` 必须是 `2.0`；Render Plan v1 / v1.1 明确拒绝；
 - schema 合法，render page 与 deck page 一一对应；
 - `theme_id` 存在于主题 registry；未知主题立即失败；
-- layout ID 存在于该主题 manifest，角色、relation、density、capacity 和 slots 匹配；
 - 每页 `core_primitive` 必须等于对应 deck page 的 `spatial_primitive`；
-- `theme_primitives` 必须是当前 layout manifest 声明的 1–3 个主题原语；
-- block 与 slot 一一映射，恰好一个 primary visual role；
-- copy / adapt / compose 有 `reuse_source`，全部模式有具体 rationale；
-- ECharts 有 `data_ref` 和非空 `encode`；
+- 每页先声明布局需求，再通过 `layout_decision` 选择 `gallery` 或 `custom`，并保留候选判断理由；
+- Gallery 路径要求 layout ID 存在，且角色、relation、core primitive、density、capacity、slot 集合、slot 顺序与 provider 全部匹配；
+- `copy` 必须全部 `keep`；`adapt` 必须至少一个 `replace`，且不得增减、重排 slot 或嵌入 custom contract；结构变化统一报 `render.gallery_structure_changed`；
+- Custom 路径要求 `custom.*` ID 不与 Gallery 冲突，并声明 reading order、regions 与 capacity；每个 block 恰好映射一次，reading order 覆盖全部 region；
+- block 与 slot 一一映射，恰好一个 primary visual role；Custom 的每个组件决策必须是 `select`；
+- ECharts 只要求 `data_ref`、非空 `encode`、主题 adapter 与真实渲染通过，不使用本地图表类型白名单；
+- Atlas 只在实际使用 `provider=atlas` 时加载，并校验精确组件名；
+- 原生 HTML、SVG、Typography、Table、Image 都可独立通过，不强制 Atlas 或 ECharts；
 - `capacity_status` 只能在 `fit` 时进入最终渲染。
 
 ## 5. Coverage 门禁
@@ -63,7 +67,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 ## 6. HTML 与浏览器门禁
 
-每页 `output_file` 必须存在，并与 render plan 的六个 page data 属性一致；每个组件包装节点必须有 block、provider、component、content-ref 四个属性。
+每页 `output_file` 必须存在，并与 render plan 的七个 page data 属性一致；除原有属性外，根节点还必须有 `data-layout-source="gallery|custom"`。每个组件包装节点必须有 block、provider、component、content-ref 四个属性。
 
 页面只有在字体、图片和异步图表全部完成后才能设置：
 
@@ -90,6 +94,7 @@ document.documentElement.dataset.renderReady = 'true';
 - 画册目录由 manifest 生成，禁止维护第二份手写数组；
 - core schema 与文档不含任何具体主题 token、layout ID 或资产路径；
 - 用最小测试主题运行 schema、catalog 与 render 校验，证明 core 不依赖默认主题。
+- Gallery 查询结果为空不是失败；Custom 是正常主路径之一，普通生成任务不得把 Custom 写回 manifest 或新增 Gallery 样张。
 
 ## 8. Core 示例的边界
 

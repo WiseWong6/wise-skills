@@ -1,8 +1,0 @@
-{
-  "schema_version": "1.0", "content_file": "content.json", "deck_plan_file": "deck-plan.json", "theme_id": "paper-ink",
-  "pages": [{"page_id": "page.example-flow-kpi", "output_file": "frames/shot-01.html", "layout_id": "paper-ink.flow.pipeline", "density": "balanced", "reuse_mode": "compose", "reuse_source": "paper-ink.flow.pipeline", "rationale": "四步输入输出是线性流，不是四个并列观点；横向流水线承担机制主线，单条 KPI 结果带承担证明，三个语义单元落在 1–7 容量内。", "capacity_status": "fit", "core_primitive": "linear-sequence", "theme_primitives": ["pipeline", "open-arrow"], "html_attributes": {"data-page-id": "page.example-flow-kpi", "data-page-role": "sequence", "data-theme": "paper-ink", "data-layout": "paper-ink.flow.pipeline", "data-density": "balanced", "data-reuse-mode": "compose"}, "slots": [
-    {"slot_id": "steps", "block_id": "block.pipeline", "visual_role": "primary", "renderer": {"provider": "svg", "component": "pipeline", "content_refs": ["item.delivery-process"], "data_ref": "item.delivery-process", "encode": {"order": "steps", "label": "steps"}, "theme_adapter": "paper-ink.svg"}},
-    {"slot_id": "support", "block_id": "block.outcome-kpis", "visual_role": "support", "renderer": {"provider": "typography", "component": "kpi-band", "content_refs": ["item.delivery-outcomes"], "theme_adapter": "paper-ink.typography"}},
-    {"slot_id": "takeaway", "block_id": "block.flow-takeaway", "visual_role": "support", "renderer": {"provider": "typography", "component": "takeaway", "content_refs": ["item.flow-takeaway"], "theme_adapter": "paper-ink.typography"}}
-  ]}]
-}

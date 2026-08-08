@@ -14,7 +14,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 
 当前只有 `paper-ink`，因此省略主题时默认使用它。不存在的主题必须报错并列出已注册主题，不得偷偷回退或临时伪造。
 
-模板复制是合法能力：语义、证据、关系和容量都精确匹配时，优先复制已经验证的画册样张。禁止的是跳过语义规划，直接用画册编号代替思考。
+模板复制是合法能力：语义、证据、关系、区域、顺序和容量都精确匹配时，优先复制已经验证的 Gallery 样张。Gallery 只是可选参考库，不是合法版式全集；禁止跳过语义与空间需求规划，直接用画册编号代替思考。
 
 本 Skill 输出 HTML、逐页 PNG 和 PDF，不承诺 PPTX。
 
@@ -33,7 +33,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 
 - 权威数据流固定为：`原始资料 → content.json → deck-plan.json → render-plan.json → HTML → QA`。
 - `<WORKSPACE_ROOT>` 是用户当前任务的项目/工作区根目录；`<DECK>` 必须解析为其中的目录，默认使用 `<WORKSPACE_ROOT>/output/<deck-slug>`，用户明确指定工作区内其他位置时从其指定。
-- 正式产物禁止写入 `<SKILL_ROOT>` 的任何位置，包括 `<SKILL_ROOT>/output`、`<SKILL_ROOT>/outputs` 或临时自造的成品目录。Skill 内只允许维护 `core/examples`、`themes/*/examples`、gallery 与测试夹具；它们不是用户交付物。
+- 正式产物禁止写入 `<SKILL_ROOT>` 的任何位置，包括 `<SKILL_ROOT>/output`、`<SKILL_ROOT>/outputs` 或临时自造的成品目录。Skill 内只允许维护 `core/examples`、gallery 与测试夹具；它们不是用户交付物。
 - JSON 是机器权威源；storyboard 或 Markdown 只能是派生的人读视图。
 - 业务数字、引语和事实默认保真并记录来源。只有用户要求 mock 或资料确实缺失时才允许 `inferred` / `placeholder`，并明确标记。
 - Core 产物不得出现主题字体、颜色、坐标、画册短码或 ECharts option。
@@ -43,6 +43,8 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 - Grid 适合真正等权并列或二维交叉。数量相同不代表关系相同：步骤用流程，核心与维度用辐射，证据用证据墙。
 - 不以缩小字号解决溢出。先换媒介，再换密度，再拆页；Theme 只能提议，Core 决定改动。
 - 不手写或复制画册目录数组；主题 manifest 是唯一事实源。
+- Gallery 查询结果为空不是失败；Custom 是正常主路径之一，不得为了套 Gallery 改写内容关系。
+- PPT Component Atlas 与 ECharts 都是可选参考源；页面可以完全使用 HTML、CSS、SVG、Typography、Table 或 Image。
 - 旧 `A1/B19/C0` 等只能是画册展示码，禁止写入 Render Plan，也不提供旧编号兼容。
 - 需要生成或编辑图片时，只使用 Codex 宿主内置 `image_gen.imagegen`；不可回退到第三方生图 Skill、CLI 或 API。
 
@@ -58,7 +60,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 6. 解析主题：`themes/registry.json`，再读该主题的 `theme.json` 和 `layout-manifest.json`
 7. 只有在实际使用某主题时，再读该主题 `theme.json` 声明的相应视觉规则；当前默认主题对应 `themes/paper-ink/references/`
 
-不要为“熟悉一下”一次性载入 126 个 HTML 样张。先用 catalog 缩小候选，再打开 1–3 个最相关样张。
+不要为“熟悉一下”一次性载入 126 个 HTML 样张。必须先形成布局需求，再用 catalog 缩小候选；只有确认使用 Gallery 后，才打开对应样张 HTML。
 
 ## 标准工作流
 
@@ -128,7 +130,7 @@ python3 <SKILL_ROOT>/scripts/validate.py plan <DECK>/deck-plan.json
 
 决策顺序固定为：
 
-`页面任务 → 一句话结论 → 证据形态 → 信息关系 → 密度 → 空间构成 → slot renderer → 主题适配`
+`内容语义 → 所需空间结构与组件 → 查询 Gallery → 严格判断是否满足 → 选择组件来源 → 渲染与验证`
 
 密度是阅读意图，不是统一留白比例：
 
@@ -140,34 +142,34 @@ python3 <SKILL_ROOT>/scripts/validate.py plan <DECK>/deck-plan.json
 
 ### 4. 建立 `render-plan.json`
 
-先解析主题，再查询版式与组件：
+Render Plan 只接受 `schema_version: "2.0"`，不兼容 v1 / v1.1。先根据语义形成布局需求，再解析主题并查询 Gallery：
 
 ```bash
 python3 <SKILL_ROOT>/scripts/catalog.py layouts --theme paper-ink --role prove --relation evidence --primitive evidence-annotation --density dense
-python3 <SKILL_ROOT>/scripts/catalog.py components --provider echarts --task trend
 ```
 
 候选决策规则：
 
-1. 淘汰丢失 `must`、关系错误、slot 不兼容或容量不合格的候选。
-2. 按语义关系匹配、证据清晰度、密度可读性和主题原生程度排序。
-3. 其余相同时，优先已验证的画册样张，可直接 `copy`。
-4. 近似匹配用 `adapt`；多个现有能力组合用 `compose`；无匹配才用 `novel`。
-5. 每页都记录 `rationale` 和 `capacity_status`：fit、underfill、overflow 或 unsupported。
+1. 在查询前明确角色、关系、`core_primitive`、密度、容量、regions、reading order、slot 集合与组件角色。
+2. 对 Gallery 候选逐项记录 `fit` 或 `reject` 及具体理由；角色、关系、核心原语、密度、容量、slot 集合和顺序必须全部满足。
+3. 完全匹配且组件全保留：`source=gallery, reuse_mode=copy`，所有组件决策为 `keep`。
+4. Gallery 结构完全不变但至少替换一个组件：`source=gallery, reuse_mode=adapt`，使用 `replace` / `keep`。
+5. 需要增减区域、改变 reading order、重排 slot 或修改主结构：`source=custom, reuse_mode=custom`，声明页内 `custom_contract`，所有组件决策为 `select`。
+6. 每页都记录 `rationale`、`capacity_status` 和 `candidate_evaluations`。Gallery 查询为空不是失败，直接进入 Custom。
 
-Render Plan 还必须保留原语链：`core_primitive` 原样继承该语义页的 `spatial_primitive`；`theme_primitives` 只能从所选 layout 的 manifest 声明中选择 1–3 个具体实现原语。两者不能混成一组自由字符串。
+`core_primitive` 必须原样继承语义页的 `spatial_primitive`。Custom layout ID 以 `custom.` 开头，不修改 Gallery manifest，也不新增样张。
 
 Renderer 平级选择：
 
 - `typography`：单个 KPI、金句、定义、结论。
 - `table`：需要精确查值或多字段逐项比较。
-- `echarts`：趋势、分布、相关、构成等定量任务；必须写 `data_ref + encode`，不得把业务数据埋在 option。
-- `atlas`：已知名称的流程、架构或图解组件；Core 先完成语义选择，再按精确名称导出裸 HTML，主题负责适配。
+- `echarts`：可选。趋势、分布、相关、构成等定量任务；按[官方 option 文档](https://echarts.apache.org/en/option.html)选择配置，必须写 `data_ref + encode`，不得把业务数据埋在 option。所选能力必须兼容主题声明的 runtime major。
+- `atlas`：可选。已知精确名称的流程、架构或图解组件；Core 先完成语义选择，再按名称导出裸 HTML，主题负责适配。
 - `svg`：独特关系、标注或画册没有覆盖的程序化表达。
 - `image`：真实截图、照片、扫描件、证据原件。
 - `native-html`：UI、代码、终端、文档或高密信息面板。
 
-Atlas 只执行名称到 HTML 的确定性映射，不替 Core 做语义判断：
+只有实际使用 `provider=atlas` 时才加载 Atlas。`catalog.py components` 只查询 PPT Component Atlas；ECharts 不维护本地类型白名单，原生能力不需要 catalog。Atlas 只执行名称到 HTML 的确定性映射：
 
 ```bash
 node ~/.codex/skills/ppt-component-atlas/scripts/export-component-html.mjs --list
@@ -205,7 +207,7 @@ cp <SKILL_ROOT>/<THEME_CONFIG.assets.shot_template> <DECK>/frames/shot-01.html
 每页 `<html>` 必须声明：
 
 ```html
-data-page-id data-page-role data-theme data-layout data-density data-reuse-mode
+data-page-id data-page-role data-theme data-layout data-layout-source data-density data-reuse-mode
 ```
 
 每个内容组件根节点必须声明：
@@ -260,10 +262,10 @@ python3 <SKILL_ROOT>/themes/paper-ink/scripts/lint.py <DECK> --accent
 - 主题注册：`themes/registry.json`
 - 纸墨主题契约：`themes/paper-ink/theme.json`
 - 版式唯一源：`themes/paper-ink/layout-manifest.json`
+- Gallery manifest 保存已验证布局，但不是合法版式全集；普通 PPT 任务中的 Custom 不登记进 Gallery。
 - 通用与 AI 两册是同一主题的两套内容语料，不是两个主题。
 - 新主题必须通过同一 Core 契约；Core 不得引用 paper-ink 的 token、稳定 ID 或资产路径。
-- 新版式先写 manifest 能力和 slot 合同，再做两个画册样张；目录由生成脚本刷新。
-- “版式 + 组件”的复合能力见 `themes/paper-ink/examples/`，这些组合不是新的 layout ID。
+- 将成熟 Custom 提升为 Gallery 是独立主题维护流程：先写 manifest 能力和 slot 合同，再补齐两册样张并刷新目录。
 - 修改纸墨画册后运行 `python3 scripts/generate-gallery.py --check`，禁止留下 manifest 与目录不一致的手改结果。
 
 ## 交付说明
