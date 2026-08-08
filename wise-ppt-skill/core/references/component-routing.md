@@ -8,7 +8,7 @@ Layout 决定空间关系，renderer 决定某个 slot 如何呈现内容。Gall
 
 `内容语义 → 所需空间结构与组件 → 查询 Gallery → 严格判断是否满足 → 选择组件来源 → 渲染与验证`
 
-在查询 Gallery 前必须先写清：页面任务、takeaway、证据形态、relation、`core_primitive`、density、所需 regions、reading order、capacity 和各区域的组件角色。Gallery 不能反过来定义内容。
+在查询 Gallery 前必须先写清：页面任务、takeaway、证据形态、relation、`spatial_primitive`、density、所需 regions、reading order、capacity 和各区域的组件角色。Gallery 不能反过来定义内容。
 
 只有角色、关系、核心原语、密度、容量、slot 集合与顺序全部满足时，才能采用 Gallery。确认采用后才读取对应样张 HTML。查询为空或候选全部被拒绝不是失败，直接进入 `custom`。
 
@@ -70,15 +70,20 @@ Gallery 一旦需要增减区域、调整 slot 顺序、改变 reading order 或
 页面根节点必须写：
 
 ```html
-<main
+<section class="slide"
   data-page-id="page.example"
   data-page-role="explain"
   data-theme="example-theme"
   data-layout="custom.page.example"
   data-layout-source="custom"
   data-density="balanced"
-  data-reuse-mode="custom">
-</main>
+  data-reuse-mode="custom"
+  data-page-title="页面结论"
+  data-page-summary="观众应记住的结论"
+  data-section-id="section.example"
+  data-section-title="章节标题"
+  data-emphasis-mode="none">
+</section>
 ```
 
 每个组件包装节点必须写：
@@ -92,7 +97,7 @@ Gallery 一旦需要增减区域、调整 slot 顺序、改变 reading order 或
 </section>
 ```
 
-`data-content-ref` 用空格分隔稳定 ID。页面和组件属性必须与 Render Plan 严格一致，让覆盖检查能从事实一直追到最终载体。
+`data-content-ref` 用空格分隔稳定 ID。页面属性由 Deck Plan、主题、`layout_decision` 和 `emphasis` 派生；组件属性由 Render Plan 的 slot 派生。语义焦点页还必须声明 `data-emphasis-ref`、`data-emphasis-roles`，并在同一内容载体写 `data-emphasis-role`。HTML 必须与这些权威字段严格一致。
 
 ## 7. 最低质量门禁
 

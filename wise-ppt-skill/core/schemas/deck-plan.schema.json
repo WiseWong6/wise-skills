@@ -352,6 +352,7 @@
         "evidence_refs",
         "relation_shape",
         "spatial_primitive",
+        "semantic_unit_count",
         "density_intent",
         "blocks"
       ],
@@ -414,6 +415,11 @@
         },
         "spatial_primitive": {
           "$ref": "#/$defs/spatial_primitive"
+        },
+        "semantic_unit_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "本页实际需要表达的最小独立语义单元数；这是容量判断的唯一权威值。"
         },
         "density_intent": {
           "enum": [
