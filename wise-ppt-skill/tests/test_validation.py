@@ -30,6 +30,7 @@ from _ppt_contracts import (  # noqa: E402
     validate_coverage_target,
     validate_gallery,
     validate_plan_target,
+    validate_render_plan_target,
     validate_render_target,
 )
 
@@ -77,7 +78,6 @@ class FixtureRepo:
                         "theme_id": self.THEME_ID,
                         "name": "Minimal",
                         "path": f"themes/{self.THEME_ID}/theme.json",
-                        "layout_manifest": f"themes/{self.THEME_ID}/layout-manifest.json",
                         "enabled": True,
                     }
                 ],
@@ -277,6 +277,7 @@ class FixtureRepo:
                     "evidence_refs": [],
                     "relation_shape": {"primary": "sequence", "secondary": [], "reason": "Show cause then result"},
                     "spatial_primitive": "linear-sequence",
+                    "semantic_unit_count": 2,
                     "density_intent": "balanced",
                     "blocks": [
                         {
@@ -336,22 +337,10 @@ class FixtureRepo:
                             }
                         ],
                     },
-                    "density": "balanced",
                     "rationale": "内容是两个连续语义单元，用线性主区加结论槽位表达因果。",
-                    "capacity_status": "fit",
-                    "core_primitive": "linear-sequence",
-                    "html_attributes": {
-                        "data-page-id": "page.one",
-                        "data-page-role": "explain",
-                        "data-theme": FixtureRepo.THEME_ID,
-                        "data-layout-source": "gallery",
-                        "data-layout": "demo.argument.sequence",
-                        "data-density": "balanced",
-                        "data-reuse-mode": "adapt",
-                        "data-page-title": "Retention reached 55%",
-                        "data-page-summary": "The release moved the metric",
-                        "data-section-id": "section.main",
-                        "data-section-title": "Result",
+                    "emphasis": {
+                        "mode": "none",
+                        "reason": "本页保持默认单色，不声明语义强调焦点。",
                     },
                     "slots": [
                         {
@@ -401,7 +390,7 @@ class FixtureRepo:
       data-layout-source="gallery" data-layout="demo.argument.sequence"
       data-density="balanced" data-reuse-mode="adapt"
       data-page-title="Retention reached 55%" data-page-summary="The release moved the metric"
-      data-section-id="section.main" data-section-title="Result">
+      data-section-id="section.main" data-section-title="Result" data-emphasis-mode="none">
   <section data-block-id="block.main" data-provider="svg" data-component="sequence-path"
            data-content-ref="item.metric atom.rate">Retention 55%</section>
   <section data-block-id="block.takeaway" data-provider="typography" data-component="takeaway"
@@ -457,6 +446,53 @@ class ContractValidationTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertIn("PASS all", completed.stdout)
 
+    def test_render_plan_preflight_does_not_require_html(self) -> None:
+        self.fixture.html_path.unlink()
+        preflight = validate_render_plan_target(self.fixture.deck, self.fixture.root)
+        self.assertTrue(preflight.ok, [issue.format() for issue in preflight.issues])
+        self.assert_has_code(validate_render_target(self.fixture.deck, self.fixture.root), "render.html_missing")
+
+    def test_emphasis_contract_has_one_authority_and_exact_carriers(self) -> None:
+        page = self.fixture.render["pages"][0]
+        page["emphasis"] = {
+            "mode": "semantic-focus",
+            "content_ref": "item.metric",
+            "member_roles": ["value", "label"],
+            "reason": "用同一指标的数值与标签构成唯一语义焦点。",
+        }
+        self.fixture.flush()
+        invalid = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(invalid, "render.html_page_data")
+
+        source = self.fixture.html_path.read_text(encoding="utf-8")
+        source = source.replace(
+            'data-emphasis-mode="none"',
+            'data-emphasis-mode="semantic-focus" data-emphasis-ref="item.metric" '
+            'data-emphasis-roles="value label"',
+        )
+        source = source.replace(
+            'data-content-ref="item.metric atom.rate"',
+            'data-content-ref="item.metric atom.rate" data-emphasis-role="value label"',
+        )
+        self.fixture.html_path.write_text(source, encoding="utf-8")
+        valid = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assertTrue(valid.ok, [issue.format() for issue in valid.issues])
+
+        self.fixture.html_path.write_text(
+            source.replace('data-emphasis-role="value label"', 'data-emphasis-role="value outline"'),
+            encoding="utf-8",
+        )
+        self.assert_has_code(
+            validate_render_target(self.fixture.deck, self.fixture.root),
+            "render.html_emphasis_carrier",
+        )
+
+    def test_atomic_coverage_requires_value_and_unit(self) -> None:
+        source = self.fixture.html_path.read_text(encoding="utf-8").replace("%", " percent")
+        self.fixture.html_path.write_text(source, encoding="utf-8")
+        result = validate_coverage_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(result, "coverage.atomic_unit_missing")
+
     def test_content_schema_failure_and_missing_schema_are_clear(self) -> None:
         self.fixture.content["content_items"][0]["priority"] = "urgent"
         self.fixture.flush()
@@ -502,7 +538,6 @@ class ContractValidationTests(unittest.TestCase):
         for slot in page["slots"]:
             slot["component_decision"]["action"] = "keep"
         page["rationale"] = "直接照抄模板，不做任何内容关系判断。"
-        page["html_attributes"]["data-reuse-mode"] = "copy"
         html = self.fixture.html_path.read_text(encoding="utf-8").replace(
             'data-reuse-mode="adapt"', 'data-reuse-mode="copy"'
         )
@@ -514,13 +549,15 @@ class ContractValidationTests(unittest.TestCase):
     def test_copy_requires_keep_and_adapt_requires_replace(self) -> None:
         page = self.fixture.render["pages"][0]
         page["layout_decision"]["reuse_mode"] = "copy"
-        page["html_attributes"]["data-reuse-mode"] = "copy"
         self.fixture.flush()
+        html = self.fixture.html_path.read_text(encoding="utf-8").replace(
+            'data-reuse-mode="adapt"', 'data-reuse-mode="copy"'
+        )
+        self.fixture.html_path.write_text(html, encoding="utf-8")
         copy_result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assert_has_code(copy_result, "render.component_decision")
 
         page["layout_decision"]["reuse_mode"] = "adapt"
-        page["html_attributes"]["data-reuse-mode"] = "adapt"
         for slot in page["slots"]:
             slot["component_decision"]["action"] = "keep"
         self.fixture.flush()
@@ -545,12 +582,10 @@ class ContractValidationTests(unittest.TestCase):
         self.assert_has_code(result, "render.slot_overflow")
         self.assert_has_code(result, "render.capacity_overflow")
 
-    def test_render_enforces_core_primitive_chain(self) -> None:
-        page = self.fixture.render["pages"][0]
-        page["core_primitive"] = "focus-field"
+    def test_render_derives_core_primitive_from_deck_plan(self) -> None:
+        self.fixture.plan["pages"][0]["spatial_primitive"] = "focus-field"
         self.fixture.flush()
         result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.core_primitive_mismatch")
         self.assert_has_code(result, "render.unsupported_core_primitive")
 
     def test_custom_layout_does_not_require_gallery_registration(self) -> None:
@@ -592,9 +627,6 @@ class ContractValidationTests(unittest.TestCase):
         }
         for slot in page["slots"]:
             slot["component_decision"]["action"] = "select"
-        page["html_attributes"]["data-layout-source"] = "custom"
-        page["html_attributes"]["data-layout"] = "custom.page.one"
-        page["html_attributes"]["data-reuse-mode"] = "custom"
         (self.fixture.root / "themes" / self.fixture.THEME_ID / "atlas-catalog.json").unlink()
         self.fixture.flush()
         html = self.fixture.html_path.read_text(encoding="utf-8")
@@ -613,19 +645,19 @@ class ContractValidationTests(unittest.TestCase):
                 page = load_json(fixture_root / case / "page.json")
                 self.fixture.render["pages"] = [page]
                 self.fixture.flush()
-                attrs = page["html_attributes"]
+                decision = page["layout_decision"]
                 html = self.fixture.html_path.read_text(encoding="utf-8")
                 html = html.replace(
                     'data-layout-source="gallery"',
-                    f'data-layout-source="{attrs["data-layout-source"]}"',
+                    f'data-layout-source="{decision["source"]}"',
                 )
                 html = html.replace(
                     'data-layout="demo.argument.sequence"',
-                    f'data-layout="{attrs["data-layout"]}"',
+                    f'data-layout="{decision["layout_id"]}"',
                 )
                 html = html.replace(
                     'data-reuse-mode="adapt"',
-                    f'data-reuse-mode="{attrs["data-reuse-mode"]}"',
+                    f'data-reuse-mode="{decision["reuse_mode"]}"',
                 )
                 self.fixture.html_path.write_text(html, encoding="utf-8")
                 result = validate_render_target(self.fixture.deck, self.fixture.root)
@@ -743,6 +775,53 @@ class ContractValidationTests(unittest.TestCase):
         self.assertNotIn("frames/shot-", exporter)
         self.assertNotIn("legacy-print", exporter)
 
+    def test_theme_lint_rejects_removed_accent_flag(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"),
+                str(REPO_ROOT / "themes" / "paper-ink" / "gallery" / "general"),
+                "--accent",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("unrecognized arguments: --accent", completed.stderr)
+
+    def test_theme_lint_rejects_hardcoded_accent_in_deck_html(self) -> None:
+        source = (
+            REPO_ROOT / "themes" / "paper-ink" / "examples" / "04-flow-kpi-band" / "index.html"
+        ).read_text(encoding="utf-8")
+        target = Path(self.temporary.name) / "hardcoded-accent.html"
+        target.write_text(source.replace("</style>", ".bad-accent{color:#C0392B}</style>", 1), encoding="utf-8")
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"),
+                str(target),
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(completed.returncode, 1)
+        self.assertIn("L1 彩色 hex #c0392b", completed.stdout)
+
+    def test_theme_galleries_read_accent_from_shared_tokens(self) -> None:
+        lint = REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"
+        gallery_root = REPO_ROOT / "themes" / "paper-ink" / "gallery"
+        for variant in ("general", "ai"):
+            with self.subTest(variant=variant):
+                completed = subprocess.run(
+                    [sys.executable, str(lint), str(gallery_root / variant), "--strict"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+
     def test_export_pdf_rejects_legacy_plan_before_browser_work(self) -> None:
         self.fixture.render["schema_version"] = "1.1"
         self.fixture.flush()
@@ -814,6 +893,15 @@ class ContractValidationTests(unittest.TestCase):
         empty = validate_gallery(self.fixture.root, FixtureRepo.THEME_ID)
         self.assert_has_code(empty, "gallery.layout_count")
         self.assert_has_code(empty, "gallery.empty")
+
+    def test_theme_contract_rejects_unknown_or_legacy_alias_fields(self) -> None:
+        manifest = load_json(self.fixture.layout_manifest_path)
+        manifest["layouts"][0]["id"] = "legacy-layout-alias"
+        write_json(self.fixture.layout_manifest_path, manifest)
+        self.assert_has_code(
+            validate_gallery(self.fixture.root, FixtureRepo.THEME_ID),
+            "config.gallery",
+        )
 
     def test_content_relation_target_must_exist_and_not_self_reference(self) -> None:
         item = self.fixture.content["content_items"][0]
@@ -952,7 +1040,7 @@ class ContractValidationTests(unittest.TestCase):
         leak.write_text("paper-ink uses #191917 and sample B12\n", encoding="utf-8")
         invalid = validate_core_purity(self.fixture.root)
         self.assert_has_code(invalid, "core.theme_token")
-        self.assert_has_code(invalid, "core.legacy_code")
+        self.assert_has_code(invalid, "core.gallery_shortcode")
 
     def test_catalog_filters_manifest_metadata_without_semantic_scoring(self) -> None:
         layout_cmd = [
@@ -1058,12 +1146,14 @@ class SingleHtmlContractTests(unittest.TestCase):
         write_json(render_path, render)
         self.assertIn("schema.const", self.error_codes(self.validate()))
 
-    def test_render_plan_v2_requires_layout_source_metadata(self) -> None:
-        render_path = self.deck / "render-plan.json"
-        render = load_json(render_path)
-        render["pages"][0]["html_attributes"].pop("data-layout-source")
-        write_json(render_path, render)
-        self.assertIn("schema.required", self.error_codes(self.validate()))
+    def test_render_requires_layout_source_metadata_in_html(self) -> None:
+        source = self.html.read_text(encoding="utf-8").replace(
+            ' data-layout-source="gallery"',
+            "",
+            1,
+        )
+        self.html.write_text(source, encoding="utf-8")
+        self.assertIn("render.html_page_data", self.error_codes(self.validate()))
 
     def test_single_html_rejects_duplicate_page_id(self) -> None:
         source = self.html.read_text(encoding="utf-8").replace(

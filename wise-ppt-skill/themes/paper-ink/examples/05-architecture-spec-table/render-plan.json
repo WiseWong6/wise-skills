@@ -18,23 +18,7 @@
           }
         ]
       },
-      "density": "dense",
       "rationale": "三层依赖树与三行规格字段需要左右对位，现有结构加规格单版式的插槽、层级关系与 2–12 个语义单元容量完全匹配，直接复用可保持高密度下的清晰映射。",
-      "capacity_status": "fit",
-      "core_primitive": "layered-stack",
-      "html_attributes": {
-        "data-page-id": "page.example-architecture-spec",
-        "data-page-role": "explain",
-        "data-theme": "paper-ink",
-        "data-layout": "paper-ink.decomposition.structure-spec-split",
-        "data-density": "dense",
-        "data-reuse-mode": "copy",
-        "data-layout-source": "gallery",
-        "data-page-title": "Core 定义能力，Theme 只实现视觉语法",
-        "data-page-summary": "左侧读依赖方向，右侧查每层接口规格。",
-        "data-section-id": "section.arch",
-        "data-section-title": "架构边界"
-      },
       "slots": [
         {
           "slot_id": "structure",
@@ -100,7 +84,11 @@
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     }
   ],
   "document_mode": "single-html",

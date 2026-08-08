@@ -18,23 +18,7 @@
           }
         ]
       },
-      "density": "dense",
       "rationale": "四个语义单元都服务于同一次异常核查：后台界面是主证据面，折线嵌入界面，肘形批注连接失败行和峰值；该组合符合版式 2–12 个语义单元容量。",
-      "capacity_status": "fit",
-      "core_primitive": "evidence-annotation",
-      "html_attributes": {
-        "data-page-id": "page.example-dense-ui",
-        "data-page-role": "prove",
-        "data-theme": "paper-ink",
-        "data-layout": "paper-ink.evidence.admin-ui",
-        "data-density": "dense",
-        "data-reuse-mode": "adapt",
-        "data-layout-source": "gallery",
-        "data-page-title": "一次 620ms 峰值触发重试，随后系统恢复",
-        "data-page-summary": "界面、图表、批注共享一个证据面，而不是三个并列模块。",
-        "data-section-id": "section.ops",
-        "data-section-title": "异常证据"
-      },
       "slots": [
         {
           "slot_id": "product-ui",
@@ -110,7 +94,17 @@
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "semantic-focus",
+        "content_ref": "item.product-anomaly-note",
+        "member_roles": [
+          "status",
+          "outline",
+          "annotation"
+        ],
+        "reason": "强调异常判断，使状态、轮廓和批注共同指向同一语义焦点。"
+      }
     }
   ],
   "document_mode": "single-html",

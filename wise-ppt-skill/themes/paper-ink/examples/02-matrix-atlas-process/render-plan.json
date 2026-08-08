@@ -18,23 +18,7 @@
           }
         ]
       },
-      "density": "dense",
       "rationale": "四阶段和三类能力形成 3×4 映射，先用 atlas 四步组件建立列方向，再由矩阵表承载十二个交叉结果；三个语义单元处于该版式 2–12 容量内。",
-      "capacity_status": "fit",
-      "core_primitive": "matrix-field",
-      "html_attributes": {
-        "data-page-id": "page.example-matrix-atlas-process",
-        "data-page-role": "synthesize",
-        "data-theme": "paper-ink",
-        "data-layout": "paper-ink.matrix.stage-dimension",
-        "data-density": "dense",
-        "data-reuse-mode": "adapt",
-        "data-layout-source": "gallery",
-        "data-page-title": "4 个阶段 × 3 类能力 = 12 个交付位",
-        "data-page-summary": "顺序交给流程组件，交叉关系交给矩阵骨架。",
-        "data-section-id": "section.framework",
-        "data-section-title": "交付框架"
-      },
       "slots": [
         {
           "slot_id": "framework",
@@ -99,7 +83,11 @@
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     }
   ],
   "document_mode": "single-html",
