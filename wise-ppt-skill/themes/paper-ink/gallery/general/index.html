@@ -115,10 +115,17 @@
     position: absolute;
     width: 1920px; height: 1080px;
     transform-origin: top left;
+    background: var(--paper);
   }
   #stagebox iframe {
+    position: absolute; inset: 0;
     width: 1920px; height: 1080px; border: 0; display: block;
     background: var(--paper);
+    opacity: 0; pointer-events: none;
+    transition: opacity 100ms linear;
+  }
+  #stagebox iframe.is-visible {
+    opacity: 1; pointer-events: auto;
   }
   /* 样张外框细线 */
   #frame-line {
@@ -167,7 +174,7 @@
     <span class="acc-btn" id="acc-btn">强调色</span>
   </div>
   <div id="viewport">
-    <div id="stagebox"><iframe id="fr" src="about:blank"></iframe></div>
+    <div id="stagebox" data-preview-state="idle"></div>
     <div id="frame-line"></div>
     <div class="nav" id="prev">←</div>
     <div class="nav" id="next">→</div>
@@ -178,6 +185,7 @@
   </div>
 </div>
 
+<script src="../../assets/gallery-frame-loader.js"></script>
 <script>
 /* ============ 画册目录（由 scripts/generate-gallery.py 生成）
    族序 = 字母序 A→O：每族恰好一个字母前缀，A 在最顶 ============ */
@@ -713,6 +721,7 @@ LAYOUTS.forEach(function (l, i) {
 var viewport = document.getElementById('viewport');
 var stagebox = document.getElementById('stagebox');
 var frameLine = document.getElementById('frame-line');
+var frameLoader = createGalleryFrameLoader(stagebox);
 function fit() {
   var vw = viewport.clientWidth - 140, vh = viewport.clientHeight - 60;
   var s = Math.min(vw / 1920, vh / 1080);
@@ -747,7 +756,7 @@ function codeToIndex(code) {
 function go(i, opts) {
   cur = (i + LAYOUTS.length) % LAYOUTS.length;
   var l = LAYOUTS[cur];
-  document.getElementById('fr').src = 'frames/' + l.file + (accentOn ? '?accent=1' : '');
+  frameLoader.load('frames/' + l.file + (accentOn ? '?accent=1' : ''));
   document.getElementById('b-code').textContent = l.code;
   document.getElementById('b-name').textContent = l.name;
   document.getElementById('b-use').textContent = l.use || '';

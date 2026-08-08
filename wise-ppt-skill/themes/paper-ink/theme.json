@@ -28,6 +28,7 @@
   "assets": {
     "bundle": "themes/paper-ink/assets",
     "stylesheet": "themes/paper-ink/assets/shared.css",
+    "gallery_frame_loader": "themes/paper-ink/assets/gallery-frame-loader.js",
     "shot_template": "themes/paper-ink/assets/shot-template.html",
     "particles": "themes/paper-ink/assets/particles.js",
     "fonts": "themes/paper-ink/assets/fonts"
