@@ -391,8 +391,8 @@ class FixtureRepo:
       data-density="balanced" data-reuse-mode="adapt"
       data-page-title="Retention reached 55%" data-page-summary="The release moved the metric"
       data-section-id="section.main" data-section-title="Result" data-emphasis-mode="none">
-  <section data-block-id="block.main" data-provider="svg" data-component="sequence-path"
-           data-content-ref="item.metric atom.rate">Retention 55%</section>
+  <svg data-block-id="block.main" data-provider="svg" data-component="sequence-path"
+       data-content-ref="item.metric atom.rate"><text>Retention 55%</text></svg>
   <section data-block-id="block.takeaway" data-provider="typography" data-component="takeaway"
            data-content-ref="item.metric">The release moved the metric</section>
 </section>
@@ -445,6 +445,27 @@ class ContractValidationTests(unittest.TestCase):
         )
         self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
         self.assertIn("PASS all", completed.stdout)
+
+    def test_synthetic_sources_require_placeholder_status(self) -> None:
+        source = self.fixture.content["sources"][0]
+        item = self.fixture.content["content_items"][0]
+        source["synthetic"] = True
+        item["status_note"] = "合成测试数据。"
+        self.fixture.flush()
+        invalid = validate_content_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(invalid, "content.synthetic_status")
+
+        item["status"] = "placeholder"
+        self.fixture.flush()
+        valid = validate_content_target(self.fixture.deck, self.fixture.root)
+        self.assertTrue(valid.ok, [issue.format() for issue in valid.issues])
+
+    def test_core_content_and_plan_examples_match_the_contract(self) -> None:
+        examples = REPO_ROOT / "core" / "examples"
+        content = validate_content_target(examples / "content.json", REPO_ROOT)
+        plan = validate_plan_target(examples / "deck-plan.json", REPO_ROOT)
+        self.assertTrue(content.ok, [issue.format() for issue in content.issues])
+        self.assertTrue(plan.ok, [issue.format() for issue in plan.issues])
 
     def test_render_plan_preflight_does_not_require_html(self) -> None:
         self.fixture.html_path.unlink()
@@ -706,8 +727,18 @@ class ContractValidationTests(unittest.TestCase):
         (self.fixture.root / "themes" / self.fixture.THEME_ID / "atlas-catalog.json").unlink()
         self.fixture.flush()
         html = self.fixture.html_path.read_text(encoding="utf-8")
+        html = html.replace(
+            'data-page-id="page.one"',
+            'data-page-id="page.one" data-render-pending="true"',
+            1,
+        )
         html = html.replace('data-provider="svg"', 'data-provider="echarts"')
         html = html.replace('data-component="sequence-path"', 'data-component="radar"')
+        html = html.replace(
+            "</section>\n</body>",
+            "  <script>WisePPT.createEChart(document.currentScript.closest('.slide'), '[data-block-id]', {});</script>\n</section>\n</body>",
+            1,
+        )
         self.fixture.html_path.write_text(html, encoding="utf-8")
         result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
@@ -791,9 +822,7 @@ class ContractValidationTests(unittest.TestCase):
         self.assertIn("unrecognized arguments: --accent", completed.stderr)
 
     def test_theme_lint_rejects_hardcoded_accent_in_deck_html(self) -> None:
-        source = (
-            REPO_ROOT / "themes" / "paper-ink" / "examples" / "04-flow-kpi-band" / "index.html"
-        ).read_text(encoding="utf-8")
+        source = (FIXTURES / "single-html-deck" / "index.html").read_text(encoding="utf-8")
         target = Path(self.temporary.name) / "hardcoded-accent.html"
         target.write_text(source.replace("</style>", ".bad-accent{color:#C0392B}</style>", 1), encoding="utf-8")
         completed = subprocess.run(
@@ -1139,6 +1168,41 @@ class SingleHtmlContractTests(unittest.TestCase):
         result = self.validate()
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
+    def test_svg_provider_requires_real_svg_in_its_block(self) -> None:
+        source = self.html.read_text(encoding="utf-8")
+        source = source.replace('<svg class="pipeline"', '<div class="pipeline"', 1)
+        source = source.replace("</svg>", "</div>", 1)
+        self.html.write_text(source, encoding="utf-8")
+        self.assertIn("render.html_provider_semantics", self.error_codes(self.validate()))
+
+    def test_echarts_provider_requires_runtime_registration(self) -> None:
+        render_path = self.deck / "render-plan.json"
+        render = load_json(render_path)
+        renderer = render["pages"][1]["slots"][1]["renderer"]
+        renderer.update(
+            {
+                "provider": "echarts",
+                "component": "line",
+                "data_ref": "item.product-latency-series",
+                "encode": {"x": "time", "y": "latency_ms"},
+                "theme_adapter": "paper-ink.echarts",
+            }
+        )
+        write_json(render_path, render)
+        source = self.html.read_text(encoding="utf-8")
+        source = source.replace(
+            'data-page-id="page.example-dense-ui"',
+            'data-page-id="page.example-dense-ui" data-render-pending="true"',
+            1,
+        )
+        source = source.replace(
+            'data-provider="native-html" data-component="canvas-line-chart"',
+            'data-provider="echarts" data-component="line"',
+            1,
+        )
+        self.html.write_text(source, encoding="utf-8")
+        self.assertIn("render.html_provider_semantics", self.error_codes(self.validate()))
+
     def test_render_plan_v2_requires_canonical_index_entry(self) -> None:
         render_path = self.deck / "render-plan.json"
         render = load_json(render_path)
@@ -1195,23 +1259,13 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
 
-    def test_six_formal_examples_are_v2_single_html_goldens(self) -> None:
-        examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
-        decks = sorted(path for path in examples.iterdir() if path.is_dir())
-        self.assertEqual(len(decks), 6)
-        for deck in decks:
-            with self.subTest(deck=deck.name):
-                render = load_json(deck / "render-plan.json")
-                source = (deck / "index.html").read_text(encoding="utf-8").casefold()
-                self.assertEqual(render["schema_version"], "2.0")
-                self.assertEqual(render["document_mode"], "single-html")
-                self.assertEqual(render["output_file"], "index.html")
-                self.assertTrue(all("output_file" not in page for page in render["pages"]))
-                self.assertNotIn("<iframe", source)
-                self.assertNotIn("thumb-", source)
-                self.assertFalse((deck / "frames").exists())
-                result = validate_all(deck, REPO_ROOT)
-                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+    def test_theme_has_no_second_full_deck_example_source(self) -> None:
+        self.assertFalse((REPO_ROOT / "themes" / "paper-ink" / "examples").exists())
+        decision_fixtures = FIXTURES / "render-v2"
+        self.assertEqual(
+            {path.name for path in decision_fixtures.iterdir() if path.is_dir()},
+            {"gallery-copy", "gallery-adapt", "custom"},
+        )
 
 
 if __name__ == "__main__":
