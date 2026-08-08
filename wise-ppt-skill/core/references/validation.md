@@ -5,6 +5,7 @@
 ## 1. 命令入口
 
 ```bash
+python3 scripts/validate.py location <deck-dir> --workspace <workspace-root>
 python3 scripts/validate.py content  <deck-or-content.json>
 python3 scripts/validate.py plan     <deck-or-deck-plan.json>
 python3 scripts/validate.py render   <deck-or-render-plan.json>
@@ -14,6 +15,8 @@ python3 scripts/validate.py all      <deck-dir>
 ```
 
 命令退出码必须可靠：任一 P0 失败返回非零；不存在的文件、未知主题或无法读取的 manifest 都不得报告成功。
+
+`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、`themes/*/examples`、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。
 
 ## 2. Content 门禁
 

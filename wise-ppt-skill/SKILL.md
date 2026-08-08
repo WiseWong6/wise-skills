@@ -22,15 +22,18 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 
 一次制作只有同时满足以下条件才算完成：
 
-1. `content.json`、`deck-plan.json`、`render-plan.json` 三份权威文件存在且通过校验。
-2. 所有 `must` 内容被页面覆盖；来源事实没有被改写成无来源结论；推断和占位明确标记。
-3. 每页先有主张、观众问题、证据关系与密度意图，再有主题版式和组件。
-4. Render Plan 中的 layout、slot、renderer、content ref、复用方式和理由都可解析。
-5. HTML 契约、溢出、安全区、资源、字体和真实截图通过；人工检查内容、叙事和视觉。
+1. 正式产物目录 `<DECK>` 位于用户当前工作区 `<WORKSPACE_ROOT>` 内，并且不在 `<SKILL_ROOT>` 内。
+2. `content.json`、`deck-plan.json`、`render-plan.json` 三份权威文件存在且通过校验。
+3. 所有 `must` 内容被页面覆盖；来源事实没有被改写成无来源结论；推断和占位明确标记。
+4. 每页先有主张、观众问题、证据关系与密度意图，再有主题版式和组件。
+5. Render Plan 中的 layout、slot、renderer、content ref、复用方式和理由都可解析。
+6. HTML 契约、溢出、安全区、资源、字体和真实截图通过；人工检查内容、叙事和视觉。
 
 ## 不可跳过的规则
 
 - 权威数据流固定为：`原始资料 → content.json → deck-plan.json → render-plan.json → HTML → QA`。
+- `<WORKSPACE_ROOT>` 是用户当前任务的项目/工作区根目录；`<DECK>` 必须解析为其中的目录，默认使用 `<WORKSPACE_ROOT>/output/<deck-slug>`，用户明确指定工作区内其他位置时从其指定。
+- 正式产物禁止写入 `<SKILL_ROOT>` 的任何位置，包括 `<SKILL_ROOT>/output`、`<SKILL_ROOT>/outputs` 或临时自造的成品目录。Skill 内只允许维护 `core/examples`、`themes/*/examples`、gallery 与测试夹具；它们不是用户交付物。
 - JSON 是机器权威源；storyboard 或 Markdown 只能是派生的人读视图。
 - 业务数字、引语和事实默认保真并记录来源。只有用户要求 mock 或资料确实缺失时才允许 `inferred` / `placeholder`，并明确标记。
 - Core 产物不得出现主题字体、颜色、坐标、画册短码或 ECharts option。
@@ -62,6 +65,14 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 ### 0. 确认任务边界
 
 从用户资料提取：受众、场景、目标、希望观众采取的行动、演讲或自读、时长、页数约束、必留/可删内容、来源、主题和输出方式。
+
+先解析 `<WORKSPACE_ROOT>` 与 `<DECK>` 的绝对路径，并在创建任何产物前通过位置预检：
+
+```bash
+python3 <SKILL_ROOT>/scripts/validate.py location <DECK> --workspace <WORKSPACE_ROOT>
+```
+
+不得把当前 shell 位于 `<SKILL_ROOT>` 当成把 deck 写进 Skill 的理由。用户没有另行指定时，使用 `<WORKSPACE_ROOT>/output/<deck-slug>`；无法确定当前用户工作区时暂停确认，不能回退到 `<SKILL_ROOT>/output`。
 
 内部规划永远执行；只有出现以下任一情况才暂停向用户确认：
 
@@ -171,7 +182,7 @@ python3 <SKILL_ROOT>/scripts/validate.py render <DECK>/render-plan.json
 
 ### 5. 渲染 HTML
 
-输出目录固定包含：
+这里的 `<DECK>` 必须是步骤 0 已通过位置预检的用户工作区目录。其内部固定包含：
 
 ```text
 <DECK>/
