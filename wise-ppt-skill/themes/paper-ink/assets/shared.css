@@ -63,6 +63,25 @@
   --space-40: 160px;
   --shadow-soft: 0 0 4px color-mix(in srgb, var(--ink) 2%, transparent);
   --shadow-specimen: 2px 2px 0 color-mix(in srgb, var(--ink) 4%, transparent);
+  /*
+   * 全局字阶：语义层级只能引用这些 token，页面不得写裸字号。
+   * 特殊图形字号只服务章节标记和离屏粒子采样，不得当正文使用。
+   */
+  --type-display-mark: 300px;
+  --type-particle-sample: 240px;
+  --type-display: 96px;
+  --type-hero: 76px;
+  --type-title: 60px;
+  --type-metric: 52px;
+  --type-heading: 40px;
+  --type-emphasis: 36px;
+  --type-caption: 33px;
+  --type-subheading: 26px;
+  --type-body: 22px;
+  --type-body-small: 18px;
+  --type-label: 15px;
+  --type-meta: 13px;
+  --type-micro: 12px;
   /* 四族字体 */
   --serif: 'Han Serif', 'Songti SC', serif;        /* 思源宋体 Medium：大字标题/结论/提问符号 */
   --sans: 'Han Sans', 'PingFang SC', sans-serif;   /* 思源黑体 Light：正文 */
@@ -107,6 +126,14 @@ html[data-runtime="wise-ppt"] body {
   overflow: hidden;
   background: var(--paper);
   transform-origin: center center;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 放映页正文必须可框选复制；画册克隆由运行壳单独设为 inert / 不可选。 */
+.stage * {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 html[data-runtime="wise-ppt"] .slide > .stage {
@@ -142,7 +169,7 @@ html[data-runtime="wise-ppt"] .slide > .stage {
 .doc {
   position: absolute;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--type-meta);
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--ink-45);
@@ -158,7 +185,7 @@ html[data-runtime="wise-ppt"] .slide > .stage {
   left: 48px; bottom: 44px;
   display: none;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--type-meta);
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--ink-45);
@@ -177,13 +204,16 @@ body.mode-deck .folio { display: block; }
 .giant {
   font-family: var(--serif);
   font-weight: 500;
-  font-size: 76px;          /* 大字上限：96px 以内 */
+  font-size: var(--type-hero);
   line-height: 1.2;
   letter-spacing: .04em;
 }
-.h1 { font-family: var(--serif); font-weight: 500; font-size: 60px; line-height: 1.3; letter-spacing: .03em; }
-.h2 { font-family: var(--serif); font-weight: 500; font-size: 40px; line-height: 1.35; letter-spacing: .03em; }
-.lead { font-family: var(--sans); font-weight: 300; font-size: 24px; line-height: 1.7; color: var(--ink-70); }
+.h1 { font-family: var(--serif); font-weight: 500; font-size: var(--type-title); line-height: 1.3; letter-spacing: .03em; }
+.h2 { font-family: var(--serif); font-weight: 500; font-size: var(--type-heading); line-height: 1.35; letter-spacing: .03em; }
+.lead { font-family: var(--sans); font-weight: 300; font-size: var(--type-subheading); line-height: 1.7; color: var(--ink-70); }
+
+/* 页底 takeaway 的字级只有这一处权威定义。 */
+.stage > .caption { font-size: var(--type-caption); }
 
 /* ---------- 细线框 ---------- */
 .hairline { border: 1px solid var(--ink-25); }
@@ -196,7 +226,7 @@ body.mode-deck .folio { display: block; }
   text-align: center;
   font-family: var(--serif);
   font-weight: 500;
-  font-size: 34px;
+  font-size: var(--type-emphasis);
   letter-spacing: .06em;
   color: var(--ink);
   z-index: 5;
@@ -206,7 +236,7 @@ body.mode-deck .folio { display: block; }
   margin-top: var(--space-4);
   font-family: var(--sans);
   font-weight: 300;
-  font-size: 18px;
+  font-size: var(--type-body-small);
   letter-spacing: .14em;
   color: var(--ink-45);
 }
@@ -222,7 +252,7 @@ body.mode-deck .folio { display: block; }
 /* ---------- SVG 图版通用文字 ---------- */
 .fig-title {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: var(--type-label);
   letter-spacing: .3em;
   fill: var(--ink-45);
   text-transform: uppercase;
@@ -230,7 +260,7 @@ body.mode-deck .folio { display: block; }
 .fig-cap {
   font-family: var(--sans);
   font-weight: 300;
-  font-size: 18px;
+  font-size: var(--type-body-small);
   letter-spacing: .06em;
   fill: var(--ink-70);
 }

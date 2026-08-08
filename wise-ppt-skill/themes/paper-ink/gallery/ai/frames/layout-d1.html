@@ -10,14 +10,14 @@
   /* 左侧落版文字块 */
   .kicker {
     position: absolute; left: 300px; top: 330px;
-    font-family: var(--mono); font-size: 14px;
+    font-family: var(--mono); font-size: var(--type-meta);
     letter-spacing: .3em; color: var(--ink-45);
     z-index: 2;
   }
   .title {
     position: absolute; left: 294px; top: 372px;
     font-family: var(--serif); font-weight: 400;
-    font-size: 96px; letter-spacing: .06em;
+    font-size: var(--type-display); letter-spacing: .06em;
     color: var(--ink); z-index: 2;
   }
   .title-bar {
@@ -29,7 +29,7 @@
   .subtitle {
     position: absolute; left: 300px; top: 564px;
     font-family: var(--sans); font-weight: 400;
-    font-size: 26px; letter-spacing: .1em;
+    font-size: var(--type-subheading); letter-spacing: .1em;
     color: var(--ink-70); z-index: 2;
   }
   /* 主角判定：封面标题"AI 工程化"是全页焦点 → 标题整词 + 下划线 bar 一起染色，形成落版焦点；右侧线稿小图（图形）保持墨黑，不上彩 */
@@ -39,7 +39,7 @@
   /* 左下 mono 元数据块（与 kicker / title / subtitle 同列左对齐） */
   .meta {
     position: absolute; left: 300px; bottom: 120px;
-    font-family: var(--mono); font-size: 13px;
+    font-family: var(--mono); font-size: var(--type-meta);
     letter-spacing: .3em; line-height: 2.3;
     color: var(--ink-45); text-align: left;
     z-index: 2; white-space: pre;
@@ -140,7 +140,7 @@ var MONO = 'Courier Prime';
   el('line', {x1:ax-22, y1:ay, x2:ax-12, y2:ay, stroke:INK80, 'stroke-width':.7, opacity:.5});
 
   // 小图注
-  txt(X+W/2, Y+H+64, 'UI PREVIEW — NAV · CARD · AI', {'font-family':MONO, 'font-size':12,
+  txt(X+W/2, Y+H+64, 'UI PREVIEW — NAV · CARD · AI', {'font-family':MONO, 'font-size':'var(--type-micro)',
     'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
 })();
 

@@ -217,7 +217,9 @@ data-block-id data-provider data-component data-content-ref
 
 页面脚本必须用 `document.currentScript.closest('.slide')` 取得本页根节点，并只做局部查询；禁止全局 `#draw/#cv`、裸变量和单页 `stageFit()`。异步字体、图片和图表完成后调用 `WisePPT.markSlideReady(slide)`，失败调用 `WisePPT.markSlideError(slide, error)`。ECharts 默认经 `WisePPT.createEChart()` 使用 SVG renderer；图表强调色只能由 `WisePPT.emphasisColor()` 按同一语义契约取得。不要自行修改第三方组件源文件；把导出的 atlas 或 ECharts 放进 slot wrapper，再做主题 adapter。
 
-无 hash 默认进入实时画册；画册每次进入时都从真实 slide 重新 `cloneNode(true)`，不维护第二份页面数组。`#N` 直接进入第 N 页；键盘、触控、Home/End 翻页，ESC 返回画册。`?print=1` 只铺开真实 slide，用于浏览器直接打印。
+主题字阶是唯一字号权威源。同一语义层级在每一页都引用 `<THEME_CONFIG>` 声明资产中的 `--type-*` token；CSS / SVG 不得写裸字号，Canvas / ECharts 用 `WisePPT.typeSize(role)` 取得数值。不得在个别页面用 `font-size`、`font` shorthand、`fontSize` 或 `ctx.font` 的数字补丁改变层级；溢出仍按换媒介、换密度、拆页处理。
+
+无 hash 默认进入实时画册；画册每次进入时都从真实 slide 重新 `cloneNode(true)`，不维护第二份页面数组。`#N` 直接进入第 N 页；键盘、触控、Home/End 翻页，ESC 返回画册。放映中的真实正文必须能框选并复制；存在文本选区或可编辑控件焦点时，翻页快捷键和滑动手势不得抢占。画册克隆、页码和返回按钮保持不可选。`?print=1` 只铺开真实 slide，用于浏览器直接打印。
 
 HTML 落盘后先校验 Render Plan 与真实 DOM 的一致性，再跑完整来源覆盖链：
 
@@ -234,7 +236,7 @@ python3 <SKILL_ROOT>/scripts/validate.py coverage <DECK>
 python3 <SKILL_ROOT>/scripts/validate.py all <DECK>
 ```
 
-再运行无截图浏览器检查与 PDF 导出。浏览器检查会验证 deck ready、字体/图片、Canvas 像素克隆、画册卡片数、深链、翻页和 ESC；PDF 直接打印 HTML，不落盘 PNG：
+再运行无截图浏览器检查与 PDF 导出。浏览器检查会验证 deck ready、字体/图片、Canvas 像素克隆、画册卡片数、深链、翻页、正文选区/复制保护和 ESC；PDF 直接打印 HTML，不落盘 PNG：
 
 ```bash
 bash <SKILL_ROOT>/runtime/check-deck.sh <DECK> --mode normal
@@ -253,7 +255,8 @@ python3 <SKILL_ROOT>/themes/paper-ink/scripts/lint.py <DECK>
 - 内容：事实、数字、单位、引用、来源、must 覆盖。
 - 叙事：标题串起来是否能独立说明问题、是否重复或断裂。
 - 表达：关系是否选对，图表是否回答问题，模板是否真的匹配。
-- 视觉：1920×1080 下无溢出、字号可读、密度合理、主次明确、主题一致。
+- 视觉：1920×1080 下无溢出；同一语义层级全 deck 使用同一字号 token；字号可读、密度合理、主次明确、主题一致。
+- 交互：放映正文可框选复制；选中文字或聚焦可编辑控件时不会误翻页。
 - 强调色：同时检查普通/强调模式；语义焦点组应完整响应，ID、刻度、图例等非语义元数据不得因邻近关系误染。
 
 浏览器 profile 等临时产物只能放 `/tmp` 并由脚本自动清理。验收 PDF 若放在 `/tmp`，交付时说明路径和是否需要清理。

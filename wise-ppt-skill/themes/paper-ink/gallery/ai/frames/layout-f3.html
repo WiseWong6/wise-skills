@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -47,7 +47,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. F3 — COLUMN LIST', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. F3 — COLUMN LIST', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 栏间分隔虚线 ---------- */
@@ -57,8 +57,8 @@ el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opaci
 
 /* ---------- 栏题（无线框：中文 + mono EN + 短横） ---------- */
 function colHead(x, zh, en) {
-  txt(x, 240, zh, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
-  txt(x, 268, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':3, fill:INK45});
+  txt(x, 240, zh, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+  txt(x, 268, en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:INK45});
   el('line', {x1:x, y1:286, x2:x + 96, y2:286, stroke:INK, 'stroke-width':.8, opacity:.5});
   el('line', {x1:x, y1:292, x2:x + 500, y2:292, stroke:INK, 'stroke-width':.6, opacity:.22});
 }
@@ -68,9 +68,9 @@ function colHead(x, zh, en) {
 function itemDot(x, y, title, note, field) {
   el('circle', {cx:x + 8, cy:y - 7, r:4.2, fill:'none', stroke:INK80, 'stroke-width':1});
   el('circle', {cx:x + 8, cy:y - 7, r:1.4, fill:INK});
-  txt(x + 28, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-  txt(x + 500, y, field, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
-  txt(x + 28, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
+  txt(x + 28, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+  txt(x + 500, y, field, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+  txt(x + 28, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.55)'});
 }
 /* 柱 2：细线小框 + 框内微图形 */
 function itemBox(x, y, title, note, field, glyph) {
@@ -87,17 +87,17 @@ function itemBox(x, y, title, note, field, glyph) {
   } else {                  /* 菱点 */
     el('path', {d:'M ' + (x + 15) + ' ' + (y - 17) + ' l 7 8 l -7 8 l -7 -8 Z', fill:'none', stroke:INK, 'stroke-width':.8, opacity:.7});
   }
-  txt(x + 48, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-  txt(x + 500, y, field, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
-  txt(x + 48, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
+  txt(x + 48, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+  txt(x + 500, y, field, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+  txt(x + 48, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.55)'});
 }
 /* 柱 3：mono 编号 + 短刻度 */
 function itemIdx(x, y, idx, title, note, field) {
-  txt(x, y, idx, {'font-family':MONO, 'font-size':15, 'letter-spacing':1, fill:INK80});
+  txt(x, y, idx, {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':1, fill:INK80});
   el('line', {x1:x, y1:y + 8, x2:x + 34, y2:y + 8, stroke:INK80, 'stroke-width':.8, opacity:.5});
-  txt(x + 64, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-  txt(x + 500, y, field, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
-  txt(x + 64, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
+  txt(x + 64, y, title, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+  txt(x + 500, y, field, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+  txt(x + 64, y + 30, note, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.55)'});
 }
 
 /* ============ 三柱（AI 产品经理核心能力清单） ============ */

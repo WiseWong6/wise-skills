@@ -97,6 +97,20 @@ var PART = (function () {
            arc: arc, brokenArc: brokenArc, textPoints: textPoints, measure: measure };
 })();
 
+/* Canvas / ECharts 不能直接消费 CSS var；统一从共享字阶取数值。 */
+function paperInkTypeSize(role) {
+  var allowed = [
+    'display-mark', 'particle-sample', 'display', 'hero', 'title', 'metric',
+    'heading', 'emphasis', 'caption', 'subheading', 'body', 'body-small',
+    'label', 'meta', 'micro'
+  ];
+  if (allowed.indexOf(role) < 0) throw new Error('未知 paper-ink 字阶: ' + role);
+  var raw = getComputedStyle(document.documentElement).getPropertyValue('--type-' + role).trim();
+  var value = Number.parseFloat(raw);
+  if (!Number.isFinite(value)) throw new Error('paper-ink 字阶未定义: --type-' + role);
+  return value;
+}
+
 /* Gallery 独立样页运行时；正式 single-HTML deck 的舞台缩放由统一 runtime 负责。 */
 function stageFit() {
   if (new URLSearchParams(location.search).has('accent')) document.documentElement.classList.add('accent');
