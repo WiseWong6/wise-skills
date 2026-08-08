@@ -6,7 +6,8 @@
 <title>网页 PPT · 画板与放映</title>
 <!--
   wise-ppt · 主题无关的单文件双模式模板（画板 ↔ 全屏）
-  使用：复制为 deck 目录的 index.html，填写下方 CONFIG / ACTS / SHOTS。
+  本文件自带两页可点击示例；制作正式 deck 时复制为 deck 目录的 index.html，
+  再填写下方 CONFIG / ACTS / SHOTS 并替换 frames/ 页面与缩略图。
     - SHOTS 每行：[幕组 id, 页码, 中文标题, 时间码(可空), 一句话 VO]
     - ACTS 定义幕组顺序与名称；不需要分幕时只留一组
     - frames/shot-NN.html 必须存在；frames/thumb-NN.png 是画板缩略图（由 runtime/screenshot.sh thumb 模式生成）
@@ -55,14 +56,11 @@
     border: 1px solid rgba(25,25,23,.35);
     position: relative; background: #DFE0D9;
     /* 用 transform + outline 替代 box-shadow，避免大尺寸元素重绘掉帧 */
-    transition: transform .18s ease, border-color .18s ease;
-    will-change: transform;
   }
   .frame img {
     display: block; width: 100%; height: 100%; object-fit: cover;
     pointer-events: none; user-select: none;
   }
-  .shot:hover .frame { transform: translateY(-3px); border-color: rgba(25,25,23,.6); }
   /* 从全屏返回时高亮当前页 */
   .shot.active .frame { border-color: #191917; border-width: 2px; }
   .meta { margin-top: 10px; }
@@ -83,6 +81,7 @@
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     border: 0; background: #111;
+    /* 放映页保留文本交互，支持拖选与复制文案；键盘由 frame-input.js 转发。 */
   }
   #deck .prefetch {
     visibility: hidden;      /* 预加载但不显示，不占合成层可见性 */
@@ -92,32 +91,33 @@
   #pager {
     position: fixed; right: 28px; bottom: 20px;
     z-index: 10;
-    font-size: 13px; letter-spacing: .22em;
-    color: rgba(255,255,255,.42);
+    padding: 7px 9px 7px 12px;
+    border: 1px solid rgba(25,25,23,.25);
+    border-radius: 999px;
+    background: rgba(223,224,217,.84);
+    color: rgba(25,25,23,.78);
+    font-size: 13px; font-weight: 600; letter-spacing: .12em;
     user-select: none; pointer-events: none;
-    transition: opacity .4s;
+    opacity: 1; transition: opacity .4s;
     font-family: ui-monospace, Menlo, monospace;
   }
   body.idle #pager { opacity: 0; }
   /* 右下角模式切换按钮（全屏时显示，用于返回画板） */
   #toggle {
-    position: fixed; right: 28px; bottom: 52px;
+    position: fixed; right: 28px; bottom: 64px;
     z-index: 11;
     width: 40px; height: 40px;
-    border: 1px solid rgba(255,255,255,.3);
-    background: rgba(17,17,17,.6);
-    color: rgba(255,255,255,.7);
+    border: 1px solid rgba(25,25,23,.25);
+    background: rgba(223,224,217,.84);
+    color: rgba(25,25,23,.78);
     border-radius: 6px;
     cursor: pointer;
     display: none;            /* 默认画板态不显示 */
     align-items: center; justify-content: center;
-    transition: opacity .4s, border-color .2s, color .2s;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    transition: opacity .4s;
   }
-  #toggle:hover { border-color: rgba(255,255,255,.6); color: rgba(255,255,255,.95); }
   body.idle #toggle { opacity: 0; pointer-events: none; }
-  #toggle svg { width: 18px; height: 18px; fill: currentColor; }
+  #toggle svg { width: 16px; height: 16px; fill: currentColor; }
   body.mode-deck #toggle { display: flex; }
 
   /* 减少动效偏好：尊重 prefers-reduced-motion */
@@ -140,10 +140,10 @@
 
 <!-- ===== 全屏视图 ===== -->
 <section id="deck">
-  <iframe class="prefetch" id="prefetch" title="preload"></iframe>
-  <iframe class="view" id="view" title="slide"></iframe>
+  <iframe class="prefetch" id="prefetch" title="preload" tabindex="-1"></iframe>
+  <iframe class="view" id="view" title="slide" tabindex="-1"></iframe>
   <div id="pager"></div>
-  <button id="toggle" type="button" aria-label="返回画板" title="返回画板 (ESC)">
+  <button id="toggle" type="button" aria-label="返回画板">
     <!-- 四格缩略图图标，语义=回到画板总览 -->
     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
   </button>
@@ -152,19 +152,26 @@
 <script>
 /* ===== 配置区：改这里 ===== */
 var CONFIG = {
-  title: '《标题》分镜总览',
+  title: 'Wise PPT · 分镜示例',
   framesDir: 'frames',        // 分镜目录（相对本文件）
   framePrefix: 'shot-',       // 全尺寸页：frames/shot-NN.html
   thumbPrefix: 'thumb-',      // 缩略图：frames/thumb-NN.png（由 runtime/screenshot.sh thumb 生成）
   thumbExt: '.png'
 };
 var ACTS = [
-  ['g1', 'ACT 1 · 第一幕名称'],
-  ['g2', 'ACT 2 · 第二幕名称']
+  ['g1', 'ACT 1 · 演示缺的是判断'],
+  ['g2', 'ACT 2 · 从内容到放映'],
+  ['g3', 'ACT 3 · 设计是一种阅读顺序'],
+  ['g4', 'ACT 4 · 表达需要可复用，也需要自由'],
+  ['g5', 'ACT 5 · 保持联系']
 ];
 var SHOTS = [
-  ['g1', '01', '页面标题', '', '一句话 VO / 页面内容摘要。'],
-  ['g2', '02', '页面标题', '', '一句话 VO / 页面内容摘要。']
+  ['g1', '01', 'AI做PPT总是千篇一律', '', 'AI缺的不是生成页面的能力，而是好的设计标准。'],
+  ['g2', '02', '它如何把内容变成演示', '', '先理解内容，再安排重点、层级与关系。'],
+  ['g3', '03', '设计是一种阅读顺序', '', '设计不是把信息填满，而是为观众的阅读顺序作出取舍。'],
+  ['g4', '04', '版式图册：可参考，也可跳过', '', '从信息关系出发，让每一种内容都拥有恰当的阅读结构。'],
+  ['g4', '05', 'PPT 组件：可调用，也可不用', '', '提供成熟的表达组件，并由页面内容决定是否调用。'],
+  ['g5', '06', '关注 @歪斯Wise，及时获取更新资讯。', '', '关注 @歪斯Wise，及时获取更新资讯。']
 ];
 /* ===== 配置区结束 ===== */
 
@@ -216,6 +223,31 @@ var view = document.getElementById('view');
 var prefetch = document.getElementById('prefetch');
 var pager = document.getElementById('pager');
 var cur = 0;
+var pending = null;
+var pendingPush = false;
+
+/* 只有完成 load 的预加载页才允许接管可见层，避免快速按键时切到空 iframe。 */
+function trackFrame(frame) {
+  frame.addEventListener('load', function() {
+    if (frame.getAttribute('src') !== frame.dataset.expectedSrc) return;
+    frame.dataset.ready = 'true';
+    /* load 后再等一帧，确保 SVG/字体已经完成首帧合成再切到前台。 */
+    if (frame === prefetch && frame.dataset.activate === 'true' &&
+        pending !== null && frame.dataset.idx === String(pending)) {
+      requestAnimationFrame(function() {
+        if (frame === prefetch && frame.dataset.ready === 'true' &&
+            frame.dataset.idx === String(pending)) swapToPending();
+      });
+    }
+  });
+}
+function loadFrame(frame, url) {
+  frame.dataset.ready = 'false';
+  frame.dataset.expectedSrc = url;
+  frame.setAttribute('src', url);
+}
+trackFrame(view);
+trackFrame(prefetch);
 
 function pageUrl(i) {
   return PREFIXES.html + SHOTS[i][1] + '.html?ppt';
@@ -223,43 +255,108 @@ function pageUrl(i) {
 
 function clamp(n) { return Math.max(0, Math.min(SHOTS.length - 1, n)); }
 
-function go(n, push) {
-  cur = clamp(n);
-  /* 双 iframe swap：预加载层已预热下一页时直接提升，避免白屏闪烁 */
-  var url = pageUrl(cur);
-  if (prefetch.src && prefetch.dataset.idx === String(cur)) {
-    /* 预加载层正好是目标页 → 交换两个 iframe 的角色 */
-    var tmp = view;
-    view = prefetch;
-    prefetch = tmp;
-    view.className = 'view';
-    view.style.visibility = '';
-    prefetch.className = 'prefetch';
-    prefetch.style.visibility = 'hidden';
-  } else {
-    /* 预加载层没命中（跳页/首次） → 直接加载到可见层 */
-    if (view.getAttribute('src') !== url) view.src = url;
-  }
-  /* 始终预热下一页到预加载层 */
-  warmNext();
+function updatePager(push) {
   pager.textContent = (cur + 1) + ' / ' + SHOTS.length;
   if (push !== false) history.replaceState(null, '', '#' + (cur + 1));
+}
+
+function swapToPending() {
+  var target = pending;
+  if (target === null || prefetch.dataset.idx !== String(target) ||
+      prefetch.dataset.ready !== 'true') return;
+  /* 只在隐藏层 ready 后交换，旧可见层全程不变，避免白屏/闪烁。 */
+  var tmp = view;
+  view = prefetch;
+  prefetch = tmp;
+  view.className = 'view';
+  view.style.visibility = '';
+  view.dataset.activate = '';
+  prefetch.className = 'prefetch';
+  prefetch.style.visibility = 'hidden';
+  prefetch.dataset.activate = '';
+  cur = target;
+  pending = null;
+  updatePager(pendingPush);
+  pendingPush = false;
+  warmNext();
+  wake();
+}
+
+function go(n, push) {
+  var target = clamp(n), url = pageUrl(target);
+  pendingPush = push !== false;
+  /* 首次进入或深链没有可见页：只允许这一次加载到可见层。 */
+  if (!view.getAttribute('src')) {
+    cur = target;
+    pending = null;
+    loadFrame(view, url);
+    view.dataset.idx = String(target);
+    updatePager(push);
+    warmNext();
+    wake();
+    return;
+  }
+  /* 回到当前页时取消尚未完成的目标，保留当前可见画面。 */
+  if (target === cur) {
+    pending = null;
+    pendingPush = false;
+    warmNext();
+    wake();
+    return;
+  }
+  pending = target;
+  /* 下一页已经预热完成 → 同步交换；否则继续留在旧页等待隐藏层完成。 */
+  if (prefetch.getAttribute('src') === url &&
+      prefetch.dataset.idx === String(target) &&
+      prefetch.dataset.ready === 'true') {
+    swapToPending();
+    return;
+  }
+  if (prefetch.getAttribute('src') !== url ||
+      prefetch.dataset.idx !== String(target)) {
+    loadFrame(prefetch, url);
+    prefetch.dataset.idx = String(target);
+  }
+  prefetch.dataset.activate = 'true';
   wake();
 }
 
 /* 把下一页预热到 prefetch 层（不可见，不抢合成层） */
 function warmNext() {
+  if (pending !== null) return;
   var nextIdx = cur + 1;
   if (nextIdx >= SHOTS.length) return;
   var nextUrl = pageUrl(nextIdx);
-  if (prefetch.getAttribute('src') !== nextUrl) {
-    prefetch.src = nextUrl;
+  if (prefetch.getAttribute('src') !== nextUrl ||
+      prefetch.dataset.idx !== String(nextIdx)) {
+    loadFrame(prefetch, nextUrl);
     prefetch.dataset.idx = String(nextIdx);
   }
+  prefetch.dataset.activate = '';
 }
 
-function next() { go(cur + 1); }
-function prev() { go(cur - 1); }
+function next() { go((pending === null ? cur : pending) + 1); }
+function prev() { go((pending === null ? cur : pending) - 1); }
+
+/* 外层焦点负责常规键盘；iframe 内的选区/焦点由 frame-input.js 通过 message 转发。 */
+function handleKeydown(e) {
+  if (!document.body.classList.contains('mode-deck')) return;
+  if (e.key === 'Escape') { e.preventDefault(); exitDeck(); return; }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+  else if (e.key === 'Home') { e.preventDefault(); go(0); }
+  else if (e.key === 'End') { e.preventDefault(); go(SHOTS.length - 1); }
+}
+
+addEventListener('message', function(e) {
+  var data = e.data || {};
+  if (data.source !== 'wise-ppt-frame') return;
+  if (data.type === 'pointermove') { wake(); return; }
+  if (data.type === 'keydown' &&
+      (e.source === view.contentWindow || e.source === prefetch.contentWindow)) {
+    handleKeydown({ key: data.key, preventDefault: function() {} });
+  }
+});
 
 /* ---------- 模式切换 ---------- */
 function enterDeck(idx) {
@@ -283,21 +380,13 @@ function exitDeck() {
     setTimeout(function() { card.classList.remove('active'); }, 2400);
   }
   /* 退出全屏时停掉预加载层，释放内存 */
-  prefetch.src = 'about:blank';
+  loadFrame(prefetch, 'about:blank');
   prefetch.removeAttribute('data-idx');
   history.replaceState(null, '', location.pathname);
 }
 
 /* ---------- 键盘 / 触屏 / 按钮 ---------- */
-addEventListener('keydown', function(e) {
-  if (document.body.classList.contains('mode-deck')) {
-    if (e.key === 'Escape') { e.preventDefault(); exitDeck(); return; }
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
-    else if (e.key === 'Home') { e.preventDefault(); go(0); }
-    else if (e.key === 'End') { e.preventDefault(); go(SHOTS.length - 1); }
-  }
-});
+addEventListener('keydown', handleKeydown);
 
 var tx = 0, ty = 0;
 addEventListener('touchstart', function(e) {
@@ -315,7 +404,7 @@ addEventListener('touchend', function(e) {
 
 document.getElementById('toggle').addEventListener('click', exitDeck);
 
-/* 页码指示活动唤醒 */
+/* 页码与返回按钮随活动唤醒，静止一段时间后共同隐藏。 */
 var idleTimer = null;
 function wake() {
   document.body.classList.remove('idle');

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN" data-page-id="wise-ppt-why" data-page-role="compare" data-theme="paper-ink" data-layout-source="gallery" data-layout="paper-ink.comparison.dual-panel" data-density="balanced" data-reuse-mode="adapt">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI做PPT总是千篇一律</title>
+  <link rel="stylesheet" href="../../themes/paper-ink/assets/shared.css">
+  <style>
+    .scene { position:absolute; inset:0; width:100%; height:100%; }
+    .caption { position:absolute; left:0; right:0; bottom:118px; z-index:5; text-align:center; font-family:var(--sans); font-size:30px; font-weight:300; letter-spacing:.04em; }
+  </style>
+</head>
+<body>
+  <main class="stage" id="body" data-balance="structural" data-balance-frame="0,140,1920,980">
+    <div class="doc tl" data-balance-exclude="true">WISE PPT SKILL — 01<br>THE GAPS OF AI-MADE PPT</div>
+    <div class="folio" data-balance-exclude="true">01 / 06 — WISE PPT</div>
+    <svg class="scene" viewBox="0 0 1920 1080" role="img" aria-label="AI做PPT总是千篇一律" aria-describedby="why-desc"
+      data-block-id="wise-ppt.why-comparison" data-provider="svg" data-component="dual-panel" data-content-ref="wise-ppt.story.why">
+      <desc id="why-desc">左侧展示 AI 做 PPT 容易千篇一律的四个表现：喜欢格子布局、颜色花里胡哨、信息密度不足，以及 ICON、EMOJI 滥用；右侧展示内容规划、版式适配、组件供给和视觉强调四项设计决策。</desc>
+    </svg>
+    <div class="caption" data-block-id="wise-ppt.why-takeaway" data-provider="typography" data-component="takeaway" data-content-ref="wise-ppt.story.why">AI缺的不是生成页面的能力，而是好的设计标准。</div>
+  </main>
+  <script src="../../themes/paper-ink/assets/particles.js"></script>
+  <script src="frame-input.js"></script>
+  <script>
+    (function () {
+      const svg = document.querySelector('.scene'), NS = 'http://www.w3.org/2000/svg';
+      const INK = '#191917', INK80 = 'rgba(25,25,23,.80)', INK70 = 'rgba(25,25,23,.70)', INK45 = 'rgba(25,25,23,.45)';
+      const SANS = 'var(--sans)', MONO = 'var(--mono)', SERIF = 'var(--serif)';
+      const el = (tag, attrs = {}, parent = svg) => { const n = document.createElementNS(NS, tag); Object.entries(attrs).forEach(([k,v]) => n.setAttribute(k,v)); parent.appendChild(n); return n; };
+      const txt = (text, x, y, attrs = {}, parent = svg) => { const n = el('text', {x, y, fill:INK, 'font-family':SANS, ...attrs}, parent); n.textContent = text; return n; };
+      const line = (x1,y1,x2,y2,attrs={},parent=svg) => el('line',{x1,y1,x2,y2,stroke:INK,'stroke-width':1.1,...attrs},parent);
+      const panel = (x) => { el('rect',{x,y:270,width:610,height:530,fill:'rgba(255,255,255,.22)',stroke:INK80,'stroke-width':1.3}); el('rect',{x:x+5,y:275,width:600,height:520,fill:'none',stroke:INK,'stroke-width':.6,opacity:.32}); };
+
+      txt('FIG. 01 — THE GAPS OF AI-MADE PPT',200,176,{'font-family':MONO,'font-size':14,'letter-spacing':2.2,fill:INK45});
+      line(200,194,560,194,{stroke:INK45,'stroke-width':.7});
+      panel(205); panel(1105);
+
+      el('rect',{x:360,y:248,width:300,height:44,fill:'#DFE0D9',stroke:INK,'stroke-width':1.2});
+      txt('DEFAULT AI OUTPUT',510,277,{'font-family':MONO,'font-size':13,'letter-spacing':2,'text-anchor':'middle',fill:INK70});
+      el('rect',{x:1260,y:248,width:300,height:44,fill:'#DFE0D9',stroke:INK,'stroke-width':1.2});
+      txt('PRESENTATION INTENT',1410,277,{'font-family':MONO,'font-size':13,'letter-spacing':2,'text-anchor':'middle',fill:INK70});
+
+      line(850,530,1045,530,{stroke:INK70,'stroke-width':1.2});
+      el('path',{d:'M 1035 522 L 1045 530 L 1035 538',fill:'none',stroke:INK70,'stroke-width':1.2});
+      txt('AI做PPT总是千篇一律',510,356,{'font-family':SANS,'font-size':34,'font-weight':300,'text-anchor':'middle'});
+      const grid = el('g');
+      [0,1,2].forEach(row => [0,1,2].forEach(col => {
+        const x = 295 + col * 150, y = 432 + row * 54;
+        el('rect',{x,y,width:130,height:40,fill:'none',stroke:INK45,'stroke-width':1},grid);
+        line(x+16,y+14,x+98,y+14,{stroke:INK45,'stroke-width':.8},grid);
+        line(x+16,y+27,x+78,y+27,{stroke:INK45,'stroke-width':.8},grid);
+      }));
+      const faults = [
+        ['GRID FIRST','喜欢格子布局'], ['COLOUR FIRST','颜色花里胡哨'], ['NO FOCUS','信息密度不足'], ['ICON UGLY','ICON、EMOJI滥用']
+      ];
+      faults.forEach((f,i) => {
+        const x = 268 + (i % 2) * 270, y = 676 + Math.floor(i / 2) * 48;
+        el('circle',{cx:x,cy:y-5,r:2.6,fill:INK});
+        const label = txt(f[0],x+15,y,{'font-family':MONO,'font-size':12,'letter-spacing':1.5,fill:INK70});
+        const labelWidth = label.getComputedTextLength ? label.getComputedTextLength() : f[0].length * 8;
+        txt(f[1],x+15+labelWidth+20,y,{'font-size':16,'font-weight':300,fill:INK70});
+      });
+
+      txt('让我们告别审美疲劳',1410,356,{'font-family':SANS,'font-size':34,'font-weight':300,'text-anchor':'middle'});
+      txt('再决定内容、版式与强调',1410,388,{'font-size':18,'font-weight':300,'text-anchor':'middle',fill:INK70});
+      const focus = el('g'), FCX = 1410, FCY = 530, FCR = 90, NODE_R = 28;
+      const points = [
+        [1218,438,'01','内容规划'], [1602,438,'02','版式适配'],
+        [1218,650,'03','组件供给'], [1602,650,'04','视觉强调']
+      ];
+      points.forEach(([x,y]) => {
+        const dx = FCX - x, dy = FCY - y, distance = Math.hypot(dx, dy);
+        const ux = dx / distance, uy = dy / distance;
+        line(x + ux * NODE_R, y + uy * NODE_R, FCX - ux * FCR, FCY - uy * FCR, {stroke:INK45,'stroke-width':.9,'stroke-dasharray':'3 7'}, focus);
+      });
+      el('circle',{cx:FCX,cy:FCY,r:FCR,fill:'none',stroke:INK80,'stroke-width':1.3},focus);
+      el('circle',{cx:FCX,cy:FCY,r:57,fill:'rgba(255,255,255,.22)',stroke:INK,'stroke-width':.7,opacity:.7},focus);
+      el('circle',{cx:FCX,cy:FCY,r:5,fill:INK},focus);
+      txt('ONE',FCX,FCY-8,{'font-family':MONO,'font-size':12,'letter-spacing':2,'text-anchor':'middle',fill:INK70},focus);
+      txt('CLAIM',FCX,FCY+12,{'font-family':MONO,'font-size':12,'letter-spacing':1.4,'text-anchor':'middle',fill:INK70},focus);
+      points.forEach(p => {
+        const [x,y,no,label] = p; el('circle',{cx:x,cy:y,r:28,fill:'#DFE0D9',stroke:INK,'stroke-width':1.2}); txt(no,x,y+5,{'font-family':MONO,'font-size':12,'text-anchor':'middle'}); txt(label,x,y+76,{'font-size':18,'font-weight':300,'text-anchor':'middle',fill:INK70});
+      });
+    })();
+    stageFit();
+  </script>
+</body>
+</html>
