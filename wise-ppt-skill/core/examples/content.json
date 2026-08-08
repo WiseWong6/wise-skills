@@ -36,8 +36,8 @@
       "kind": "assertion",
       "statement": "发布不是终点，学习会成为下一轮发现的输入。",
       "priority": "must",
-      "status": "sourced",
-      "status_note": "来源本身是已显式标记的合成测试素材。",
+      "status": "placeholder",
+      "status_note": "合成示例值，仅用于展示契约；真实交付前必须由用户材料替换。",
       "source_refs": [
         "src.synthetic-brief"
       ],
@@ -58,8 +58,8 @@
       "kind": "process",
       "statement": "从发现到学习包含六个前后相依的阶段。",
       "priority": "must",
-      "status": "sourced",
-      "status_note": "来源本身是已显式标记的合成测试素材。",
+      "status": "placeholder",
+      "status_note": "合成示例值，仅用于展示契约；真实交付前必须由用户材料替换。",
       "source_refs": [
         "src.synthetic-brief"
       ],

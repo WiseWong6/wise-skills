@@ -28,9 +28,13 @@
   },
   "confirmation": {
     "mode": "adaptive",
-    "decision": "proceed",
-    "triggers": [],
-    "questions": []
+    "decision": "needs_confirmation",
+    "triggers": [
+      "must_infer_or_placeholder_or_remove"
+    ],
+    "questions": [
+      "请提供真实发布流程材料，或明确确认仅将这些合成值用于示例展示。"
+    ]
   },
   "sections": [
     {
@@ -80,6 +84,7 @@
         "reason": "开场只建立一个反直觉判断，不应同时展开六个阶段。"
       },
       "spatial_primitive": "focus-field",
+      "semantic_unit_count": 2,
       "density_intent": "breathing",
       "blocks": [
         {
@@ -123,6 +128,7 @@
         "reason": "六项信息有确定先后，且最后一项明确回到第一项，因此不能使用无方向的 grid。"
       },
       "spatial_primitive": "linear-sequence",
+      "semantic_unit_count": 8,
       "density_intent": "dense",
       "blocks": [
         {
@@ -170,6 +176,7 @@
         "reason": "收尾只保留一个行动判断，避免重复流程细节。"
       },
       "spatial_primitive": "focus-field",
+      "semantic_unit_count": 2,
       "density_intent": "breathing",
       "blocks": [
         {

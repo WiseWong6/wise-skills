@@ -704,7 +704,8 @@
           "max_items": 1,
           "allowed_providers": [
             "echarts",
-            "svg"
+            "svg",
+            "native-html"
           ]
         },
         {
@@ -2002,7 +2003,7 @@
       "display_code": "D1",
       "name": "封面",
       "family": "骨架",
-      "description": "封面落版（每份 deck 第 1 页，必需）",
+      "description": "需要独立封面时使用的呼吸型落版",
       "roles": [
         "hook"
       ],
@@ -2072,7 +2073,7 @@
         "general": "themes/paper-ink/gallery/general/frames/layout-d1.html",
         "ai": "themes/paper-ink/gallery/ai/frames/layout-d1.html"
       },
-      "selection_notes": "封面落版（每份 deck 第 1 页，必需）。当页面角色属于hook、关系形状为focus且容量落在 1–2 个语义单元时优先复用。",
+      "selection_notes": "当任务需要独立封面，且页面角色属于hook、关系形状为focus、容量落在 1–2 个语义单元时优先复用。",
       "anti_patterns": [
         "不要在呼吸页加入第二信息层",
         "不要用骨架页承载正文堆叠"
@@ -2170,7 +2171,7 @@
       "display_code": "D3",
       "name": "极简Outro",
       "family": "骨架",
-      "description": "收尾——一句 CTA 或致谢（最后页必需默认）",
+      "description": "需要独立收尾时使用的一句 CTA 或致谢",
       "roles": [
         "close"
       ],
@@ -2239,7 +2240,7 @@
         "general": "themes/paper-ink/gallery/general/frames/layout-d3.html",
         "ai": "themes/paper-ink/gallery/ai/frames/layout-d3.html"
       },
-      "selection_notes": "收尾——一句 CTA 或致谢（最后页必需默认）。当页面角色属于close、关系形状为focus且容量落在 1–2 个语义单元时优先复用。",
+      "selection_notes": "当任务需要独立收尾，且页面角色属于close、关系形状为focus、容量落在 1–2 个语义单元时优先复用。",
       "anti_patterns": [
         "不要在呼吸页加入第二信息层",
         "不要用骨架页承载正文堆叠"
@@ -2253,7 +2254,7 @@
       "display_code": "D4",
       "name": "目录导航页",
       "family": "骨架",
-      "description": "Slide 2 目录/导航，长 deck 内可复用为章节索引",
+      "description": "长 deck 可选的目录、导航或章节索引",
       "roles": [
         "orient"
       ],
@@ -2326,7 +2327,7 @@
         "general": "themes/paper-ink/gallery/general/frames/layout-d4.html",
         "ai": "themes/paper-ink/gallery/ai/frames/layout-d4.html"
       },
-      "selection_notes": "Slide 2 目录/导航，长 deck 内可复用为章节索引。当页面角色属于orient、关系形状为hierarchy且容量落在 2–8 个语义单元时优先复用。",
+      "selection_notes": "当长 deck 需要目录、导航或章节索引，且页面角色属于orient、关系形状为hierarchy、容量落在 2–8 个语义单元时优先复用。",
       "anti_patterns": [
         "不要在呼吸页加入第二信息层",
         "不要用骨架页承载正文堆叠"

@@ -14,13 +14,13 @@
     display: flex; align-items: center; justify-content: center;
     gap: var(--space-5); z-index: 3;
     font-family: var(--sans); font-weight: 300;
-    font-size: 24px; color: var(--ink-70);
+    font-size: var(--type-subheading); color: var(--ink-70);
     letter-spacing: .06em;
   }
   .compare .arr { font-style: normal; color: var(--ink-45); }
   .compare .sep { width: 1px; height: 26px; background: var(--ink-25); margin: 0 var(--space-6); }
   .compare .q {
-    font-family: var(--serif); font-size: 44px;
+    font-family: var(--serif); font-size: var(--type-heading);
     color: var(--ink); transform: translateY(2px);
   }
   .compare-rule {
@@ -42,7 +42,7 @@
     color: #DFE0D9; pointer-events: none;
   }
   .boxtext .t1 {
-    font-family: var(--mono); font-size: 35px;
+    font-family: var(--mono); font-size: var(--type-emphasis);
     letter-spacing: .16em; text-indent: .16em;
   }
   .boxtext .divi {
@@ -51,7 +51,7 @@
     margin: var(--space-6) 0 var(--space-5);
   }
   .boxtext .t2 {
-    font-family: var(--mono); font-size: 13px;
+    font-family: var(--mono); font-size: var(--type-meta);
     letter-spacing: .4em; text-indent: .4em;
     color: rgba(223,224,217,.8);
   }
@@ -60,7 +60,7 @@
     position: absolute; left: 0; right: 0; bottom: 108px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -172,7 +172,7 @@ boxText.style.height = HERO.size + 'px';
   el('line', {x1:dx, y1:BY, x2:dx, y2:BY+BS, stroke:INK8, 'stroke-width':1.2});
   el('line', {x1:dx-8, y1:BY, x2:dx+8, y2:BY, stroke:INK8, 'stroke-width':1.2});
   el('line', {x1:dx-8, y1:BY+BS, x2:dx+8, y2:BY+BS, stroke:INK8, 'stroke-width':1.2});
-  txt(dx-16, BY+BS/2, '270 PX', {'font-family':MONO, 'font-size':14, 'letter-spacing':3,
+  txt(dx-16, BY+BS/2, '270 PX', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3,
     fill:'rgba(25,25,23,.6)', 'text-anchor':'middle',
     transform:'rotate(-90 '+(dx-16)+' '+(BY+BS/2)+')'});
 
@@ -183,7 +183,7 @@ boxText.style.height = HERO.size + 'px';
 
   // 图注
   txt(BX+BS/2, BY+BS+62, 'FIG. M1 — PARTICLE MASS · DENSITY 1.0', {'font-family':MONO,
-    'font-size':13, 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
+    'font-size':'var(--type-meta)', 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
 })();
 
 stageFit();

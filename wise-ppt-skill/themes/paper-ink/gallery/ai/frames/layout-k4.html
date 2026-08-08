@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -55,7 +55,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. K4 — THREE-WIDE ROW-BAND MATRIX', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. K4 — THREE-WIDE ROW-BAND MATRIX', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 三栏骨架 ---------- */
@@ -70,15 +70,15 @@ var CW = 540;
 COLS.forEach(function(c){
   el('rect', {x:c.x, y:226, width:CW, height:42, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('rect', {x:c.x, y:226, width:10, height:42, fill:'url(#hatch)', stroke:INK80, 'stroke-width':.9});
-  txt(c.x + CW/2 + 5, 254, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':22, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-  txt(c.x + CW - 16, 252, c.code, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+  txt(c.x + CW/2 + 5, 254, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(c.x + CW - 16, 252, c.code, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 });
 
 /* 行分隔 + 行题（中线纸色敲除） */
 function rowRule(y, en, cn) {
   el('line', {x1:150, y1:y, x2:1770, y2:y, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'3 6'});
   el('rect', {x:880, y:y-16, width:160, height:32, fill:'#DFE0D9', stroke:'none'});
-  txt(960, y+6, en + ' · ' + cn, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK70});
+  txt(960, y+6, en + ' · ' + cn, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK70});
 }
 rowRule(300, 'PAIN', '现状');
 rowRule(430, 'FIX', '解法');
@@ -95,7 +95,7 @@ COLS.forEach(function(c, i){
   PAIN[i].forEach(function(line, k){
     var y = 352 + k*40;
     el('rect', {x:c.x+40, y:y-11, width:5, height:5, fill:INK, opacity:.55});
-    txt(c.x+58, y, line, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+    txt(c.x+58, y, line, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
   });
 });
 
@@ -146,15 +146,15 @@ COLS.forEach(function(c, i){
   FIX[i].forEach(function(s, k){
     var y = 486 + k*60;
     mini(cx, y, s[0]);
-    txt(cx+30, y-2, s[1], {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK});
-    txt(cx+30, y+18, 'STEP 0' + (k+1), {'font-family':MONO, 'font-size':10, 'letter-spacing':2, fill:INK45});
+    txt(cx+30, y-2, s[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
+    txt(cx+30, y+18, 'STEP 0' + (k+1), {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
     if (k < 2) {
       el('path', {d:'M '+(cx-5)+' '+(y+20)+' L '+cx+' '+(y+26)+' L '+(cx+5)+' '+(y+20), fill:'none', stroke:INK, 'stroke-width':.8, opacity:.5, 'stroke-dasharray':'3 3'});
       el('path', {d:'M '+(cx-5)+' '+(y+26)+' L '+cx+' '+(y+32)+' L '+(cx+5)+' '+(y+26), fill:'none', stroke:INK, 'stroke-width':.8, opacity:.5, 'stroke-dasharray':'3 3'});
     }
   });
   /* 栏内右侧补一条注记，配平竖链 */
-  txt(c.x + 380, 552, ['首答 < 3 s', '命中率 89%', '采纳率 76%'][i], {'font-family':SANS, 'font-weight':300, 'font-size':13, fill:INK45});
+  txt(c.x + 380, 552, ['首答 < 3 s', '命中率 89%', '采纳率 76%'][i], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', fill:INK45});
 });
 
 /* ---------- 行三 · 落地（三栏三种迷你图） ---------- */
@@ -170,38 +170,38 @@ COLS.forEach(function(c, i){
       el('line', {x1:x+142, y1:y+4, x2:x+150, y2:y, stroke:INK, 'stroke-width':1, opacity:.6});
     }
   });
-  txt(x0+48, y+5, '试点', {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:INK70});
-  txt(x0+198, y+5, '铺开', {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:INK});
-  txt(x0+348, y+5, '常态', {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:INK70});
-  txt(x0+198, y+52, '覆盖 32 个客服场景', {'font-family':SANS, 'font-weight':300, 'font-size':13, 'text-anchor':'middle', fill:INK45});
+  txt(x0+48, y+5, '试点', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK70});
+  txt(x0+198, y+5, '铺开', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK});
+  txt(x0+348, y+5, '常态', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK70});
+  txt(x0+198, y+52, '覆盖 32 个客服场景', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK45});
 })();
 /* 栏2：2×2 格 + 下行箭头 + 通栏条 */
 (function(){
   var x0 = 860, y = 706;
   [[0,0,'接入'],[1,0,'切片'],[0,1,'嵌入'],[1,1,'重排']].forEach(function(p){
     el('rect', {x:x0+p[0]*110, y:y+p[1]*44, width:96, height:36, fill: (p[0]===1&&p[1]===0) ? 'url(#hatch)' : 'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1});
-    txt(x0+p[0]*110+48, y+p[1]*44+23, p[2], {'font-family':SANS, 'font-weight':300, 'font-size':13, 'text-anchor':'middle', fill:INK70});
+    txt(x0+p[0]*110+48, y+p[1]*44+23, p[2], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK70});
   });
   el('line', {x1:x0+103, y1:y+92, x2:x0+103, y2:y+108, stroke:INK, 'stroke-width':1, opacity:.6});
   el('line', {x1:x0+99, y1:y+104, x2:x0+103, y2:y+110, stroke:INK, 'stroke-width':1, opacity:.6});
   el('line', {x1:x0+107, y1:y+104, x2:x0+103, y2:y+110, stroke:INK, 'stroke-width':1, opacity:.6});
   el('rect', {x:x0-20, y:y+110, width:246, height:28, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.1});
-  txt(x0+103, y+129, '检索闭环', {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:INK});
+  txt(x0+103, y+129, '检索闭环', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK});
 })();
 /* 栏3：hub + 三辐条 */
 (function(){
   var cx = 1500, y = 746;
   el('circle', {cx:cx, cy:y, r:22, fill:'none', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:cx, cy:y, r:15, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(cx, y+5, '7×24', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill:INK});
+  txt(cx, y+5, '7×24', {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK});
   [[-1, -1, '会话'], [1, -1, '工单'], [0, 1, 'IDE']].forEach(function(p){
     var nx = cx + p[0]*110, ny = y + p[1]*56;
     el('line', {x1:cx+p[0]*22, y1:cy2(p[1], y), x2:nx, y2:ny, stroke:INK, 'stroke-width':.8, opacity:.5, 'stroke-dasharray':'3 4'});
     el('circle', {cx:nx, cy:ny, r:16, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1});
-    txt(nx, ny+4, p[2], {'font-family':SANS, 'font-weight':300, 'font-size':12, 'text-anchor':'middle', fill:INK70});
+    txt(nx, ny+4, p[2], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK70});
   });
   function cy2(p1, y0) { return p1 === 1 ? y0+22 : y0-22; }
-  txt(cx, y+92, '采纳率 76% · 评审时长减半', {'font-family':SANS, 'font-weight':300, 'font-size':13, 'text-anchor':'middle', fill:INK45});
+  txt(cx, y+92, '采纳率 76% · 评审时长减半', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK45});
 })();
 
 stageFit();

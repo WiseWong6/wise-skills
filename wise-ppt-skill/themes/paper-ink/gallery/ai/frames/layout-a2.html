@@ -9,7 +9,7 @@
 
   .say { position: absolute; z-index: 3; }
   .say .who {
-    font-family: var(--mono); font-size: 14px; letter-spacing: .25em;
+    font-family: var(--mono); font-size: var(--type-meta); letter-spacing: .25em;
     color: var(--ink-45); margin-bottom: var(--space-3);
   }
   .say .bubble {
@@ -18,7 +18,7 @@
     padding: var(--space-5) 28px;
     box-shadow: var(--shadow-soft);
     font-family: var(--sans); font-weight: 300;
-    font-size: 26px; line-height: 1.6;
+    font-size: var(--type-subheading); line-height: 1.6;
   }
   .say .bubble b { font-weight: 400; }
 
@@ -26,7 +26,7 @@
     position: absolute; left: 0; right: 0; bottom: 108px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -34,7 +34,7 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.a2">
-  <div class="doc tl">AI ENGINEERING — A2<br>COMMON-SENSE FAILURE</div>
+  <div class="doc tl">AI LAYOUT GALLERY — A2<br>NARRATIVE SCENE · COMMON SENSE</div>
   <div class="folio">A2 / 63 — BY @歪斯Wise</div>
 
   <div class="say" style="left:170px; top:168px; width:520px;">
@@ -56,7 +56,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">问题目标是洗车，50 米再近也要把车开到店里；模型只抓距离，漏掉了真实意图。</div>
+  <div class="caption">场景画把抽象问题演成具体一幕——车、家、洗车店顺着地平线，从左读到右。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -65,7 +65,7 @@ var NS = 'http://www.w3.org/2000/svg';
 var INK = 'rgba(25,25,23,.82)';
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -133,7 +133,7 @@ for (var gx = 180; gx < 1760; gx += 42) {
   el('rect', {x:x+126, y:y-130, width:72, height:60, fill:'none', stroke:INK, 'stroke-width':1.2});
   el('line', {x1:x+162, y1:y-130, x2:x+162, y2:y-70, stroke:INK, 'stroke-width':1.4});
   el('line', {x1:x+126, y1:y-100, x2:x+198, y2:y-100, stroke:INK, 'stroke-width':1.4});
-  txt(x+w/2, y-h-116, 'HOME', {'font-family':MONO, 'font-size':16, 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+  txt(x+w/2, y-h-116, 'HOME', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
   el('path', {d:'M '+x+' '+(y+8)+' L '+(x+w)+' '+(y+8)+' L '+(x+w-14)+' '+(y+18)+' L '+(x-14)+' '+(y+18)+' Z', fill:'url(#hatch)'});
 })();
 
@@ -157,8 +157,8 @@ for (var gx = 180; gx < 1760; gx += 42) {
   el('line', {x1:x+60, y1:y-h-14, x2:x+60, y2:y-h-86, stroke:INK, 'stroke-width':1.4});
   el('line', {x1:x+w-60, y1:y-h-14, x2:x+w-60, y2:y-h-86, stroke:INK, 'stroke-width':1.4});
   el('rect', {x:x+30, y:y-h-130, width:w-60, height:56, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':1.4});
-  txt(x+w/2, y-h-92, '洗 车', {'font-family':SANS, 'font-weight':400, 'font-size':34, 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
-  txt(x+w/2, y-h-144, 'CAR WASH', {'font-family':MONO, 'font-size':14, 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+  txt(x+w/2, y-h-92, '洗 车', {'font-family':SANS, 'font-weight':400, 'font-size':'var(--type-emphasis)', 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
+  txt(x+w/2, y-h-144, 'CAR WASH', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':4, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
   el('rect', {x:x+34, y:y-136, width:120, height:136, fill:'none', stroke:INK, 'stroke-width':1.2});
   for (var i = 1; i <= 5; i++) {
     el('line', {x1:x+34, y1:y-136+i*22, x2:x+154, y2:y-136+i*22, stroke:INK, 'stroke-width':1.1, opacity:.6});
@@ -181,7 +181,7 @@ for (var gx = 180; gx < 1760; gx += 42) {
   el('line', {x1:x2, y1:y-10, x2:x2, y2:y+10, stroke:INK, 'stroke-width':1.6});
   el('line', {x1:x1, y1:y, x2:x1, y2:GY+4, stroke:INK, 'stroke-width':.8, 'stroke-dasharray':'2 4', opacity:.5});
   el('line', {x1:x2, y1:y, x2:x2, y2:GY+4, stroke:INK, 'stroke-width':.8, 'stroke-dasharray':'2 4', opacity:.5});
-  txt((x1+x2)/2, y+38, '50 m', {'font-family':MONO, 'font-size':26, 'text-anchor':'middle', fill:INK});
+  txt((x1+x2)/2, y+38, '50 m', {'font-family':MONO, 'font-size':'var(--type-subheading)', 'text-anchor':'middle', fill:INK});
 })();
 
 /* ============ 步行小径 + 被落下的车 ============ */
@@ -189,7 +189,7 @@ for (var gx = 180; gx < 1760; gx += 42) {
   el('path', {d:'M 790 706 Q 900 690 992 690', fill:'none', stroke:INK, 'stroke-width':1.8, 'stroke-dasharray':'4 9', opacity:.7});
   el('path', {d:'M 984 682 L 1000 690 L 986 700', fill:'none', stroke:INK, 'stroke-width':2, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
   el('ellipse', {id:'accent-outline', 'data-accent-group':'narrative-focus', cx:314, cy:672, rx:150, ry:96, fill:'none', stroke:ACCENT ? RED : INK, 'stroke-width':1.4, transform:'rotate(-3 314 672)', opacity:.85});
-  txt(250, 556, '车：那我呢？', {id:'accent-dialogue', 'data-accent-group':'narrative-focus', 'font-family':'LXGW WenKai', 'font-size':44, fill:ACCENT ? RED : INK, transform:'rotate(-3 250 556)'});
+  txt(250, 556, '车：那我呢？', {id:'accent-dialogue', 'data-accent-group':'narrative-focus', 'font-family':'LXGW WenKai', 'font-size':'var(--type-heading)', fill:ACCENT ? RED : INK, transform:'rotate(-3 250 556)'});
 })();
 
 stageFit();
