@@ -16,7 +16,7 @@
         "deck_plan_file": { "type": "string", "minLength": 1 },
         "theme_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
         "document_mode": { "const": "single-html" },
-        "output_file": { "type": "string", "pattern": "^(?!/)(?!.*[.][.]/).+[.]html$" },
+        "output_file": { "const": "index.html" },
         "pages": { "type": "array", "minItems": 1 }
       }
     },
@@ -120,7 +120,7 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["data-page-title", "data-page-summary", "data-section-id", "data-section-title"],
+          "required": ["data-layout-source", "data-page-title", "data-page-summary", "data-section-id", "data-section-title"],
           "properties": {
             "data-page-id": true, "data-page-role": true, "data-theme": true, "data-layout-source": true,
             "data-layout": true, "data-density": true, "data-reuse-mode": true,
