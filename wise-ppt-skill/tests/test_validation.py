@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import html
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -575,11 +577,123 @@ class ContractValidationTests(unittest.TestCase):
             ).read_text(encoding="utf-8")
             self.assertNotIn("当页面角色属于", gallery_index)
 
+        # 126 张样张逐页校验：页角标主题，caption 讲内容；四类呼吸页显式豁免 caption。
+        exempt_layouts = {
+            "paper-ink.scaffold.cover",
+            "paper-ink.scaffold.particle-outro",
+            "paper-ink.scaffold.minimal-outro",
+            "paper-ink.scaffold.section-divider",
+        }
+        caption_meta = re.compile(
+            r"当页面角色|优先复用|版式|布局|画册|样张|全\s*deck|几栏|几格|图题|主角|"
+            r"兜底版式|兜底页型|用来|用于|一页讲清|严格对位|列阵|宫格|横带让|时间轴把|"
+            r"环形进度环|分栏清单柱|同心防线用|嵌套变焦框表达|横向流水线解释|"
+            r"循环圆环表达|蛇形回环装下|汇聚流把|漏斗只讲|^[A-O]\d+\s",
+            re.I,
+        )
+        doc_meta = re.compile(r"PAPER-INK\s+GALLERY|AI\s+LAYOUT\s+GALLERY|\bLAYOUT\b|\bMOCK\b", re.I)
+        frame_files = []
+        caption_count = 0
+        exempt_count = 0
+        for variant in ("general", "ai"):
+            frame_files.extend(
+                sorted((REPO_ROOT / "themes" / "paper-ink" / "gallery" / variant / "frames").glob("layout-*.html"))
+            )
+        self.assertEqual(len(frame_files), 126)
+        for frame in frame_files:
+            with self.subTest(frame=str(frame.relative_to(REPO_ROOT))):
+                src = frame.read_text(encoding="utf-8")
+                layout_match = re.search(r'data-layout="([^"]+)"', src)
+                self.assertIsNotNone(layout_match)
+                layout_id = layout_match.group(1)
+
+                doc_match = re.search(r'<div\s+class="doc\s+tl"[^>]*>(.*?)</div>', src, re.S)
+                self.assertIsNotNone(doc_match)
+                doc = html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", doc_match.group(1)))).strip()
+                self.assertTrue(doc)
+                self.assertNotRegex(doc, doc_meta)
+
+                caption_match = re.search(r'<div\s+class="caption"[^>]*>(.*?)</div>', src, re.S)
+                if caption_match is None:
+                    exempt_count += 1
+                    self.assertIn(layout_id, exempt_layouts)
+                    continue
+                caption_count += 1
+                caption = html.unescape(
+                    re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", caption_match.group(1)))
+                ).strip()
+                self.assertTrue(caption)
+                self.assertNotRegex(caption, caption_meta)
+                self.assertLessEqual(len(caption), 52)
+
+        self.assertEqual(caption_count, 118)
+        self.assertEqual(exempt_count, 8)
+
         contact = next(
             layout for layout in manifest["layouts"] if layout["display_code"] == "D6"
         )
         self.assertIn("qr-code", contact["primitives"])
         self.assertNotIn("qr-placeholder", contact["primitives"])
+
+    def test_paper_ink_lint_enforces_slide_copy_boundary(self) -> None:
+        lint = REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"
+
+        def page(layout: str, doc: str, caption: str | None) -> str:
+            caption_html = "" if caption is None else f'<div class="caption">{caption}</div>'
+            return f"""<!doctype html>
+<html data-layout="{layout}">
+<style>body {{ background: #dfe0d9; }}</style>
+<body>
+  <div class="doc tl">{doc}</div>
+  <div class="folio">01</div>
+  {caption_html}
+  <script>stageFit();</script>
+</body>
+</html>
+"""
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            cases = {
+                "valid.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "检索与重排把候选片段收敛为可用上下文。"),
+                    0,
+                    None,
+                ),
+                "meta-caption.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "时间轴把六个节点钉在一根主轴上。"),
+                    1,
+                    "L10 caption",
+                ),
+                "meta-doc.html": (
+                    page("paper-ink.explain.demo", "AI LAYOUT GALLERY — B1", "六次能力跃迁共同组成演进路径。"),
+                    1,
+                    "L10 doc tl",
+                ),
+                "missing-caption.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", None),
+                    1,
+                    "L5 无 .caption",
+                ),
+                "cover.html": (
+                    page("paper-ink.scaffold.cover", "AI ENGINEERING — COVER", None),
+                    0,
+                    None,
+                ),
+            }
+            for name, (source, expected_code, expected_text) in cases.items():
+                with self.subTest(name=name):
+                    target = root / name
+                    target.write_text(source, encoding="utf-8")
+                    completed = subprocess.run(
+                        [sys.executable, str(lint), str(target)],
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
+                    self.assertEqual(completed.returncode, expected_code, completed.stdout + completed.stderr)
+                    if expected_text:
+                        self.assertIn(expected_text, completed.stdout)
 
     def test_gallery_validates_core_primitive_registry(self) -> None:
         manifest = load_json(self.fixture.layout_manifest_path)

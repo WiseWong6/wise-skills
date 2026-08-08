@@ -651,7 +651,7 @@
     {
       "layout_id": "paper-ink.evidence.admin-ui",
       "display_code": "A8",
-      "name": "后台界面mock",
+      "name": "后台任务追踪台",
       "family": "证据",
       "description": "展示产品后台（列表/筛选/下钻），证明真实存在",
       "roles": [

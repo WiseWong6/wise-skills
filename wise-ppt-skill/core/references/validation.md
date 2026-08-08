@@ -35,6 +35,7 @@ python3 scripts/validate.py all      <deck-dir>
 - 每页恰好一个 primary block；
 - Ghost Deck 的 assertion title / takeaway 均非空；
 - takeaway / caption 只陈述页面内容，能由本页证据推出；不得混入版式选择条件、画册复用说明或制作方法；
+- 页角 `.doc.tl` 只标当前主题/章节，不得把 gallery、layout、mock 或组件名称当作 PPT 文案；
 - 每页 `spatial_primitive` 属于十二个通用原语；
 - must 内容有 include 决策和页面承载；
 - `needs_confirmation` 时停止进入 render。
