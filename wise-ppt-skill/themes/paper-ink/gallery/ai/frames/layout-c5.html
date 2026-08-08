@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -51,13 +51,13 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. C5 — RING PROGRESS ARRAY', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. C5 — RING PROGRESS ARRAY', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ============ 顶部总量：大数字 + 一行注（AI 资源总账） ============ */
-txt(960, 246, 'TOTAL COMPUTE BUDGET / FY2026', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-txt(960, 336, '¥ 42,000,000', {'font-family':MONO, 'font-size':92, 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：总额是全页焦点 */
-txt(960, 382, '年度算力预算总额 · 按 AI 资源类别拆分为四份', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+txt(960, 246, 'TOTAL COMPUTE BUDGET / FY2026', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
+txt(960, 336, '¥ 42,000,000', {'font-family':MONO, 'font-size':'var(--type-display)', 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：总额是全页焦点 */
+txt(960, 382, '年度算力预算总额 · 按 AI 资源类别拆分为四份', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 el('line', {x1:560, y1:312, x2:660, y2:312, stroke:INK, 'stroke-width':.8, opacity:.45});
 el('line', {x1:1260, y1:312, x2:1360, y2:312, stroke:INK, 'stroke-width':.8, opacity:.45});
 el('circle', {cx:548, cy:312, r:2.4, fill:INK});
@@ -82,10 +82,10 @@ function donut(cx, cy, pct, zh, en, money) {
     fill:'none', stroke:INK80, 'stroke-width':1.4});
   el('circle', {cx:x1, cy:y1, r:3, fill:INK});
   /* 环心百分比 + 环下标签 */
-  txt(cx, cy + 9, (pct * 100).toFixed(0) + '%', {'font-family':MONO, 'font-size':32, 'text-anchor':'middle', fill:INK});
-  txt(cx, cy + 32, money, {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
-  txt(cx, cy + 152, zh, {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
-  txt(cx, cy + 180, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, cy + 9, (pct * 100).toFixed(0) + '%', {'font-family':MONO, 'font-size':'var(--type-emphasis)', 'text-anchor':'middle', fill:INK});
+  txt(cx, cy + 32, money, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.5)'});
+  txt(cx, cy + 152, zh, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:INK});
+  txt(cx, cy + 180, en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 }
 
 var CY = 580;
@@ -101,7 +101,7 @@ el('line', {x1:1720, y1:794, x2:1720, y2:806, stroke:INK80, 'stroke-width':1.2})
 [320, 760, 1200, 1640].forEach(function(x){
   el('line', {x1:x, y1:700, x2:x, y2:800, stroke:INK, 'stroke-width':.6, 'stroke-dasharray':'3 6', opacity:.3});
 });
-txt(1720, 826, 'ALLOCATION SUM · 100%', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+txt(1720, 826, 'ALLOCATION SUM · 100%', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
 
 stageFit();
 </script>

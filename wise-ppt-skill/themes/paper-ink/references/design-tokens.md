@@ -70,18 +70,27 @@ Deck HTML 和页内脚本不得复制番茄红字面量；DOM 使用共享 CSS t
 
 大字使用衬线气质，正文和 UI 使用无衬线，数据与档案字段使用 mono。中文长句不得依赖 Courier Prime 的 fallback。手写批注每份 deck 最多三处，只用于真实批注。
 
-| 层级 | 字号 | 用途 |
-|---|---:|---|
-| giant | 76px，上限 96px | 金句、落版大字 |
-| h1 | 60px | 页面主标题 |
-| h2 | 40px | 次级大字或提问 |
-| caption | 32–36px | 底部一句结论 |
-| 卡题/栏题 | 24–26px | 卡片或栏目标题 |
-| 正文/说明 | 18–22px | 条目、说明、气泡 |
-| 字段码/数据 | 13–20px | 字段、数字、坐标 |
-| 图题/角注 | 13–15px | FIG、来源、folio |
+字号是全局类型系统，不是页面调参。相同语义层级在所有页面、Gallery 金样、SVG、Canvas 和 ECharts 中必须引用同一个 token；禁止裸写 `font-size: 33px`、`font: 22px ...`、`fontSize: 12` 或 `ctx.font='18px ...'`。CSS / SVG 直接使用 `var(--type-*)`，正式 deck 的 Canvas / ECharts 使用 `WisePPT.typeSize(role)`，Gallery 独立样页使用 `paperInkTypeSize(role)`。
 
-最小正文为 16px。溢出时先换媒介、换密度或拆页，不得继续缩字。
+| 层级 Token | 固定字号 | 用途 |
+|---|---:|---|
+| `--type-display-mark` | 300px | 空心章节编号等文字图形；禁止承载正文 |
+| `--type-particle-sample` | 240px | 离屏粒子文字采样；禁止直接显示为正文 |
+| `--type-display` | 96px | 封面主标题、唯一超大命题 |
+| `--type-hero` | 76px | 金句、大数据主值 |
+| `--type-title` | 60px | 页面主标题 |
+| `--type-metric` | 52px | KPI 与数据主值 |
+| `--type-heading` | 40px | 二级标题、提问 |
+| `--type-emphasis` | 36px | 局部强调句、短结论 |
+| `--type-caption` | 33px | 页底 takeaway；全 deck 固定 |
+| `--type-subheading` | 26px | 卡题、栏题、封面副标题 |
+| `--type-body` | 22px | 正文、条目、说明、气泡 |
+| `--type-body-small` | 18px | 次级说明、图内注释 |
+| `--type-label` | 15px | 图题、短标签、字段名 |
+| `--type-meta` | 13px | 档案码、来源、坐标、folio |
+| `--type-micro` | 12px | 刻度与模拟 UI 微字段；不得放正文 |
+
+正文只有 `body` 与 `body-small` 两级；不得把 `label`、`meta` 或 `micro` 当作缩字逃生口。溢出时先换媒介、换密度或拆页，不得新增字号、覆盖 token 或继续缩字。
 
 ## 4. 线条与图形
 
@@ -125,5 +134,6 @@ Deck HTML 和页内脚本不得复制番茄红字面量；DOM 使用共享 CSS t
 - runtime 负责画册、深链、键盘、触控、accent、print 和 readiness；主题不得复制运行逻辑。
 - 画册从真实 slide 克隆，不维护 iframe、thumb、逐页 PNG 或第二份页面数组。
 - `.folio` 在单页放映和打印模式显示，在实时画册隐藏。
+- 放映模式的真实 slide 正文必须可框选、可复制；画册克隆和放映控制铬件保持不可选。存在文本选区或可编辑控件焦点时，键盘与触控翻页必须让出交互。
 - ECharts 版本和 CDN 以 `theme.json.runtimes.echarts` 为唯一配置源；需要图表时使用 `WisePPT.createEChart()` 和主题 adapter。
 - 外部依赖只允许使用 `theme.json` 已登记的来源；不得从输入资料复制未知脚本或样式依赖。

@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -54,7 +54,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 var RAD = Math.PI / 180;
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. I1 — HORIZONTAL PIPELINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. I1 — HORIZONTAL PIPELINE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 共享基线尺（四段站位的公共刻度） ---------- */
@@ -69,9 +69,9 @@ C.forEach(function(c){
   el('line', {x1:c, y1:BY-9, x2:c, y2:BY+9, stroke:INK, 'stroke-width':1, opacity:.8});
 });
 for (var nx = X0, ni = 0; nx <= X1; nx += 200, ni += 5) {
-  txt(nx, BY-16, (ni < 10 ? '0' : '') + ni, {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+  txt(nx, BY-16, (ni < 10 ? '0' : '') + ni, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
 }
-txt(X1, BY-16, '34', {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+txt(X1, BY-16, '34', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 段间等长开放箭头（坐在尺上） ---------- */
 for (var i = 0; i < 3; i++) {
@@ -118,7 +118,7 @@ function hanger(c, yTop){
   for (var t = ax0; t <= ax1; t += 23) {
     el('line', {x1:t, y1:ay-4, x2:t, y2:ay+4, stroke:INK, 'stroke-width':.5, opacity:.4});
   }
-  txt(ax1+6, ay+4, 't', {'font-family':MONO, 'font-size':13, fill:INK45});
+  txt(ax1+6, ay+4, 't', {'font-family':MONO, 'font-size':'var(--type-meta)', fill:INK45});
   hanger(c, ay);
 })();
 
@@ -141,7 +141,7 @@ function hanger(c, yTop){
   el('circle', {cx:c, cy:cy, r:3, fill:INK});
   el('circle', {cx:c, cy:cy, r:7, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.6});
   /* 表盘读数 */
-  txt(c, cy+r-34, '312 DOCS', {'font-family':MONO, 'font-size':15, 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK45});
+  txt(c, cy+r-34, '312 DOCS', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK45});
   hanger(c, cy+r);
 })();
 
@@ -162,7 +162,7 @@ function hanger(c, yTop){
   el('circle', {cx:c, cy:y+s/2, r:22, fill:'none', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:c, cy:y+s/2, r:15, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.45});
   el('circle', {cx:c, cy:y+s/2, r:2.4, fill:INK});
-  txt(c, y+s-16, 'RAG-V1', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(c, y+s-16, 'RAG-V1', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   hanger(c, y+s+16);
 })();
 
@@ -176,10 +176,10 @@ var steps = [
 steps.forEach(function(s, i){
   var c = C[i];
   el('circle', {cx:c, cy:BY+58, r:20, fill:'#DFE0D9', stroke:INK, 'stroke-width':1.4});
-  txt(c, BY+65, s.no, {'font-family':MONO, 'font-size':18, 'text-anchor':'middle', fill:INK});
-  txt(c, BY+112, s.en, {'font-family':MONO, 'font-size':16, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-  if (s.cn)   txt(c, BY+146, s.cn,   {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK70});
-  if (s.mono) txt(c, BY+146, s.mono, {'font-family':MONO, 'font-size':13, 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK45});
+  txt(c, BY+65, s.no, {'font-family':MONO, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK});
+  txt(c, BY+112, s.en, {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  if (s.cn)   txt(c, BY+146, s.cn,   {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK70});
+  if (s.mono) txt(c, BY+146, s.mono, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK45});
 });
 
 stageFit();

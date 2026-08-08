@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -59,7 +59,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. G3 — SAMPLE RANKING BARS', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. G3 — SAMPLE RANKING BARS', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 数据（衡玑科技 · 仓储机器人调度平台） ---------- */
@@ -80,10 +80,10 @@ var BASE = 820, X0 = 200, X1 = 1720, SC = 1.08, BW = 64;
   var y = BASE - v*SC;
   if (v > 0) el('line', {x1:X0, y1:y, x2:X1, y2:y, stroke:INK, 'stroke-width':.5, opacity:.12, 'stroke-dasharray':'2 6'});
   el('line', {x1:X0-8, y1:y, x2:X0, y2:y, stroke:INK, 'stroke-width':.9, opacity:.6});
-  txt(X0-16, y+4, String(v), {'font-family':MONO, 'font-size':12, 'text-anchor':'end', fill:INK45});
+  txt(X0-16, y+4, String(v), {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'end', fill:INK45});
 });
 el('line', {x1:X0, y1:300, x2:X0, y2:BASE, stroke:INK, 'stroke-width':1, opacity:.6});
-txt(X0-16, 290, '万 粉丝 · K FANS', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(X0-16, 290, '万 粉丝 · K FANS', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 /* ---------- 底部共享基线尺 ---------- */
 el('line', {x1:X0, y1:BASE, x2:X1, y2:BASE, stroke:INK80, 'stroke-width':1.2});
@@ -103,9 +103,9 @@ rows.forEach(function(r, i){
   el('rect', {x:cx-BW/2, y:y, width:BW, height:h,
     fill: (i===0 && top) ? 'url(#hatch30red)' : (i===0 ? 'url(#hatch30)' : 'none'),
     stroke: top ? RED : INK80, 'stroke-width': i===0 ? 1.4 : 1.2});
-  txt(cx, y-14, String(r.v), {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill: top ? RED : INK});
-  txt(cx, BASE+34, r.name, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
-  txt(cx, BASE+56, r.code, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, y-14, String(r.v), {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':1, 'text-anchor':'middle', fill: top ? RED : INK});
+  txt(cx, BASE+34, r.name, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK});
+  txt(cx, BASE+56, r.code, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
 
 /* ---------- Top3 垂挂标本缩略框（微场景：三种头像线稿） ---------- */
@@ -137,10 +137,10 @@ rows.slice(0,3).forEach(function(r, i){
   el('rect', {x:fx, y:FY, width:FW, height:FH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('rect', {x:fx+5, y:FY+5, width:FW-10, height:FH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
   /* 排名徽章 + 领域标签 */
-  txt(fx+14, FY+24, '0'+(i+1), {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK});
-  txt(fx+FW-14, FY+24, ['LIFE','OUTDOOR','FOOD'][i] || 'CREATOR', {'font-family':MONO, 'font-size':10, 'letter-spacing':1, 'text-anchor':'end', fill:INK45});
+  txt(fx+14, FY+24, '0'+(i+1), {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK});
+  txt(fx+FW-14, FY+24, ['LIFE','OUTDOOR','FOOD'][i] || 'CREATOR', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'end', fill:INK45});
   drawAvatar(cx, FY+64, r.bot);
-  txt(cx, FY+FH-11, 'SAMPLE · '+r.code, {'font-family':MONO, 'font-size':10, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+  txt(cx, FY+FH-11, 'SAMPLE · '+r.code, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
 });
 
 stageFit();
