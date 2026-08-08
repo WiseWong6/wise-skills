@@ -10,11 +10,11 @@
 2. 确定观众需要看见的证据；
 3. 判断内容之间的 `relation_shape`，并据此确定唯一 `spatial_primitive`；
 4. 估算语义单元数量与 `density_intent`；
-5. 保持 `spatial_primitive` 为唯一主原语，主题层最多再提供 2 个辅助原语；
-6. 到主题 manifest 筛选适配的 layout；
-7. 再为 layout slot 选择 renderer。
+5. 把关系翻译成所需区域、阅读顺序、容量与组件角色；
+6. 再到主题 Gallery manifest 查询候选并逐项判断；
+7. 选择 `gallery` 或 `custom`，然后为每个 slot 选择 renderer。
 
-组件永远排在关系和版式之后，但复杂组件的容量约束可以让上一步回退重选 layout。进入渲染后，`render.pages[].core_primitive` 必须原样继承对应语义页的 `spatial_primitive`；主题 manifest 选出的具体原语组合另写入 `theme_primitives`。
+组件永远排在关系和空间需求之后，但复杂组件的容量约束可以让上一步回退重选布局。进入渲染后，`render.pages[].core_primitive` 必须原样继承对应语义页的 `spatial_primitive`。只有决定采用 Gallery 后，才读取对应样张 HTML；不得先看样张再倒推内容。
 
 ## 2. 相同数量不代表相同版式
 
@@ -61,7 +61,7 @@ Grid 是并列或双维度关系的有效答案，但不是元素多时的自动
 - `fit`：按计划渲染；
 - `underfill`：合并相邻内容，或换更强调单一对象的 layout；
 - `overflow`：拆页、删非必须支持件，或换高容量 layout；
-- `unsupported`：当前主题没有可靠表达，选择 compose / novel，仍不可靠则向用户说明。
+- `unsupported`：Gallery 没有可靠表达，进入 `custom` 并声明页内布局契约；只有主题能力或 renderer 本身无法完成时才向用户说明。
 
 禁止用缩小字体、溢出裁切或隐去 must 事实来伪装 `fit`。
 

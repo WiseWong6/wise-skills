@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0", "content_file": "content.json", "thesis": "同一 DOM 可以同时承载流程表达、Canvas 证据与实时画册。", "narrative_type": "argument-evidence",
+  "page_budget": {"min": 2, "max": 2, "target": 2, "drivers": [{"type": "independent_claim", "count": 2, "reason": "流程机制与异常证据是两个独立主张。"}], "reason": "两种渲染介质必须分两页验证。"},
+  "confirmation": {"mode": "adaptive", "decision": "proceed", "triggers": [], "questions": []},
+  "sections": [
+    {"section_id": "section.flow", "title": "交付机制", "purpose": "验证 SVG 与线性流程。", "page_refs": ["page.example-flow-kpi"]},
+    {"section_id": "section.ops", "title": "异常证据", "purpose": "验证 Canvas 克隆与证据归属。", "page_refs": ["page.example-dense-ui"]}
+  ],
+  "pages": [
+    {"page_id": "page.example-flow-kpi", "order": 1, "section_id": "section.flow", "role": "sequence", "assertion_title": "四步可追溯流水线把交付周期压到 2 天", "audience_question": "改善依靠什么机制？", "takeaway": "横向流程说明机制，结果带证明价值。", "content_refs": ["item.delivery-process", "item.delivery-outcomes", "item.flow-takeaway"], "evidence_refs": ["item.delivery-outcomes"], "relation_shape": {"primary": "flow", "secondary": ["sequence"], "reason": "步骤有明确先后，结果是流程终点。"}, "spatial_primitive": "linear-sequence", "density_intent": "balanced", "blocks": [
+      {"block_id": "block.pipeline", "purpose": "展示四步传递", "importance": "primary", "semantic_form": "process", "content_refs": ["item.delivery-process"]},
+      {"block_id": "block.outcome-kpis", "purpose": "展示改善结果", "importance": "support", "semantic_form": "metrics", "content_refs": ["item.delivery-outcomes"]},
+      {"block_id": "block.flow-takeaway", "purpose": "收束阅读顺序", "importance": "support", "semantic_form": "prose", "content_refs": ["item.flow-takeaway"]}
+    ]},
+    {"page_id": "page.example-dense-ui", "order": 2, "section_id": "section.ops", "role": "prove", "assertion_title": "一次 620ms 峰值触发重试，随后系统恢复", "audience_question": "失败与峰值是否同源？", "takeaway": "界面、趋势和批注共享一个证据面。", "content_refs": ["item.product-ui-state", "item.product-latency-series", "item.product-anomaly-note", "item.ui-takeaway"], "evidence_refs": ["item.product-ui-state", "item.product-latency-series", "item.product-anomaly-note"], "relation_shape": {"primary": "evidence", "secondary": ["mapping", "sequence"], "reason": "批注连接失败状态和时间峰值。"}, "spatial_primitive": "evidence-annotation", "density_intent": "dense", "blocks": [
+      {"block_id": "block.product-ui", "purpose": "显示任务状态", "importance": "primary", "semantic_form": "image-evidence", "content_refs": ["item.product-ui-state"]},
+      {"block_id": "block.embedded-chart", "purpose": "显示延迟趋势", "importance": "support", "semantic_form": "metrics", "content_refs": ["item.product-latency-series"]},
+      {"block_id": "block.anomaly-note", "purpose": "连接失败与峰值", "importance": "support", "semantic_form": "annotation", "content_refs": ["item.product-anomaly-note"]},
+      {"block_id": "block.ui-takeaway", "purpose": "收束证据分工", "importance": "support", "semantic_form": "prose", "content_refs": ["item.ui-takeaway"]}
+    ]}
+  ],
+  "coverage_decisions": [
+    {"content_ref": "item.delivery-process", "disposition": "include", "page_refs": ["page.example-flow-kpi"], "reason": "流程主线。"}, {"content_ref": "item.delivery-outcomes", "disposition": "include", "page_refs": ["page.example-flow-kpi"], "reason": "结果证据。"}, {"content_ref": "item.flow-takeaway", "disposition": "include", "page_refs": ["page.example-flow-kpi"], "reason": "流程结论。"},
+    {"content_ref": "item.product-ui-state", "disposition": "include", "page_refs": ["page.example-dense-ui"], "reason": "界面证据。"}, {"content_ref": "item.product-latency-series", "disposition": "include", "page_refs": ["page.example-dense-ui"], "reason": "趋势证据。"}, {"content_ref": "item.product-anomaly-note", "disposition": "include", "page_refs": ["page.example-dense-ui"], "reason": "异常判断。"}, {"content_ref": "item.ui-takeaway", "disposition": "include", "page_refs": ["page.example-dense-ui"], "reason": "证据结论。"}
+  ]
+}

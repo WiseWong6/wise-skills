@@ -1,0 +1,61 @@
+{
+  "page_id": "page.one",
+  "output_file": "frames/page.one.html",
+  "layout_decision": {
+    "source": "gallery",
+    "reuse_mode": "copy",
+    "layout_id": "demo.argument.sequence",
+    "candidate_evaluations": [
+      {
+        "layout_id": "demo.argument.sequence",
+        "verdict": "fit",
+        "reason": "角色、关系、阅读顺序、区域和容量均满足当前页面需求。"
+      }
+    ]
+  },
+  "density": "balanced",
+  "rationale": "Gallery 的结构与两个组件都完整满足当前内容需求，直接精确复用。",
+  "capacity_status": "fit",
+  "core_primitive": "linear-sequence",
+  "html_attributes": {
+    "data-page-id": "page.one",
+    "data-page-role": "explain",
+    "data-theme": "minimal-neutral",
+    "data-layout-source": "gallery",
+    "data-layout": "demo.argument.sequence",
+    "data-density": "balanced",
+    "data-reuse-mode": "copy"
+  },
+  "slots": [
+    {
+      "slot_id": "main",
+      "block_id": "block.main",
+      "visual_role": "primary",
+      "component_decision": {
+        "action": "keep",
+        "reason": "原主组件可以完整表达两个连续语义单元。"
+      },
+      "renderer": {
+        "provider": "svg",
+        "component": "sequence-path",
+        "content_refs": ["item.metric", "atom.rate"],
+        "theme_adapter": "minimal-neutral.svg"
+      }
+    },
+    {
+      "slot_id": "takeaway",
+      "block_id": "block.takeaway",
+      "visual_role": "support",
+      "component_decision": {
+        "action": "keep",
+        "reason": "原结论组件与支持信息角色完全匹配。"
+      },
+      "renderer": {
+        "provider": "typography",
+        "component": "takeaway",
+        "content_refs": ["item.metric"],
+        "theme_adapter": "minimal-neutral.typography"
+      }
+    }
+  ]
+}

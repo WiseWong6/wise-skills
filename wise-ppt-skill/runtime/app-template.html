@@ -1,347 +1,53 @@
-<!DOCTYPE html>
-<html lang="zh-CN" data-runtime="wise-ppt">
+<!doctype html>
+<html lang="zh-CN" data-runtime="wise-ppt" data-document-mode="single-html" data-deck-title="网页 PPT">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>网页 PPT · 画板与放映</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>网页 PPT</title>
 <!--
-  wise-ppt · 主题无关的单文件双模式模板（画板 ↔ 全屏）
-  使用：复制为 deck 目录的 index.html，填写下方 CONFIG / ACTS / SHOTS。
-    - SHOTS 每行：[幕组 id, 页码, 中文标题, 时间码(可空), 一句话 VO]
-    - ACTS 定义幕组顺序与名称；不需要分幕时只留一组
-    - frames/shot-NN.html 必须存在；frames/thumb-NN.png 是画板缩略图（由 runtime/screenshot.sh thumb 模式生成）
-    - 画板：缩略图网格，点击进入全屏放映（同页切换，非新标签页）
-    - 全屏：←/→ ↑/↓ 空格 PageUp/Down Home/End 翻页，触屏滑动，ESC 或右下角按钮回画板
-    - 预加载：翻到第 N 页时后台预热第 N+1 页，切页秒开无白屏
-    - 深链：#3 直接打开第 3 页全屏；无 hash 为画板
+  Wise PPT 单 HTML runtime：
+  - 所有 section.slide 都直接位于 #track，不使用 iframe、缩略图或逐页截图。
+  - 画册由真实 slide 的 data-page-* / data-section-* 元数据实时生成。
+  - 制作 deck 时复制本文件，复制/替换下面的 slide fragment；页面脚本必须局部查询。
 -->
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
-  body {
-    background: #D6D7D0;
-    color: #191917;
-    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ===== 画板视图 ===== */
-  body.mode-board { overflow: auto; }
-  #board { padding: 48px 40px 80px; }
-  #board > header { max-width: 1560px; margin: 0 auto 36px; }
-  #board > header h1 { font-size: 30px; font-weight: 700; }
-  #board > header p {
-    margin-top: 10px; color: rgba(25,25,23,.55);
-    font-size: 14px; font-family: ui-monospace, Menlo, monospace; letter-spacing: .08em;
-  }
-  .act {
-    max-width: 1560px; margin: 36px auto 18px;
-    font-family: ui-monospace, Menlo, monospace;
-    font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
-    color: rgba(25,25,23,.55);
-    border-bottom: 1px solid rgba(25,25,23,.3);
-    padding-bottom: 10px;
-  }
-  .grid {
-    max-width: 1560px; margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-  .shot { display: block; text-decoration: none; color: inherit; cursor: pointer; }
-  .frame {
-    width: 100%; aspect-ratio: 16/9;
-    overflow: hidden; border-radius: 6px;
-    border: 1px solid rgba(25,25,23,.35);
-    position: relative; background: #DFE0D9;
-    /* 用 transform + outline 替代 box-shadow，避免大尺寸元素重绘掉帧 */
-    transition: transform .18s ease, border-color .18s ease;
-    will-change: transform;
-  }
-  .frame img {
-    display: block; width: 100%; height: 100%; object-fit: cover;
-    pointer-events: none; user-select: none;
-  }
-  .shot:hover .frame { transform: translateY(-3px); border-color: rgba(25,25,23,.6); }
-  /* 从全屏返回时高亮当前页 */
-  .shot.active .frame { border-color: #191917; border-width: 2px; }
-  .meta { margin-top: 10px; }
-  .meta .row1 {
-    display: flex; justify-content: space-between; align-items: baseline;
-    font-family: ui-monospace, Menlo, monospace;
-  }
-  .meta .no { color: rgba(25,25,23,.8); font-size: 13px; letter-spacing: .12em; }
-  .meta .tc { color: rgba(25,25,23,.45); font-size: 12px; }
-  .meta .vo { margin-top: 5px; font-size: 13px; line-height: 1.6; color: rgba(25,25,23,.6); }
-
-  /* ===== 全屏视图 ===== */
-  body.mode-deck { overflow: hidden; background: #111; }
-  body.mode-deck #board { display: none; }
-  #deck { display: none; }
-  body.mode-deck #deck { display: block; }
-  #deck .view, #deck .prefetch {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    border: 0; background: #111;
-  }
-  #deck .prefetch {
-    visibility: hidden;      /* 预加载但不显示，不占合成层可见性 */
-    z-index: 0;
-  }
-  #deck .view { z-index: 1; }   /* 当前页盖在预加载层之上 */
-  #pager {
-    position: fixed; right: 28px; bottom: 20px;
-    z-index: 10;
-    font-size: 13px; letter-spacing: .22em;
-    color: rgba(255,255,255,.42);
-    user-select: none; pointer-events: none;
-    transition: opacity .4s;
-    font-family: ui-monospace, Menlo, monospace;
-  }
-  body.idle #pager { opacity: 0; }
-  /* 右下角模式切换按钮（全屏时显示，用于返回画板） */
-  #toggle {
-    position: fixed; right: 28px; bottom: 52px;
-    z-index: 11;
-    width: 40px; height: 40px;
-    border: 1px solid rgba(255,255,255,.3);
-    background: rgba(17,17,17,.6);
-    color: rgba(255,255,255,.7);
-    border-radius: 6px;
-    cursor: pointer;
-    display: none;            /* 默认画板态不显示 */
-    align-items: center; justify-content: center;
-    transition: opacity .4s, border-color .2s, color .2s;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-  }
-  #toggle:hover { border-color: rgba(255,255,255,.6); color: rgba(255,255,255,.95); }
-  body.idle #toggle { opacity: 0; pointer-events: none; }
-  #toggle svg { width: 18px; height: 18px; fill: currentColor; }
-  body.mode-deck #toggle { display: flex; }
-
-  /* 减少动效偏好：尊重 prefers-reduced-motion */
-  @media (prefers-reduced-motion: reduce) {
-    .frame { transition: none; }
-    #pager, #toggle { transition: none; }
-  }
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}body{background:#d6d7d0;color:#191917;font-family:-apple-system,"PingFang SC",sans-serif}.slide{position:relative;width:1920px;height:1080px;flex:none;overflow:hidden;background:#e8e8e2}.stage{position:relative;width:1920px;height:1080px}.example-title{position:absolute;left:150px;top:130px;font:600 64px/1.2 Georgia,serif}.example-summary{position:absolute;left:150px;bottom:130px;font-size:28px}
+#board{padding:48px 40px 80px;min-height:100vh}.board-head,.section-label,.board-grid{max-width:1560px;margin-inline:auto}.board-head h1{font-size:30px}.board-head p,.section-label,.board-title{font-family:ui-monospace,Menlo,monospace}.board-head p{color:#666}.section-label{margin-top:34px;padding-bottom:10px;border-bottom:1px solid #777;letter-spacing:.16em}.board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:18px}.board-card{appearance:none;border:0;background:none;color:inherit;text-align:left;cursor:pointer;padding:0}.board-preview{position:relative;overflow:hidden;aspect-ratio:16/9;border:1px solid #777;background:#e8e8e2}.board-clone{position:absolute!important;inset:0!important;transform:scale(var(--board-scale));transform-origin:top left;pointer-events:none}.board-title{margin-top:10px;font-size:14px}.board-summary{margin-top:5px;color:#666;line-height:1.5}.board-card:hover .board-preview,.board-card.active .board-preview{border-color:#191917;outline:1px solid #191917}
+#deck{position:fixed;inset:0;display:grid;place-items:center;background:#111;visibility:hidden;overflow:hidden}#deck-stage{width:1920px;height:1080px;overflow:hidden;transform-origin:center}#track{display:flex;width:max-content;height:1080px;transition:transform .25s ease}#pager,#board-toggle{position:fixed;right:28px;z-index:5;color:#fff;background:rgba(17,17,17,.72);border:1px solid rgba(255,255,255,.32);font:13px ui-monospace,Menlo,monospace}#pager{bottom:20px;padding:7px 11px;border-radius:999px}#board-toggle{bottom:58px;padding:8px 12px;border-radius:5px;cursor:pointer}body.mode-deck #board{display:none}body.mode-deck #deck{visibility:visible}body.mode-board #pager,body.mode-board #board-toggle{display:none}
+@page{size:20in 11.25in;margin:0}html.print-mode,html.print-mode body{background:#fff}html.print-mode #board,html.print-mode #pager,html.print-mode #board-toggle{display:none!important}html.print-mode #deck{position:static;display:block;visibility:visible;background:#fff;overflow:visible}html.print-mode #deck-stage{width:1920px;height:auto;overflow:visible;transform:none!important}html.print-mode #track{display:block;width:1920px;height:auto;transform:none!important;transition:none!important}html.print-mode .slide{break-after:page;page-break-after:always}html.print-mode .slide:last-child{break-after:auto;page-break-after:auto}@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}@media(max-width:900px){.board-grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){#track{transition:none}}
 </style>
+<script>
+(function(global){
+'use strict';
+var tasks=new WeakMap();
+function slides(){return Array.prototype.slice.call(document.querySelectorAll('#track>.slide'))}
+function updateDeckReady(){var all=slides(),failed=all.some(function(slide){return slide.dataset.renderError}),ready=all.length>0&&all.every(function(slide){return slide.dataset.renderReady==='true'});document.documentElement.dataset.deckReady=ready&&!failed?'true':'false';if(failed)document.documentElement.dataset.deckError='true';else delete document.documentElement.dataset.deckError;if(ready&&!failed)document.dispatchEvent(new CustomEvent('wise-ppt:ready'));return ready&&!failed}
+function markSlideError(slide,error){if(!slide)return;slide.dataset.renderError=error&&error.message?error.message:String(error||'unknown error');delete slide.dataset.renderReady;updateDeckReady()}
+function markSlideReady(slide){if(!slide||!slide.classList.contains('slide'))throw new Error('markSlideReady 需要 .slide 节点');if(tasks.has(slide))return tasks.get(slide);var fonts=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();var images=Array.prototype.map.call(slide.querySelectorAll('img'),function(img){if(img.complete&&img.naturalWidth>0)return Promise.resolve();return new Promise(function(resolve,reject){img.addEventListener('load',resolve,{once:true});img.addEventListener('error',function(){reject(new Error('图片加载失败: '+(img.currentSrc||img.src)))},{once:true})})});var task=Promise.all([fonts].concat(images)).then(function(){slide.getBoundingClientRect();slide.dataset.renderReady='true';delete slide.dataset.renderError;updateDeckReady();return slide}).catch(function(error){markSlideError(slide,error);throw error});tasks.set(slide,task);return task}
+function createEChart(slide,target,option){try{if(!global.echarts)throw new Error('ECharts 未加载');var element=typeof target==='string'?slide.querySelector(target):target;if(!element)throw new Error('找不到 ECharts 容器');var chart=global.echarts.init(element,null,{renderer:'svg'});chart.setOption(option);markSlideReady(slide);return chart}catch(error){markSlideError(slide,error);throw error}}
+global.WisePPT={markSlideReady:markSlideReady,markSlideError:markSlideError,createEChart:createEChart,updateDeckReady:updateDeckReady};
+function initialize(){var root=document.documentElement,body=document.body,track=document.getElementById('track'),board=document.getElementById('board-sections'),pager=document.getElementById('pager'),deckStage=document.getElementById('deck-stage'),current=0,touchStartX=null;if(!track||!board||!deckStage)return;if(new URLSearchParams(location.search).get('print')==='1')root.classList.add('print-mode');
+function allSlides(){return Array.prototype.slice.call(track.querySelectorAll(':scope>.slide'))}function clamp(number){return Math.max(0,Math.min(allSlides().length-1,number))}
+function copyCanvasPixels(original,clone){var originals=original.querySelectorAll('canvas'),clones=clone.querySelectorAll('canvas');originals.forEach(function(canvas,index){var target=clones[index];if(!target)return;target.width=canvas.width;target.height=canvas.height;try{target.getContext('2d').drawImage(canvas,0,0);target.dataset.canvasCopied='true'}catch(error){target.dataset.canvasCopied='error'}})}
+function cloneSlide(slide){var clone=slide.cloneNode(true);clone.querySelectorAll('script').forEach(function(script){script.remove()});clone.removeAttribute('id');clone.querySelectorAll('[id]').forEach(function(node){node.removeAttribute('id')});clone.classList.add('board-clone');clone.setAttribute('aria-hidden','true');clone.inert=true;copyCanvasPixels(slide,clone);return clone}
+function makeCard(slide,index){var card=document.createElement('button');card.type='button';card.className='board-card';card.dataset.index=String(index);var preview=document.createElement('div');preview.className='board-preview';preview.appendChild(cloneSlide(slide));var title=document.createElement('div');title.className='board-title';title.textContent='S'+String(index+1).padStart(2,'0')+' · '+slide.dataset.pageTitle;var summary=document.createElement('div');summary.className='board-summary';summary.textContent=slide.dataset.pageSummary;card.append(preview,title,summary);card.addEventListener('click',function(){enterDeck(index)});return card}
+function syncScales(){board.querySelectorAll('.board-preview').forEach(function(preview){preview.style.setProperty('--board-scale',String(preview.clientWidth/1920))})}
+function rebuildBoard(){board.replaceChildren();var groups=new Map();allSlides().forEach(function(slide,index){var key=slide.dataset.sectionId||'section.default';if(!groups.has(key))groups.set(key,{title:slide.dataset.sectionTitle||'',items:[]});groups.get(key).items.push([slide,index])});groups.forEach(function(group){var label=document.createElement('div');label.className='section-label';label.textContent=group.title;var grid=document.createElement('div');grid.className='board-grid';group.items.forEach(function(item){grid.appendChild(makeCard(item[0],item[1]))});board.append(label,grid)});var title=document.getElementById('deck-title'),subtitle=document.getElementById('deck-subtitle');if(title)title.textContent=root.dataset.deckTitle||document.title;if(subtitle)subtitle.textContent=allSlides().length+' SLIDES · 点击任意页面进入横向放映';var active=board.querySelector('[data-index="'+current+'"]');if(active)active.classList.add('active');syncScales();requestAnimationFrame(syncScales)}
+function fit(){deckStage.style.transform='scale('+Math.min(innerWidth/1920,innerHeight/1080)+')'}function go(index,updateHash){current=clamp(index);track.style.transform='translate3d('+(-current*1920)+'px,0,0)';if(pager)pager.textContent=(current+1)+' / '+allSlides().length;if(updateHash!==false)history.replaceState(null,'','#'+(current+1))}function enterDeck(index,updateHash){body.className='mode-deck';fit();go(index,updateHash);scrollTo(0,0)}function exitDeck(){body.className='mode-board';history.replaceState(null,'',location.pathname+location.search);rebuildBoard();var card=board.querySelector('[data-index="'+current+'"]');if(card)card.scrollIntoView({block:'center'})}function fromHash(){var match=location.hash.match(/^#(\d+)$/);if(match)enterDeck(Number(match[1])-1,false);else if(!root.classList.contains('print-mode')){body.className='mode-board';rebuildBoard()}}
+function selfTest(){try{rebuildBoard();var all=allSlides(),cards=board.querySelectorAll('.board-card');if(cards.length!==all.length)throw new Error('画册卡片数量不一致');var canvasCount=track.querySelectorAll('canvas').length,copied=board.querySelectorAll('canvas[data-canvas-copied="true"]').length;if(copied!==canvasCount)throw new Error('Canvas 克隆像素未完整复制');history.replaceState(null,'','#'+all.length);fromHash();if(!body.classList.contains('mode-deck'))throw new Error('深链未进入放映');exitDeck();if(!body.classList.contains('mode-board')||location.hash)throw new Error('ESC 状态切换失败');root.dataset.runtimeCheck='pass'}catch(error){root.dataset.runtimeCheck='fail';root.dataset.runtimeCheckError=error.message}}
+addEventListener('resize',function(){fit();if(body.classList.contains('mode-board'))rebuildBoard()});addEventListener('hashchange',fromHash);addEventListener('keydown',function(event){if(!body.classList.contains('mode-deck'))return;if(['ArrowRight','ArrowDown',' ','PageDown'].includes(event.key)){event.preventDefault();go(current+1)}else if(['ArrowLeft','ArrowUp','PageUp'].includes(event.key)){event.preventDefault();go(current-1)}else if(event.key==='Home'){event.preventDefault();go(0)}else if(event.key==='End'){event.preventDefault();go(allSlides().length-1)}else if(event.key==='Escape'){event.preventDefault();exitDeck()}});var toggle=document.getElementById('board-toggle'),deck=document.getElementById('deck');if(toggle)toggle.addEventListener('click',exitDeck);if(deck){deck.addEventListener('touchstart',function(event){touchStartX=event.changedTouches[0].clientX},{passive:true});deck.addEventListener('touchend',function(event){if(touchStartX===null)return;var delta=event.changedTouches[0].clientX-touchStartX;if(Math.abs(delta)>48)go(current+(delta<0?1:-1));touchStartX=null},{passive:true})}
+document.addEventListener('wise-ppt:ready',function(){if(!root.classList.contains('print-mode'))rebuildBoard();if(new URLSearchParams(location.search).get('selftest')==='1')selfTest()},{once:true});allSlides().forEach(function(slide){if(slide.dataset.renderPending!=='true'&&slide.dataset.renderReady!=='true')markSlideReady(slide)});updateDeckReady();fit();fromHash();global.WisePPTRuntime={rebuildBoard:rebuildBoard,enterDeck:enterDeck,exitDeck:exitDeck,go:go}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initialize,{once:true});else initialize();
+})(window);
+</script>
 </head>
 <body class="mode-board">
-
-<!-- ===== 画板视图 ===== -->
-<main id="board">
-  <header>
-    <h1 id="deck-title">《标题》分镜总览</h1>
-    <p id="deck-sub">N SHOTS · 点击任意镜头进入全屏放映</p>
-  </header>
-  <div id="acts"></div>
-</main>
-
-<!-- ===== 全屏视图 ===== -->
-<section id="deck">
-  <iframe class="prefetch" id="prefetch" title="preload"></iframe>
-  <iframe class="view" id="view" title="slide"></iframe>
-  <div id="pager"></div>
-  <button id="toggle" type="button" aria-label="返回画板" title="返回画板 (ESC)">
-    <!-- 四格缩略图图标，语义=回到画板总览 -->
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
-  </button>
-</section>
-
-<script>
-/* ===== 配置区：改这里 ===== */
-var CONFIG = {
-  title: '《标题》分镜总览',
-  framesDir: 'frames',        // 分镜目录（相对本文件）
-  framePrefix: 'shot-',       // 全尺寸页：frames/shot-NN.html
-  thumbPrefix: 'thumb-',      // 缩略图：frames/thumb-NN.png（由 runtime/screenshot.sh thumb 生成）
-  thumbExt: '.png'
-};
-var ACTS = [
-  ['g1', 'ACT 1 · 第一幕名称'],
-  ['g2', 'ACT 2 · 第二幕名称']
-];
-var SHOTS = [
-  ['g1', '01', '页面标题', '', '一句话 VO / 页面内容摘要。'],
-  ['g2', '02', '页面标题', '', '一句话 VO / 页面内容摘要。']
-];
-/* ===== 配置区结束 ===== */
-
-var PREFIXES = {
-  html: CONFIG.framesDir + '/' + CONFIG.framePrefix,
-  thumb: CONFIG.framesDir + '/' + CONFIG.thumbPrefix
-};
-
-/* ---------- 初始化画板 ---------- */
-document.getElementById('deck-title').textContent = CONFIG.title;
-document.getElementById('deck-sub').textContent =
-  SHOTS.length + ' SHOTS · 点击任意镜头进入全屏放映';
-
-var actsRoot = document.getElementById('acts');
-ACTS.forEach(function(a) {
-  var label = document.createElement('div');
-  label.className = 'act';
-  label.textContent = a[1];
-  var grid = document.createElement('div');
-  grid.className = 'grid';
-  grid.id = a[0];
-  actsRoot.appendChild(label);
-  actsRoot.appendChild(grid);
-});
-
-/* 缩略图用 <img>（禁 lazy：file:// 下 IntersectionObserver 不触发，缩略图永不加载） */
-SHOTS.forEach(function(s, idx) {
-  var grid = document.getElementById(s[0]);
-  if (!grid) return;
-  var no = s[1], title = s[2], tc = s[3], vo = s[4];
-  var card = document.createElement('div');
-  card.className = 'shot';
-  card.dataset.idx = idx;
-  card.innerHTML =
-    '<div class="frame">' +
-      '<img alt="S' + no + ' ' + title + '" ' +
-           'src="' + PREFIXES.thumb + no + CONFIG.thumbExt + '">' +
-    '</div>' +
-    '<div class="meta"><div class="row1">' +
-      '<span class="no">S' + no + ' · ' + title + '</span>' +
-      '<span class="tc">' + (tc || '') + '</span>' +
-    '</div><div class="vo">' + vo + '</div></div>';
-  card.addEventListener('click', function() { enterDeck(idx); });
-  grid.appendChild(card);
-});
-
-/* ---------- 全屏放映逻辑 ---------- */
-var view = document.getElementById('view');
-var prefetch = document.getElementById('prefetch');
-var pager = document.getElementById('pager');
-var cur = 0;
-
-function pageUrl(i) {
-  return PREFIXES.html + SHOTS[i][1] + '.html?ppt';
-}
-
-function clamp(n) { return Math.max(0, Math.min(SHOTS.length - 1, n)); }
-
-function go(n, push) {
-  cur = clamp(n);
-  /* 双 iframe swap：预加载层已预热下一页时直接提升，避免白屏闪烁 */
-  var url = pageUrl(cur);
-  if (prefetch.src && prefetch.dataset.idx === String(cur)) {
-    /* 预加载层正好是目标页 → 交换两个 iframe 的角色 */
-    var tmp = view;
-    view = prefetch;
-    prefetch = tmp;
-    view.className = 'view';
-    view.style.visibility = '';
-    prefetch.className = 'prefetch';
-    prefetch.style.visibility = 'hidden';
-  } else {
-    /* 预加载层没命中（跳页/首次） → 直接加载到可见层 */
-    if (view.getAttribute('src') !== url) view.src = url;
-  }
-  /* 始终预热下一页到预加载层 */
-  warmNext();
-  pager.textContent = (cur + 1) + ' / ' + SHOTS.length;
-  if (push !== false) history.replaceState(null, '', '#' + (cur + 1));
-  wake();
-}
-
-/* 把下一页预热到 prefetch 层（不可见，不抢合成层） */
-function warmNext() {
-  var nextIdx = cur + 1;
-  if (nextIdx >= SHOTS.length) return;
-  var nextUrl = pageUrl(nextIdx);
-  if (prefetch.getAttribute('src') !== nextUrl) {
-    prefetch.src = nextUrl;
-    prefetch.dataset.idx = String(nextIdx);
-  }
-}
-
-function next() { go(cur + 1); }
-function prev() { go(cur - 1); }
-
-/* ---------- 模式切换 ---------- */
-function enterDeck(idx) {
-  document.body.classList.remove('mode-board');
-  document.body.classList.add('mode-deck');
-  scrollTo(0, 0);
-  go(idx);
-}
-
-function exitDeck() {
-  document.body.classList.remove('mode-deck');
-  document.body.classList.add('mode-board');
-  /* 清除上一轮高亮，标记当前页 */
-  var prev = document.querySelector('.shot.active');
-  if (prev) prev.classList.remove('active');
-  var card = document.querySelector('.shot[data-idx="' + cur + '"]');
-  if (card) {
-    card.classList.add('active');
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    /* 高亮 2.4s 后淡出，避免长期残留 */
-    setTimeout(function() { card.classList.remove('active'); }, 2400);
-  }
-  /* 退出全屏时停掉预加载层，释放内存 */
-  prefetch.src = 'about:blank';
-  prefetch.removeAttribute('data-idx');
-  history.replaceState(null, '', location.pathname);
-}
-
-/* ---------- 键盘 / 触屏 / 按钮 ---------- */
-addEventListener('keydown', function(e) {
-  if (document.body.classList.contains('mode-deck')) {
-    if (e.key === 'Escape') { e.preventDefault(); exitDeck(); return; }
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); next(); }
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); prev(); }
-    else if (e.key === 'Home') { e.preventDefault(); go(0); }
-    else if (e.key === 'End') { e.preventDefault(); go(SHOTS.length - 1); }
-  }
-});
-
-var tx = 0, ty = 0;
-addEventListener('touchstart', function(e) {
-  if (!document.body.classList.contains('mode-deck')) return;
-  tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
-}, { passive: true });
-addEventListener('touchend', function(e) {
-  if (!document.body.classList.contains('mode-deck')) return;
-  var dx = e.changedTouches[0].clientX - tx;
-  var dy = e.changedTouches[0].clientY - ty;
-  if (Math.max(Math.abs(dx), Math.abs(dy)) < 48) return;
-  if (Math.abs(dx) >= Math.abs(dy)) { dx < 0 ? next() : prev(); }
-  else { dy < 0 ? next() : prev(); }
-}, { passive: true });
-
-document.getElementById('toggle').addEventListener('click', exitDeck);
-
-/* 页码指示活动唤醒 */
-var idleTimer = null;
-function wake() {
-  document.body.classList.remove('idle');
-  clearTimeout(idleTimer);
-  idleTimer = setTimeout(function() { document.body.classList.add('idle'); }, 2500);
-}
-addEventListener('mousemove', wake);
-
-/* ---------- 深链 #N 直接进全屏 ---------- */
-(function init() {
-  var start = parseInt((location.hash || '').replace('#', ''), 10);
-  if (!isNaN(start) && start >= 1 && start <= SHOTS.length) {
-    enterDeck(start - 1);
-  }
-})();
-
-/* 浏览器后退/前进 */
-addEventListener('popstate', function() {
-  var n = parseInt((location.hash || '').replace('#', ''), 10);
-  if (document.body.classList.contains('mode-deck')) {
-    if (isNaN(n)) exitDeck();
-    else if (n - 1 !== cur) go(n - 1, false);
-  } else {
-    if (!isNaN(n)) enterDeck(n - 1);
-  }
-});
-</script>
+<main id="board"><header class="board-head"><h1 id="deck-title"></h1><p id="deck-subtitle"></p></header><div id="board-sections"></div></main>
+<section id="deck" aria-label="横向放映"><div id="deck-stage"><div id="track">
+  <section class="slide" data-page-id="page.example" data-page-role="explain" data-theme="paper-ink" data-layout-source="custom" data-layout="custom.example" data-density="breathing" data-reuse-mode="custom" data-page-title="页面标题" data-page-summary="本页的一句话结论。" data-section-id="section.main" data-section-title="第一幕">
+    <div class="stage"><h1 class="example-title">把真实 slide 直接放进同一 DOM</h1><p class="example-summary" data-block-id="block.example" data-provider="typography" data-component="takeaway" data-content-ref="item.example">刷新页面，画册会重新克隆最新内容。</p></div>
+    <script>(function(){var slide=document.currentScript.closest('.slide');WisePPT.markSlideReady(slide)})();</script>
+  </section>
+</div></div><div id="pager"></div><button id="board-toggle" type="button" aria-label="返回画册">返回画册</button></section>
 </body>
 </html>

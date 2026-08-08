@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN" data-page-id="wise-ppt-layout-atlas" data-page-role="compare" data-theme="paper-ink" data-layout-source="gallery" data-layout="paper-ink.comparison.paired-bands" data-density="balanced" data-reuse-mode="adapt">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wise PPT Skill 的版式图册</title>
+  <link rel="stylesheet" href="../../themes/paper-ink/assets/shared.css">
+  <style>.scene{position:absolute;inset:0;width:100%;height:100%}.caption{position:absolute;left:0;right:0;bottom:118px;z-index:5;text-align:center;font-size:31px;font-weight:400;letter-spacing:.04em}</style>
+</head>
+<body>
+  <main class="stage" id="body" data-balance="structural" data-balance-frame="0,140,1920,980">
+    <div class="doc tl" data-balance-exclude="true">WISE PPT SKILL — 04<br>REFERENCE LIBRARY</div>
+    <div class="folio" data-balance-exclude="true">04 / 05 — WISE PPT</div>
+    <svg class="scene" viewBox="0 0 1920 1080" role="img" aria-labelledby="atlas-title atlas-desc"
+      data-block-id="wise-ppt.layout-atlas" data-provider="svg" data-component="paired-bands" data-content-ref="wise-ppt.story.layout-atlas">
+      <title id="atlas-title">Wise PPT Skill 的版式图册</title>
+      <desc id="atlas-desc">三条映射带将内容关系连接到流程、对比和放射三种版式参考。底部说明图册可作为AI参考，也可以完全跳过。</desc>
+    </svg>
+    <div class="caption" data-block-id="wise-ppt.layout-atlas-takeaway" data-provider="typography" data-component="takeaway" data-content-ref="wise-ppt.story.layout-atlas">好的构图可作为参考；需要时选用，不需要时就从内容出发。</div>
+  </main>
+  <script src="../../themes/paper-ink/assets/particles.js"></script>
+  <script>
+    (function(){
+      const svg=document.querySelector('.scene'),NS='http://www.w3.org/2000/svg';
+      const INK='#191917',INK80='rgba(25,25,23,.80)',INK70='rgba(25,25,23,.70)',INK45='rgba(25,25,23,.45)';
+      const SANS='var(--sans)',MONO='var(--mono)',SERIF='var(--serif)';
+      const el=(tag,attrs={},parent=svg)=>{const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n;};
+      const txt=(text,x,y,attrs={},parent=svg)=>{const n=el('text',{x,y,fill:INK,'font-family':SANS,...attrs},parent);n.textContent=text;return n;};
+      const line=(x1,y1,x2,y2,attrs={},parent=svg)=>el('line',{x1,y1,x2,y2,stroke:INK,'stroke-width':1.1,...attrs},parent);
+      txt('FIG. 04 — LAYOUT ATLAS AS A REFERENCE',200,176,{'font-family':MONO,'font-size':14,'letter-spacing':2.2,fill:INK45});line(200,194,560,194,{stroke:INK45,'stroke-width':.7});
+      txt('内容关系',230,276,{'font-family':SERIF,'font-size':30,'font-weight':600});txt('CONTENT SIGNAL',230,302,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,fill:INK45});
+      txt('可参考的版式',1160,276,{'font-family':SERIF,'font-size':30,'font-weight':600});txt('OPTIONAL LAYOUT REFERENCE',1160,302,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,fill:INK45});
+      const rows=[
+        ['讲清一个过程','SEQUENCE','横向流水线','FLOW · I1'],
+        ['说明两种差异','COMPARISON','对比双面板','COMPARE · E1'],
+        ['拆解一个系统','DECOMPOSITION','三向放射','RADIAL · G1']
+      ];
+      rows.forEach((r,i)=>{const y=370+i*145;line(230,y+58,1660,y+58,{stroke:INK45,'stroke-width':.7});el('circle',{cx:230,cy:y+58,r:3,fill:INK});txt(r[0],260,y+44,{'font-family':SERIF,'font-size':27,'font-weight':600});txt(r[1],260,y+72,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,fill:INK45});line(650,y+58,1040,y+58,{stroke:INK80,'stroke-width':1.2});el('path',{d:`M 1027 ${y+52} L 1040 ${y+58} L 1027 ${y+64}`,fill:'none',stroke:INK80,'stroke-width':1.2});txt(r[2],1160,y+44,{'font-family':SERIF,'font-size':27,'font-weight':600});txt(r[3],1160,y+72,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,fill:INK45});
+        const x=1500; if(i===0){[0,1,2,3].forEach(n=>el('circle',{cx:x+n*32,cy:y+58,r:8,fill:'none',stroke:INK,'stroke-width':1}));line(x+8,y+58,x+86,y+58,{stroke:INK,'stroke-width':1});}
+        if(i===1){el('rect',{x:x,y:y+24,width:62,height:68,fill:'none',stroke:INK,'stroke-width':1});el('rect',{x:x+76,y:y+24,width:62,height:68,fill:'rgba(255,255,255,.22)',stroke:INK,'stroke-width':1});}
+        if(i===2){el('circle',{cx:x+68,cy:y+58,r:35,fill:'none',stroke:INK,'stroke-width':1});line(x,y+58,x+31,y+58,{stroke:INK45,'stroke-width':1});line(x+105,y+58,x+136,y+58,{stroke:INK45,'stroke-width':1});line(x+68,y+100,x+68,y+126,{stroke:INK45,'stroke-width':1});}
+      });
+      el('rect',{x:445,y:838,width:1030,height:55,fill:'rgba(255,255,255,.22)',stroke:INK80,'stroke-width':1.1});txt('REFERENCE MODE',475,872,{'font-family':MONO,'font-size':13,'letter-spacing':1.8,fill:INK70});txt('选择图册页，给 AI 一个明确的构图参考',680,872,{'font-size':18,'font-weight':300,fill:INK70});line(1122,854,1122,878,{stroke:INK45,'stroke-width':1});txt('FREE MODE',1150,872,{'font-family':MONO,'font-size':13,'letter-spacing':1.8,fill:INK70});txt('不选图册，仍从内容自行编排',1310,872,{'font-size':18,'font-weight':300,fill:INK70});
+    })();stageFit();
+  </script>
+</body>
+</html>
