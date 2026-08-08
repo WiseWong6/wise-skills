@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -53,7 +53,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. J1 — CLOSED CYCLE RING', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. J1 — CLOSED CYCLE RING', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 圆心主环 ---------- */
@@ -89,8 +89,8 @@ function polar(deg, r) {
 /* 圆心十字 + mono 主题字 */
 el('line', {x1:CX-16, y1:CY, x2:CX+16, y2:CY, stroke:INK, 'stroke-width':.5, opacity:.3});
 el('line', {x1:CX, y1:CY-16, x2:CX, y2:CY+16, stroke:INK, 'stroke-width':.5, opacity:.3});
-txt(CX, CY-10, 'LOOP', {'font-family':MONO, 'font-size':16, 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
-txt(CX, CY+22, '评测治理闭环', {'font-family':SANS, 'font-weight':300, 'font-size':18, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
+txt(CX, CY-10, 'LOOP', {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':6, 'text-anchor':'middle', fill:INK});
+txt(CX, CY+22, '评测治理闭环', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
 
 /* ---------- 四角双线卡（虚线引线挂到环上 45° 双圈节点） ---------- */
 var steps = [
@@ -118,13 +118,13 @@ steps.forEach(function(s){
   el('rect', {x:x, y:y, width:W, height:H, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('rect', {x:x+5, y:y+5, width:W-10, height:H-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
   /* 编号角标 + 短横 */
-  txt(x+30, y+46, s.no, {'font-family':MONO, 'font-size':20, fill:INK});
+  txt(x+30, y+46, s.no, {'font-family':MONO, 'font-size':'var(--type-body)', fill:INK});
   el('line', {x1:x+30, y1:y+58, x2:x+62, y2:y+58, stroke:INK, 'stroke-width':1});
   /* EN 角标 */
-  txt(x+W-30, y+44, s.en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+  txt(x+W-30, y+44, s.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
   /* 卡题 + 一行说明 */
-  txt(x+30, y+94, s.t, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
-  txt(x+30, y+128, s.d, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:'rgba(25,25,23,.7)'});
+  txt(x+30, y+94, s.t, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+  txt(x+30, y+128, s.d, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.7)'});
 });
 
 stageFit();

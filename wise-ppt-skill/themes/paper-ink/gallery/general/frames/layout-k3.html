@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -58,13 +58,13 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. K3 — PAIN LEFT, FIX RIGHT', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. K3 — PAIN LEFT, FIX RIGHT', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ============ 左栏：三个根因 ============ */
-txt(150, 246, 'WHY IT HURTS', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(150, 246, 'WHY IT HURTS', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:150, y1:262, x2:250, y2:262, stroke:INK, 'stroke-width':.8, opacity:.5});
-txt(150, 300, '对账难的三个根因', {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+txt(150, 300, '对账难的三个根因', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
 
 /* 根因 1 · 规则繁杂：叠放单据 + 交叉线 */
 (function(){
@@ -77,9 +77,9 @@ txt(150, 300, '对账难的三个根因', {'font-family':SANS, 'font-weight':300
   el('line', {x1:154, y1:y+26, x2:198, y2:y-24, stroke:INK, 'stroke-width':1, opacity:.6});
   el('line', {x1:154, y1:y-24, x2:198, y2:y+26, stroke:INK, 'stroke-width':1, opacity:.6});
 })();
-txt(250, 394, '规则繁杂', {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-txt(250, 426, '促销、返利、价保条款叠床架屋，', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
-txt(250, 452, '人工对账规则超 400 条。', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
+txt(250, 394, '规则繁杂', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+txt(250, 426, '促销、返利、价保条款叠床架屋，', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
+txt(250, 452, '人工对账规则超 400 条。', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
 
 /* 根因 2 · 口径不一：两把错位的刻度尺 */
 (function(){
@@ -90,9 +90,9 @@ txt(250, 452, '人工对账规则超 400 条。', {'font-family':SANS, 'font-wei
   for (var j = 0; j < 6; j++) el('line', {x1:162+j*12, y1:y+12, x2:162+j*12, y2:y+20, stroke:INK, 'stroke-width':.8, opacity:.6});
   el('line', {x1:186, y1:y-26, x2:186, y2:y+24, stroke:INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'2 4'});
 })();
-txt(250, 604, '口径不一', {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-txt(250, 636, '渠道、门店、财务三方数据口径', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
-txt(250, 662, '不一致，差异原因难定位。', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
+txt(250, 604, '口径不一', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+txt(250, 636, '渠道、门店、财务三方数据口径', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
+txt(250, 662, '不一致，差异原因难定位。', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
 
 /* 根因 3 · 追溯困难：断裂虚线轨迹 + 放大镜 */
 (function(){
@@ -103,9 +103,9 @@ txt(250, 662, '不一致，差异原因难定位。', {'font-family':SANS, 'font
   el('line', {x1:216, y1:y+8, x2:226, y2:y+18, stroke:INK80, 'stroke-width':1.4});
   el('path', {d:'M 200 '+(y-2)+' L 205 '+(y+3)+' L 213 '+(y-7), fill:'none', stroke:INK, 'stroke-width':.9, opacity:.55});
 })();
-txt(250, 814, '追溯困难', {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-txt(250, 846, '异常单据靠群聊翻记录追溯，', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
-txt(250, 872, '平均处理时长 2.6 天。', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK70});
+txt(250, 814, '追溯困难', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+txt(250, 846, '异常单据靠群聊翻记录追溯，', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
+txt(250, 872, '平均处理时长 2.6 天。', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK70});
 
 /* 左右之间的开放箭头 */
 el('line', {x1:630, y1:525, x2:688, y2:525, stroke:INK, 'stroke-width':1.4, opacity:.7});
@@ -113,9 +113,9 @@ el('line', {x1:676, y1:517, x2:688, y2:525, stroke:INK, 'stroke-width':1.4, opac
 el('line', {x1:676, y1:533, x2:688, y2:525, stroke:INK, 'stroke-width':1.4, opacity:.7});
 
 /* ============ 右栏：解法三层 ============ */
-txt(720, 246, 'THE FIX · RECONCILIATION PIPELINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(720, 246, 'THE FIX · RECONCILIATION PIPELINE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:720, y1:262, x2:820, y2:262, stroke:INK, 'stroke-width':.8, opacity:.5});
-txt(720, 300, '智能对账中台', {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+txt(720, 300, '智能对账中台', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
 
 /* ---- 第一层：六步流水线（每步图元异形） ---- */
 var PX = [800, 984, 1168, 1352, 1536, 1720];
@@ -181,8 +181,8 @@ for (var i = 0; i < 5; i++) {
 var PLBL = ['数据接入', '口径统一', '规则匹配', '异常标记', '人工复核', '报告归档'];
 var PCOD = ['INGEST', 'ALIGN', 'MATCH', 'FLAG', 'REVIEW', 'ARCHIVE'];
 PX.forEach(function(x, i){
-  txt(x, 448, PLBL[i], {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK});
-  txt(x, 470, PCOD[i], {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(x, 448, PLBL[i], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK});
+  txt(x, 470, PCOD[i], {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
 
 /* 平台带向上的三根细箭头（支撑语义） */
@@ -194,7 +194,7 @@ PX.forEach(function(x, i){
 
 /* ---- 第二层：平台带（虚线容器 = 系统边界） ---- */
 el('rect', {x:720, y:520, width:1050, height:112, fill:'none', stroke:INK, 'stroke-width':1, opacity:.55, 'stroke-dasharray':'5 5'});
-txt(744, 548, 'PLATFORM 1.0 · RECON HUB', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+txt(744, 548, 'PLATFORM 1.0 · RECON HUB', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
 /* 组件盒：宽度各异 + 内部各异小记号，避免同构阵列 */
 (function(){
   var boxes = [
@@ -208,7 +208,7 @@ txt(744, 548, 'PLATFORM 1.0 · RECON HUB', {'font-family':MONO, 'font-size':12, 
   boxes.forEach(function(b){
     el('rect', {x:bx, y:by, width:b.w, height:bh, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':.9, opacity:.8, 'stroke-dasharray':'4 4'});
     var cx = bx + b.w/2;
-    txt(cx+10, by+30, b.cn, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:INK70});
+    txt(cx+10, by+30, b.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK70});
     var gx = bx + 22, gy = by + 24;
     if (b.mk === 'gear') {
       el('circle', {cx:gx, cy:gy, r:7, fill:'none', stroke:INK, 'stroke-width':1, opacity:.6});
@@ -243,9 +243,9 @@ el('line', {x1:1762, y1:736, x2:1778, y2:736, stroke:INK80, 'stroke-width':1.3})
 });
 function kpi(cx, num, label, en) {
   var nc = ACCENT ? RED : INK;
-  txt(cx, 812, num, {'font-family':SERIF, 'font-size':46, 'text-anchor':'middle', fill:nc});
-  txt(cx, 840, label, {'font-family':SANS, 'font-weight':300, 'font-size':15, 'text-anchor':'middle', fill:'rgba(25,25,23,.8)'});
-  txt(cx, 862, en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, 812, num, {'font-family':SERIF, 'font-size':'var(--type-heading)', 'text-anchor':'middle', fill:nc});
+  txt(cx, 840, label, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', 'text-anchor':'middle', fill:'rgba(25,25,23,.8)'});
+  txt(cx, 862, en, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 }
 kpi(851,  '-82%', '对账耗时',   'RECON TIME');
 kpi(1113, '0.3%', '差异逃逸率', 'ESCAPE RATE');

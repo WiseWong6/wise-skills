@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -51,9 +51,9 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. E1 — VERSUS DUAL PANELS', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. E1 — VERSUS DUAL PANELS', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:490, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
-txt(1720, 176, 'HENGJI ROBOTICS · DISPATCH OS', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1720, 176, 'HENGJI ROBOTICS · DISPATCH OS', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 /* ---------- 双面板（520×560 双线框 + 顶部页签） ---------- */
 var PY = 270, PH = 560, PW = 520;
@@ -63,16 +63,16 @@ var LX = 300, RX = 1100;                 /* 面板左缘；中心 560 / 1360 */
   el('rect', {x:px+5, y:PY+5, width:PW-10, height:PH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
 });
 el('rect', {x:560-150, y:248, width:300, height:44, fill:'#DFE0D9', stroke:INK, 'stroke-width':1.2});
-txt(486, 277, '传统仓', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK});
-txt(541, 277, 'MANUAL OPS', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
+txt(486, 277, '传统仓', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK});
+txt(541, 277, 'MANUAL OPS', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
 el('rect', {x:1360-150, y:248, width:300, height:44, fill:'#DFE0D9', stroke:INK, 'stroke-width':1.2});
-txt(1283, 277, '衡玑调度', {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK});
-txt(1353, 277, 'HENGJI OS', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
+txt(1283, 277, '衡玑调度', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK});
+txt(1353, 277, 'HENGJI OS', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
 
 /* ---------- 左面板：人去找货 ✗ ---------- */
-txt(560, 420, '人去找货', {'font-family':SANS, 'font-weight':300, 'font-size':34, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(560, 420, '人去找货', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-emphasis)', 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
 el('path', {d:'M 656 388 L 690 422 M 690 388 L 656 422', stroke:INK, 'stroke-width':3.5, 'stroke-linecap':'round', fill:'none'});
-txt(560, 462, 'PICKER WALKS THE AISLES', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(560, 462, 'PICKER WALKS THE AISLES', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* 小图形：巷道间往返的拣货路径（虚线折返 + 货架齿） */
 (function(){
@@ -90,14 +90,14 @@ txt(560, 462, 'PICKER WALKS THE AISLES', {'font-family':MONO, 'font-size':13, 'l
   el('circle', {cx:x0+12, cy:y0-26, r:3, fill:'none', stroke:INK, 'stroke-width':1.2});
   el('circle', {cx:x0+320, cy:y0+130, r:2.4, fill:INK});
   /* 耗时标注 */
-  txt(560, y0+186, '42 MIN · 9.6 KM / SHIFT', {'font-family':MONO, 'font-size':15, 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
+  txt(560, y0+186, '42 MIN · 9.6 KM / SHIFT', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
 })();
-txt(560, 806, '一个人在巷道里往返奔波', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+txt(560, 806, '一个人在巷道里往返奔波', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 
 /* ---------- 右面板：货来找人 ✓ ---------- */
-txt(1360, 420, '货来找人', {'data-accent-group':'positive-outcome', 'font-family':SANS, 'font-weight':300, 'font-size':34, 'letter-spacing':4, 'text-anchor':'middle', fill:ACCENT ? RED : INK});
+txt(1360, 420, '货来找人', {'data-accent-group':'positive-outcome', 'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-emphasis)', 'letter-spacing':4, 'text-anchor':'middle', fill:ACCENT ? RED : INK});
 el('path', {d:'M 1452 404 L 1464 418 L 1488 388', fill:'none', stroke: ACCENT ? RED : INK, 'stroke-width':3.5, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
-txt(1360, 462, 'GOODS-TO-PERSON RELAY', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(1360, 462, 'GOODS-TO-PERSON RELAY', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* 小图形：机器人驮货架直线送达工位 */
 (function(){
@@ -114,16 +114,16 @@ txt(1360, 462, 'GOODS-TO-PERSON RELAY', {'font-family':MONO, 'font-size':13, 'le
   el('circle', {cx:x1, cy:y+34, r:12, fill:'none', stroke:INK, 'stroke-width':1.2});
   el('circle', {cx:x1, cy:y+34, r:16, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
   el('circle', {cx:x1, cy:y+34, r:2.4, fill:INK});
-  txt(x1, y+78, 'STATION', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(x1, y+78, 'STATION', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   /* 耗时标注 */
-  txt(1360, y+146, '3 MIN · 0.4 KM / ORDER', {'font-family':MONO, 'font-size':15, 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
+  txt(1360, y+146, '3 MIN · 0.4 KM / ORDER', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
 })();
-txt(1360, 806, '货架被机器人送到工位前', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+txt(1360, 806, '货架被机器人送到工位前', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 
 /* ---------- 中央 VS 双圈徽章 + 构造引线 ---------- */
 el('circle', {cx:960, cy:460, r:34, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
 el('circle', {cx:960, cy:460, r:40, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-txt(960, 468, 'VS', {'font-family':MONO, 'font-size':22, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(960, 468, 'VS', {'font-family':MONO, 'font-size':'var(--type-body)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 el('line', {x1:LX+PW+14, y1:460, x2:960-46, y2:460, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 5'});
 el('line', {x1:960+46, y1:460, x2:RX-14, y2:460, stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 5'});
 

@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -50,7 +50,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. B1 — HORIZONTAL TIMELINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:'rgba(25,25,23,.45)'});
+txt(200, 176, 'FIG. B1 — HORIZONTAL TIMELINE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:'rgba(25,25,23,.45)'});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 主轴 + 刻度齿 ---------- */
@@ -81,13 +81,13 @@ nodes.forEach(function(n){
     el('circle', {cx:n.x, cy:AXIS, r:3, fill:INK});
   }
   /* 上方：年份 / 名称 / 机构三段 + 短引线 */
-  txt(n.x, AXIS-104, String(n.y), {'font-family':MONO, 'font-size': n.hot?34:28, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK});
-  txt(n.x, AXIS-66, n.name, {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK80});
-  txt(n.x, AXIS-42, n.org, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? 'var(--accent-red-85)' : 'rgba(25,25,23,.45)'});
+  txt(n.x, AXIS-104, String(n.y), {'font-family':MONO, 'font-size':'var(--type-subheading)', 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK});
+  txt(n.x, AXIS-66, n.name, {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':1, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK80});
+  txt(n.x, AXIS-42, n.org, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:(n.hot && ACCENT) ? 'var(--accent-red-85)' : 'rgba(25,25,23,.45)'});
   el('line', {x1:n.x, y1:AXIS-28, x2:n.x, y2:AXIS-12, stroke:INK, 'stroke-width':.6, opacity:.4});
   /* 下方注释 */
   if (n.note) {
-    txt(n.x, AXIS+52, n.note, {'font-family':SANS, 'font-weight': n.hot?400:300, 'font-size':20, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : (n.hot?INK:'rgba(25,25,23,.6)')});
+    txt(n.x, AXIS+52, n.note, {'font-family':SANS, 'font-weight': n.hot?400:300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : (n.hot?INK:'rgba(25,25,23,.6)')});
     if (n.hot) el('line', {x1:n.x-120, y1:AXIS+66, x2:n.x+120, y2:AXIS+66, stroke:(n.hot && ACCENT) ? RED : INK, 'stroke-width':1.2, opacity:.8});
   }
 });

@@ -12,7 +12,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -55,7 +55,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. B3 — MULTI-LANE ROADMAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. B3 — MULTI-LANE ROADMAP', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 时间刻度尺（x340–1760，六个季度） ---------- */
@@ -76,7 +76,7 @@ for (var i = 0; i <= 6; i++) {
   if (i < 6) {
     var mx = tx + QW / 2;
     el('line', {x1:mx, y1:250, x2:mx, y2:257, stroke:INK, 'stroke-width':.5, opacity:.5});
-    txt(tx + QW / 2, 236, QLABELS[i], {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+    txt(tx + QW / 2, 236, QLABELS[i], {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   }
 }
 
@@ -92,8 +92,8 @@ var LANES = [
   {no:'L3', en:'DATA',      cn:'数据平台', cy:720}
 ];
 LANES.forEach(function(L){
-  txt(150, L.cy-8, L.no + ' · ' + L.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK});
-  txt(150, L.cy+22, L.cn, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
+  txt(150, L.cy-8, L.no + ' · ' + L.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK});
+  txt(150, L.cy+22, L.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
   el('line', {x1:296, y1:L.cy, x2:328, y2:L.cy, stroke:INK, 'stroke-width':.8, opacity:.4});
 });
 
@@ -103,15 +103,15 @@ function span(x1, x2, cy, en, cn, filled) {
     fill: filled ? 'url(#hatch24)' : 'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('line', {x1:x1, y1:cy-28, x2:x1, y2:cy+28, stroke:INK, 'stroke-width':1, opacity:.7});
   el('line', {x1:x2, y1:cy-28, x2:x2, y2:cy+28, stroke:INK, 'stroke-width':1, opacity:.7});
-  txt((x1+x2)/2, cy+5, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-  txt(x1+2, cy-34, cn, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK70});
+  txt((x1+x2)/2, cy+5, en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(x1+2, cy-34, cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
 }
 function milestone(x, cy, en, cn) {
   el('circle', {cx:x, cy:cy, r:8, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:x, cy:cy, r:3, fill:INK});
   el('circle', {cx:x, cy:cy, r:13, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(x, cy-30, en, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-  txt(x, cy+46, cn, {'font-family':SANS, 'font-weight':300, 'font-size':15, 'text-anchor':'middle', fill:INK70});
+  txt(x, cy-30, en, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(x, cy+46, cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', 'text-anchor':'middle', fill:INK70});
 }
 function q(n) { return X0 + n * QW; }   /* 季度边界 x（0–6） */
 
@@ -132,7 +132,7 @@ milestone(q(3.5), 720, 'AUTO AUDIT', '盘点自动化');
 
 /* ---------- 底部刻度注 ---------- */
 txt(960, 856, 'HENGJI ROBOTICS · FLEET ORCHESTRATION ROADMAP — ALL DATA FICTIONAL',
-  {'font-family':MONO, 'font-size':11, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+  {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
 stageFit();
 </script>

@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -47,10 +47,10 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 + 文档编号（右上档案注记） ---------- */
-txt(200, 176, 'FIG. A5 — CLAUSE COLUMN PAGE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. A5 — CLAUSE COLUMN PAGE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
-txt(1770, 100, 'DOC NO. HJ-OPS-2025-017 · REV.3', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
-txt(1770, 126, 'HENGJI DISPATCH REGULATIONS (EXCERPT)', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1770, 100, 'DOC NO. HJ-OPS-2025-017 · REV.3', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1770, 126, 'HENGJI DISPATCH REGULATIONS (EXCERPT)', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 /* ---------- 栏题带（mono EN + 中文栏题 + 短横） ---------- */
 /* 原栏宽栏距不变，整组右移 125 居中：265 / 825 / 1385 */
@@ -60,8 +60,8 @@ var cols = [
   {x:1385,en:'CH.3 · EXCEPTION HANDLING', cn:'异常处置'}
 ];
 cols.forEach(function(c){
-  txt(c.x, 214, c.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
-  txt(c.x, 252, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+  txt(c.x, 214, c.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:INK45});
+  txt(c.x, 252, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
   el('line', {x1:c.x, y1:268, x2:c.x+150, y2:268, stroke:INK, 'stroke-width':.8, opacity:.5});
   el('line', {x1:c.x, y1:272, x2:c.x+64, y2:272, stroke:INK, 'stroke-width':.6, opacity:.25});
 });
@@ -74,15 +74,15 @@ cols.forEach(function(c){
 
 /* ---------- 编号条款（①②③ 多级缩进，17px / 行距 36） ---------- */
 function clause(x, y, mark, lines) {
-  txt(x, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK});
+  txt(x, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
   lines.forEach(function(ln, i){
-    txt(x+34, y + i*36, ln, {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK});
+    txt(x+34, y + i*36, ln, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
   });
   return y + lines.length * 36 + 22;
 }
 function sub(x, y, mark, line) {
-  txt(x+34, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
-  txt(x+70, y, line, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+  txt(x+34, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  txt(x+70, y, line, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
   return y + 32;
 }
 
