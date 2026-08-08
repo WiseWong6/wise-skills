@@ -57,6 +57,9 @@ var RAD = Math.PI / 180;
 txt(200, 176, 'FIG. I1 — HORIZONTAL PIPELINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
+/* 流水线主体连同公共基线尺整体垂直配平。 */
+G = el('g', {transform:'translate(0 32)'});
+
 /* ---------- 共享基线尺（四段站位的公共刻度） ---------- */
 var BY = 590, X0 = 280, X1 = 1640;
 var C = [440, 800, 1160, 1520];

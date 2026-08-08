@@ -34,6 +34,7 @@ python3 scripts/validate.py all      <deck-dir>
 - section、page、block、content 引用全部存在；
 - 每页恰好一个 primary block；
 - Ghost Deck 的 assertion title / takeaway 均非空；
+- takeaway / caption 只陈述页面内容，能由本页证据推出；不得混入版式选择条件、画册复用说明或制作方法；
 - 每页 `spatial_primitive` 属于十二个通用原语；
 - must 内容有 include 决策和页面承载；
 - `needs_confirmation` 时停止进入 render。
@@ -77,7 +78,13 @@ document.documentElement.dataset.renderReady = 'true';
 - breathing / balanced / dense 的实际信息负担；
 - 图表轴、图例、单位、排序与源数据一致；
 - 主视觉唯一，支持件没有抢夺焦点；
+- 主体包络位于主题定义的可用内容区；中心型原语检查水平与垂直中心；被设计成一个中心型局部单元的图形、标题和标签检查共同轴线，侧注与引线则按结构锚点验收；意图性非对称按结构锚点与视觉重量复核，不能用全页 bbox 强行居中；
+- 短标签、等权矩阵和稀疏固定高度单元格默认水平、垂直居中；分析表格的文字按扫读路径左对齐，数字按位数、单位或小数点右对齐；
+- 对称结构的左右/上下外缘成镜像，连接线、标注轨和主体仍保持结构关系；
+- 二维码、条码等从最终截图解码回权威 payload，不能只验证源码矩阵；
 - 图片、字体、外部依赖没有空白或闪退。
+
+`validate.py all` 与主题 `lint.py` 不计算浏览器 bbox，也不解码机器码；使用 `runtime/screenshot.sh <DECK> "" "" audit` 测量 `#body`。audit 缺少主体/框架、枚举或容差非法、主体越出主题安全区时必须失败；只有安全区内的 `structural` / `intentional-asymmetry` 才可报告而不自动判中心。普通截图模式会对 `data-qr-payload` 调用 QR 独立解码器；其他机器码须配置对应解码器。交付记录仍须写明中心型主体的 `dx/dy`、意图性非对称的结构锚点，以及机器码的 expected / decoded payload；不得把静态 lint 通过描述成这些项目已通过。
 
 ## 7. Gallery 与主题隔离门禁
 
@@ -85,6 +92,7 @@ document.documentElement.dataset.renderReady = 'true';
 - 每个 layout ID 唯一，display code 只用于展示；
 - manifest 的 general / domain examples 数量与文件一一对应；
 - 画册目录由 manifest 生成，禁止维护第二份手写数组；
+- 画册外层用途文案与 iframe 内页面结论分层：外层不直出机器筛选谓词，页内不讲版式如何制作；
 - core schema 与文档不含任何具体主题 token、layout ID 或资产路径；
 - 用最小测试主题运行 schema、catalog 与 render 校验，证明 core 不依赖默认主题。
 

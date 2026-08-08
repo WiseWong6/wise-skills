@@ -60,6 +60,8 @@ Atlas 是组件目录，不是语义规划器。先由 core 确定“需要循�
 
 ## 6. DOM 契约
 
+机器可读图形不是装饰组件。二维码、条码等必须把权威 payload 写入 sourced content item 的 `atomic_values[]`，renderer 的 `content_refs` 指向该 item / atom，再由标准编码器生成；不得凭参考图描摹一个“看起来像”的矩阵。二维码渲染根节点还须写 `data-qr-payload="<expected>"`，供最终截图门禁读取。若参考码含头像或 Logo，移除遮挡时应从 payload 重新编码，或在已知版本、纠错级别和 mask 的前提下恢复被遮模块。二维码须保留至少 4 modules 的 quiet zone；底色可以换成主题内均匀、高对比的颜色，但不能透出构造线、文字或影响识别的明显纹理。最终成品截图必须由独立解码器读回，并逐字比对该 atom。内置 `verify_qr.py` 只覆盖 QR；条码等其他制式须配置对应解码器，不能借用 QR 的 PASS。
+
 页面根节点必须写：
 
 ```html
@@ -95,3 +97,4 @@ Atlas 是组件目录，不是语义规划器。先由 core 确定“需要循�
 - layout 和 slot 容量均为 fit；
 - 模板复用来源和理由可复查；
 - 主题适配不会修改事实语义。
+- 二维码、条码等机器可读组件能从最终截图解码回权威 payload。

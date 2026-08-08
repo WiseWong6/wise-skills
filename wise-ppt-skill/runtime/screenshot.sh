@@ -6,6 +6,7 @@
 #   ./screenshot.sh /path/to/deck                    # 截 frames/shot-*.html 到临时复核目录
 #   ./screenshot.sh /path/to/deck /tmp/out "?ppt"    # 带 ?ppt 参数截（验证页脚显示）
 #   ./screenshot.sh /path/to/deck "" "" thumb        # 生成画板缩略图 frames/thumb-NN.png（640×360）
+#   ./screenshot.sh /path/to/deck "" "" audit        # 输出 #body 相对可用区的 dx/dy，centered 超差即失败
 #
 # thumb 模式说明：
 #   - 输出目录强制为 <deck>/frames/，文件名前缀 thumb-（供 app-template 的画板 <img> 使用）
@@ -19,6 +20,8 @@ DECK="$(cd "$DECK" && pwd)"
 OUT="${2:-/tmp/wise-ppt-shots}"
 QUERY="${3:-}"
 MODE="${4:-}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VERIFY_QR="$SCRIPT_DIR/../scripts/verify_qr.py"
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 [ -x "$CHROME" ] || CHROME="$(command -v google-chrome || command -v chrome || command -v chromium || true)"
 [ -n "$CHROME" ] || { echo "找不到 Chrome"; exit 1; }
@@ -90,6 +93,9 @@ if [ "$MODE" = "thumb" ]; then
   OUT="$DECK/frames"
   QUERY=""
   WIN="640,360"
+elif [ "$MODE" = "audit" ]; then
+  QUERY="?audit"
+  WIN="1920,1080"
 else
   WIN="1920,1080"
 fi
@@ -125,7 +131,7 @@ for f in "${FILES[@]}"; do
     --disable-background-networking --disable-component-update --disable-default-apps \
     --disable-sync --no-first-run --no-default-browser-check --metrics-recording-only \
     --allow-file-access-from-files --user-data-dir="$PROFILE" \
-    --dump-dom \
+    --dump-dom --window-size="$WIN" \
     --virtual-time-budget=8000 "$url" >"$dom_file" 2>"$log_file" &
   ACTIVE_PID=$!
   if ! wait_for_dom "$dom_file" "$ACTIVE_PID"; then
@@ -137,6 +143,33 @@ for f in "${FILES[@]}"; do
     }
   fi
   stop_chrome "$ACTIVE_PID"
+  if [ "$MODE" = "audit" ]; then
+    python3 - "$dom_file" "$f" <<'PY'
+import html
+import re
+import sys
+
+dom_path, page_path = sys.argv[1:]
+text = open(dom_path, encoding='utf-8').read()
+match = re.search(r'<html\b([^>]*)>', text, re.I | re.S)
+if not match:
+    raise SystemExit(f"错误：找不到 html 根节点：{page_path}")
+attrs = dict((key.lower(), html.unescape(value)) for key, _, value in re.findall(
+    r'([\w:-]+)\s*=\s*([\"\'])(.*?)\2', match.group(1), re.S
+))
+status = attrs.get('data-balance-status', 'missing')
+mode = attrs.get('data-balance-mode', 'n/a')
+dx = attrs.get('data-balance-dx', 'n/a')
+dy = attrs.get('data-balance-dy', 'n/a')
+box = attrs.get('data-balance-box', 'n/a')
+frame = attrs.get('data-balance-frame', 'n/a')
+overflow = attrs.get('data-balance-overflow', 'n/a')
+print(f"{status:>20} {page_path} mode={mode} dx={dx} dy={dy} box={box} frame={frame} overflow={overflow}")
+if status not in {'pass', 'report'}:
+    raise SystemExit(1)
+PY
+    continue
+  fi
   "$CHROME" --headless --disable-gpu --hide-scrollbars \
     --disable-background-networking --disable-component-update --disable-default-apps \
     --disable-sync --no-first-run --no-default-browser-check --metrics-recording-only \
@@ -169,6 +202,23 @@ actual_size = struct.unpack('>II', header[16:24])
 if actual_size != expected_size:
     raise SystemExit(f"错误：截图尺寸 {actual_size}，预期 {expected_size}：{path}")
 PY
+  while IFS= read -r payload; do
+    [ -n "$payload" ] || continue
+    python3 "$VERIFY_QR" -- "$target" "$payload"
+  done < <(python3 - "$dom_file" <<'PY'
+from html.parser import HTMLParser
+import sys
+
+class Payloads(HTMLParser):
+    def handle_starttag(self, tag, attrs):
+        for key, value in attrs:
+            if key == 'data-qr-payload' and value:
+                print(value)
+
+parser = Payloads()
+parser.feed(open(sys.argv[1], encoding='utf-8').read())
+PY
+)
   echo "ok $target"
 done
 
