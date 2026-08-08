@@ -1,7 +1,7 @@
 #!/bin/bash
 # 纸墨线稿 PPT · 字体检测与下载脚本
 # ============================================================
-# 作用：wise-ppt-skill skill 依赖 5 个本地开源字体（共约 79MB），字体文件
+# 作用：wise-ppt-skill skill 依赖 4 个本地开源字体（共约 63MB），字体文件
 #       不进 git（体积过大）。本脚本检测缺失字体并从官方源下载，保证
 #       任何人拿到 skill（clone / 解压 / 拷贝）后第一次用都能自动就绪。
 #
@@ -12,7 +12,6 @@
 # 字体来源（均为开源、可商用）：
 #   - 思源宋体 CN Medium   adobe-fonts/source-han-serif   (SIL OFL 1.1)
 #   - 思源黑体 CN Light    adobe-fonts/source-han-sans    (SIL OFL 1.1)
-#   - 思源黑体 CN Regular  adobe-fonts/source-han-sans    (SIL OFL 1.1)
 #   - Courier Prime        google/fonts                    (SIL OFL 1.1)
 #   - 霞鹜文楷 Regular     lxgw/LxgwWenKai                 (SIL OFL 1.1)
 #
@@ -30,7 +29,6 @@ FORCE=0
 FONTS=(
   "SourceHanSerifCN-Medium.otf|https://raw.githubusercontent.com/adobe-fonts/source-han-serif/release/SubsetOTF/CN/SourceHanSerifCN-Medium.otf"
   "SourceHanSansCN-Light.otf|https://raw.githubusercontent.com/adobe-fonts/source-han-sans/release/SubsetOTF/CN/SourceHanSansCN-Light.otf"
-  "SourceHanSansCN-Regular.otf|https://raw.githubusercontent.com/adobe-fonts/source-han-sans/release/SubsetOTF/CN/SourceHanSansCN-Regular.otf"
   "CourierPrime-Regular.ttf|https://raw.githubusercontent.com/google/fonts/main/ofl/courierprime/CourierPrime-Regular.ttf"
   "LXGWWenKai-Regular.ttf|https://raw.githubusercontent.com/lxgw/LxgwWenKai/main/fonts/TTF/LXGWWenKai-Regular.ttf"
 )
@@ -79,7 +77,7 @@ for entry in "${FONTS[@]}"; do
 done
 
 echo ""
-echo "结果：$downloaded 个下载成功，$failed 个失败，$((5 - missing)) 个已存在。"
+echo "结果：$downloaded 个下载成功，$failed 个失败，$((${#FONTS[@]} - missing)) 个已存在。"
 
 if [ "$failed" -gt 0 ]; then
   echo ""
