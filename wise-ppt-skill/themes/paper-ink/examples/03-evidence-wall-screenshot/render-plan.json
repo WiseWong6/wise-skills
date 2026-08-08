@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0", "content_file": "content.json", "deck_plan_file": "deck-plan.json", "theme_id": "paper-ink",
+  "pages": [{"page_id": "page.example-evidence-wall", "output_file": "frames/shot-01.html", "layout_id": "paper-ink.evidence.strategy-evidence-wall", "density": "dense", "reuse_mode": "copy", "reuse_source": "paper-ink.evidence.strategy-evidence-wall", "rationale": "一项主张对应三张连续界面证据及少量锚定标注，现有左策略右证据墙与内容关系、插槽和 2–10 个语义单元容量完全匹配，因此直接复用最稳妥。", "capacity_status": "fit", "core_primitive": "evidence-annotation", "theme_primitives": ["asymmetric-split", "evidence-grid"], "html_attributes": {"data-page-id": "page.example-evidence-wall", "data-page-role": "prove", "data-theme": "paper-ink", "data-layout": "paper-ink.evidence.strategy-evidence-wall", "data-density": "dense", "data-reuse-mode": "copy"}, "slots": [
+    {"slot_id": "evidence-wall", "block_id": "block.product-screenshots", "visual_role": "primary", "renderer": {"provider": "image", "component": "screenshot-wall", "content_refs": ["item.product-screenshot-list", "item.product-screenshot-detail"], "theme_adapter": "paper-ink.image-evidence"}},
+    {"slot_id": "support", "block_id": "block.strategy-claim", "visual_role": "support", "renderer": {"provider": "typography", "component": "claim-stack", "content_refs": ["item.strategy-claim"], "theme_adapter": "paper-ink.typography"}},
+    {"slot_id": "takeaway", "block_id": "block.evidence-takeaway", "visual_role": "support", "renderer": {"provider": "typography", "component": "takeaway", "content_refs": ["item.evidence-takeaway"], "theme_adapter": "paper-ink.typography"}}
+  ]}]
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-id="page.example-asymmetric-echarts" data-page-role="prove" data-theme="paper-ink" data-layout="paper-ink.data.visual-kpi-split" data-density="dense" data-reuse-mode="compose" data-render-pending="true">
+<head>
+<meta charset="UTF-8"><title>非对称趋势证据 + ECharts</title>
+<link rel="stylesheet" href="../../../assets/shared.css">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  .title{position:absolute;left:150px;top:105px;font:700 54px var(--sans);letter-spacing:.02em}.eyebrow{position:absolute;left:150px;top:75px;font:14px var(--mono);letter-spacing:.22em;opacity:.5}
+  .chart{position:absolute;left:145px;top:240px;width:1090px;height:620px;border-top:1px solid rgba(25,25,23,.3);border-bottom:1px solid rgba(25,25,23,.3)}
+  .kpis{position:absolute;left:1325px;top:265px;width:410px}.kpi{padding:30px 0;border-bottom:1px solid rgba(25,25,23,.28)}.kpi b{display:block;font:700 66px var(--serif)}.kpi span{font:15px var(--mono);letter-spacing:.12em;opacity:.55}
+  .caption{position:absolute;left:150px;right:150px;bottom:82px;font:400 27px var(--sans)}
+  .fallback{position:absolute;inset:90px 50px 70px;border-left:1px solid #191917;border-bottom:1px solid #191917;opacity:.18}
+</style></head>
+<body><div class="stage">
+  <div class="eyebrow">EVIDENCE CHAIN · 03 SEMANTIC UNITS</div><h1 class="title">留存提升持续扩大到 +25pp</h1>
+  <div id="chart" class="chart" data-block-id="block.metric-trend" data-provider="echarts" data-component="line" data-content-ref="item.metric-retention-series"><div class="fallback"></div></div>
+  <aside class="kpis" data-block-id="block.metric-kpis" data-provider="typography" data-component="kpi-stack" data-content-ref="item.metric-retention-summary">
+    <div class="kpi"><span>W4 RETENTION</span><b>68%</b></div><div class="kpi"><span>LIFT VS OLD</span><b>+25pp</b></div><div class="kpi"><span>INFLECTION</span><b>W2</b></div>
+  </aside>
+  <div class="caption" data-block-id="block.metric-takeaway" data-provider="typography" data-component="takeaway" data-content-ref="item.metric-takeaway">趋势是主证据，KPI 是解释，不应被均分成同权重格子。</div>
+</div><script src="../../../assets/particles.js"></script><script>
+stageFit();
+if (window.echarts) {
+  var chart=echarts.init(document.getElementById('chart'),null,{renderer:'svg'});
+  chart.setOption({animation:false,grid:{left:74,right:35,top:85,bottom:60},xAxis:{type:'category',data:['W1','W2','W3','W4'],axisLine:{lineStyle:{color:'#191917'}},axisTick:{show:false}},yAxis:{type:'value',min:35,max:75,axisLabel:{formatter:'{value}%'},splitLine:{lineStyle:{color:'rgba(25,25,23,.13)'}}},series:[{name:'旧版',type:'line',data:[46,45,44,43],symbol:'circle',lineStyle:{width:1,color:'#777'},itemStyle:{color:'#777'}},{name:'新版',type:'line',data:[49,56,63,68],symbol:'circle',symbolSize:9,lineStyle:{width:3,color:'#191917'},itemStyle:{color:'#191917'}}]});
+}
+markRenderReady();
+</script></body></html>
