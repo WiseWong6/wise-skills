@@ -1,0 +1,703 @@
+{
+  "schema_version": "1.0",
+  "content_file": "content.json",
+  "deck_plan_file": "deck-plan.json",
+  "theme_id": "paper-ink",
+  "pages": [
+    {
+      "page_id": "page.cover",
+      "output_file": "frames/shot-01.html",
+      "layout_id": "paper-ink.scaffold.cover",
+      "density": "breathing",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-D1.html",
+      "rationale": "页面的 focus 关系与 focus-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "focus-field",
+      "theme_primitives": [
+        "asymmetric-type",
+        "hero-mark"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.cover",
+        "data-page-role": "hook",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.scaffold.cover",
+        "data-density": "breathing",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "cover-lockup",
+          "block_id": "block.requirements-thinking-framework.cover",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "cover-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "item.requirements-thinking-framework.cover",
+              "atom.requirements-thinking-framework.cover.01"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.pm-role",
+      "output_file": "frames/shot-02.html",
+      "layout_id": "paper-ink.radial.three-way",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-G1.html",
+      "rationale": "页面的 decomposition 关系与 radial-burst 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "radial-burst",
+      "theme_primitives": [
+        "radial-spokes",
+        "center-node"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.pm-role",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.radial.three-way",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "dimensions",
+          "block_id": "block.requirements-thinking-framework.pm-role",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "radial-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.pm-role.01",
+              "atom.requirements-thinking-framework.pm-role.02",
+              "atom.requirements-thinking-framework.pm-role.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.pm-role.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.pm-role"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.soul-questions",
+      "output_file": "frames/shot-03.html",
+      "layout_id": "paper-ink.scaffold.agenda",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-D4.html",
+      "rationale": "页面的 hierarchy 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "agenda-list",
+        "section-index"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.soul-questions",
+        "data-page-role": "orient",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.scaffold.agenda",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "agenda",
+          "block_id": "block.requirements-thinking-framework.soul-questions",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "sequence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.soul-questions.01",
+              "atom.requirements-thinking-framework.soul-questions.02",
+              "atom.requirements-thinking-framework.soul-questions.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.soul-questions.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.soul-questions"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.four-questions",
+      "output_file": "frames/shot-04.html",
+      "layout_id": "paper-ink.temporal.timeline",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-B1.html",
+      "rationale": "页面的 sequence 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "sequence-axis",
+        "milestone-node"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.four-questions",
+        "data-page-role": "sequence",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.temporal.timeline",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "milestones",
+          "block_id": "block.requirements-thinking-framework.four-questions",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "sequence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.four-questions.01",
+              "atom.requirements-thinking-framework.four-questions.02",
+              "atom.requirements-thinking-framework.four-questions.03",
+              "atom.requirements-thinking-framework.four-questions.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.four-questions.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.four-questions"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.problem-first",
+      "output_file": "frames/shot-05.html",
+      "layout_id": "paper-ink.flow.known-unknown-chain",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-I2.html",
+      "rationale": "页面的 sequence 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "known-endpoints",
+        "unknown-gap"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.problem-first",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.flow.known-unknown-chain",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "visible-steps",
+          "block_id": "block.requirements-thinking-framework.problem-first",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "flow-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.problem-first.01",
+              "atom.requirements-thinking-framework.problem-first.02",
+              "atom.requirements-thinking-framework.problem-first.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.problem-first.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.problem-first"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.why-now",
+      "output_file": "frames/shot-06.html",
+      "layout_id": "paper-ink.evidence.strategy-evidence-wall",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-A4.html",
+      "rationale": "页面的 evidence 关系与 evidence-annotation 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "evidence-annotation",
+      "theme_primitives": [
+        "asymmetric-split",
+        "evidence-grid"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.why-now",
+        "data-page-role": "prove",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.evidence.strategy-evidence-wall",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "evidence-wall",
+          "block_id": "block.requirements-thinking-framework.why-now",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "evidence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.why-now.01",
+              "atom.requirements-thinking-framework.why-now.02",
+              "atom.requirements-thinking-framework.why-now.03",
+              "atom.requirements-thinking-framework.why-now.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.why-now.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.why-now"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.value-metrics",
+      "output_file": "frames/shot-07.html",
+      "layout_id": "paper-ink.decomposition.quadrant",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-F1.html",
+      "rationale": "页面的 matrix 关系与 matrix-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "matrix-field",
+      "theme_primitives": [
+        "quadrant-grid",
+        "center-label"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.value-metrics",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.decomposition.quadrant",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "quadrants",
+          "block_id": "block.requirements-thinking-framework.value-metrics",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "quadrant-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.value-metrics.01",
+              "atom.requirements-thinking-framework.value-metrics.02",
+              "atom.requirements-thinking-framework.value-metrics.03",
+              "atom.requirements-thinking-framework.value-metrics.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.value-metrics.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.value-metrics"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.twelve-checks",
+      "output_file": "frames/shot-08.html",
+      "layout_id": "paper-ink.decomposition.column-list",
+      "density": "dense",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-F3.html",
+      "rationale": "页面的 decomposition 关系与 peer-array 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "peer-array",
+      "theme_primitives": [
+        "equal-columns",
+        "hierarchical-list"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.twelve-checks",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.decomposition.column-list",
+        "data-density": "dense",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "columns",
+          "block_id": "block.requirements-thinking-framework.twelve-checks",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "matrix-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.twelve-checks.01",
+              "atom.requirements-thinking-framework.twelve-checks.02",
+              "atom.requirements-thinking-framework.twelve-checks.03",
+              "atom.requirements-thinking-framework.twelve-checks.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.twelve-checks.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.twelve-checks"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.key-variables",
+      "output_file": "frames/shot-09.html",
+      "layout_id": "paper-ink.flow.branching-solutions",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-I4.html",
+      "rationale": "页面的 flow 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "decision-branch",
+        "cta-band"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.key-variables",
+        "data-page-role": "decide",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.flow.branching-solutions",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "solutions",
+          "block_id": "block.requirements-thinking-framework.key-variables",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "flow-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.key-variables.01",
+              "atom.requirements-thinking-framework.key-variables.02",
+              "atom.requirements-thinking-framework.key-variables.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.key-variables.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.key-variables"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.macro-micro",
+      "output_file": "frames/shot-10.html",
+      "layout_id": "paper-ink.comparison.dual-panel",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-E1.html",
+      "rationale": "页面的 comparison 关系与 bilateral-split 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "bilateral-split",
+      "theme_primitives": [
+        "dual-panel",
+        "contrast-axis"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.macro-micro",
+        "data-page-role": "compare",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.comparison.dual-panel",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "comparison",
+          "block_id": "block.requirements-thinking-framework.macro-micro",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "compare-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.macro-micro.01",
+              "atom.requirements-thinking-framework.macro-micro.02",
+              "atom.requirements-thinking-framework.macro-micro.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.macro-micro.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.macro-micro"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.review",
+      "output_file": "frames/shot-11.html",
+      "layout_id": "paper-ink.temporal.swimlane-roadmap",
+      "density": "dense",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-B3.html",
+      "rationale": "页面的 sequence 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "time-grid",
+        "swimlane"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.review",
+        "data-page-role": "act",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.temporal.swimlane-roadmap",
+        "data-density": "dense",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "roadmap",
+          "block_id": "block.requirements-thinking-framework.review",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "sequence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.review.01",
+              "atom.requirements-thinking-framework.review.02",
+              "atom.requirements-thinking-framework.review.03",
+              "atom.requirements-thinking-framework.review.04",
+              "atom.requirements-thinking-framework.review.05"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.review.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.review"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.lifecycle",
+      "output_file": "frames/shot-12.html",
+      "layout_id": "paper-ink.temporal.swimlane-roadmap",
+      "density": "dense",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-B3.html",
+      "rationale": "页面的 sequence 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "time-grid",
+        "swimlane"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.lifecycle",
+        "data-page-role": "sequence",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.temporal.swimlane-roadmap",
+        "data-density": "dense",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "roadmap",
+          "block_id": "block.requirements-thinking-framework.lifecycle",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "sequence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.requirements-thinking-framework.lifecycle.01",
+              "atom.requirements-thinking-framework.lifecycle.02",
+              "atom.requirements-thinking-framework.lifecycle.03",
+              "atom.requirements-thinking-framework.lifecycle.04",
+              "atom.requirements-thinking-framework.lifecycle.05",
+              "atom.requirements-thinking-framework.lifecycle.06",
+              "atom.requirements-thinking-framework.lifecycle.07"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.requirements-thinking-framework.lifecycle.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.requirements-thinking-framework.lifecycle"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.close",
+      "output_file": "frames/shot-13.html",
+      "layout_id": "paper-ink.emotion.quote",
+      "density": "breathing",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-M2.html",
+      "rationale": "页面的 focus 关系与 focus-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "focus-field",
+      "theme_primitives": [
+        "centered-type",
+        "quote-mark"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.close",
+        "data-page-role": "close",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.emotion.quote",
+        "data-density": "breathing",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "quote",
+          "block_id": "block.requirements-thinking-framework.close",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "quote-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "item.requirements-thinking-framework.close",
+              "atom.requirements-thinking-framework.close.01"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1146 @@
+{
+  "schema_version": "1.0",
+  "content_file": "content.json",
+  "thesis": "写好需求的核心不是把解法写得完整，而是用证据完成一套可复核的决策。",
+  "narrative_type": "problem-solution",
+  "page_budget": {
+    "min": 1,
+    "max": 15,
+    "target": 13,
+    "drivers": [
+      {
+        "type": "independent_claim",
+        "count": 11,
+        "reason": "每页推进一个不可合并的核心判断。"
+      },
+      {
+        "type": "required_transition",
+        "count": 1,
+        "reason": "开场负责建立阅读问题与材料边界。"
+      },
+      {
+        "type": "narrative_turn",
+        "count": 1,
+        "reason": "收尾把原文证据收束为可记忆的判断。"
+      }
+    ],
+    "reason": "共 13 页：开场、核心论证与收尾均保持单页单结论，且不触发 16 页以上长文确认。"
+  },
+  "confirmation": {
+    "mode": "adaptive",
+    "decision": "proceed",
+    "triggers": [],
+    "questions": []
+  },
+  "sections": [
+    {
+      "section_id": "section.opening",
+      "title": "先定义决策",
+      "purpose": "先澄清产品经理、用户与产品价值三个基本问题。",
+      "page_refs": [
+        "page.cover",
+        "page.pm-role",
+        "page.soul-questions"
+      ]
+    },
+    {
+      "section_id": "section.reasoning",
+      "title": "再建立证据",
+      "purpose": "沿问题、时机、价值与方案四问完成判断。",
+      "page_refs": [
+        "page.four-questions",
+        "page.problem-first",
+        "page.why-now",
+        "page.value-metrics",
+        "page.twelve-checks"
+      ]
+    },
+    {
+      "section_id": "section.execution",
+      "title": "最后落到执行",
+      "purpose": "把关键变量、页面设计、评审与内审流程接起来。",
+      "page_refs": [
+        "page.key-variables",
+        "page.macro-micro",
+        "page.review",
+        "page.lifecycle",
+        "page.close"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "page_id": "page.cover",
+      "order": 1,
+      "section_id": "section.opening",
+      "role": "hook",
+      "assertion_title": "写好需求，不是把解法写清楚，而是把决策做对",
+      "audience_question": "写好需求，不是把解法写清楚，而是把决策做对意味着什么？",
+      "takeaway": "先回答为什么和值不值得，再讨论怎么做。",
+      "content_refs": [
+        "item.requirements-thinking-framework.cover",
+        "atom.requirements-thinking-framework.cover.01"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.cover"
+      ],
+      "relation_shape": {
+        "primary": "focus",
+        "secondary": [],
+        "reason": "本页内容关系是 focus，需要由 focus-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "focus-field",
+      "density_intent": "breathing",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.cover",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "item.requirements-thinking-framework.cover",
+            "atom.requirements-thinking-framework.cover.01"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.pm-role",
+      "order": 2,
+      "section_id": "section.opening",
+      "role": "explain",
+      "assertion_title": "产品经理的核心工作，是高质量决策与价值再分配",
+      "audience_question": "产品经理的核心工作，是高质量决策与价值再分配意味着什么？",
+      "takeaway": "决策不等于每次都准确，但必须让价值与代价被看见。",
+      "content_refs": [
+        "item.requirements-thinking-framework.pm-role",
+        "atom.requirements-thinking-framework.pm-role.01",
+        "atom.requirements-thinking-framework.pm-role.02",
+        "atom.requirements-thinking-framework.pm-role.03"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.pm-role"
+      ],
+      "relation_shape": {
+        "primary": "decomposition",
+        "secondary": [],
+        "reason": "本页内容关系是 decomposition，需要由 radial-burst 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "radial-burst",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.pm-role",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.pm-role.01",
+            "atom.requirements-thinking-framework.pm-role.02",
+            "atom.requirements-thinking-framework.pm-role.03"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.pm-role.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.pm-role"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.soul-questions",
+      "order": 3,
+      "section_id": "section.opening",
+      "role": "orient",
+      "assertion_title": "三道灵魂题先锁住人、问题与价值",
+      "audience_question": "三道灵魂题先锁住人、问题与价值意味着什么？",
+      "takeaway": "角色、用户需求和产品价值没有答清，后面的方案只是提前开工。",
+      "content_refs": [
+        "item.requirements-thinking-framework.soul-questions",
+        "atom.requirements-thinking-framework.soul-questions.01",
+        "atom.requirements-thinking-framework.soul-questions.02",
+        "atom.requirements-thinking-framework.soul-questions.03"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.soul-questions"
+      ],
+      "relation_shape": {
+        "primary": "hierarchy",
+        "secondary": [],
+        "reason": "本页内容关系是 hierarchy，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.soul-questions",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.soul-questions.01",
+            "atom.requirements-thinking-framework.soul-questions.02",
+            "atom.requirements-thinking-framework.soul-questions.03"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.soul-questions.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.soul-questions"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.four-questions",
+      "order": 4,
+      "section_id": "section.reasoning",
+      "role": "sequence",
+      "assertion_title": "四个问题把需求从模糊诉求推进到可执行决策",
+      "audience_question": "四个问题把需求从模糊诉求推进到可执行决策意味着什么？",
+      "takeaway": "问题、时机、价值、方案是一个连续判断链。",
+      "content_refs": [
+        "item.requirements-thinking-framework.four-questions",
+        "atom.requirements-thinking-framework.four-questions.01",
+        "atom.requirements-thinking-framework.four-questions.02",
+        "atom.requirements-thinking-framework.four-questions.03",
+        "atom.requirements-thinking-framework.four-questions.04"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.four-questions"
+      ],
+      "relation_shape": {
+        "primary": "sequence",
+        "secondary": [],
+        "reason": "本页内容关系是 sequence，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.four-questions",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.four-questions.01",
+            "atom.requirements-thinking-framework.four-questions.02",
+            "atom.requirements-thinking-framework.four-questions.03",
+            "atom.requirements-thinking-framework.four-questions.04"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.four-questions.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.four-questions"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.problem-first",
+      "order": 5,
+      "section_id": "section.reasoning",
+      "role": "explain",
+      "assertion_title": "体验类需求最怕越过分析，直接进入解决方案",
+      "audience_question": "体验类需求最怕越过分析，直接进入解决方案意味着什么？",
+      "takeaway": "先用调研和数据把现象抽象成问题，再讨论方案。",
+      "content_refs": [
+        "item.requirements-thinking-framework.problem-first",
+        "atom.requirements-thinking-framework.problem-first.01",
+        "atom.requirements-thinking-framework.problem-first.02",
+        "atom.requirements-thinking-framework.problem-first.03"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.problem-first"
+      ],
+      "relation_shape": {
+        "primary": "sequence",
+        "secondary": [],
+        "reason": "本页内容关系是 sequence，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.problem-first",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.problem-first.01",
+            "atom.requirements-thinking-framework.problem-first.02",
+            "atom.requirements-thinking-framework.problem-first.03"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.problem-first.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.problem-first"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.why-now",
+      "order": 6,
+      "section_id": "section.reasoning",
+      "role": "prove",
+      "assertion_title": "“为什么现在做”必须由证据、优先级与共识共同成立",
+      "audience_question": "“为什么现在做”必须由证据、优先级与共识共同成立意味着什么？",
+      "takeaway": "客观数据优先；没有客观数据时，要对问题边界与执行形成共识。",
+      "content_refs": [
+        "item.requirements-thinking-framework.why-now",
+        "atom.requirements-thinking-framework.why-now.01",
+        "atom.requirements-thinking-framework.why-now.02",
+        "atom.requirements-thinking-framework.why-now.03",
+        "atom.requirements-thinking-framework.why-now.04"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.why-now"
+      ],
+      "relation_shape": {
+        "primary": "evidence",
+        "secondary": [],
+        "reason": "本页内容关系是 evidence，需要由 evidence-annotation 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "evidence-annotation",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.why-now",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.why-now.01",
+            "atom.requirements-thinking-framework.why-now.02",
+            "atom.requirements-thinking-framework.why-now.03",
+            "atom.requirements-thinking-framework.why-now.04"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.why-now.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.why-now"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.value-metrics",
+      "order": 7,
+      "section_id": "section.reasoning",
+      "role": "explain",
+      "assertion_title": "价值评估不是一个数，而是一组分级、分类的观察面",
+      "audience_question": "价值评估不是一个数，而是一组分级、分类的观察面意味着什么？",
+      "takeaway": "指标既要衡量结果，也要让 PM 在事前预判、事后反思。",
+      "content_refs": [
+        "item.requirements-thinking-framework.value-metrics",
+        "atom.requirements-thinking-framework.value-metrics.01",
+        "atom.requirements-thinking-framework.value-metrics.02",
+        "atom.requirements-thinking-framework.value-metrics.03",
+        "atom.requirements-thinking-framework.value-metrics.04"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.value-metrics"
+      ],
+      "relation_shape": {
+        "primary": "matrix",
+        "secondary": [],
+        "reason": "本页内容关系是 matrix，需要由 matrix-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "matrix-field",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.value-metrics",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.value-metrics.01",
+            "atom.requirements-thinking-framework.value-metrics.02",
+            "atom.requirements-thinking-framework.value-metrics.03",
+            "atom.requirements-thinking-framework.value-metrics.04"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.value-metrics.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.value-metrics"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.twelve-checks",
+      "order": 8,
+      "section_id": "section.reasoning",
+      "role": "explain",
+      "assertion_title": "十二问覆盖事实、判断、替代方案与用户视角",
+      "audience_question": "十二问覆盖事实、判断、替代方案与用户视角意味着什么？",
+      "takeaway": "十二问不是逐项走形式，而是防止关键思考被漏掉。",
+      "content_refs": [
+        "item.requirements-thinking-framework.twelve-checks",
+        "atom.requirements-thinking-framework.twelve-checks.01",
+        "atom.requirements-thinking-framework.twelve-checks.02",
+        "atom.requirements-thinking-framework.twelve-checks.03",
+        "atom.requirements-thinking-framework.twelve-checks.04"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.twelve-checks"
+      ],
+      "relation_shape": {
+        "primary": "decomposition",
+        "secondary": [],
+        "reason": "本页内容关系是 decomposition，需要由 peer-array 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "peer-array",
+      "density_intent": "dense",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.twelve-checks",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.twelve-checks.01",
+            "atom.requirements-thinking-framework.twelve-checks.02",
+            "atom.requirements-thinking-framework.twelve-checks.03",
+            "atom.requirements-thinking-framework.twelve-checks.04"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.twelve-checks.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.twelve-checks"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.key-variables",
+      "order": 9,
+      "section_id": "section.execution",
+      "role": "decide",
+      "assertion_title": "效率来自抓关键变量，而不是把每个细节都做满",
+      "audience_question": "效率来自抓关键变量，而不是把每个细节都做满意味着什么？",
+      "takeaway": "先找不超过三个最大挑战，再用一到两个关键判断和事实约束求平衡解。",
+      "content_refs": [
+        "item.requirements-thinking-framework.key-variables",
+        "atom.requirements-thinking-framework.key-variables.01",
+        "atom.requirements-thinking-framework.key-variables.02",
+        "atom.requirements-thinking-framework.key-variables.03"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.key-variables"
+      ],
+      "relation_shape": {
+        "primary": "flow",
+        "secondary": [],
+        "reason": "本页内容关系是 flow，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.key-variables",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.key-variables.01",
+            "atom.requirements-thinking-framework.key-variables.02",
+            "atom.requirements-thinking-framework.key-variables.03"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.key-variables.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.key-variables"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.macro-micro",
+      "order": 10,
+      "section_id": "section.execution",
+      "role": "compare",
+      "assertion_title": "需求设计要同时守住跨页面一致性与单页行动目标",
+      "audience_question": "需求设计要同时守住跨页面一致性与单页行动目标意味着什么？",
+      "takeaway": "大场景负责上下文，小场景负责这一页让用户看见什么、做什么。",
+      "content_refs": [
+        "item.requirements-thinking-framework.macro-micro",
+        "atom.requirements-thinking-framework.macro-micro.01",
+        "atom.requirements-thinking-framework.macro-micro.02",
+        "atom.requirements-thinking-framework.macro-micro.03"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.macro-micro"
+      ],
+      "relation_shape": {
+        "primary": "comparison",
+        "secondary": [],
+        "reason": "本页内容关系是 comparison，需要由 bilateral-split 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "bilateral-split",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.macro-micro",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.macro-micro.01",
+            "atom.requirements-thinking-framework.macro-micro.02",
+            "atom.requirements-thinking-framework.macro-micro.03"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.macro-micro.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.macro-micro"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.review",
+      "order": 11,
+      "section_id": "section.execution",
+      "role": "act",
+      "assertion_title": "评审不是临场答题，而是面向陌生听众的证据组织",
+      "audience_question": "评审不是临场答题，而是面向陌生听众的证据组织意味着什么？",
+      "takeaway": "预判问题、挑重点、练表达；证据不足时先研究再回答。",
+      "content_refs": [
+        "item.requirements-thinking-framework.review",
+        "atom.requirements-thinking-framework.review.01",
+        "atom.requirements-thinking-framework.review.02",
+        "atom.requirements-thinking-framework.review.03",
+        "atom.requirements-thinking-framework.review.04",
+        "atom.requirements-thinking-framework.review.05"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.review"
+      ],
+      "relation_shape": {
+        "primary": "sequence",
+        "secondary": [],
+        "reason": "本页内容关系是 sequence，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "dense",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.review",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.review.01",
+            "atom.requirements-thinking-framework.review.02",
+            "atom.requirements-thinking-framework.review.03",
+            "atom.requirements-thinking-framework.review.04",
+            "atom.requirements-thinking-framework.review.05"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.review.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.review"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.lifecycle",
+      "order": 12,
+      "section_id": "section.execution",
+      "role": "sequence",
+      "assertion_title": "需求生命周期用多次评审，把判断逐步压实为可交付结果",
+      "audience_question": "需求生命周期用多次评审，把判断逐步压实为可交付结果意味着什么？",
+      "takeaway": "不值得现在做就进入需求池；值得做才沿 PRD、埋点、研发与回归推进。",
+      "content_refs": [
+        "item.requirements-thinking-framework.lifecycle",
+        "atom.requirements-thinking-framework.lifecycle.01",
+        "atom.requirements-thinking-framework.lifecycle.02",
+        "atom.requirements-thinking-framework.lifecycle.03",
+        "atom.requirements-thinking-framework.lifecycle.04",
+        "atom.requirements-thinking-framework.lifecycle.05",
+        "atom.requirements-thinking-framework.lifecycle.06",
+        "atom.requirements-thinking-framework.lifecycle.07"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.lifecycle"
+      ],
+      "relation_shape": {
+        "primary": "sequence",
+        "secondary": [],
+        "reason": "本页内容关系是 sequence，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "dense",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.lifecycle",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.requirements-thinking-framework.lifecycle.01",
+            "atom.requirements-thinking-framework.lifecycle.02",
+            "atom.requirements-thinking-framework.lifecycle.03",
+            "atom.requirements-thinking-framework.lifecycle.04",
+            "atom.requirements-thinking-framework.lifecycle.05",
+            "atom.requirements-thinking-framework.lifecycle.06",
+            "atom.requirements-thinking-framework.lifecycle.07"
+          ]
+        },
+        {
+          "block_id": "block.requirements-thinking-framework.lifecycle.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.requirements-thinking-framework.lifecycle"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.close",
+      "order": 13,
+      "section_id": "section.execution",
+      "role": "close",
+      "assertion_title": "需求文档与答辩都是证明题，不是事项清单",
+      "audience_question": "需求文档与答辩都是证明题，不是事项清单意味着什么？",
+      "takeaway": "用一到两个最有力案例，证明价值、难点、判断与贡献。",
+      "content_refs": [
+        "item.requirements-thinking-framework.close",
+        "atom.requirements-thinking-framework.close.01"
+      ],
+      "evidence_refs": [
+        "item.requirements-thinking-framework.close"
+      ],
+      "relation_shape": {
+        "primary": "focus",
+        "secondary": [],
+        "reason": "本页内容关系是 focus，需要由 focus-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "focus-field",
+      "density_intent": "breathing",
+      "blocks": [
+        {
+          "block_id": "block.requirements-thinking-framework.close",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "quote",
+          "content_refs": [
+            "item.requirements-thinking-framework.close",
+            "atom.requirements-thinking-framework.close.01"
+          ]
+        }
+      ]
+    }
+  ],
+  "coverage_decisions": [
+    {
+      "content_ref": "item.requirements-thinking-framework.cover",
+      "disposition": "include",
+      "page_refs": [
+        "page.cover"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.cover.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.cover"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.pm-role",
+      "disposition": "include",
+      "page_refs": [
+        "page.pm-role"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.pm-role.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.pm-role"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.pm-role.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.pm-role"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.pm-role.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.pm-role"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.soul-questions",
+      "disposition": "include",
+      "page_refs": [
+        "page.soul-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.soul-questions.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.soul-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.soul-questions.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.soul-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.soul-questions.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.soul-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.four-questions",
+      "disposition": "include",
+      "page_refs": [
+        "page.four-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.four-questions.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.four-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.four-questions.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.four-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.four-questions.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.four-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.four-questions.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.four-questions"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.problem-first",
+      "disposition": "include",
+      "page_refs": [
+        "page.problem-first"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.problem-first.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.problem-first"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.problem-first.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.problem-first"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.problem-first.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.problem-first"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.why-now",
+      "disposition": "include",
+      "page_refs": [
+        "page.why-now"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.why-now.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.why-now"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.why-now.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.why-now"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.why-now.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.why-now"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.why-now.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.why-now"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.value-metrics",
+      "disposition": "include",
+      "page_refs": [
+        "page.value-metrics"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.value-metrics.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.value-metrics"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.value-metrics.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.value-metrics"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.value-metrics.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.value-metrics"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.value-metrics.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.value-metrics"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.twelve-checks",
+      "disposition": "include",
+      "page_refs": [
+        "page.twelve-checks"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.twelve-checks.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.twelve-checks"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.twelve-checks.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.twelve-checks"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.twelve-checks.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.twelve-checks"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.twelve-checks.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.twelve-checks"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.key-variables",
+      "disposition": "include",
+      "page_refs": [
+        "page.key-variables"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.key-variables.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.key-variables"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.key-variables.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.key-variables"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.key-variables.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.key-variables"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.macro-micro",
+      "disposition": "include",
+      "page_refs": [
+        "page.macro-micro"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.macro-micro.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.macro-micro"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.macro-micro.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.macro-micro"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.macro-micro.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.macro-micro"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.review",
+      "disposition": "include",
+      "page_refs": [
+        "page.review"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.review.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.review"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.review.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.review"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.review.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.review"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.review.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.review"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.review.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.review"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.lifecycle",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.06",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.lifecycle.07",
+      "disposition": "include",
+      "page_refs": [
+        "page.lifecycle"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.requirements-thinking-framework.close",
+      "disposition": "include",
+      "page_refs": [
+        "page.close"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.requirements-thinking-framework.close.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.close"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    }
+  ]
+}

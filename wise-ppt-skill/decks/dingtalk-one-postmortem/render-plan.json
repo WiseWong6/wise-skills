@@ -1,0 +1,825 @@
+{
+  "schema_version": "1.0",
+  "content_file": "content.json",
+  "deck_plan_file": "deck-plan.json",
+  "theme_id": "paper-ink",
+  "pages": [
+    {
+      "page_id": "page.cover",
+      "output_file": "frames/shot-01.html",
+      "layout_id": "paper-ink.scaffold.cover",
+      "density": "breathing",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-D1.html",
+      "rationale": "页面的 focus 关系与 focus-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "focus-field",
+      "theme_primitives": [
+        "asymmetric-type",
+        "hero-mark"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.cover",
+        "data-page-role": "hook",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.scaffold.cover",
+        "data-density": "breathing",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "cover-lockup",
+          "block_id": "block.dingtalk-one-postmortem.cover",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "cover-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.cover",
+              "atom.dingtalk-one-postmortem.cover.01"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.chapter-map",
+      "output_file": "frames/shot-02.html",
+      "layout_id": "paper-ink.matrix.stage-dimension",
+      "density": "dense",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-K1.html",
+      "rationale": "页面的 matrix 关系与 matrix-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "matrix-field",
+      "theme_primitives": [
+        "stage-chain",
+        "dimension-matrix",
+        "summary-band"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.chapter-map",
+        "data-page-role": "synthesize",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.matrix.stage-dimension",
+        "data-density": "dense",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "framework",
+          "block_id": "block.dingtalk-one-postmortem.chapter-map",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "matrix-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.chapter-map.01",
+              "atom.dingtalk-one-postmortem.chapter-map.02",
+              "atom.dingtalk-one-postmortem.chapter-map.03",
+              "atom.dingtalk-one-postmortem.chapter-map.04",
+              "atom.dingtalk-one-postmortem.chapter-map.05",
+              "atom.dingtalk-one-postmortem.chapter-map.06",
+              "atom.dingtalk-one-postmortem.chapter-map.07",
+              "atom.dingtalk-one-postmortem.chapter-map.08"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.chapter-map.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.chapter-map"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.three-intents",
+      "output_file": "frames/shot-03.html",
+      "layout_id": "paper-ink.radial.hub-satellites",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-G4.html",
+      "rationale": "页面的 decomposition 关系与 radial-burst 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "radial-burst",
+      "theme_primitives": [
+        "orbit-ring",
+        "satellite-node"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.three-intents",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.radial.hub-satellites",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "capabilities",
+          "block_id": "block.dingtalk-one-postmortem.three-intents",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "radial-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.three-intents.01",
+              "atom.dingtalk-one-postmortem.three-intents.02",
+              "atom.dingtalk-one-postmortem.three-intents.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.three-intents.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.three-intents"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.positioning",
+      "output_file": "frames/shot-04.html",
+      "layout_id": "paper-ink.decomposition.quadrant",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-F1.html",
+      "rationale": "页面的 matrix 关系与 matrix-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "matrix-field",
+      "theme_primitives": [
+        "quadrant-grid",
+        "center-label"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.positioning",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.decomposition.quadrant",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "quadrants",
+          "block_id": "block.dingtalk-one-postmortem.positioning",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "quadrant-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.positioning.01",
+              "atom.dingtalk-one-postmortem.positioning.02",
+              "atom.dingtalk-one-postmortem.positioning.03",
+              "atom.dingtalk-one-postmortem.positioning.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.positioning.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.positioning"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.impossible-polygon",
+      "output_file": "frames/shot-05.html",
+      "layout_id": "paper-ink.radial.hub-satellites",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-G4.html",
+      "rationale": "页面的 decomposition 关系与 radial-burst 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "radial-burst",
+      "theme_primitives": [
+        "orbit-ring",
+        "satellite-node"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.impossible-polygon",
+        "data-page-role": "synthesize",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.radial.hub-satellites",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "capabilities",
+          "block_id": "block.dingtalk-one-postmortem.impossible-polygon",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "radial-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.impossible-polygon.01",
+              "atom.dingtalk-one-postmortem.impossible-polygon.02",
+              "atom.dingtalk-one-postmortem.impossible-polygon.03",
+              "atom.dingtalk-one-postmortem.impossible-polygon.04",
+              "atom.dingtalk-one-postmortem.impossible-polygon.05",
+              "atom.dingtalk-one-postmortem.impossible-polygon.06"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.impossible-polygon.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.impossible-polygon"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.position-shifts",
+      "output_file": "frames/shot-06.html",
+      "layout_id": "paper-ink.cycle.journey-curve",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-J3.html",
+      "rationale": "页面的 sequence 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "journey-curve",
+        "stage-band"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.position-shifts",
+        "data-page-role": "sequence",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.cycle.journey-curve",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "journey",
+          "block_id": "block.dingtalk-one-postmortem.position-shifts",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "sequence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.position-shifts.01",
+              "atom.dingtalk-one-postmortem.position-shifts.02",
+              "atom.dingtalk-one-postmortem.position-shifts.03",
+              "atom.dingtalk-one-postmortem.position-shifts.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.position-shifts.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.position-shifts"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.card-tension",
+      "output_file": "frames/shot-07.html",
+      "layout_id": "paper-ink.comparison.dual-panel",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-E1.html",
+      "rationale": "页面的 comparison 关系与 bilateral-split 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "bilateral-split",
+      "theme_primitives": [
+        "dual-panel",
+        "contrast-axis"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.card-tension",
+        "data-page-role": "compare",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.comparison.dual-panel",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "comparison",
+          "block_id": "block.dingtalk-one-postmortem.card-tension",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "compare-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.card-tension.01",
+              "atom.dingtalk-one-postmortem.card-tension.02",
+              "atom.dingtalk-one-postmortem.card-tension.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.card-tension.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.card-tension"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.failure-chain",
+      "output_file": "frames/shot-08.html",
+      "layout_id": "paper-ink.flow.known-unknown-chain",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-I2.html",
+      "rationale": "页面的 sequence 关系与 linear-sequence 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "linear-sequence",
+      "theme_primitives": [
+        "known-endpoints",
+        "unknown-gap"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.failure-chain",
+        "data-page-role": "explain",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.flow.known-unknown-chain",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "visible-steps",
+          "block_id": "block.dingtalk-one-postmortem.failure-chain",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "flow-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.failure-chain.01",
+              "atom.dingtalk-one-postmortem.failure-chain.02",
+              "atom.dingtalk-one-postmortem.failure-chain.03",
+              "atom.dingtalk-one-postmortem.failure-chain.04",
+              "atom.dingtalk-one-postmortem.failure-chain.05"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.failure-chain.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.failure-chain"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.design-turn",
+      "output_file": "frames/shot-09.html",
+      "layout_id": "paper-ink.comparison.before-after-process-bands",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-E6.html",
+      "rationale": "页面的 comparison 关系与 parallel-tracks 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "parallel-tracks",
+      "theme_primitives": [
+        "before-after-bands",
+        "process-strip"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.design-turn",
+        "data-page-role": "compare",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.comparison.before-after-process-bands",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "before-after-flow",
+          "block_id": "block.dingtalk-one-postmortem.design-turn",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "compare-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.design-turn.01",
+              "atom.dingtalk-one-postmortem.design-turn.02",
+              "atom.dingtalk-one-postmortem.design-turn.03",
+              "atom.dingtalk-one-postmortem.design-turn.04",
+              "atom.dingtalk-one-postmortem.design-turn.05",
+              "atom.dingtalk-one-postmortem.design-turn.06"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.design-turn.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.design-turn"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.co-creation",
+      "output_file": "frames/shot-10.html",
+      "layout_id": "paper-ink.comparison.watershed-columns",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-E2.html",
+      "rationale": "页面的 comparison 关系与 bilateral-split 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "bilateral-split",
+      "theme_primitives": [
+        "watershed-axis",
+        "field-columns"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.co-creation",
+        "data-page-role": "compare",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.comparison.watershed-columns",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "comparison-fields",
+          "block_id": "block.dingtalk-one-postmortem.co-creation",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "compare-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.co-creation.01",
+              "atom.dingtalk-one-postmortem.co-creation.02",
+              "atom.dingtalk-one-postmortem.co-creation.03",
+              "atom.dingtalk-one-postmortem.co-creation.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.co-creation.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.co-creation"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.behavior-evidence",
+      "output_file": "frames/shot-11.html",
+      "layout_id": "paper-ink.evidence.specimen-card",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-A1.html",
+      "rationale": "页面的 evidence 关系与 evidence-annotation 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "evidence-annotation",
+      "theme_primitives": [
+        "specimen-pin",
+        "annotation-leader"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.behavior-evidence",
+        "data-page-role": "prove",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.evidence.specimen-card",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "evidence",
+          "block_id": "block.dingtalk-one-postmortem.behavior-evidence",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "evidence-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.behavior-evidence.01",
+              "atom.dingtalk-one-postmortem.behavior-evidence.02",
+              "atom.dingtalk-one-postmortem.behavior-evidence.03"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.behavior-evidence.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.behavior-evidence"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.agile-knife",
+      "output_file": "frames/shot-12.html",
+      "layout_id": "paper-ink.comparison.dual-panel",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-E1.html",
+      "rationale": "页面的 comparison 关系与 bilateral-split 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "bilateral-split",
+      "theme_primitives": [
+        "dual-panel",
+        "contrast-axis"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.agile-knife",
+        "data-page-role": "compare",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.comparison.dual-panel",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "comparison",
+          "block_id": "block.dingtalk-one-postmortem.agile-knife",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "compare-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.agile-knife.01",
+              "atom.dingtalk-one-postmortem.agile-knife.02",
+              "atom.dingtalk-one-postmortem.agile-knife.03",
+              "atom.dingtalk-one-postmortem.agile-knife.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.agile-knife.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.agile-knife"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.order",
+      "output_file": "frames/shot-13.html",
+      "layout_id": "paper-ink.comparison.dual-pyramid-map",
+      "density": "balanced",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-E5.html",
+      "rationale": "页面的 comparison 关系与 bilateral-split 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "bilateral-split",
+      "theme_primitives": [
+        "dual-pyramid",
+        "mapping-link"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.order",
+        "data-page-role": "compare",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.comparison.dual-pyramid-map",
+        "data-density": "balanced",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "hierarchy-map",
+          "block_id": "block.dingtalk-one-postmortem.order",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "compare-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.order.01",
+              "atom.dingtalk-one-postmortem.order.02",
+              "atom.dingtalk-one-postmortem.order.03",
+              "atom.dingtalk-one-postmortem.order.04"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.order.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.order"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.strategy",
+      "output_file": "frames/shot-14.html",
+      "layout_id": "paper-ink.matrix.stage-dimension",
+      "density": "dense",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-K1.html",
+      "rationale": "页面的 matrix 关系与 matrix-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "matrix-field",
+      "theme_primitives": [
+        "stage-chain",
+        "dimension-matrix",
+        "summary-band"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.strategy",
+        "data-page-role": "synthesize",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.matrix.stage-dimension",
+        "data-density": "dense",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "framework",
+          "block_id": "block.dingtalk-one-postmortem.strategy",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "matrix-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "atom.dingtalk-one-postmortem.strategy.01",
+              "atom.dingtalk-one-postmortem.strategy.02",
+              "atom.dingtalk-one-postmortem.strategy.03",
+              "atom.dingtalk-one-postmortem.strategy.04",
+              "atom.dingtalk-one-postmortem.strategy.05"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.dingtalk-one-postmortem.strategy.takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "page-takeaway",
+            "variant": "caption",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.strategy"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    },
+    {
+      "page_id": "page.close",
+      "output_file": "frames/shot-15.html",
+      "layout_id": "paper-ink.emotion.quote",
+      "density": "breathing",
+      "reuse_mode": "adapt",
+      "reuse_source": "themes/paper-ink/gallery/general/frames/shot-M2.html",
+      "rationale": "页面的 focus 关系与 focus-field 主原语匹配；沿用已验证骨架并按本页内容数量调整。",
+      "capacity_status": "fit",
+      "core_primitive": "focus-field",
+      "theme_primitives": [
+        "centered-type",
+        "quote-mark"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.close",
+        "data-page-role": "close",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.emotion.quote",
+        "data-density": "breathing",
+        "data-reuse-mode": "adapt"
+      },
+      "slots": [
+        {
+          "slot_id": "quote",
+          "block_id": "block.dingtalk-one-postmortem.close",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "svg",
+            "component": "quote-diagram",
+            "variant": "pdf-source",
+            "content_refs": [
+              "item.dingtalk-one-postmortem.close",
+              "atom.dingtalk-one-postmortem.close.01"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        }
+      ]
+    }
+  ]
+}

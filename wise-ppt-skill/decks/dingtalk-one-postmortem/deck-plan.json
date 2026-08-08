@@ -1,0 +1,1404 @@
+{
+  "schema_version": "1.0",
+  "content_file": "content.json",
+  "thesis": "ONE 的问题不是缺少愿景、设计或速度，而是定位、界面、用户证据与组织秩序没有围绕同一个真实问题收敛。",
+  "narrative_type": "situation-complication-resolution",
+  "page_budget": {
+    "min": 1,
+    "max": 15,
+    "target": 15,
+    "drivers": [
+      {
+        "type": "independent_claim",
+        "count": 13,
+        "reason": "每页推进一个不可合并的核心判断。"
+      },
+      {
+        "type": "required_transition",
+        "count": 1,
+        "reason": "开场负责建立阅读问题与材料边界。"
+      },
+      {
+        "type": "narrative_turn",
+        "count": 1,
+        "reason": "收尾把原文证据收束为可记忆的判断。"
+      }
+    ],
+    "reason": "共 15 页：开场、核心论证与收尾均保持单页单结论，且不触发 16 页以上长文确认。"
+  },
+  "confirmation": {
+    "mode": "adaptive",
+    "decision": "proceed",
+    "triggers": [],
+    "questions": []
+  },
+  "sections": [
+    {
+      "section_id": "section.setup",
+      "title": "发心与定位",
+      "purpose": "解释 ONE 想解决什么，以及目标为什么逐渐互相拉扯。",
+      "page_refs": [
+        "page.cover",
+        "page.chapter-map",
+        "page.three-intents",
+        "page.positioning",
+        "page.impossible-polygon",
+        "page.position-shifts"
+      ]
+    },
+    {
+      "section_id": "section.product",
+      "title": "设计与用户",
+      "purpose": "追踪卡片形态、已读、入口和用户证据如何改变产品。",
+      "page_refs": [
+        "page.card-tension",
+        "page.failure-chain",
+        "page.design-turn",
+        "page.co-creation",
+        "page.behavior-evidence"
+      ]
+    },
+    {
+      "section_id": "section.org",
+      "title": "敏捷与秩序",
+      "purpose": "把快速迭代放回注意力、权力与战略取舍中复盘。",
+      "page_refs": [
+        "page.agile-knife",
+        "page.order",
+        "page.strategy",
+        "page.close"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "page_id": "page.cover",
+      "order": 1,
+      "section_id": "section.setup",
+      "role": "hook",
+      "assertion_title": "ONE 的问题，不是没有理想，而是理想没有收敛成同一个真实问题",
+      "audience_question": "ONE 的问题，不是没有理想，而是理想没有收敛成同一个真实问题意味着什么？",
+      "takeaway": "这是一条从发心、定位、设计到组织秩序的失败链。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.cover",
+        "atom.dingtalk-one-postmortem.cover.01"
+      ],
+      "evidence_refs": [],
+      "relation_shape": {
+        "primary": "focus",
+        "secondary": [],
+        "reason": "本页内容关系是 focus，需要由 focus-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "focus-field",
+      "density_intent": "breathing",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.cover",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.cover",
+            "atom.dingtalk-one-postmortem.cover.01"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.chapter-map",
+      "order": 2,
+      "section_id": "section.setup",
+      "role": "synthesize",
+      "assertion_title": "八章复盘把产品问题逐步推向组织与长期主义",
+      "audience_question": "八章复盘把产品问题逐步推向组织与长期主义意味着什么？",
+      "takeaway": "产品成败不是单点设计题，而是一套相互作用的系统。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.chapter-map",
+        "atom.dingtalk-one-postmortem.chapter-map.01",
+        "atom.dingtalk-one-postmortem.chapter-map.02",
+        "atom.dingtalk-one-postmortem.chapter-map.03",
+        "atom.dingtalk-one-postmortem.chapter-map.04",
+        "atom.dingtalk-one-postmortem.chapter-map.05",
+        "atom.dingtalk-one-postmortem.chapter-map.06",
+        "atom.dingtalk-one-postmortem.chapter-map.07",
+        "atom.dingtalk-one-postmortem.chapter-map.08"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.chapter-map"
+      ],
+      "relation_shape": {
+        "primary": "matrix",
+        "secondary": [],
+        "reason": "本页内容关系是 matrix，需要由 matrix-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "matrix-field",
+      "density_intent": "dense",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.chapter-map",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.chapter-map.01",
+            "atom.dingtalk-one-postmortem.chapter-map.02",
+            "atom.dingtalk-one-postmortem.chapter-map.03",
+            "atom.dingtalk-one-postmortem.chapter-map.04",
+            "atom.dingtalk-one-postmortem.chapter-map.05",
+            "atom.dingtalk-one-postmortem.chapter-map.06",
+            "atom.dingtalk-one-postmortem.chapter-map.07",
+            "atom.dingtalk-one-postmortem.chapter-map.08"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.chapter-map.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.chapter-map"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.three-intents",
+      "order": 3,
+      "section_id": "section.setup",
+      "role": "explain",
+      "assertion_title": "ONE 同时承载用户、产品与组织三层发心",
+      "audience_question": "ONE 同时承载用户、产品与组织三层发心意味着什么？",
+      "takeaway": "它既想减少遗漏，也想成为 AI 新入口，还承担了一场组织战役。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.three-intents",
+        "atom.dingtalk-one-postmortem.three-intents.01",
+        "atom.dingtalk-one-postmortem.three-intents.02",
+        "atom.dingtalk-one-postmortem.three-intents.03"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.three-intents"
+      ],
+      "relation_shape": {
+        "primary": "decomposition",
+        "secondary": [],
+        "reason": "本页内容关系是 decomposition，需要由 radial-burst 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "radial-burst",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.three-intents",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.three-intents.01",
+            "atom.dingtalk-one-postmortem.three-intents.02",
+            "atom.dingtalk-one-postmortem.three-intents.03"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.three-intents.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.three-intents"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.positioning",
+      "order": 4,
+      "section_id": "section.setup",
+      "role": "explain",
+      "assertion_title": "定位必须同时回答用户、场景、价值与竞争",
+      "audience_question": "定位必须同时回答用户、场景、价值与竞争意味着什么？",
+      "takeaway": "定位不是命名，而是取舍以后仍然留下来的方向。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.positioning",
+        "atom.dingtalk-one-postmortem.positioning.01",
+        "atom.dingtalk-one-postmortem.positioning.02",
+        "atom.dingtalk-one-postmortem.positioning.03",
+        "atom.dingtalk-one-postmortem.positioning.04"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.positioning"
+      ],
+      "relation_shape": {
+        "primary": "matrix",
+        "secondary": [],
+        "reason": "本页内容关系是 matrix，需要由 matrix-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "matrix-field",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.positioning",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.positioning.01",
+            "atom.dingtalk-one-postmortem.positioning.02",
+            "atom.dingtalk-one-postmortem.positioning.03",
+            "atom.dingtalk-one-postmortem.positioning.04"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.positioning.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.positioning"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.impossible-polygon",
+      "order": 5,
+      "section_id": "section.setup",
+      "role": "synthesize",
+      "assertion_title": "ONE 的目标彼此牵制，构成一个不可能 N 角",
+      "audience_question": "ONE 的目标彼此牵制，构成一个不可能 N 角意味着什么？",
+      "takeaway": "高频、普适、管理者价值、成本、信息流与 AI 准确率很难同时最优。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.impossible-polygon",
+        "atom.dingtalk-one-postmortem.impossible-polygon.01",
+        "atom.dingtalk-one-postmortem.impossible-polygon.02",
+        "atom.dingtalk-one-postmortem.impossible-polygon.03",
+        "atom.dingtalk-one-postmortem.impossible-polygon.04",
+        "atom.dingtalk-one-postmortem.impossible-polygon.05",
+        "atom.dingtalk-one-postmortem.impossible-polygon.06"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.impossible-polygon"
+      ],
+      "relation_shape": {
+        "primary": "decomposition",
+        "secondary": [],
+        "reason": "本页内容关系是 decomposition，需要由 radial-burst 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "radial-burst",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.impossible-polygon",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.impossible-polygon.01",
+            "atom.dingtalk-one-postmortem.impossible-polygon.02",
+            "atom.dingtalk-one-postmortem.impossible-polygon.03",
+            "atom.dingtalk-one-postmortem.impossible-polygon.04",
+            "atom.dingtalk-one-postmortem.impossible-polygon.05",
+            "atom.dingtalk-one-postmortem.impossible-polygon.06"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.impossible-polygon.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.impossible-polygon"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.position-shifts",
+      "order": 6,
+      "section_id": "section.setup",
+      "role": "sequence",
+      "assertion_title": "定位反复改写，却没有补上前一阶段留下的缝",
+      "audience_question": "定位反复改写，却没有补上前一阶段留下的缝意味着什么？",
+      "takeaway": "大基数与付费、工作流与学习流、看见与做完、旧入口与新入口的矛盾一直存在。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.position-shifts",
+        "atom.dingtalk-one-postmortem.position-shifts.01",
+        "atom.dingtalk-one-postmortem.position-shifts.02",
+        "atom.dingtalk-one-postmortem.position-shifts.03",
+        "atom.dingtalk-one-postmortem.position-shifts.04"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.position-shifts"
+      ],
+      "relation_shape": {
+        "primary": "sequence",
+        "secondary": [],
+        "reason": "本页内容关系是 sequence，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.position-shifts",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.position-shifts.01",
+            "atom.dingtalk-one-postmortem.position-shifts.02",
+            "atom.dingtalk-one-postmortem.position-shifts.03",
+            "atom.dingtalk-one-postmortem.position-shifts.04"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.position-shifts.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.position-shifts"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.card-tension",
+      "order": 7,
+      "section_id": "section.product",
+      "role": "compare",
+      "assertion_title": "卡片很有表现力，却与工作信息的实时性和上下文发生冲突",
+      "audience_question": "卡片很有表现力，却与工作信息的实时性和上下文发生冲突意味着什么？",
+      "takeaway": "形式一旦主导注意力，用户就会先感到成本，再感到价值。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.card-tension",
+        "atom.dingtalk-one-postmortem.card-tension.01",
+        "atom.dingtalk-one-postmortem.card-tension.02",
+        "atom.dingtalk-one-postmortem.card-tension.03"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.card-tension"
+      ],
+      "relation_shape": {
+        "primary": "comparison",
+        "secondary": [],
+        "reason": "本页内容关系是 comparison，需要由 bilateral-split 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "bilateral-split",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.card-tension",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.card-tension.01",
+            "atom.dingtalk-one-postmortem.card-tension.02",
+            "atom.dingtalk-one-postmortem.card-tension.03"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.card-tension.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.card-tension"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.failure-chain",
+      "order": 8,
+      "section_id": "section.product",
+      "role": "explain",
+      "assertion_title": "实时、排序、卡片与已读叠加成一条体验失败链",
+      "audience_question": "实时、排序、卡片与已读叠加成一条体验失败链意味着什么？",
+      "takeaway": "团队修补了很多痛点，却长期绕开“这个已读到底该不该发生”。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.failure-chain",
+        "atom.dingtalk-one-postmortem.failure-chain.01",
+        "atom.dingtalk-one-postmortem.failure-chain.02",
+        "atom.dingtalk-one-postmortem.failure-chain.03",
+        "atom.dingtalk-one-postmortem.failure-chain.04",
+        "atom.dingtalk-one-postmortem.failure-chain.05"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.failure-chain"
+      ],
+      "relation_shape": {
+        "primary": "sequence",
+        "secondary": [],
+        "reason": "本页内容关系是 sequence，需要由 linear-sequence 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "linear-sequence",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.failure-chain",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.failure-chain.01",
+            "atom.dingtalk-one-postmortem.failure-chain.02",
+            "atom.dingtalk-one-postmortem.failure-chain.03",
+            "atom.dingtalk-one-postmortem.failure-chain.04",
+            "atom.dingtalk-one-postmortem.failure-chain.05"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.failure-chain.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.failure-chain"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.design-turn",
+      "order": 9,
+      "section_id": "section.product",
+      "role": "compare",
+      "assertion_title": "放弃大包大揽后，设计才从形式回到用户动作",
+      "audience_question": "放弃大包大揽后，设计才从形式回到用户动作意味着什么？",
+      "takeaway": "产品不再证明“卡片能做什么”，而是聚焦阅读、表达与防遗漏。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.design-turn",
+        "atom.dingtalk-one-postmortem.design-turn.01",
+        "atom.dingtalk-one-postmortem.design-turn.02",
+        "atom.dingtalk-one-postmortem.design-turn.03",
+        "atom.dingtalk-one-postmortem.design-turn.04",
+        "atom.dingtalk-one-postmortem.design-turn.05",
+        "atom.dingtalk-one-postmortem.design-turn.06"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.design-turn"
+      ],
+      "relation_shape": {
+        "primary": "comparison",
+        "secondary": [],
+        "reason": "本页内容关系是 comparison，需要由 parallel-tracks 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "parallel-tracks",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.design-turn",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.design-turn.01",
+            "atom.dingtalk-one-postmortem.design-turn.02",
+            "atom.dingtalk-one-postmortem.design-turn.03",
+            "atom.dingtalk-one-postmortem.design-turn.04",
+            "atom.dingtalk-one-postmortem.design-turn.05",
+            "atom.dingtalk-one-postmortem.design-turn.06"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.design-turn.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.design-turn"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.co-creation",
+      "order": 10,
+      "section_id": "section.product",
+      "role": "compare",
+      "assertion_title": "共创用户体验的是产品加服务，真实用户只验收眼前价值",
+      "audience_question": "共创用户体验的是产品加服务，真实用户只验收眼前价值意味着什么？",
+      "takeaway": "共创里的解释、陪伴和耐心，上线后都不会自动存在。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.co-creation",
+        "atom.dingtalk-one-postmortem.co-creation.01",
+        "atom.dingtalk-one-postmortem.co-creation.02",
+        "atom.dingtalk-one-postmortem.co-creation.03",
+        "atom.dingtalk-one-postmortem.co-creation.04"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.co-creation"
+      ],
+      "relation_shape": {
+        "primary": "comparison",
+        "secondary": [],
+        "reason": "本页内容关系是 comparison，需要由 bilateral-split 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "bilateral-split",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.co-creation",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.co-creation.01",
+            "atom.dingtalk-one-postmortem.co-creation.02",
+            "atom.dingtalk-one-postmortem.co-creation.03",
+            "atom.dingtalk-one-postmortem.co-creation.04"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.co-creation.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.co-creation"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.behavior-evidence",
+      "order": 11,
+      "section_id": "section.product",
+      "role": "prove",
+      "assertion_title": "用户最诚实的回答，往往不在嘴上，而在成本里",
+      "audience_question": "用户最诚实的回答，往往不在嘴上，而在成本里意味着什么？",
+      "takeaway": "愿不愿多点一次、改变路径、交出流程，比一句“不错”更有证据重量。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.behavior-evidence",
+        "atom.dingtalk-one-postmortem.behavior-evidence.01",
+        "atom.dingtalk-one-postmortem.behavior-evidence.02",
+        "atom.dingtalk-one-postmortem.behavior-evidence.03"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.behavior-evidence"
+      ],
+      "relation_shape": {
+        "primary": "evidence",
+        "secondary": [],
+        "reason": "本页内容关系是 evidence，需要由 evidence-annotation 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "evidence-annotation",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.behavior-evidence",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.behavior-evidence.01",
+            "atom.dingtalk-one-postmortem.behavior-evidence.02",
+            "atom.dingtalk-one-postmortem.behavior-evidence.03"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.behavior-evidence.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.behavior-evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.agile-knife",
+      "order": 12,
+      "section_id": "section.org",
+      "role": "compare",
+      "assertion_title": "响应快在修补痛感，迭代深才敢回到最初判断",
+      "audience_question": "响应快在修补痛感，迭代深才敢回到最初判断意味着什么？",
+      "takeaway": "每天有东西改不等于敏捷；关键是有没有更接近正确问题。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.agile-knife",
+        "atom.dingtalk-one-postmortem.agile-knife.01",
+        "atom.dingtalk-one-postmortem.agile-knife.02",
+        "atom.dingtalk-one-postmortem.agile-knife.03",
+        "atom.dingtalk-one-postmortem.agile-knife.04"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.agile-knife"
+      ],
+      "relation_shape": {
+        "primary": "comparison",
+        "secondary": [],
+        "reason": "本页内容关系是 comparison，需要由 bilateral-split 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "bilateral-split",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.agile-knife",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.agile-knife.01",
+            "atom.dingtalk-one-postmortem.agile-knife.02",
+            "atom.dingtalk-one-postmortem.agile-knife.03",
+            "atom.dingtalk-one-postmortem.agile-knife.04"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.agile-knife.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.agile-knife"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.order",
+      "order": 13,
+      "section_id": "section.org",
+      "role": "compare",
+      "assertion_title": "流水线管理追求可见性，创造性劳动需要完整时间与自主判断",
+      "audience_question": "流水线管理追求可见性，创造性劳动需要完整时间与自主判断意味着什么？",
+      "takeaway": "当可见性成为最高价值，人会把时间投向被看见，而不是创造价值。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.order",
+        "atom.dingtalk-one-postmortem.order.01",
+        "atom.dingtalk-one-postmortem.order.02",
+        "atom.dingtalk-one-postmortem.order.03",
+        "atom.dingtalk-one-postmortem.order.04"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.order"
+      ],
+      "relation_shape": {
+        "primary": "comparison",
+        "secondary": [],
+        "reason": "本页内容关系是 comparison，需要由 bilateral-split 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "bilateral-split",
+      "density_intent": "balanced",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.order",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.order.01",
+            "atom.dingtalk-one-postmortem.order.02",
+            "atom.dingtalk-one-postmortem.order.03",
+            "atom.dingtalk-one-postmortem.order.04"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.order.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.order"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.strategy",
+      "order": 14,
+      "section_id": "section.org",
+      "role": "synthesize",
+      "assertion_title": "平台竞争的终局判断没有错，问题是太早用终局叙事组织中局战斗",
+      "audience_question": "平台竞争的终局判断没有错，问题是太早用终局叙事组织中局战斗意味着什么？",
+      "takeaway": "战略不是把所有机会装进发布会，而是明确选择什么不做。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.strategy",
+        "atom.dingtalk-one-postmortem.strategy.01",
+        "atom.dingtalk-one-postmortem.strategy.02",
+        "atom.dingtalk-one-postmortem.strategy.03",
+        "atom.dingtalk-one-postmortem.strategy.04",
+        "atom.dingtalk-one-postmortem.strategy.05"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.strategy"
+      ],
+      "relation_shape": {
+        "primary": "matrix",
+        "secondary": [],
+        "reason": "本页内容关系是 matrix，需要由 matrix-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "matrix-field",
+      "density_intent": "dense",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.strategy",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "diagram",
+          "content_refs": [
+            "atom.dingtalk-one-postmortem.strategy.01",
+            "atom.dingtalk-one-postmortem.strategy.02",
+            "atom.dingtalk-one-postmortem.strategy.03",
+            "atom.dingtalk-one-postmortem.strategy.04",
+            "atom.dingtalk-one-postmortem.strategy.05"
+          ]
+        },
+        {
+          "block_id": "block.dingtalk-one-postmortem.strategy.takeaway",
+          "purpose": "用一句话收束本页证据。",
+          "importance": "support",
+          "semantic_form": "headline",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.strategy"
+          ]
+        }
+      ]
+    },
+    {
+      "page_id": "page.close",
+      "order": 15,
+      "section_id": "section.org",
+      "role": "close",
+      "assertion_title": "真正的敏捷，是更快学习、更快校准、更快把资源转向正确问题",
+      "audience_question": "真正的敏捷，是更快学习、更快校准、更快把资源转向正确问题意味着什么？",
+      "takeaway": "如果一个团队每天都在动，却没有更接近正确问题，那不叫敏捷，叫奔波。",
+      "content_refs": [
+        "item.dingtalk-one-postmortem.close",
+        "atom.dingtalk-one-postmortem.close.01"
+      ],
+      "evidence_refs": [
+        "item.dingtalk-one-postmortem.close"
+      ],
+      "relation_shape": {
+        "primary": "focus",
+        "secondary": [],
+        "reason": "本页内容关系是 focus，需要由 focus-field 直接表达，而不是同构卡片平铺。"
+      },
+      "spatial_primitive": "focus-field",
+      "density_intent": "breathing",
+      "blocks": [
+        {
+          "block_id": "block.dingtalk-one-postmortem.close",
+          "purpose": "承载本页唯一主张及其来源要点。",
+          "importance": "primary",
+          "semantic_form": "quote",
+          "content_refs": [
+            "item.dingtalk-one-postmortem.close",
+            "atom.dingtalk-one-postmortem.close.01"
+          ]
+        }
+      ]
+    }
+  ],
+  "coverage_decisions": [
+    {
+      "content_ref": "item.dingtalk-one-postmortem.cover",
+      "disposition": "include",
+      "page_refs": [
+        "page.cover"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.cover.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.cover"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.chapter-map",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.06",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.07",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.chapter-map.08",
+      "disposition": "include",
+      "page_refs": [
+        "page.chapter-map"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.three-intents",
+      "disposition": "include",
+      "page_refs": [
+        "page.three-intents"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.three-intents.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.three-intents"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.three-intents.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.three-intents"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.three-intents.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.three-intents"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.positioning",
+      "disposition": "include",
+      "page_refs": [
+        "page.positioning"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.positioning.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.positioning"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.positioning.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.positioning"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.positioning.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.positioning"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.positioning.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.positioning"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.impossible-polygon",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.impossible-polygon.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.impossible-polygon.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.impossible-polygon.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.impossible-polygon.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.impossible-polygon.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.impossible-polygon.06",
+      "disposition": "include",
+      "page_refs": [
+        "page.impossible-polygon"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.position-shifts",
+      "disposition": "include",
+      "page_refs": [
+        "page.position-shifts"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.position-shifts.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.position-shifts"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.position-shifts.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.position-shifts"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.position-shifts.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.position-shifts"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.position-shifts.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.position-shifts"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.card-tension",
+      "disposition": "include",
+      "page_refs": [
+        "page.card-tension"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.card-tension.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.card-tension"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.card-tension.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.card-tension"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.card-tension.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.card-tension"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.failure-chain",
+      "disposition": "include",
+      "page_refs": [
+        "page.failure-chain"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.failure-chain.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.failure-chain"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.failure-chain.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.failure-chain"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.failure-chain.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.failure-chain"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.failure-chain.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.failure-chain"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.failure-chain.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.failure-chain"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.design-turn",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.design-turn.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.design-turn.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.design-turn.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.design-turn.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.design-turn.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.design-turn.06",
+      "disposition": "include",
+      "page_refs": [
+        "page.design-turn"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.co-creation",
+      "disposition": "include",
+      "page_refs": [
+        "page.co-creation"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.co-creation.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.co-creation"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.co-creation.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.co-creation"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.co-creation.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.co-creation"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.co-creation.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.co-creation"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.behavior-evidence",
+      "disposition": "include",
+      "page_refs": [
+        "page.behavior-evidence"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.behavior-evidence.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.behavior-evidence"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.behavior-evidence.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.behavior-evidence"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.behavior-evidence.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.behavior-evidence"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.agile-knife",
+      "disposition": "include",
+      "page_refs": [
+        "page.agile-knife"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.agile-knife.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.agile-knife"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.agile-knife.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.agile-knife"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.agile-knife.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.agile-knife"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.agile-knife.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.agile-knife"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.order",
+      "disposition": "include",
+      "page_refs": [
+        "page.order"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.order.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.order"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.order.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.order"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.order.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.order"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.order.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.order"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.strategy",
+      "disposition": "include",
+      "page_refs": [
+        "page.strategy"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.strategy.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.strategy"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.strategy.02",
+      "disposition": "include",
+      "page_refs": [
+        "page.strategy"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.strategy.03",
+      "disposition": "include",
+      "page_refs": [
+        "page.strategy"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.strategy.04",
+      "disposition": "include",
+      "page_refs": [
+        "page.strategy"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.strategy.05",
+      "disposition": "include",
+      "page_refs": [
+        "page.strategy"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "item.dingtalk-one-postmortem.close",
+      "disposition": "include",
+      "page_refs": [
+        "page.close"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    },
+    {
+      "content_ref": "atom.dingtalk-one-postmortem.close.01",
+      "disposition": "include",
+      "page_refs": [
+        "page.close"
+      ],
+      "reason": "该内容由本页主视觉直接承载。"
+    }
+  ]
+}
