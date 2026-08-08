@@ -103,7 +103,7 @@ cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页�
 ### Step 4 · 逐页生成
 
 1. **先识别内容的关系形状**（对立？序列？嵌套？辐射？收敛？）→ 按 `references/layout-primitives.md` 的**决策方法论**（Step A-D：提炼论点 → 拆信息单元 → 定主原语 → 叠辅助原语）选 1 个主原语 + 1-2 个辅助原语。常见汇报场景可直接套用文档里的"场景配方"（述职/发布/数据/架构/流程/漏斗/证据）；遇到歧义查"歧义判例"。
-2. **参考版式成品**：查 `references/layouts.md` / `gallery/` 找用同样原语组合的版式样本，借鉴坐标和图元画法。**版式是参考不是约束**——如果内容需要原语的新组合或超出 59 版式覆盖，有权发明新版式（只要守 design-tokens 空间纪律）。
+2. **参考版式成品**：查 `references/layouts.md` / `gallery/` 找用同样原语组合的版式样本，借鉴坐标和图元画法。**版式是参考不是约束**——如果内容需要原语的新组合或超出 63 版式覆盖，有权发明新版式（只要守 design-tokens 空间纪律）。
 3. 主体图形**优先自由绘制程序化 SVG**（细线可控、构造线保留）；复杂形状（真实地图、复杂数据图等自绘成本过高的）可从 html-ppt-components 导出组件做"改造五步"纸墨化——组件库是素材来源，不是降级兜底。
 4. 每页都是 `shot-template.html` 的实例：改角注、folio、FIG 图题、主体图形、caption。
 5. 图标用 FontAwesome（墨色）；复杂数据图表用 ECharts（去色改造）——规约见 `references/components.md`；粒子质感用 `particles.js`（仅粒子海报页/崩解语义）。
@@ -125,6 +125,7 @@ cp <SKILL_ROOT>/assets/shot-template.html "$DECK/frames/shot-01.html"  # 每页�
 ### Step 6 · 交付与迭代
 
 - 交付路径：`$DECK/index.html`（单页双模式：画板 ↔ 全屏）、`$DECK/frames/shot-NN.html`（单页原尺寸）；`$DECK/frames/thumb-NN.png` 为画板缩略图（由脚本生成，非手工产物）。逐页 PNG 用 `scripts/shot-screenshot.sh`。
+- **交付给用户完整路径清单**：交付时（Step 5 三道闸门全过后）必须向用户列出**本次改动涉及的全部文件绝对路径**（新增 + 修改，逐一列出），方便直接点开复核；不得只给文件名或相对路径。改版式画册（gallery/gallery-ai）时同样适用。
 - 迭代时改对应单页 `shot-NN.html`，改完**必须两件事**：① 重截该页复核 ② 重跑 `thumb` 模式刷新该页缩略图：
   ```bash
   <SKILL_ROOT>/scripts/shot-screenshot.sh "$DECK" /tmp/review            # ① 复核截图
@@ -164,7 +165,7 @@ wise-ppt-skill/
 ├── gallery/                  ← 版式画册 · 通用主题（运营/品牌/汇报等）
 │   ├── index.html            ← 画册浏览壳（LAYOUTS 数组即目录，按 15 个结构族分组；族序 = 字母序 A→O，每族一个字母前缀）
 │   └── frames/               ← 每种版式一页样张（数据全部自编）
-├── gallery-ai/               ← 版式画册 · AI 主题（Agent/RAG/评测/Infra…，与 gallery/ 同 59 版式、内容主题不同）
+├── gallery-ai/               ← 版式画册 · AI 主题（Agent/RAG/评测/Infra…，与 gallery/ 同 63 版式、内容主题不同）
 │   ├── index.html            ← AI 画册浏览壳（与 gallery/ 同分类，署名 BY @歪斯Wise）
 │   └── frames/               ← 每种版式一页样张（AI 场景）
 │   ↑ 两套画册共用同一套 15 结构族分类（A 证据 / B 时序 / C 数据 / D 骨架 / E 对比 / F 拆解 / G 放射 / H 嵌套 / I 流程 / J 循环 / K 矩阵 / L 映射 / M 情绪 / N 合并 / O 漏斗），每族恰好一个字母前缀，分类反映版式结构、与内容主题无关
