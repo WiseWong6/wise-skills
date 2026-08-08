@@ -9,6 +9,8 @@
     "content_file",
     "deck_plan_file",
     "theme_id",
+    "document_mode",
+    "output_file",
     "pages"
   ],
   "properties": {
@@ -41,63 +43,6 @@
       }
     }
   },
-  "allOf": [
-    {
-      "if": {
-        "required": [
-          "document_mode"
-        ],
-        "properties": {
-          "document_mode": {
-            "const": "single-html"
-          }
-        }
-      },
-      "then": {
-        "required": [
-          "output_file"
-        ],
-        "properties": {
-          "pages": {
-            "items": {
-              "allOf": [
-                {
-                  "not": {
-                    "required": [
-                      "output_file"
-                    ]
-                  }
-                },
-                {
-                  "properties": {
-                    "html_attributes": {
-                      "required": [
-                        "data-page-title",
-                        "data-page-summary",
-                        "data-section-id",
-                        "data-section-title"
-                      ]
-                    }
-                  }
-                }
-              ]
-            }
-          }
-        }
-      },
-      "else": {
-        "properties": {
-          "pages": {
-            "items": {
-              "required": [
-                "output_file"
-              ]
-            }
-          }
-        }
-      }
-    }
-  ],
   "$defs": {
     "content_ref": {
       "type": "string",
@@ -431,7 +376,11 @@
         "data-layout-source",
         "data-layout",
         "data-density",
-        "data-reuse-mode"
+        "data-reuse-mode",
+        "data-page-title",
+        "data-page-summary",
+        "data-section-id",
+        "data-section-title"
       ],
       "properties": {
         "data-page-id": {
@@ -515,10 +464,6 @@
         "page_id": {
           "type": "string",
           "pattern": "^page[.]"
-        },
-        "output_file": {
-          "type": "string",
-          "pattern": "^(?!/)(?!.*[.][.]/).+[.]html$"
         },
         "layout_decision": {
           "$ref": "#/$defs/layout_decision"
