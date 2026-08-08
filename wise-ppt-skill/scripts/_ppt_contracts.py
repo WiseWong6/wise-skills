@@ -1590,9 +1590,22 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
             result.error("render.layout_id", item_path, "页面缺少 layout_id")
             continue
         layout = layout_by_id.get(layout_id)
+        short_name_hit: str | None = None
+        if layout is None and layout_id and "." in layout_id and layout_id.split(".", 1)[0] != "paper-ink":
+            # catalog --name uses substring matching; users who query a short
+            # name like "emotion.quote" hit paper-ink.emotion.quote there but
+            # fail this exact dict lookup.  Try the registered theme prefix so
+            # a short name does not hard-fail render validation.
+            prefixed = f"{theme.theme_id}.{layout_id}"
+            layout = layout_by_id.get(prefixed)
+            if layout is not None:
+                short_name_hit = prefixed
         reuse_mode = page.get("reuse_mode")
         if layout is None:
-            result.error("render.unsupported_layout", item_path, f"主题未登记 layout_id：{layout_id}")
+            hint = ""
+            if layout_id and "." in layout_id and layout_id.split(".", 1)[0] != theme.theme_id:
+                hint = f"；是否少了 {theme.theme_id}. 前缀？（应为 {theme.theme_id}.{layout_id}）"
+            result.error("render.unsupported_layout", item_path, f"主题未登记 layout_id：{layout_id}{hint}")
 
         plan_primitive = plan_page.get("spatial_primitive")
         core_primitive = page.get("core_primitive")
