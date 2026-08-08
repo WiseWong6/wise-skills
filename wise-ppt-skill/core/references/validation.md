@@ -17,7 +17,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 命令退出码必须可靠：任一 error 返回非零；warning 不改变退出码。不存在的文件、未知主题或无法读取的 manifest 都不得报告成功。
 
-`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。
+`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。主题目录不得再维护完整 deck 示例；主题视觉样张只进入 gallery，三种渲染决策只进入测试夹具。
 
 ## 2. Content 门禁
 
@@ -26,6 +26,7 @@ python3 scripts/validate.py all      <deck-dir>
 - 每个 `source_ref` 存在；
 - 每个 relation 的 `target_ref` 存在；出现 `contradicts` 时必须进入 confirmation trigger；
 - sourced 至少一个来源；
+- 引用 `synthetic: true` 来源的内容只能标记为 placeholder；
 - inferred / placeholder 有说明；
 - `brief.page_limits.min <= max`；
 - must 项与原子值可被 coverage 逐一追踪。
@@ -72,6 +73,8 @@ python3 scripts/validate.py all      <deck-dir>
 ## 6. HTML 与浏览器门禁
 
 v2 single-HTML 只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。每页必须有 title、summary、section id/title 与 emphasis 派生元数据，并与权威 JSON 一致。每个组件包装节点必须有 block、provider、component、content-ref 四个属性；语义焦点载体还必须用 `data-emphasis-role` 精确覆盖 Render Plan 的成员角色。
+
+组件声明还必须与真实 DOM 一致：`svg` 包装节点必须实际包含 `<svg>`，`image` 包含 `<img>` / `<picture>`，`table` 包含 `<table>`；手写 Canvas 属于 `native-html`，不得冒充 ECharts。ECharts 页必须声明 `data-render-pending="true"` 并通过 `WisePPT.createEChart()` 注册异步任务。
 
 页面只有在字体、图片和异步图表全部完成后才能设置：
 

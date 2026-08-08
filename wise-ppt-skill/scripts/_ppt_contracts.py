@@ -128,7 +128,7 @@ def _is_internal_contract_path(relative: Path) -> bool:
     parts = relative.parts
     if len(parts) >= 2 and parts[:2] == ("core", "examples"):
         return True
-    if len(parts) >= 3 and parts[0] == "themes" and parts[2] in {"gallery", "examples"}:
+    if len(parts) >= 3 and parts[0] == "themes" and parts[2] == "gallery":
         return True
     return bool(parts and parts[0] == "tests")
 
@@ -1043,14 +1043,12 @@ def validate_content_document(document: Mapping[str, Any], path: Path, root: Pat
         for ref in refs:
             if ref not in source_ids:
                 result.error("content.unknown_source", item_path, f"引用了未知来源：{ref}")
-            elif status == "sourced" and source_synthetic.get(ref):
-                note = str(item.get("status_note") or "").casefold()
-                if "synthetic" not in note and "合成" not in note:
-                    result.error(
-                        "content.synthetic_disclosure",
-                        item_path,
-                        f"引用 synthetic 来源 {ref} 时，status_note 必须显式说明其合成属性",
-                    )
+            elif source_synthetic.get(ref) and status != "placeholder":
+                result.error(
+                    "content.synthetic_status",
+                    item_path,
+                    f"引用 synthetic 来源 {ref} 的内容必须标记为 placeholder，不得标记为 {status!r}",
+                )
         for atomic_index, atomic in enumerate(_as_list(item.get("atomic_values"))):
             atomic_path = f"{item_path}.atomic_values[{atomic_index}]"
             atomic_id = _identifier(atomic, "id")
@@ -1437,11 +1435,13 @@ class SingleHtmlContractParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.current_page: str | None = None
-        self.stack: list[tuple[str, str | None]] = []
+        self.current_block: str | None = None
+        self.stack: list[tuple[str, str | None, str | None]] = []
         self.page_order: list[str] = []
         self.page_roots: dict[str, list[dict[str, str]]] = {}
         self.page_elements: dict[str, list[dict[str, str]]] = {}
         self.page_source: dict[str, list[str]] = {}
+        self.block_tags: dict[str, dict[str, list[str]]] = {}
         self.source_ids: dict[str, list[str]] = {}
         self.document_elements: list[dict[str, str]] = []
 
@@ -1452,6 +1452,7 @@ class SingleHtmlContractParser(HTMLParser):
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = self._attributes(attrs)
         previous_page = self.current_page
+        previous_block = self.current_block
         classes = set(values.get("class", "").split())
         declared_page = values.get("data-page-id")
         if tag == "section" and "slide" in classes and declared_page:
@@ -1460,8 +1461,11 @@ class SingleHtmlContractParser(HTMLParser):
             root = {key: value for key, value in values.items() if key.startswith("data-")}
             root["__tag__"] = tag
             self.page_roots.setdefault(declared_page, []).append(root)
+        declared_block = values.get("data-block-id")
+        if self.current_page and declared_block:
+            self.current_block = declared_block
         if tag not in self.VOID_TAGS:
-            self.stack.append((tag, previous_page))
+            self.stack.append((tag, previous_page, previous_block))
         data_values = {key: value for key, value in values.items() if key.startswith("data-")}
         if data_values:
             data_values["__tag__"] = tag
@@ -1469,10 +1473,15 @@ class SingleHtmlContractParser(HTMLParser):
             if self.current_page:
                 self.page_elements.setdefault(self.current_page, []).append(data_values)
         if self.current_page:
-            self.page_source.setdefault(self.current_page, []).append(self.get_starttag_text() or "")
+            start_tag = self.get_starttag_text() or ""
+            self.page_source.setdefault(self.current_page, []).append(start_tag)
+            if self.current_block:
+                self.block_tags.setdefault(self.current_page, {}).setdefault(self.current_block, []).append(tag)
             source_id = values.get("id")
             if source_id:
                 self.source_ids.setdefault(source_id, []).append(self.current_page)
+        if tag in self.VOID_TAGS:
+            self.current_block = previous_block
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self.handle_starttag(tag, attrs)
@@ -1481,11 +1490,12 @@ class SingleHtmlContractParser(HTMLParser):
 
     def handle_endtag(self, tag: str) -> None:
         while self.stack:
-            opened, previous_page = self.stack.pop()
+            opened, previous_page, previous_block = self.stack.pop()
             if self.current_page:
                 self.page_source.setdefault(self.current_page, []).append(f"</{tag}>")
             if opened == tag:
                 self.current_page = previous_page
+                self.current_block = previous_block
                 break
 
     def handle_data(self, data: str) -> None:
@@ -1500,6 +1510,7 @@ class SingleHtmlContract:
     page_roots: Mapping[str, list[dict[str, str]]]
     page_elements: Mapping[str, list[dict[str, str]]]
     page_source: Mapping[str, str]
+    block_tags: Mapping[str, Mapping[str, tuple[str, ...]]]
     source_ids: Mapping[str, list[str]]
     document_elements: tuple[dict[str, str], ...]
 
@@ -1516,6 +1527,10 @@ def parse_single_html_contract(path: Path) -> SingleHtmlContract:
         page_roots=parser.page_roots,
         page_elements=parser.page_elements,
         page_source={key: "".join(parts) for key, parts in parser.page_source.items()},
+        block_tags={
+            page_id: {block_id: tuple(tags) for block_id, tags in blocks.items()}
+            for page_id, blocks in parser.block_tags.items()
+        },
         source_ids=parser.source_ids,
         document_elements=tuple(parser.document_elements),
     )
@@ -1673,6 +1688,34 @@ def _validate_html_page(
                 str(html_path),
                 f"block {block_id!r} 的 data-content-ref 应为 {sorted(refs)}，实际为 {sorted(actual_refs)}",
             )
+        block_tags = set(single_contract.block_tags.get(page_id, {}).get(str(block_id), ()))
+        required_tags = {
+            "svg": ("svg",),
+            "image": ("img", "picture"),
+            "table": ("table",),
+        }
+        if provider in required_tags:
+            tags = required_tags[provider]
+            if not block_tags.intersection(tags):
+                result.error(
+                    "render.html_provider_semantics",
+                    str(html_path),
+                    f"block {block_id!r} 声明 provider={provider!r}，但包装节点内没有对应的 {('/'.join(tags))} 元素",
+                )
+        if provider == "echarts":
+            page_source = single_contract.page_source.get(page_id, "")
+            if not re.search(r"WisePPT[.]createEChart\s*[(]", page_source):
+                result.error(
+                    "render.html_provider_semantics",
+                    str(html_path),
+                    f"block {block_id!r} 声明 provider='echarts'，但本页没有调用 WisePPT.createEChart()",
+                )
+            if page_element is None or page_element.get("data-render-pending") != "true":
+                result.error(
+                    "render.html_provider_semantics",
+                    str(html_path),
+                    f"包含 ECharts 的 page {page_id!r} 必须声明 data-render-pending='true'",
+                )
 
 
 def validate_render_document(
