@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "brief": {"title": "交付阶段能力矩阵", "objective": "说明四个交付阶段与三类能力如何交叉形成产物。", "audience": "交付团队与项目负责人", "scenario": "项目启动会", "language": "zh-CN", "page_limits": {"min": 1, "max": 1, "requested": 1}, "must_include": ["四阶段顺序", "阶段能力矩阵", "执行结论"], "must_avoid": ["只画四步流程而丢失能力维度"], "gaps": []},
+  "sources": [{"id": "src.delivery-demo", "kind": "raw_text", "title": "教学用交付框架", "locator": "inline://delivery-framework", "synthetic": true, "notes": "用于演示二维关系如何驱动矩阵编排。"}],
+  "content_items": [
+    {"id": "item.delivery-stages", "kind": "process", "statement": "交付按理解、编排、渲染、验证四阶段推进。", "priority": "must", "status": "sourced", "status_note": "合成教学框架。", "source_refs": ["src.delivery-demo"], "atomic_values": [], "structured_data": {"stages": ["理解", "编排", "渲染", "验证"], "count": 4}, "relations": [{"type": "supports", "target_ref": "item.stage-capability-matrix", "reason": "四阶段构成矩阵的列轴。"}], "tags": ["sequence", "4-stages"]},
+    {"id": "item.stage-capability-matrix", "kind": "table", "statement": "内容、设计、工程三类能力在每个阶段形成不同交付物。", "priority": "must", "status": "sourced", "status_note": "合成教学矩阵。", "source_refs": ["src.delivery-demo"], "atomic_values": [], "structured_data": {"rows": ["内容", "设计", "工程"], "columns": ["理解", "编排", "渲染", "验证"], "count": 12}, "relations": [{"type": "depends_on", "target_ref": "item.delivery-stages", "reason": "矩阵列依赖阶段顺序。"}, {"type": "supports", "target_ref": "item.framework-takeaway", "reason": "十二个交叉位说明交付不是单线流程。"}], "tags": ["matrix", "3x4"]},
+    {"id": "item.framework-takeaway", "kind": "assertion", "statement": "流程组件负责读顺序，矩阵骨架负责读交叉责任，两者不可互相替代。", "priority": "must", "status": "sourced", "status_note": "合成教学结论。", "source_refs": ["src.delivery-demo"], "atomic_values": [], "relations": [{"type": "depends_on", "target_ref": "item.stage-capability-matrix", "reason": "结论来自二维交叉关系。"}], "tags": ["takeaway"]}
+  ]
+}

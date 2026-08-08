@@ -1,6 +1,6 @@
 ---
 name: wise-ppt-skill
-description: 标准网页 PPT 编排内核。接收原始资料，先完成内容治理、叙事与页数规划、逐页语义表达，再组合主题版式与 ECharts、PPT Component Atlas、SVG、图片、表格或原生 HTML，输出可放映、截图和导出 PDF 的 16:9 HTML deck。适用于制作、重排、扩写、审查演示文稿；当前唯一且默认主题为 paper-ink 纸墨风。
+description: 标准网页 PPT 编排内核。接收原始资料，先完成内容治理、叙事与页数规划、逐页语义表达，再组合主题版式与 ECharts、PPT Component Atlas、SVG、图片、表格或原生 HTML，输出可实时浏览、横向放映和直接打印 PDF 的单 HTML 16:9 deck。适用于制作、重排、扩写、审查演示文稿；当前唯一且默认主题为 paper-ink 纸墨风。
 ---
 
 # Wise PPT
@@ -16,7 +16,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 
 模板复制是合法能力：语义、证据、关系、区域、顺序和容量都精确匹配时，优先复制已经验证的 Gallery 样张。Gallery 只是可选参考库，不是合法版式全集；禁止跳过语义与空间需求规划，直接用画册编号代替思考。
 
-本 Skill 输出 HTML、逐页 PNG 和 PDF，不承诺 PPTX。
+本 Skill 输出单 `index.html` 和 PDF，不生成逐页 PNG，也不承诺 PPTX。用户提供的 PNG 图片仍可作为内容素材。
 
 ## 完成标准
 
@@ -27,7 +27,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 3. 所有 `must` 内容被页面覆盖；来源事实没有被改写成无来源结论；推断和占位明确标记。
 4. 每页先有主张、观众问题、证据关系与密度意图，再有主题版式和组件。
 5. Render Plan 中的 layout、slot、renderer、content ref、复用方式和理由都可解析。
-6. HTML 契约、溢出、安全区、资源、字体和真实截图通过；人工检查内容、叙事和视觉。
+6. 单 HTML 契约、浏览器状态检查、溢出、安全区、资源和字体通过；人工检查内容、叙事和视觉。
 
 ## 不可跳过的规则
 
@@ -142,13 +142,15 @@ python3 <SKILL_ROOT>/scripts/validate.py plan <DECK>/deck-plan.json
 
 ### 4. 建立 `render-plan.json`
 
-Render Plan 只接受 `schema_version: "2.0"`，不兼容 v1 / v1.1。先根据语义形成布局需求，再解析主题并查询 Gallery：
+新生成 deck 使用 `schema_version: "1.1"`、`document_mode: "single-html"` 和根级 `output_file: "index.html"`；`pages[]` 不再声明 `output_file`。`1.0` 仅用于校验和导出旧 frames deck。仓库已有的 `2.0` 布局决策契约继续受支持，但不得作为新 deck 回退到 iframe/PNG 的理由。先根据语义形成布局需求，再解析主题并查询 Gallery：
 
 ```bash
 python3 <SKILL_ROOT>/scripts/catalog.py layouts --theme paper-ink --role prove --relation evidence --primitive evidence-annotation --density dense
 ```
 
 候选决策规则：
+
+以下是语义决策要求。1.1 将结果写入现有 `layout_id`、`reuse_mode`、`reuse_source`、`rationale`、`slots` 字段；只有使用 2.0 时才序列化为 `layout_decision`、`candidate_evaluations` 和 `component_decision` 对象。
 
 1. 在查询前明确角色、关系、`core_primitive`、密度、容量、regions、reading order、slot 集合与组件角色。
 2. 对 Gallery 候选逐项记录 `fit` 或 `reject` 及具体理由；角色、关系、核心原语、密度、容量、slot 集合和顺序必须全部满足。
@@ -192,22 +194,22 @@ python3 <SKILL_ROOT>/scripts/validate.py render <DECK>/render-plan.json
 ├── deck-plan.json
 ├── render-plan.json
 ├── index.html
-├── frames/shot-NN.html
-└── assets/
+├── assets/
+└── <deck-name>.pdf
 ```
 
-复制运行壳和已解析主题声明的资产，不用软链。先从 registry 取得 `<THEME_CONFIG>`，再读取其中的 `assets.bundle` 与 `assets.shot_template`；不得在通用步骤硬编码某个主题目录：
+复制运行壳和已解析主题声明的资产，不用软链。先从 registry 取得 `<THEME_CONFIG>`，再读取其中的 `assets.bundle` 与 `assets.slide_template`；不得在通用步骤硬编码某个主题目录：
 
 ```bash
 cp <SKILL_ROOT>/runtime/app-template.html <DECK>/index.html
 cp -R <SKILL_ROOT>/<THEME_CONFIG.assets.bundle> <DECK>/assets
-cp <SKILL_ROOT>/<THEME_CONFIG.assets.shot_template> <DECK>/frames/shot-01.html
 ```
 
-每页 `<html>` 必须声明：
+把 `slide_template` 作为 fragment 插入 `index.html` 的 `#track`。所有页面都在同一 DOM 内；禁止生成 `frames/`、iframe、thumb 配置或 PNG 缩略图。每页 `<section class="slide">` 必须声明：
 
 ```html
 data-page-id data-page-role data-theme data-layout data-layout-source data-density data-reuse-mode
+data-page-title data-page-summary data-section-id data-section-title
 ```
 
 每个内容组件根节点必须声明：
@@ -216,7 +218,9 @@ data-page-id data-page-role data-theme data-layout data-layout-source data-densi
 data-block-id data-provider data-component data-content-ref
 ```
 
-异步字体、图片和图表完成后调用主题提供的 `markRenderReady()`。不要自行修改第三方组件源文件；把导出的 atlas 或 ECharts 放进 slot wrapper，再做主题 adapter。
+页面脚本必须用 `document.currentScript.closest('.slide')` 取得本页根节点，并只做局部查询；禁止全局 `#draw/#cv`、裸变量和单页 `stageFit()`。异步字体、图片和图表完成后调用 `WisePPT.markSlideReady(slide)`，失败调用 `WisePPT.markSlideError(slide, error)`。ECharts 默认经 `WisePPT.createEChart()` 使用 SVG renderer。不要自行修改第三方组件源文件；把导出的 atlas 或 ECharts 放进 slot wrapper，再做主题 adapter。
+
+无 hash 默认进入实时画册；画册每次进入时都从真实 slide 重新 `cloneNode(true)`，不维护第二份页面数组。`#N` 直接进入第 N 页；键盘、触控、Home/End 翻页，ESC 返回画册。`?print=1` 只铺开真实 slide，用于浏览器直接打印。
 
 HTML 落盘后再跑完整来源覆盖链；这一步会从 must item / atom 一直追踪到 DOM，因此不能提前到 Render Plan 之前：
 
@@ -232,11 +236,10 @@ python3 <SKILL_ROOT>/scripts/validate.py coverage <DECK>
 python3 <SKILL_ROOT>/scripts/validate.py all <DECK>
 ```
 
-再用真实浏览器截图；脚本会检查 Chrome 退出、ready 标记、PNG 存在与尺寸：
+再运行无截图浏览器检查与 PDF 导出。浏览器检查会验证 deck ready、字体/图片、Canvas 像素克隆、画册卡片数、深链、翻页和 ESC；PDF 直接打印 HTML，不落盘 PNG：
 
 ```bash
-bash <SKILL_ROOT>/runtime/screenshot.sh <DECK> /tmp/wise-ppt-review
-bash <SKILL_ROOT>/runtime/screenshot.sh <DECK> "" "" thumb
+bash <SKILL_ROOT>/runtime/check-deck.sh <DECK>
 bash <SKILL_ROOT>/runtime/export-pdf.sh <DECK>
 ```
 
@@ -255,7 +258,7 @@ python3 <SKILL_ROOT>/themes/paper-ink/scripts/lint.py <DECK> --accent
 - 视觉：1920×1080 下无溢出、字号可读、密度合理、主次明确、主题一致。
 - 强调色：同时检查普通/强调模式；语义焦点组应完整响应，ID、刻度、图例等非语义元数据不得因邻近关系误染。
 
-临时截图默认放 `/tmp`。验收后删除不需要的临时产物；若保留，交付时说明路径。
+浏览器 profile、旧 frames 打印壳等临时产物只能放 `/tmp` 并由脚本自动清理。验收 PDF 若放在 `/tmp`，交付时说明路径和是否需要清理。
 
 ## 主题与画册开发规则
 

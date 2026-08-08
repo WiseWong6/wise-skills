@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.1",
+  "content_file": "content.json",
+  "deck_plan_file": "deck-plan.json",
+  "theme_id": "paper-ink",
+  "pages": [
+    {
+      "page_id": "page.example-dense-ui",
+      "layout_id": "paper-ink.evidence.admin-ui",
+      "density": "dense",
+      "reuse_mode": "compose",
+      "reuse_source": "paper-ink.evidence.admin-ui",
+      "rationale": "四个语义单元都服务于同一次异常核查：后台界面是主证据面，折线嵌入界面，肘形批注连接失败行和峰值；该组合符合版式 2–12 个语义单元容量。",
+      "capacity_status": "fit",
+      "core_primitive": "evidence-annotation",
+      "theme_primitives": [
+        "ui-frame",
+        "table-region",
+        "annotation-leader"
+      ],
+      "html_attributes": {
+        "data-page-id": "page.example-dense-ui",
+        "data-page-role": "prove",
+        "data-theme": "paper-ink",
+        "data-layout": "paper-ink.evidence.admin-ui",
+        "data-density": "dense",
+        "data-reuse-mode": "compose",
+        "data-layout-source": "gallery",
+        "data-page-title": "一次 620ms 峰值触发重试，随后系统恢复",
+        "data-page-summary": "界面、图表、批注共享一个证据面，而不是三个并列模块。",
+        "data-section-id": "section.ops",
+        "data-section-title": "异常证据"
+      },
+      "slots": [
+        {
+          "slot_id": "product-ui",
+          "block_id": "block.product-ui",
+          "visual_role": "primary",
+          "renderer": {
+            "provider": "native-html",
+            "component": "admin-dashboard",
+            "content_refs": [
+              "item.product-ui-state"
+            ],
+            "theme_adapter": "paper-ink.native-html"
+          }
+        },
+        {
+          "slot_id": "chart",
+          "block_id": "block.embedded-chart",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "echarts",
+            "component": "line",
+            "content_refs": [
+              "item.product-latency-series"
+            ],
+            "data_ref": "item.product-latency-series",
+            "encode": {
+              "x": "time",
+              "y": "latency_ms",
+              "focus": "max"
+            },
+            "theme_adapter": "paper-ink.echarts"
+          }
+        },
+        {
+          "slot_id": "annotation",
+          "block_id": "block.anomaly-note",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "svg",
+            "component": "elbow-callout",
+            "content_refs": [
+              "item.product-anomaly-note"
+            ],
+            "theme_adapter": "paper-ink.svg"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "block_id": "block.ui-takeaway",
+          "visual_role": "support",
+          "renderer": {
+            "provider": "typography",
+            "component": "takeaway",
+            "content_refs": [
+              "item.ui-takeaway"
+            ],
+            "theme_adapter": "paper-ink.typography"
+          }
+        }
+      ]
+    }
+  ],
+  "document_mode": "single-html",
+  "output_file": "index.html"
+}

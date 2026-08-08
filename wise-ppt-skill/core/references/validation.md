@@ -41,9 +41,10 @@ python3 scripts/validate.py all      <deck-dir>
 - must 内容有 include 决策和页面承载；
 - `needs_confirmation` 时停止进入 render。
 
-## 4. Render v2 门禁
+## 4. Render 门禁
 
-- `schema_version` 必须是 `2.0`；Render Plan v1 / v1.1 明确拒绝；
+- 新 deck 使用 `schema_version: "1.1"`、`document_mode: "single-html"`、根级 `output_file: "index.html"`；`pages[]` 禁止 `output_file`；
+- `1.0` 是只读兼容的 frames 契约，继续校验逐页 HTML；仓库已有 `2.0` 语义布局决策契约继续按其严格规则校验；
 - schema 合法，render page 与 deck page 一一对应；
 - `theme_id` 存在于主题 registry；未知主题立即失败；
 - 每页 `core_primitive` 必须等于对应 deck page 的 `spatial_primitive`；
@@ -67,15 +68,15 @@ python3 scripts/validate.py all      <deck-dir>
 
 ## 6. HTML 与浏览器门禁
 
-每页 `output_file` 必须存在，并与 render plan 的七个 page data 属性一致；除原有属性外，根节点还必须有 `data-layout-source="gallery|custom"`。每个组件包装节点必须有 block、provider、component、content-ref 四个属性。
+1.1 只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。除原有属性外，每页必须有 title、summary、section id/title 元数据，并与 Deck Plan 一致。1.0 继续逐页检查 `output_file`。每个组件包装节点必须有 block、provider、component、content-ref 四个属性。
 
 页面只有在字体、图片和异步图表全部完成后才能设置：
 
 ```js
-document.documentElement.dataset.renderReady = 'true';
+WisePPT.markSlideReady(slide);
 ```
 
-截图脚本必须等待该标记，超时或浏览器退出异常都应失败，并再次检查输出图片真实存在且非空。
+根节点只有在所有 slide ready 且没有错误时才写 `data-deck-ready="true"`。`check-deck.sh` 等待该标记并检查实时画册、Canvas 克隆、深链、翻页与 ESC；`export-pdf.sh` 使用 `?print=1` 直接打印 HTML。两者都不得产生 PNG。
 
 真实浏览器复核至少覆盖：
 
