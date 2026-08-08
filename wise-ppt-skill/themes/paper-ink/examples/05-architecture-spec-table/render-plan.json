@@ -1,23 +1,27 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "paper-ink",
   "pages": [
     {
       "page_id": "page.example-architecture-spec",
-      "layout_id": "paper-ink.decomposition.structure-spec-split",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "copy",
+        "layout_id": "paper-ink.decomposition.structure-spec-split",
+        "candidate_evaluations": [
+          {
+            "layout_id": "paper-ink.decomposition.structure-spec-split",
+            "verdict": "fit",
+            "reason": "角色、层级关系、空间原语、容量与槽位顺序均符合本页需求。"
+          }
+        ]
+      },
       "density": "dense",
-      "reuse_mode": "copy",
-      "reuse_source": "paper-ink.decomposition.structure-spec-split",
       "rationale": "三层依赖树与三行规格字段需要左右对位，现有结构加规格单版式的插槽、层级关系与 2–12 个语义单元容量完全匹配，直接复用可保持高密度下的清晰映射。",
       "capacity_status": "fit",
       "core_primitive": "layered-stack",
-      "theme_primitives": [
-        "asymmetric-split",
-        "structure-tree",
-        "spec-table"
-      ],
       "html_attributes": {
         "data-page-id": "page.example-architecture-spec",
         "data-page-role": "explain",
@@ -36,6 +40,10 @@
           "slot_id": "structure",
           "block_id": "block.architecture",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结构主槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "svg",
             "component": "architecture-tree",
@@ -54,6 +62,10 @@
           "slot_id": "support",
           "block_id": "block.specifications",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "规格支撑槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "table",
             "component": "spec-table",
@@ -75,6 +87,10 @@
           "slot_id": "takeaway",
           "block_id": "block.architecture-takeaway",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结论槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "takeaway",

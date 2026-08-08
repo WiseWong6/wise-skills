@@ -64,7 +64,7 @@ class FixtureRepo:
 
     @property
     def html_path(self) -> Path:
-        return self.deck / "frames" / "page.one.html"
+        return self.deck / "index.html"
 
     def _write_theme(self) -> None:
         write_json(
@@ -319,10 +319,11 @@ class FixtureRepo:
             "content_file": "content.json",
             "deck_plan_file": "deck-plan.json",
             "theme_id": FixtureRepo.THEME_ID,
+            "document_mode": "single-html",
+            "output_file": "index.html",
             "pages": [
                 {
                     "page_id": "page.one",
-                    "output_file": "frames/page.one.html",
                     "layout_decision": {
                         "source": "gallery",
                         "reuse_mode": "adapt",
@@ -347,6 +348,10 @@ class FixtureRepo:
                         "data-layout": "demo.argument.sequence",
                         "data-density": "balanced",
                         "data-reuse-mode": "adapt",
+                        "data-page-title": "Retention reached 55%",
+                        "data-page-summary": "The release moved the metric",
+                        "data-section-id": "section.main",
+                        "data-section-title": "Result",
                     },
                     "slots": [
                         {
@@ -391,14 +396,18 @@ class FixtureRepo:
         self.html_path.parent.mkdir(parents=True, exist_ok=True)
         self.html_path.write_text(
             """<!doctype html>
-<main data-page-id="page.one" data-page-role="explain" data-theme="minimal-neutral"
+<html data-document-mode="single-html" data-deck-ready="true"><body>
+<section class="slide" data-page-id="page.one" data-page-role="explain" data-theme="minimal-neutral"
       data-layout-source="gallery" data-layout="demo.argument.sequence"
-      data-density="balanced" data-reuse-mode="adapt">
+      data-density="balanced" data-reuse-mode="adapt"
+      data-page-title="Retention reached 55%" data-page-summary="The release moved the metric"
+      data-section-id="section.main" data-section-title="Result">
   <section data-block-id="block.main" data-provider="svg" data-component="sequence-path"
            data-content-ref="item.metric atom.rate">Retention 55%</section>
   <section data-block-id="block.takeaway" data-provider="typography" data-component="takeaway"
            data-content-ref="item.metric">The release moved the metric</section>
-</main>
+</section>
+</body></html>
 """,
             encoding="utf-8",
         )
@@ -691,39 +700,61 @@ class ContractValidationTests(unittest.TestCase):
         result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assert_has_code(result, "render.unknown_component")
 
-    def test_render_plan_v1_frames_remains_valid(self) -> None:
-        page = self.fixture.render["pages"][0]
-        decision = page.pop("layout_decision")
-        page["layout_id"] = decision["layout_id"]
-        page["reuse_mode"] = decision["reuse_mode"]
-        page["reuse_source"] = decision["layout_id"]
-        page["theme_primitives"] = [page["core_primitive"]]
-        page["html_attributes"].pop("data-layout-source")
-        for slot in page["slots"]:
-            slot.pop("component_decision")
-        self.fixture.render["schema_version"] = "1.0"
-        self.fixture.flush()
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-
     def test_render_plan_v2_single_html_requires_canonical_index_entry(self) -> None:
         render = copy.deepcopy(self.fixture.render)
-        render["document_mode"] = "single-html"
         render["output_file"] = "deck.html"
-        page = render["pages"][0]
-        page.pop("output_file")
-        page["html_attributes"].update(
-            {
-                "data-page-title": "Retention reached 55%",
-                "data-page-summary": "The release moved the metric",
-                "data-section-id": "section.main",
-                "data-section-title": "Main",
-            }
-        )
         result = JsonSchemaValidator(
             REPO_ROOT / "core" / "schemas" / "render-plan.schema.json"
         ).validate(render, "render-plan.json")
         self.assert_has_code(result, "schema.const")
+
+    def test_render_plan_rejects_legacy_versions_modes_and_page_outputs(self) -> None:
+        schema = JsonSchemaValidator(REPO_ROOT / "core" / "schemas" / "render-plan.schema.json")
+        cases = {}
+
+        legacy_version = copy.deepcopy(self.fixture.render)
+        legacy_version["schema_version"] = "1.1"
+        cases["legacy-version"] = (legacy_version, "schema.const")
+
+        missing_mode = copy.deepcopy(self.fixture.render)
+        missing_mode.pop("document_mode")
+        cases["missing-document-mode"] = (missing_mode, "schema.required")
+
+        page_output = copy.deepcopy(self.fixture.render)
+        page_output["pages"][0]["output_file"] = "frames/page.one.html"
+        cases["page-output"] = (page_output, "schema.additionalProperties")
+
+        for case, (render, expected_code) in cases.items():
+            with self.subTest(case=case):
+                result = schema.validate(render, "render-plan.json")
+                self.assert_has_code(result, expected_code)
+
+    def test_v2_only_contract_has_no_legacy_deck_artifacts(self) -> None:
+        removed_paths = [
+            REPO_ROOT / "core" / "schemas" / "render-plan-v1.schema.json",
+            REPO_ROOT / "themes" / "paper-ink" / "assets" / "shot-template.html",
+            REPO_ROOT / "runtime" / "frames",
+        ]
+        self.assertTrue(all(not path.exists() for path in removed_paths), removed_paths)
+
+        contracts = (REPO_ROOT / "scripts" / "_ppt_contracts.py").read_text(encoding="utf-8")
+        exporter = (REPO_ROOT / "runtime" / "export-pdf.sh").read_text(encoding="utf-8")
+        self.assertNotIn("_validate_render_v1_document", contracts)
+        self.assertNotIn("frames/shot-", exporter)
+        self.assertNotIn("legacy-print", exporter)
+
+    def test_export_pdf_rejects_legacy_plan_before_browser_work(self) -> None:
+        self.fixture.render["schema_version"] = "1.1"
+        self.fixture.flush()
+        completed = subprocess.run(
+            ["bash", str(REPO_ROOT / "runtime" / "export-pdf.sh"), str(self.fixture.deck)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("仅支持 v2 single-HTML Render Plan", completed.stderr)
+        self.assertFalse((self.fixture.deck / f"{self.fixture.deck.name}.pdf").exists())
 
     def test_render_checks_canonical_page_and_component_data_attributes(self) -> None:
         html = self.fixture.html_path.read_text(encoding="utf-8")
@@ -1016,23 +1047,23 @@ class SingleHtmlContractTests(unittest.TestCase):
     def validate(self):
         return validate_render_target(self.deck, REPO_ROOT)
 
-    def test_render_plan_v11_single_html_is_valid(self) -> None:
+    def test_render_plan_v2_single_html_is_valid(self) -> None:
         result = self.validate()
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
-    def test_render_plan_v11_requires_canonical_index_entry(self) -> None:
+    def test_render_plan_v2_requires_canonical_index_entry(self) -> None:
         render_path = self.deck / "render-plan.json"
         render = load_json(render_path)
         render["output_file"] = "deck.html"
         write_json(render_path, render)
-        self.assertIn("schema.oneOf", self.error_codes(self.validate()))
+        self.assertIn("schema.const", self.error_codes(self.validate()))
 
-    def test_render_plan_v11_requires_layout_source_metadata(self) -> None:
+    def test_render_plan_v2_requires_layout_source_metadata(self) -> None:
         render_path = self.deck / "render-plan.json"
         render = load_json(render_path)
         render["pages"][0]["html_attributes"].pop("data-layout-source")
         write_json(render_path, render)
-        self.assertIn("schema.oneOf", self.error_codes(self.validate()))
+        self.assertIn("schema.required", self.error_codes(self.validate()))
 
     def test_single_html_rejects_duplicate_page_id(self) -> None:
         source = self.html.read_text(encoding="utf-8").replace(
@@ -1074,7 +1105,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
 
-    def test_six_formal_examples_are_single_html_v11_goldens(self) -> None:
+    def test_six_formal_examples_are_v2_single_html_goldens(self) -> None:
         examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
         decks = sorted(path for path in examples.iterdir() if path.is_dir())
         self.assertEqual(len(decks), 6)
@@ -1082,7 +1113,7 @@ class SingleHtmlContractTests(unittest.TestCase):
             with self.subTest(deck=deck.name):
                 render = load_json(deck / "render-plan.json")
                 source = (deck / "index.html").read_text(encoding="utf-8").casefold()
-                self.assertEqual(render["schema_version"], "1.1")
+                self.assertEqual(render["schema_version"], "2.0")
                 self.assertEqual(render["document_mode"], "single-html")
                 self.assertEqual(render["output_file"], "index.html")
                 self.assertTrue(all("output_file" not in page for page in render["pages"]))

@@ -1,22 +1,27 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "paper-ink",
   "pages": [
     {
       "page_id": "page.example-evidence-wall",
-      "layout_id": "paper-ink.evidence.strategy-evidence-wall",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "copy",
+        "layout_id": "paper-ink.evidence.strategy-evidence-wall",
+        "candidate_evaluations": [
+          {
+            "layout_id": "paper-ink.evidence.strategy-evidence-wall",
+            "verdict": "fit",
+            "reason": "角色、证据关系、空间原语、容量与槽位顺序均符合本页需求。"
+          }
+        ]
+      },
       "density": "dense",
-      "reuse_mode": "copy",
-      "reuse_source": "paper-ink.evidence.strategy-evidence-wall",
       "rationale": "一项主张对应三张连续界面证据及少量锚定标注，现有左策略右证据墙与内容关系、插槽和 2–10 个语义单元容量完全匹配，因此直接复用最稳妥。",
       "capacity_status": "fit",
       "core_primitive": "evidence-annotation",
-      "theme_primitives": [
-        "asymmetric-split",
-        "evidence-grid"
-      ],
       "html_attributes": {
         "data-page-id": "page.example-evidence-wall",
         "data-page-role": "prove",
@@ -35,6 +40,10 @@
           "slot_id": "evidence-wall",
           "block_id": "block.product-screenshots",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "keep",
+            "reason": "证据墙主槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "image",
             "component": "screenshot-wall",
@@ -49,6 +58,10 @@
           "slot_id": "support",
           "block_id": "block.strategy-claim",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "主张支撑槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "claim-stack",
@@ -62,6 +75,10 @@
           "slot_id": "takeaway",
           "block_id": "block.evidence-takeaway",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结论槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "takeaway",

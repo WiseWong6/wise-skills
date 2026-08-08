@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "2.0",
   "document_mode": "single-html",
   "output_file": "index.html",
   "content_file": "content.json",
@@ -8,14 +8,22 @@
   "pages": [
     {
       "page_id": "page.example-flow-kpi",
-      "layout_id": "paper-ink.flow.pipeline",
-      "reuse_mode": "adapt",
-      "reuse_source": "paper-ink.flow.pipeline",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "adapt",
+        "layout_id": "paper-ink.flow.pipeline",
+        "candidate_evaluations": [
+          {
+            "layout_id": "paper-ink.flow.pipeline",
+            "verdict": "fit",
+            "reason": "角色、流程关系、线性原语、容量与槽位顺序均符合本页需求。"
+          }
+        ]
+      },
       "density": "balanced",
       "rationale": "四步输入输出是线性流，保留三段结构并替换结果组件，三个语义单元在版式容量内。",
       "capacity_status": "fit",
       "core_primitive": "linear-sequence",
-      "theme_primitives": ["linear-sequence"],
       "html_attributes": {
         "data-page-id": "page.example-flow-kpi",
         "data-page-role": "sequence",
@@ -34,6 +42,10 @@
           "slot_id": "steps",
           "block_id": "block.pipeline",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以真实四步流程 SVG 替换样例中的通用主视觉。"
+          },
           "renderer": {
             "provider": "svg",
             "component": "pipeline",
@@ -47,6 +59,10 @@
           "slot_id": "support",
           "block_id": "block.outcome-kpis",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "KPI 支撑槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "kpi-band",
@@ -58,6 +74,10 @@
           "slot_id": "takeaway",
           "block_id": "block.flow-takeaway",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结论槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "takeaway",
@@ -69,14 +89,22 @@
     },
     {
       "page_id": "page.example-dense-ui",
-      "layout_id": "paper-ink.evidence.admin-ui",
-      "reuse_mode": "adapt",
-      "reuse_source": "paper-ink.evidence.admin-ui",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "adapt",
+        "layout_id": "paper-ink.evidence.admin-ui",
+        "candidate_evaluations": [
+          {
+            "layout_id": "paper-ink.evidence.admin-ui",
+            "verdict": "fit",
+            "reason": "角色、证据关系、空间原语、容量与槽位顺序均符合本页需求。"
+          }
+        ]
+      },
       "density": "dense",
       "rationale": "保留界面、图表、批注与结论的规范顺序，并替换前三个组件以承载真实证据。",
       "capacity_status": "fit",
       "core_primitive": "evidence-annotation",
-      "theme_primitives": ["evidence-annotation"],
       "html_attributes": {
         "data-page-id": "page.example-dense-ui",
         "data-page-role": "prove",
@@ -95,6 +123,10 @@
           "slot_id": "product-ui",
           "block_id": "block.product-ui",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以真实后台界面替换样例中的通用主证据面。"
+          },
           "renderer": {
             "provider": "native-html",
             "component": "admin-dashboard",
@@ -106,6 +138,10 @@
           "slot_id": "chart",
           "block_id": "block.embedded-chart",
           "visual_role": "support",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以真实延迟趋势替换样例中的通用图表。"
+          },
           "renderer": {
             "provider": "echarts",
             "component": "line",
@@ -119,6 +155,10 @@
           "slot_id": "annotation",
           "block_id": "block.anomaly-note",
           "visual_role": "support",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以异常落点批注替换样例中的通用标注。"
+          },
           "renderer": {
             "provider": "svg",
             "component": "elbow-callout",
@@ -130,6 +170,10 @@
           "slot_id": "takeaway",
           "block_id": "block.ui-takeaway",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结论槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "takeaway",

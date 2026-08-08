@@ -3,7 +3,7 @@
 """纸墨线稿 · 单页机检（checklist P0 中可机检部分的闸门）
 
 用法：
-    python3 themes/paper-ink/scripts/lint.py <deck目录 | 单个shot.html> [--strict] [--accent]
+    python3 themes/paper-ink/scripts/lint.py <deck目录 | 单个HTML> [--strict] [--accent]
     --accent  保留给强调色截图流程；静态源码始终允许主题登记的强调色 token
 
 检查项（对应 references/visual-checklist.md P0）：
@@ -13,7 +13,7 @@
     L4 中文落 mono：txt(...) 调用中 font-family MONO 且字符串含 CJK
     L5 三件套：.doc tl 角注、.folio、.caption（尾卡页 caption 仅 WARN）
     L6 不做“同尺寸矩形即违规”的静态猜测；Grid/证据墙/矩阵由 manifest 关系与浏览器目检判断
-    L7 旧 frame 未调用 stageFit()，或 single-html 未声明统一 runtime
+    L7 Gallery 样页未调用 stageFit()，或 single-html 未声明统一 runtime
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
 
@@ -182,14 +182,14 @@ def main():
         frames = os.path.join(target, 'frames')
         files = sorted(
             os.path.join(frames, f) for f in os.listdir(frames)
-            if re.fullmatch(r'(shot-\d+|layout-[a-z0-9]+)\.html', f)  # 跳过 -lab / -bak 等实验稿
+            if re.fullmatch(r'layout-[a-z0-9]+\.html', f)  # Gallery 样页；跳过 -lab / -bak 等实验稿
         ) if os.path.isdir(frames) else []
         if not files and os.path.isfile(os.path.join(target, 'index.html')):
             files = [os.path.join(target, 'index.html')]
     else:
         files = [target]
     if not files:
-        print('没有找到 index.html 或旧 shot-*.html')
+        print('没有找到 index.html 或 Gallery layout-*.html')
         sys.exit(2)
 
     total_fail = total_warn = 0

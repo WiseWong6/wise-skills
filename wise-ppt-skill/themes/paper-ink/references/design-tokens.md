@@ -50,7 +50,7 @@
 
 极细 1px 线、十字准星 `+`、角落编号系统（页码/索引）、底部一排 mono 刻度数字（贴底边、墨 45%）可作为构图件；**微型 mono 档案字**（10–12px、uppercase、字距 .3em+）贴边缘排布（右上注释块/左下段落/底部刻度排），每页 ≤2 处。
 
-### 1.4 主题开关（URL 参数，由 `stageFit()` 识别）
+### 1.4 Gallery 主题开关（URL 参数，由 `stageFit()` 识别）
 
 | 参数 | 效果 | 使用场景 |
 |---|---|---|
@@ -278,7 +278,7 @@ var RED = '#C0392B';
 ### 4.1 舞台与骨架
 
 - 正式 deck 的每个 `.slide` 都是 **1920×1080**，`.stage` 相对定位、`overflow: hidden`；缩放由统一 runtime 按 `min(vw/1920, vh/1080)` 负责，slide fragment 不调用 `stageFit()`。
-- 正式 deck 的全部 `.slide` 位于同一个 `index.html` 的 `#track`。独立 Gallery 样张继续是一页一个 HTML，并保留其旧 `stageFit()`，两类运行时不可混用。
+- 正式 deck 的全部 `.slide` 位于同一个 `index.html` 的 `#track`。独立 Gallery 样张是一页一个 HTML，并使用其独立 `stageFit()`；两类运行时不可混用。
 
 ### 4.2 固定件三件套（每页必备）
 

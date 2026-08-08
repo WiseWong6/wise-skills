@@ -29,7 +29,6 @@
     "bundle": "themes/paper-ink/assets",
     "stylesheet": "themes/paper-ink/assets/shared.css",
     "slide_template": "themes/paper-ink/assets/slide-template.html",
-    "legacy_shot_template": "themes/paper-ink/assets/shot-template.html",
     "particles": "themes/paper-ink/assets/particles.js",
     "fonts": "themes/paper-ink/assets/fonts"
   },
