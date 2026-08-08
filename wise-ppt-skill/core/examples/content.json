@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "brief": {
+    "title": "六阶段发布闭环",
+    "objective": "说明发布过程为什么应被理解为连续闭环，而不是六个孤立事项",
+    "audience": "需要共同执行发布流程的产品与研发团队",
+    "scenario": "内部流程说明会",
+    "language": "zh-CN",
+    "page_limits": {
+      "min": 3,
+      "max": 3,
+      "requested": 3
+    },
+    "must_include": [
+      "六个阶段的名称与顺序",
+      "发布后的学习会成为下一轮发现输入"
+    ],
+    "must_avoid": [
+      "把六阶段画成没有方向的六宫格"
+    ],
+    "gaps": []
+  },
+  "sources": [
+    {
+      "id": "src.synthetic-brief",
+      "kind": "raw_text",
+      "title": "合成示例输入，仅用于契约与测试",
+      "locator": "core-example://synthetic-launch-loop",
+      "synthetic": true,
+      "notes": "这不是用户业务事实，不可迁移到真实项目。"
+    }
+  ],
+  "content_items": [
+    {
+      "id": "item.deck-thesis",
+      "kind": "assertion",
+      "statement": "发布不是终点，学习会成为下一轮发现的输入。",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "来源本身是已显式标记的合成测试素材。",
+      "source_refs": [
+        "src.synthetic-brief"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.loop-outcome",
+          "label": "核心结论",
+          "value": "发布后的学习会回流到下一轮发现"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "thesis"
+      ]
+    },
+    {
+      "id": "item.launch-path",
+      "kind": "process",
+      "statement": "从发现到学习包含六个前后相依的阶段。",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "来源本身是已显式标记的合成测试素材。",
+      "source_refs": [
+        "src.synthetic-brief"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.stage.discover",
+          "label": "阶段一",
+          "value": "发现"
+        },
+        {
+          "id": "atom.stage.scope",
+          "label": "阶段二",
+          "value": "界定"
+        },
+        {
+          "id": "atom.stage.build",
+          "label": "阶段三",
+          "value": "构建"
+        },
+        {
+          "id": "atom.stage.verify",
+          "label": "阶段四",
+          "value": "验证"
+        },
+        {
+          "id": "atom.stage.launch",
+          "label": "阶段五",
+          "value": "发布"
+        },
+        {
+          "id": "atom.stage.learn",
+          "label": "阶段六",
+          "value": "学习"
+        }
+      ],
+      "relations": [
+        {
+          "type": "supports",
+          "target_ref": "item.deck-thesis",
+          "reason": "六阶段的顺序与回流机制为核心结论提供结构性支持。"
+        }
+      ],
+      "tags": [
+        "process",
+        "six-units"
+      ]
+    }
+  ]
+}

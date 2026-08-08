@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-id="gallery-general-l2" data-page-role="explain" data-theme="paper-ink" data-layout="paper-ink.mapping.constellation-network" data-density="balanced" data-reuse-mode="copy">
+<head>
+<meta charset="UTF-8">
+<title>layout-l2 · 星座映射网</title>
+<link rel="stylesheet" href="../../../assets/shared.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: 33px; letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.l2">
+  <div class="doc tl">PAPER-INK GALLERY — L2<br>CONSTELLATION MAP</div>
+  <div class="folio">L2 / 63 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">星座映射网看清多对多关系——哪些能力原子支撑哪些产品功能，线宽三档就是权重三档。</div>
+</div>
+
+<script src="../../../assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 ---------- */
+txt(200, 176, 'FIG. L2 — CONSTELLATION MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* ---------- 星座映射网：左能力原子 → 右产品功能（衡玑调度平台） ---------- */
+var AX = 360;    /* 原子节点 x */
+var MX = 1380;   /* 功能落点 x */
+var atoms = [
+  {en:'ROUTER',  cn:'路径引擎',   y:300},
+  {en:'MAP',     cn:'地图服务',   y:396},
+  {en:'POWER',   cn:'充电桩网',   y:492},
+  {en:'WMS',     cn:'库存接口',   y:588},
+  {en:'SENSOR',  cn:'传感遥测',   y:684},
+  {en:'QUEUE',   cn:'任务队列',   y:780}
+];
+var feats = [
+  {en:'WAVE',     cn:'波次编排 / 订单合批', y:290},
+  {en:'AVOID',    cn:'动态避障 / 会车让行', y:386},
+  {en:'ENERGY',   cn:'电量调度 / 错峰充电', y:482},
+  {en:'HANDOVER', cn:'异常接管 / 人工兜底', y:578},
+  {en:'HEAT',     cn:'库位热力 / 拥堵预测', y:674},
+  {en:'SLA',      cn:'履约看板 / 时效追踪', y:770}
+];
+
+/* 列头 */
+txt(AX-8, 246, 'CAPABILITY', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, 'text-anchor':'end', fill:INK45});
+el('line', {x1:AX-168, y1:258, x2:AX-8, y2:258, stroke:INK, 'stroke-width':.6, opacity:.3});
+txt(MX+24, 246, 'FEATURE', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
+el('line', {x1:MX+24, y1:258, x2:MX+150, y2:258, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 竖向虚线构造基线（作图痕迹） */
+el('line', {x1:AX, y1:270, x2:AX, y2:810, stroke:INK, 'stroke-width':.5, opacity:.2, 'stroke-dasharray':'2 6'});
+el('line', {x1:MX, y1:270, x2:MX, y2:810, stroke:INK, 'stroke-width':.5, opacity:.2, 'stroke-dasharray':'2 6'});
+
+/* 权重三档：主依赖 1.8px@.9 / 次依赖 1.1px@.4 / 弱关联 0.6px@.2 */
+var W = {sig:{'stroke-width':1.8, opacity:.9}, mid:{'stroke-width':1.1, opacity:.4}, weak:{'stroke-width':.6, opacity:.2}};
+function arc(x1, y1, x2, y2, w) {
+  var cx = (x1 + x2) / 2;
+  el('path', {d:'M '+x1+' '+y1+' C '+cx+' '+y1+', '+cx+' '+y2+', '+x2+' '+y2,
+    fill:'none', stroke:INK, 'stroke-width':w['stroke-width'], opacity:w.opacity});
+  el('circle', {cx:x2, cy:y2, r:2.4, fill:INK, opacity:.6});
+}
+function A(en){ return atoms.filter(function(a){return a.en===en;})[0]; }
+function M(en){ return feats.filter(function(m){return m.en===en;})[0]; }
+function link(a, m, w){ arc(AX+8, A(a).y, MX-8, M(m).y, w); }
+
+/* WAVE     ← QUEUE(sig) + WMS(mid) */
+link('QUEUE','WAVE', W.sig);
+link('WMS','WAVE', W.mid);
+/* AVOID    ← ROUTER(sig) + SENSOR(mid) + MAP(weak) */
+link('ROUTER','AVOID', W.sig);
+link('SENSOR','AVOID', W.mid);
+link('MAP','AVOID', W.weak);
+/* ENERGY   ← POWER(sig) + QUEUE(mid) */
+link('POWER','ENERGY', W.sig);
+link('QUEUE','ENERGY', W.mid);
+/* HANDOVER ← SENSOR(sig) + QUEUE(mid) + WMS(weak) */
+link('SENSOR','HANDOVER', W.sig);
+link('QUEUE','HANDOVER', W.mid);
+link('WMS','HANDOVER', W.weak);
+/* HEAT     ← MAP(sig) + WMS(mid) + SENSOR(weak) */
+link('MAP','HEAT', W.sig);
+link('WMS','HEAT', W.mid);
+link('SENSOR','HEAT', W.weak);
+/* SLA      ← WMS(mid) + QUEUE(mid) */
+link('WMS','SLA', W.mid);
+link('QUEUE','SLA', W.mid);
+
+/* 原子节点（小方块标本钉 + mono 名 + 中文注） */
+atoms.forEach(function(a){
+  el('rect', {x:AX-5, y:a.y-5, width:10, height:10, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
+  el('circle', {cx:AX, cy:a.y, r:1.6, fill:INK});
+  txt(AX-18, a.y+2, a.en, {'font-family':MONO, 'font-size':15, 'letter-spacing':1.5, 'text-anchor':'end', fill:INK});
+  txt(AX-18, a.y+22, a.cn, {'font-family':SANS, 'font-weight':300, 'font-size':13, 'text-anchor':'end', fill:INK45});
+});
+
+/* 功能落点（双圈 + 中文 400 + mono EN） */
+feats.forEach(function(m){
+  el('circle', {cx:MX, cy:m.y, r:7, fill:'none', stroke:INK80, 'stroke-width':1.2});
+  el('circle', {cx:MX, cy:m.y, r:2.4, fill:INK});
+  txt(MX+24, m.y+2, m.cn, {'font-family':SANS, 'font-weight':300, 'font-size':22, fill:INK});
+  txt(MX+24, m.y+28, m.en, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
+});
+
+/* 权重图例（右下，贴边缘微型 mono 档案字） */
+var LX = 1380, LY = 836;
+el('line', {x1:LX, y1:LY, x2:LX+52, y2:LY, stroke:INK, 'stroke-width':1.8, opacity:.9});
+txt(LX+64, LY+5, 'PRIMARY', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+el('line', {x1:LX+170, y1:LY, x2:LX+222, y2:LY, stroke:INK, 'stroke-width':1.1, opacity:.4});
+txt(LX+234, LY+5, 'SHARED', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+
+stageFit();
+</script>
+</body>
+</html>
