@@ -28,9 +28,13 @@
   },
   "confirmation": {
     "mode": "adaptive",
-    "decision": "proceed",
-    "triggers": [],
-    "questions": []
+    "decision": "needs_confirmation",
+    "triggers": [
+      "must_infer_or_placeholder_or_remove"
+    ],
+    "questions": [
+      "请提供真实发布流程材料，或明确确认仅将这些合成值用于示例展示。"
+    ]
   },
   "sections": [
     {

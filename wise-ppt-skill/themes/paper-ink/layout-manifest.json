@@ -704,7 +704,8 @@
           "max_items": 1,
           "allowed_providers": [
             "echarts",
-            "svg"
+            "svg",
+            "native-html"
           ]
         },
         {
