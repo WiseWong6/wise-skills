@@ -31,8 +31,7 @@
       "const": "single-html"
     },
     "output_file": {
-      "type": "string",
-      "pattern": "^(?!/)(?!.*[.][.]/).+[.]html$"
+      "const": "index.html"
     },
     "pages": {
       "type": "array",

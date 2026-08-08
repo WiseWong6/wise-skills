@@ -67,9 +67,16 @@ class OutputLocationTests(unittest.TestCase):
         self.assertTrue(normal_validation.ok)
         self.assert_has_code(delivery_preflight, "output.inside_skill")
 
-        removed_examples = self.skill_root / "themes" / "paper-ink" / "examples" / "fixture"
-        examples_result = validate_output_location(removed_examples, self.skill_root, allow_internal=True)
-        self.assert_has_code(examples_result, "output.inside_skill")
+        examples = self.skill_root / "themes" / "paper-ink" / "examples" / "fixture"
+        examples_result = validate_output_location(examples, self.skill_root, allow_internal=True)
+        examples_delivery = validate_output_location(
+            examples,
+            self.skill_root,
+            self.skill_root,
+            require_workspace=True,
+        )
+        self.assertTrue(examples_result.ok)
+        self.assert_has_code(examples_delivery, "output.inside_skill")
 
     def test_normal_validation_rejects_skill_output(self) -> None:
         result = run_validation(

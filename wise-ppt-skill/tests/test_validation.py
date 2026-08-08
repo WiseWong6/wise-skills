@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -690,10 +691,38 @@ class ContractValidationTests(unittest.TestCase):
         result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assert_has_code(result, "render.unknown_component")
 
-    def test_render_plan_v1_is_rejected(self) -> None:
+    def test_render_plan_v1_frames_remains_valid(self) -> None:
+        page = self.fixture.render["pages"][0]
+        decision = page.pop("layout_decision")
+        page["layout_id"] = decision["layout_id"]
+        page["reuse_mode"] = decision["reuse_mode"]
+        page["reuse_source"] = decision["layout_id"]
+        page["theme_primitives"] = [page["core_primitive"]]
+        page["html_attributes"].pop("data-layout-source")
+        for slot in page["slots"]:
+            slot.pop("component_decision")
         self.fixture.render["schema_version"] = "1.0"
         self.fixture.flush()
         result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
+    def test_render_plan_v2_single_html_requires_canonical_index_entry(self) -> None:
+        render = copy.deepcopy(self.fixture.render)
+        render["document_mode"] = "single-html"
+        render["output_file"] = "deck.html"
+        page = render["pages"][0]
+        page.pop("output_file")
+        page["html_attributes"].update(
+            {
+                "data-page-title": "Retention reached 55%",
+                "data-page-summary": "The release moved the metric",
+                "data-section-id": "section.main",
+                "data-section-title": "Main",
+            }
+        )
+        result = JsonSchemaValidator(
+            REPO_ROOT / "core" / "schemas" / "render-plan.schema.json"
+        ).validate(render, "render-plan.json")
         self.assert_has_code(result, "schema.const")
 
     def test_render_checks_canonical_page_and_component_data_attributes(self) -> None:
@@ -970,6 +999,98 @@ class ContractValidationTests(unittest.TestCase):
         )
         self.assertEqual(echarts_run.returncode, 2, echarts_run.stdout + echarts_run.stderr)
         self.assertIn("ECharts 请查官方文档", echarts_run.stderr)
+
+
+class SingleHtmlContractTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.deck = Path(self.temporary.name) / "single-html-deck"
+        shutil.copytree(FIXTURES / "single-html-deck", self.deck)
+        self.html = self.deck / "index.html"
+
+    @staticmethod
+    def error_codes(result) -> set[str]:
+        return {issue.code for issue in result.errors}
+
+    def validate(self):
+        return validate_render_target(self.deck, REPO_ROOT)
+
+    def test_render_plan_v11_single_html_is_valid(self) -> None:
+        result = self.validate()
+        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
+    def test_render_plan_v11_requires_canonical_index_entry(self) -> None:
+        render_path = self.deck / "render-plan.json"
+        render = load_json(render_path)
+        render["output_file"] = "deck.html"
+        write_json(render_path, render)
+        self.assertIn("schema.oneOf", self.error_codes(self.validate()))
+
+    def test_render_plan_v11_requires_layout_source_metadata(self) -> None:
+        render_path = self.deck / "render-plan.json"
+        render = load_json(render_path)
+        render["pages"][0]["html_attributes"].pop("data-layout-source")
+        write_json(render_path, render)
+        self.assertIn("schema.oneOf", self.error_codes(self.validate()))
+
+    def test_single_html_rejects_duplicate_page_id(self) -> None:
+        source = self.html.read_text(encoding="utf-8").replace(
+            'data-page-id="page.example-dense-ui"',
+            'data-page-id="page.example-flow-kpi"',
+            1,
+        )
+        self.html.write_text(source, encoding="utf-8")
+        codes = self.error_codes(self.validate())
+        self.assertIn("render.duplicate_html_page", codes)
+        self.assertIn("render.html_page_missing", codes)
+
+    def test_single_html_rejects_cross_slide_source_id(self) -> None:
+        source = self.html.read_text(encoding="utf-8").replace(
+            '<div class="stage">',
+            '<div class="stage" id="shared-source">',
+        )
+        self.html.write_text(source, encoding="utf-8")
+        self.assertIn("render.duplicate_source_id", self.error_codes(self.validate()))
+
+    def test_single_html_rejects_missing_page(self) -> None:
+        source = self.html.read_text(encoding="utf-8")
+        source = re.sub(
+            r'<section class="slide" data-page-id="page[.]example-dense-ui".*?</section>\s*</div></div>',
+            '</div></div>',
+            source,
+            count=1,
+            flags=re.S,
+        )
+        self.html.write_text(source, encoding="utf-8")
+        self.assertIn("render.html_page_missing", self.error_codes(self.validate()))
+
+    def test_single_html_rejects_content_owned_by_wrong_slide(self) -> None:
+        source = self.html.read_text(encoding="utf-8").replace(
+            'data-content-ref="item.delivery-process"',
+            'data-content-ref="item.product-ui-state"',
+            1,
+        )
+        self.html.write_text(source, encoding="utf-8")
+        self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
+
+    def test_six_formal_examples_are_single_html_v11_goldens(self) -> None:
+        examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
+        decks = sorted(path for path in examples.iterdir() if path.is_dir())
+        self.assertEqual(len(decks), 6)
+        for deck in decks:
+            with self.subTest(deck=deck.name):
+                render = load_json(deck / "render-plan.json")
+                source = (deck / "index.html").read_text(encoding="utf-8").casefold()
+                self.assertEqual(render["schema_version"], "1.1")
+                self.assertEqual(render["document_mode"], "single-html")
+                self.assertEqual(render["output_file"], "index.html")
+                self.assertTrue(all("output_file" not in page for page in render["pages"]))
+                self.assertNotIn("<iframe", source)
+                self.assertNotIn("thumb-", source)
+                self.assertFalse((deck / "frames").exists())
+                result = validate_all(deck, REPO_ROOT)
+                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
 
 if __name__ == "__main__":
