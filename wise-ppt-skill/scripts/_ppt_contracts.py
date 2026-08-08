@@ -128,7 +128,7 @@ def _is_internal_contract_path(relative: Path) -> bool:
     parts = relative.parts
     if len(parts) >= 2 and parts[:2] == ("core", "examples"):
         return True
-    if len(parts) >= 3 and parts[0] == "themes" and parts[2] in {"examples", "gallery"}:
+    if len(parts) >= 3 and parts[0] == "themes" and parts[2] == "gallery":
         return True
     return bool(parts and parts[0] == "tests")
 
@@ -734,27 +734,14 @@ def _normalize_component(raw: Mapping[str, Any], source: Path, default_provider:
 
 def find_component_catalog(root: Path, theme: ThemeRecord | None = None) -> Path:
     candidates: list[Path] = []
-    if theme:
-        for key in ("component_manifest", "component_catalog"):
-            ref = theme.registry_entry.get(key) or theme.theme_document.get(key)
-            if ref:
-                candidates.extend([root / str(ref), theme.theme_path.parent / str(ref)])
-        candidates.extend(
-            [
-                theme.theme_path.parent / "component-manifest.json",
-                theme.theme_path.parent / "components.json",
-            ]
-        )
-    candidates.extend(
-        [
-            root / "core" / "catalogs" / "component-manifest.json",
-            root / "core" / "catalogs" / "components.json",
-            root / "core" / "component-manifest.json",
-        ]
-    )
     configured = os.environ.get("PPT_COMPONENT_ATLAS_CATALOG")
     if configured:
         candidates.append(Path(configured).expanduser())
+    if theme:
+        for key in ("atlas_catalog", "component_catalog"):
+            ref = theme.registry_entry.get(key) or theme.theme_document.get(key)
+            if ref:
+                candidates.extend([root / str(ref), theme.theme_path.parent / str(ref)])
     candidates.extend(
         [
             Path.home() / ".codex" / "skills" / "ppt-component-atlas" / "public" / "catalog-data.js",
@@ -765,12 +752,18 @@ def find_component_catalog(root: Path, theme: ThemeRecord | None = None) -> Path
         if candidate.is_file():
             return candidate.resolve()
     raise ContractError(
-        "缺少组件 catalog：可提供 core/catalogs/component-manifest.json，"
-        "或安装 ppt-component-atlas，或设置 PPT_COMPONENT_ATLAS_CATALOG"
+        "缺少 PPT Component Atlas catalog：请安装 ppt-component-atlas、"
+        "在主题声明 atlas_catalog，或设置 PPT_COMPONENT_ATLAS_CATALOG"
     )
 
 
 def load_component_catalog(root: Path, theme_id: str | None = None) -> tuple[ThemeRecord, list[dict[str, Any]], Path]:
+    """Load the optional PPT Component Atlas only.
+
+    Native renderers and ECharts are capabilities, not catalog records.  This
+    function is therefore called only by an explicit Atlas query or renderer.
+    """
+
     theme = resolve_theme(root, theme_id)
     path = find_component_catalog(root, theme)
     if path.suffix == ".js":
@@ -788,38 +781,7 @@ def load_component_catalog(root: Path, theme_id: str | None = None) -> tuple[The
             raise ContractError(f"组件 catalog 必须包含 components[]/entries[]：{path}")
         records = [_normalize_component(item, path) for item in entries if isinstance(item, dict)]
 
-    # The built-in provider catalog and the independently installed Atlas are
-    # complementary sources.  Merge them mechanically and let callers filter;
-    # never score or auto-select a record here.
-    built_in = root / "core" / "catalogs" / "component-manifest.json"
-    extra_paths: list[Path] = []
-    if built_in.is_file() and built_in.resolve() != path:
-        extra_paths.append(built_in.resolve())
-    for atlas_path in (
-        Path.home() / ".codex" / "skills" / "ppt-component-atlas" / "public" / "catalog-data.js",
-        Path.home() / ".agents" / "skills" / "ppt-component-atlas" / "public" / "catalog-data.js",
-    ):
-        if atlas_path.is_file() and atlas_path.resolve() != path:
-            extra_paths.append(atlas_path.resolve())
-            break
-    for extra_path in extra_paths:
-        if extra_path.suffix == ".js":
-            extra_entries = _parse_atlas_js(extra_path)
-            records.extend(_normalize_component(item, extra_path, "atlas") for item in extra_entries)
-        else:
-            extra_document = load_json(extra_path)
-            extra_entries = (
-                extra_document.get("components") or extra_document.get("entries") or extra_document.get("items")
-                if isinstance(extra_document, dict)
-                else extra_document
-            )
-            if not isinstance(extra_entries, list):
-                raise ContractError(f"组件 catalog 必须包含 components[]/entries[]：{extra_path}")
-            records.extend(
-                _normalize_component(item, extra_path)
-                for item in extra_entries
-                if isinstance(item, dict)
-            )
+    records = [record for record in records if "atlas" in record.get("providers", [])]
     by_id: dict[str, dict[str, Any]] = {}
     for record in records:
         by_id.setdefault(record["id"], record)
@@ -1475,12 +1437,109 @@ def parse_html_attributes(path: Path) -> list[dict[str, str]]:
     return parser.elements
 
 
+class SingleHtmlContractParser(HTMLParser):
+    """Build one page-aware DOM index for a single-HTML deck source."""
+
+    VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.current_page: str | None = None
+        self.stack: list[tuple[str, str | None]] = []
+        self.page_order: list[str] = []
+        self.page_roots: dict[str, list[dict[str, str]]] = {}
+        self.page_elements: dict[str, list[dict[str, str]]] = {}
+        self.page_source: dict[str, list[str]] = {}
+        self.source_ids: dict[str, list[str]] = {}
+        self.document_elements: list[dict[str, str]] = []
+
+    @staticmethod
+    def _attributes(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
+        return {name: value or "" for name, value in attrs}
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = self._attributes(attrs)
+        previous_page = self.current_page
+        classes = set(values.get("class", "").split())
+        declared_page = values.get("data-page-id")
+        if tag == "section" and "slide" in classes and declared_page:
+            self.current_page = declared_page
+            self.page_order.append(declared_page)
+            root = {key: value for key, value in values.items() if key.startswith("data-")}
+            root["__tag__"] = tag
+            self.page_roots.setdefault(declared_page, []).append(root)
+        if tag not in self.VOID_TAGS:
+            self.stack.append((tag, previous_page))
+        data_values = {key: value for key, value in values.items() if key.startswith("data-")}
+        if data_values:
+            data_values["__tag__"] = tag
+            self.document_elements.append(data_values)
+            if self.current_page:
+                self.page_elements.setdefault(self.current_page, []).append(data_values)
+        if self.current_page:
+            self.page_source.setdefault(self.current_page, []).append(self.get_starttag_text() or "")
+            source_id = values.get("id")
+            if source_id:
+                self.source_ids.setdefault(source_id, []).append(self.current_page)
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.handle_starttag(tag, attrs)
+        if tag not in self.VOID_TAGS:
+            self.handle_endtag(tag)
+
+    def handle_endtag(self, tag: str) -> None:
+        while self.stack:
+            opened, previous_page = self.stack.pop()
+            if self.current_page:
+                self.page_source.setdefault(self.current_page, []).append(f"</{tag}>")
+            if opened == tag:
+                self.current_page = previous_page
+                break
+
+    def handle_data(self, data: str) -> None:
+        if self.current_page:
+            self.page_source.setdefault(self.current_page, []).append(data)
+
+
+@dataclass(frozen=True)
+class SingleHtmlContract:
+    path: Path
+    page_order: tuple[str, ...]
+    page_roots: Mapping[str, list[dict[str, str]]]
+    page_elements: Mapping[str, list[dict[str, str]]]
+    page_source: Mapping[str, str]
+    source_ids: Mapping[str, list[str]]
+    document_elements: tuple[dict[str, str], ...]
+
+
+def parse_single_html_contract(path: Path) -> SingleHtmlContract:
+    parser = SingleHtmlContractParser()
+    try:
+        parser.feed(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError) as exc:
+        raise ContractError(f"HTML 无法读取：{path}: {exc}") from exc
+    return SingleHtmlContract(
+        path=path,
+        page_order=tuple(parser.page_order),
+        page_roots=parser.page_roots,
+        page_elements=parser.page_elements,
+        page_source={key: "".join(parts) for key, parts in parser.page_source.items()},
+        source_ids=parser.source_ids,
+        document_elements=tuple(parser.document_elements),
+    )
+
+
 def _html_path_for_page(
     page: Mapping[str, Any],
     page_id: str,
     render_path: Path,
     html_index: Mapping[str, Path],
+    render_document: Mapping[str, Any] | None = None,
 ) -> Path | None:
+    if render_document and render_document.get("document_mode") == "single-html":
+        output_file = render_document.get("output_file")
+        if isinstance(output_file, str) and output_file:
+            return (render_path.parent / output_file).resolve()
     for key in ("html_file", "html_path", "output_file", "file"):
         value = page.get(key)
         if isinstance(value, str) and value:
@@ -1542,16 +1601,21 @@ def _validate_html_page(
     html_index: Mapping[str, Path],
     result: ValidationResult,
     item_path: str,
+    render_document: Mapping[str, Any] | None = None,
+    single_contract: SingleHtmlContract | None = None,
 ) -> None:
-    html_path = _html_path_for_page(page, page_id, render_path, html_index)
+    html_path = _html_path_for_page(page, page_id, render_path, html_index, render_document)
     if html_path is None or not html_path.is_file():
         result.error("render.html_missing", item_path, f"找不到 page_id={page_id} 对应的 HTML 文件")
         return
-    try:
-        elements = parse_html_attributes(html_path)
-    except ContractError as exc:
-        result.error("config.html", item_path, str(exc))
-        return
+    if single_contract is not None:
+        elements = list(single_contract.page_elements.get(page_id, []))
+    else:
+        try:
+            elements = parse_html_attributes(html_path)
+        except ContractError as exc:
+            result.error("config.html", item_path, str(exc))
+            return
     declared = page.get("html_attributes") if isinstance(page.get("html_attributes"), dict) else {}
     expected = {str(key): str(value) for key, value in declared.items() if str(key).startswith("data-")}
     page_element = next(
@@ -1585,6 +1649,8 @@ def _validate_html_page(
         if not matching:
             result.error("render.html_component_data", str(html_path), f"block {block_id!r} 缺少组件 data-* 声明")
             continue
+        if len(matching) > 1:
+            result.error("render.duplicate_block", str(html_path), f"page {page_id!r} 内 block {block_id!r} 重复声明")
         attrs = matching[0]
         checks = {
             "data-provider": provider,
@@ -1643,9 +1709,52 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
         for page in plan_pages(plan_doc)
         if _identifier(page, "page_id", "id", "slide_id")
     }
+    section_titles = {
+        _identifier(section, "section_id", "id"): str(section.get("title", ""))
+        for section in _as_list(plan_doc.get("sections"))
+        if isinstance(section, dict) and _identifier(section, "section_id", "id")
+    }
     html_index = _build_html_index(path.parent)
+    single_contract: SingleHtmlContract | None = None
+    if document.get("document_mode") == "single-html":
+        output_file = document.get("output_file")
+        if not isinstance(output_file, str) or not output_file:
+            result.error("render.single_html_output", label, "single-html 必须声明根级 output_file")
+        else:
+            single_path = (path.parent / output_file).resolve()
+            if not single_path.is_file():
+                result.error("render.html_missing", label, f"single-html 输出不存在：{single_path}")
+            else:
+                try:
+                    single_contract = parse_single_html_contract(single_path)
+                except ContractError as exc:
+                    result.error("config.html", str(single_path), str(exc))
+        if single_contract is not None:
+            expected_page_ids = {
+                _identifier(page, "page_id", "id", "slide_id")
+                for page in render_pages(document)
+                if _identifier(page, "page_id", "id", "slide_id")
+            }
+            actual_page_ids = set(single_contract.page_roots)
+            for page_id, roots in single_contract.page_roots.items():
+                if len(roots) > 1:
+                    result.error("render.duplicate_html_page", str(single_contract.path), f"data-page-id 重复：{page_id}")
+            for page_id in sorted(expected_page_ids - actual_page_ids):
+                result.error("render.html_page_missing", str(single_contract.path), f"single-html 缺少页面：{page_id}")
+            for page_id in sorted(actual_page_ids - expected_page_ids):
+                result.error("render.html_page_unplanned", str(single_contract.path), f"single-html 包含未规划页面：{page_id}")
+            for source_id, owners in sorted(single_contract.source_ids.items()):
+                if len(owners) > 1:
+                    result.error(
+                        "render.duplicate_source_id",
+                        str(single_contract.path),
+                        f"源码 id={source_id!r} 重复，归属页面：{owners}",
+                    )
     seen_pages: set[str] = set()
     atlas_records: list[dict[str, Any]] | None = None
+    theme_providers = set(_strings(theme.theme_document.get("providers")))
+    theme_runtimes = theme.theme_document.get("runtimes")
+    echarts_runtime = theme_runtimes.get("echarts") if isinstance(theme_runtimes, dict) else None
 
     for index, page in enumerate(render_pages(document)):
         item_path = f"{label}#.pages[{index}]"
@@ -1661,26 +1770,99 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
             result.error("render.unknown_page", item_path, f"找不到对应的 deck page：{page_id}")
             continue
 
-        layout_id = _identifier(page, "layout_id", "layout")
-        if not layout_id:
-            result.error("render.layout_id", item_path, "页面缺少 layout_id")
+        decision = page.get("layout_decision") if isinstance(page.get("layout_decision"), dict) else {}
+        if not decision:
+            result.error("render.layout_decision", item_path, "页面必须声明 layout_decision")
             continue
-        layout = layout_by_id.get(layout_id)
-        reuse_mode = page.get("reuse_mode")
-        if layout is None:
-            result.error("render.unsupported_layout", item_path, f"主题未登记 layout_id：{layout_id}")
+        layout_source = decision.get("source")
+        reuse_mode = decision.get("reuse_mode")
+        layout_id = _identifier(decision, "layout_id")
+        if not layout_id:
+            result.error("render.layout_id", item_path, "layout_decision 缺少 layout_id")
+            continue
 
+        role = plan_page.get("role")
+        relation = _relation_primary(plan_page)
+        density = page.get("density") or plan_page.get("density_intent")
         plan_primitive = plan_page.get("spatial_primitive")
         core_primitive = page.get("core_primitive")
+        evaluations = [
+            item
+            for item in _as_list(decision.get("candidate_evaluations"))
+            if isinstance(item, dict)
+        ]
+        evaluation_ids = [_identifier(item, "layout_id") for item in evaluations]
+        if len([value for value in evaluation_ids if value]) != len(set(value for value in evaluation_ids if value)):
+            result.error("render.gallery_assessment", item_path, "candidate_evaluations 不可重复评估同一 layout_id")
+        for evaluation in evaluations:
+            candidate_id = _identifier(evaluation, "layout_id")
+            if candidate_id and candidate_id not in layout_by_id:
+                result.error(
+                    "render.gallery_assessment",
+                    item_path,
+                    f"candidate_evaluations 引用了 Gallery 中不存在的 layout_id：{candidate_id}",
+                )
+
+        metadata_candidates = [
+            record
+            for record in layouts
+            if (not record["roles"] or role in record["roles"])
+            and (not record["relations"] or relation in record["relations"])
+            and (not record["core_primitives"] or core_primitive in record["core_primitives"])
+            and (not record["densities"] or density in record["densities"])
+        ]
+
+        layout: Mapping[str, Any] | None = None
+        custom_contract: Mapping[str, Any] = {}
+        if layout_source == "gallery":
+            if "custom_contract" in decision:
+                result.error(
+                    "render.gallery_structure_changed",
+                    item_path,
+                    "Gallery 页不得嵌入 custom_contract；需要自定义区域或阅读顺序时必须切换为 custom",
+                )
+            layout = layout_by_id.get(layout_id)
+            if layout is None:
+                result.error("render.unsupported_layout", item_path, f"Gallery 未登记 layout_id：{layout_id}")
+            fit_ids = {
+                _identifier(item, "layout_id")
+                for item in evaluations
+                if item.get("verdict") == "fit"
+            }
+            fit_ids.discard(None)
+            if fit_ids != {layout_id}:
+                result.error(
+                    "render.gallery_assessment",
+                    item_path,
+                    "Gallery 决策必须且只能把选中的 layout_id 标记为 fit",
+                )
+        elif layout_source == "custom":
+            custom_contract = (
+                decision.get("custom_contract")
+                if isinstance(decision.get("custom_contract"), dict)
+                else {}
+            )
+            if not layout_id.startswith("custom."):
+                result.error("render.custom_layout_id", item_path, "Custom layout_id 必须以 custom. 开头")
+            if layout_id in layout_by_id:
+                result.error("render.custom_layout_collision", item_path, f"Custom layout_id 与 Gallery 冲突：{layout_id}")
+            if any(item.get("verdict") != "reject" for item in evaluations):
+                result.error("render.gallery_assessment", item_path, "Custom 页的候选只能标记为 reject")
+            if metadata_candidates and not evaluations:
+                result.error(
+                    "render.gallery_assessment",
+                    item_path,
+                    "Gallery 返回了元数据候选；Custom 页必须记录最多 3 个候选及拒绝原因",
+                )
+        else:
+            result.error("render.layout_source", item_path, f"未知 layout source：{layout_source!r}")
+
         if core_primitive != plan_primitive:
             result.error(
                 "render.core_primitive_mismatch",
                 item_path,
                 f"core_primitive 必须等于 deck spatial_primitive：期望 {plan_primitive!r}，实际 {core_primitive!r}",
             )
-        theme_primitives = _strings(page.get("theme_primitives"))
-        if not theme_primitives:
-            result.error("render.theme_primitives", item_path, "theme_primitives 必须至少声明一个主题实现原语")
         if layout is not None:
             supported_core_primitives = set(layout.get("core_primitives", []))
             if core_primitive not in supported_core_primitives:
@@ -1690,31 +1872,15 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
                     f"布局 {layout_id} 不支持 core_primitive={core_primitive!r}；"
                     f"允许 {sorted(supported_core_primitives)}",
                 )
-            if theme_primitives:
-                declared_primitives = set(layout.get("primitives", []))
-                unsupported_primitives = set(theme_primitives) - declared_primitives
-                if unsupported_primitives:
-                    result.error(
-                        "render.unknown_theme_primitive",
-                        item_path,
-                        f"reuse_mode={reuse_mode!r} 使用了 layout manifest 未声明的原语 "
-                        f"{sorted(unsupported_primitives)}；novel 也必须先登记新 layout/primitives "
-                        "再生成 Render Plan",
-                    )
 
         rationale = page.get("rationale")
         if not _meaningful_rationale(rationale):
-            result.error("render.copy_rationale", item_path, "rationale 必须解释内容关系、容量或表达选择，不能只写照抄模板")
-        if reuse_mode == "copy" and not page.get("reuse_source"):
-            result.error("render.copy_source", item_path, "reuse_mode=copy 必须声明 reuse_source")
+            result.error("render.rationale", item_path, "rationale 必须解释内容关系、容量或表达选择，不能只写照抄模板")
 
         status = page.get("capacity_status")
         if status != "fit":
             result.error("render.capacity_status", item_path, f"capacity_status 必须为 'fit'，实际为 {status!r}")
 
-        role = plan_page.get("role")
-        relation = _relation_primary(plan_page)
-        density = page.get("density") or plan_page.get("density_intent")
         if layout is not None:
             if layout["roles"] and role not in layout["roles"]:
                 result.error("render.unsupported_role", item_path, f"布局 {layout_id} 不支持 role={role!r}")
@@ -1739,10 +1905,75 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
             if isinstance(block, dict) and _identifier(block, "block_id", "id")
         }
         slots = [slot for slot in _as_list(page.get("slots")) if isinstance(slot, dict)]
+        slot_order = [_identifier(slot, "slot_id", "id") for slot in slots]
+        actions = [
+            slot.get("component_decision", {}).get("action")
+            if isinstance(slot.get("component_decision"), dict)
+            else None
+            for slot in slots
+        ]
+        if layout_source == "gallery" and reuse_mode == "copy" and any(action != "keep" for action in actions):
+            result.error("render.component_decision", item_path, "reuse_mode=copy 要求所有组件 action=keep")
+        if layout_source == "gallery" and reuse_mode == "adapt":
+            if "replace" not in actions or any(action not in {"keep", "replace"} for action in actions):
+                result.error(
+                    "render.component_decision",
+                    item_path,
+                    "reuse_mode=adapt 要求至少一个 action=replace，其他组件只能 keep",
+                )
+        if layout_source == "custom" and any(action != "select" for action in actions):
+            result.error("render.component_decision", item_path, "reuse_mode=custom 要求所有组件 action=select")
+
         slot_ids: set[str] = set()
         mapped_blocks: set[str] = set()
         primary_visuals = 0
-        layout_slots = _layout_slot_map(layout) if layout else {}
+        layout_slots: dict[str, Mapping[str, Any]] = _layout_slot_map(layout) if layout else {}
+        capacity: Mapping[str, Any] = layout.get("capacity", {}) if layout else {}
+        if layout is not None:
+            declared_order = list(layout_slots)
+            unknown_slots = [slot_id for slot_id in slot_order if slot_id and slot_id not in layout_slots]
+            used_declared_order = [slot_id for slot_id in declared_order if slot_id in slot_order]
+            required_missing = [
+                slot_id
+                for slot_id, spec in layout_slots.items()
+                if spec.get("required") and slot_id not in slot_order
+            ]
+            if unknown_slots or slot_order != used_declared_order or required_missing:
+                result.error(
+                    "render.gallery_structure_changed",
+                    item_path,
+                    "Gallery 页不得增减必填区域、加入未知区域或改变 slots[] 规范顺序；"
+                    f"未知 {unknown_slots}，缺少必填 {required_missing}，实际顺序 {slot_order}",
+                )
+        elif layout_source == "custom":
+            regions = [item for item in _as_list(custom_contract.get("regions")) if isinstance(item, dict)]
+            reading_order = _strings(custom_contract.get("reading_order"))
+            region_ids = [_identifier(region, "slot_id", "id") for region in regions]
+            for region in regions:
+                region_id = _identifier(region, "slot_id", "id")
+                if region_id and region_id not in layout_slots:
+                    layout_slots[region_id] = region
+                elif region_id:
+                    result.error("render.custom_contract", item_path, f"Custom region slot_id 重复：{region_id}")
+                minimum = region.get("min_items")
+                maximum = region.get("max_items")
+                if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
+                    result.error("render.custom_contract", item_path, f"Custom region {region_id} 的 min_items 不能大于 max_items")
+            if reading_order != region_ids or slot_order != reading_order:
+                result.error(
+                    "render.custom_contract",
+                    item_path,
+                    "Custom reading_order、regions[] 与 slots[] 必须包含相同 slot_id 且顺序完全一致",
+                )
+            capacity = custom_contract.get("capacity") if isinstance(custom_contract.get("capacity"), dict) else {}
+            for key in ("semantic_units", "primary_items"):
+                bounds = capacity.get(key) if isinstance(capacity, dict) else None
+                if isinstance(bounds, dict):
+                    minimum = bounds.get("min")
+                    maximum = bounds.get("max")
+                    if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
+                        result.error("render.custom_contract", item_path, f"Custom capacity.{key}.min 不能大于 max")
+
         primary_items = 0
         for slot_index, slot in enumerate(slots):
             slot_path = f"{item_path}.slots[{slot_index}]"
@@ -1763,13 +1994,24 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
             if slot.get("visual_role") == "primary":
                 primary_visuals += 1
             slot_spec = layout_slots.get(slot_id) if layout else None
-            if layout and slot_spec is None:
-                result.error("render.unsupported_slot", slot_path, f"布局 {layout_id} 不支持 slot_id={slot_id!r}")
+            if layout_source == "custom":
+                slot_spec = layout_slots.get(slot_id)
+                if slot_spec is None:
+                    result.error("render.custom_contract", slot_path, f"Custom contract 未声明 slot_id={slot_id!r}")
+                else:
+                    if slot_spec.get("block_id") != block_id or slot_spec.get("visual_role") != slot.get("visual_role"):
+                        result.error(
+                            "render.custom_contract",
+                            slot_path,
+                            "Custom region 的 block_id / visual_role 必须与 render slot 一致",
+                        )
             renderer = slot.get("renderer") if isinstance(slot.get("renderer"), dict) else {}
             provider = renderer.get("provider")
             if provider not in PROVIDERS:
                 result.error("render.provider", slot_path, f"未知 provider：{provider!r}")
-            if slot_spec:
+            if theme_providers and provider not in theme_providers:
+                result.error("render.unsupported_provider", slot_path, f"主题 {theme.theme_id} 不支持 provider={provider!r}")
+            if layout is not None and slot_spec:
                 allowed = _strings(slot_spec.get("allowed_providers"))
                 if allowed and provider not in allowed:
                     result.error(
@@ -1799,6 +2041,12 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
                     result.error("render.echarts_data_ref", slot_path, "ECharts renderer 必须声明 data_ref")
                 if not isinstance(renderer.get("encode"), dict) or not renderer.get("encode"):
                     result.error("render.echarts_encode", slot_path, "ECharts renderer 必须声明非空 encode")
+                if not isinstance(echarts_runtime, dict) or not isinstance(echarts_runtime.get("major"), int):
+                    result.error(
+                        "config.echarts_runtime",
+                        slot_path,
+                        f"主题 {theme.theme_id} 必须声明 runtimes.echarts.major",
+                    )
             if provider == "atlas":
                 if not component:
                     result.error("render.atlas_component", slot_path, "provider=atlas 必须声明 component")
@@ -1840,24 +2088,19 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
         if primary_visuals != 1:
             result.error("render.primary_visual", item_path, f"每页必须恰好一个 primary visual_role，实际 {primary_visuals}")
 
-        if layout is not None:
-            for required_id, spec in layout_slots.items():
-                if spec.get("required") and required_id not in slot_ids:
-                    result.error("render.required_slot", item_path, f"缺少布局必填槽位：{required_id}")
-            semantic_count = len(plan_refs)
-            capacity = layout.get("capacity", {})
-            semantic_min = _capacity_bound(capacity, "semantic_units", "min")
-            semantic_max = _capacity_bound(capacity, "semantic_units", "max")
-            primary_min = _capacity_bound(capacity, "primary_items", "min")
-            primary_max = _capacity_bound(capacity, "primary_items", "max")
-            if semantic_min is not None and semantic_count < semantic_min:
-                result.error("render.capacity_underfill", item_path, f"语义单元至少 {semantic_min} 个，实际 {semantic_count}")
-            if semantic_max is not None and semantic_count > semantic_max:
-                result.error("render.capacity_overflow", item_path, f"语义单元最多 {semantic_max} 个，实际 {semantic_count}")
-            if primary_min is not None and primary_items < primary_min:
-                result.error("render.primary_underfill", item_path, f"主项至少 {primary_min} 个，实际 {primary_items}")
-            if primary_max is not None and primary_items > primary_max:
-                result.error("render.primary_overflow", item_path, f"主项最多 {primary_max} 个，实际 {primary_items}")
+        semantic_count = len(plan_refs)
+        semantic_min = _capacity_bound(capacity, "semantic_units", "min")
+        semantic_max = _capacity_bound(capacity, "semantic_units", "max")
+        primary_min = _capacity_bound(capacity, "primary_items", "min")
+        primary_max = _capacity_bound(capacity, "primary_items", "max")
+        if semantic_min is not None and semantic_count < semantic_min:
+            result.error("render.capacity_underfill", item_path, f"语义单元至少 {semantic_min} 个，实际 {semantic_count}")
+        if semantic_max is not None and semantic_count > semantic_max:
+            result.error("render.capacity_overflow", item_path, f"语义单元最多 {semantic_max} 个，实际 {semantic_count}")
+        if primary_min is not None and primary_items < primary_min:
+            result.error("render.primary_underfill", item_path, f"主项至少 {primary_min} 个，实际 {primary_items}")
+        if primary_max is not None and primary_items > primary_max:
+            result.error("render.primary_overflow", item_path, f"主项最多 {primary_max} 个，实际 {primary_items}")
 
         attrs = page.get("html_attributes")
         if not isinstance(attrs, dict):
@@ -1867,14 +2110,36 @@ def validate_render_document(document: Mapping[str, Any], path: Path, root: Path
                 "data-page-id": page_id,
                 "data-page-role": role,
                 "data-theme": theme.theme_id,
+                "data-layout-source": layout_source,
                 "data-layout": layout_id,
                 "data-density": density,
                 "data-reuse-mode": reuse_mode,
             }
+            if document.get("document_mode") == "single-html":
+                section_id = plan_page.get("section_id")
+                expected_attrs.update(
+                    {
+                        "data-page-title": plan_page.get("assertion_title"),
+                        "data-page-summary": plan_page.get("takeaway"),
+                        "data-section-id": section_id,
+                        "data-section-title": section_titles.get(section_id, ""),
+                    }
+                )
             for key, expected_value in expected_attrs.items():
                 if attrs.get(key) != expected_value:
                     result.error("render.html_attributes", item_path, f"{key} 必须为 {expected_value!r}")
-        _validate_html_page(page, page_id, layout_id, theme.theme_id, path, html_index, result, item_path)
+        _validate_html_page(
+            page,
+            page_id,
+            layout_id,
+            theme.theme_id,
+            path,
+            html_index,
+            result,
+            item_path,
+            document,
+            single_contract,
+        )
 
     missing_pages = sorted(set(plan_by_id) - seen_pages)
     for page_id in missing_pages:
@@ -1951,21 +2216,37 @@ def validate_coverage_target(target: Path, root: Path) -> ValidationResult:
                 result.error("coverage.must_missing_render", str(render_path), f"must 内容未进入 render plan：{ref}")
             html_refs: set[str] = set()
             html_text_by_ref: dict[str, list[str]] = {}
+            single_contract: SingleHtmlContract | None = None
+            if render_doc.get("document_mode") == "single-html":
+                output_file = render_doc.get("output_file")
+                if isinstance(output_file, str):
+                    single_path = (render_path.parent / output_file).resolve()
+                    if not single_path.is_file():
+                        result.error("coverage.html_missing", str(render_path), f"output_file 不存在：{single_path}")
+                    else:
+                        try:
+                            single_contract = parse_single_html_contract(single_path)
+                        except ContractError as exc:
+                            result.error("config.coverage_html", str(single_path), str(exc))
             for page in render_pages(render_doc):
                 page_id = _identifier(page, "page_id", "id") or "<unknown>"
-                output_file = page.get("output_file")
-                if not isinstance(output_file, str):
-                    continue
-                html_path = (render_path.parent / output_file).resolve()
-                if not html_path.is_file():
-                    result.error("coverage.html_missing", page_id, f"output_file 不存在：{html_path}")
-                    continue
-                try:
-                    source = html_path.read_text(encoding="utf-8")
-                    elements = parse_html_attributes(html_path)
-                except (OSError, UnicodeDecodeError, ContractError) as exc:
-                    result.error("config.coverage_html", str(html_path), str(exc))
-                    continue
+                if single_contract is not None:
+                    source = single_contract.page_source.get(page_id, "")
+                    elements = list(single_contract.page_elements.get(page_id, []))
+                else:
+                    output_file = page.get("output_file")
+                    if not isinstance(output_file, str):
+                        continue
+                    html_path = (render_path.parent / output_file).resolve()
+                    if not html_path.is_file():
+                        result.error("coverage.html_missing", page_id, f"output_file 不存在：{html_path}")
+                        continue
+                    try:
+                        source = html_path.read_text(encoding="utf-8")
+                        elements = parse_html_attributes(html_path)
+                    except (OSError, UnicodeDecodeError, ContractError) as exc:
+                        result.error("config.coverage_html", str(html_path), str(exc))
+                        continue
                 for attrs in elements:
                     refs = (attrs.get("data-content-ref") or "").split()
                     html_refs.update(refs)

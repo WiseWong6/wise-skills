@@ -56,7 +56,7 @@ class OutputLocationTests(unittest.TestCase):
         self.assert_has_code(result, "output.inside_skill")
 
     def test_internal_contract_paths_are_only_allowed_for_normal_validation(self) -> None:
-        internal = self.skill_root / "themes" / "paper-ink" / "examples" / "fixture"
+        internal = self.skill_root / "themes" / "paper-ink" / "gallery" / "fixture"
         normal_validation = validate_output_location(internal, self.skill_root, allow_internal=True)
         delivery_preflight = validate_output_location(
             internal,
@@ -66,6 +66,10 @@ class OutputLocationTests(unittest.TestCase):
         )
         self.assertTrue(normal_validation.ok)
         self.assert_has_code(delivery_preflight, "output.inside_skill")
+
+        removed_examples = self.skill_root / "themes" / "paper-ink" / "examples" / "fixture"
+        examples_result = validate_output_location(removed_examples, self.skill_root, allow_internal=True)
+        self.assert_has_code(examples_result, "output.inside_skill")
 
     def test_normal_validation_rejects_skill_output(self) -> None:
         result = run_validation(

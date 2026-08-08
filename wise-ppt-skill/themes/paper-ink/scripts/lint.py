@@ -13,20 +13,20 @@
     L4 中文落 mono：txt(...) 调用中 font-family MONO 且字符串含 CJK
     L5 三件套：.doc tl 角注、.folio、.caption（尾卡页 caption 仅 WARN）
     L6 不做“同尺寸矩形即违规”的静态猜测；Grid/证据墙/矩阵由 manifest 关系与浏览器目检判断
-    L7 stageFit() 未调用
+    L7 旧 frame 未调用 stageFit()，或 single-html 未声明统一 runtime
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
 
 退出码：有 FAIL 则 1（--strict 时 WARN 也为 1），否则 0。
 注意：静态检查有边界——循环里用变量画的 rect/线无法计数，机检全过 ≠ 目检通过，
-     仍须 runtime/screenshot.sh 截图逐张看（visual-checklist 目检顺序）。
+     仍须按 visual-checklist 在真实浏览器中人工验收。
 """
 import os
 import re
 import sys
 
 INK_OK = {
-    '#191917', '#dfe0d9', '#d4d5cd',          # 墨 / 纸底 / 纸底深档
+    '#191917', '#dfe0d9', '#d4d5cd', '#d6d7d0', # 墨 / 纸底 / 画册底 / 纸底深档
     '#edf0ee', '#181c1e', '#1d5c9e',          # ?cool 主题（蓝图青仅 cool 允许）
 }
 ACCENT_OK = {
@@ -127,14 +127,14 @@ def lint_file(path):
         fails.append('L5 缺 .doc.tl 角注')
     if 'class="folio"' not in src:
         fails.append('L5 缺 .folio 页脚')
-    if 'class="caption"' not in src:
+    if not re.search(r'class="[^"]*\bcaption\b', src):
         warns.append('L5 无 .caption（尾卡/封面/Outro 可豁免）')
 
     # L6：不从几何重复推断语义错误。同尺寸 rect 可能是合法的矩阵、证据墙、
     # 表格或同行比较；关系正确性由 render plan、manifest capacity 与截图目检负责。
 
     # L7 stageFit（或等价的本地 fit()：min(vw/1920, vh/1080) 缩放）
-    if 'stageFit(' not in src and 'innerWidth/1920' not in src:
+    if 'stageFit(' not in src and 'innerWidth/1920' not in src and 'data-document-mode="single-html"' not in src:
         fails.append('L7 未调用 stageFit() 或等价缩放')
 
     # L8 纯白填充
@@ -184,10 +184,12 @@ def main():
             os.path.join(frames, f) for f in os.listdir(frames)
             if re.fullmatch(r'(shot-\d+|layout-[a-z0-9]+)\.html', f)  # 跳过 -lab / -bak 等实验稿
         ) if os.path.isdir(frames) else []
+        if not files and os.path.isfile(os.path.join(target, 'index.html')):
+            files = [os.path.join(target, 'index.html')]
     else:
         files = [target]
     if not files:
-        print('没有找到 shot-*.html')
+        print('没有找到 index.html 或旧 shot-*.html')
         sys.exit(2)
 
     total_fail = total_warn = 0
@@ -206,7 +208,7 @@ def main():
     print(f'\n{len(files)} 页：{total_fail} FAIL / {total_warn} WARN')
     if total_fail or (strict and total_warn):
         sys.exit(1)
-    print('机检通过（仍须截图目检）')
+    print('机检通过（仍须真实浏览器人工验收）')
 
 if __name__ == '__main__':
     main()

@@ -1,81 +1,115 @@
 #!/bin/bash
-# wise-ppt · 整 deck 导出 16:9 PDF
-# 流程：frames 逐页 PNG（调 screenshot.sh）→ 临时 print HTML（@page 20in×11.25in）
-#       → Chrome headless --print-to-pdf → 有 gs 则 ebook 档二次压缩
-# 用法：
-#   ./export-pdf.sh <deck目录> [输出PDF路径] [--keep-png]
-# 示例：
-#   ./export-pdf.sh /path/to/deck                       # 输出 /path/to/deck/<deck名>.pdf
-#   ./export-pdf.sh /path/to/deck /tmp/deck.pdf --keep-png
+# wise-ppt · 无截图 PDF 导出：新 deck 直接打印；旧 frames deck 使用 /tmp 临时加载壳。
 set -euo pipefail
-DECK="${1:?用法: export-pdf.sh <deck目录> [输出PDF路径] [--keep-png]}"
+DECK="${1:?用法: export-pdf.sh <deck目录> [输出PDF路径]}"
 DECK="$(cd "$DECK" && pwd)"
 NAME="$(basename "$DECK")"
 OUT="${2:-$DECK/$NAME.pdf}"
-KEEP_PNG=0
-[ "${3:-}" = "--keep-png" ] && KEEP_PNG=1
-
-SKILL_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PNG_DIR="$(mktemp -d /tmp/wise-ppt-pdf.XXXXXX)"
-cleanup() {
-  if [ "$KEEP_PNG" -eq 0 ] && [ -d "$PNG_DIR" ]; then rm -rf "$PNG_DIR"; fi
+TMP_ROOT="$(mktemp -d /tmp/wise-ppt-pdf.XXXXXX)"
+mkdir -p "$TMP_ROOT/ready-profile" "$TMP_ROOT/print-profile" "$(dirname "$OUT")"
+CHROME_PID=""
+stop_chrome() {
+  [ -n "$CHROME_PID" ] || return 0
+  if kill -0 "$CHROME_PID" 2>/dev/null; then
+    kill "$CHROME_PID" 2>/dev/null || true
+    for _ in $(seq 1 20); do
+      kill -0 "$CHROME_PID" 2>/dev/null || break
+      sleep 0.1
+    done
+    kill -9 "$CHROME_PID" 2>/dev/null || true
+  fi
+  wait "$CHROME_PID" 2>/dev/null || true
+  CHROME_PID=""
 }
-trap cleanup EXIT
+cleanup(){ stop_chrome; rm -rf "$TMP_ROOT"; }
+trap cleanup EXIT INT TERM
 
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-[ -x "$CHROME" ] || CHROME="$(command -v chrome || command -v chromium || command -v chromium-browser || true)"
-[ -x "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" ] && [ -z "$CHROME" ] && CHROME="/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
-[ -n "$CHROME" ] || { echo "找不到 Chrome/Edge，请在浏览器打开 index.html 后打印为 PDF"; exit 1; }
+[ -x "$CHROME" ] || CHROME="$(command -v google-chrome || command -v chrome || command -v chromium || command -v chromium-browser || true)"
+if [ ! -x "$CHROME" ] && [ -x "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" ]; then CHROME="/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"; fi
+[ -x "$CHROME" ] || { echo "找不到 Chrome/Edge" >&2; exit 1; }
 
-# 1. 逐页 PNG
-"$SKILL_ROOT/runtime/screenshot.sh" "$DECK" "$PNG_DIR" >/dev/null || { echo "截图失败"; exit 1; }
-COUNT=$(ls "$PNG_DIR"/shot-*.png 2>/dev/null | wc -l | tr -d ' ')
-[ "$COUNT" -gt 0 ] || { echo "没有截到任何页面"; exit 1; }
-echo "已截 $COUNT 页 → $PNG_DIR"
-
-# 2. 临时 print HTML（每页一张图，16:9 横版，颜色准确）
-PRINT_HTML="$PNG_DIR/print.html"
-{
-  echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>'
-  echo '@page { size: 20in 11.25in; margin: 0; }'
-  echo '* { print-color-adjust: exact; -webkit-print-color-adjust: exact; }'
-  echo 'html, body { margin: 0; padding: 0; }'
-  echo '.pg { width: 20in; height: 11.25in; break-after: page; page-break-after: always; overflow: hidden; }'
-  echo '.pg:last-child { break-after: auto; page-break-after: auto; }'
-  echo '.pg img { width: 100%; height: 100%; object-fit: contain; display: block; }'
-  echo '</style></head><body>'
-  for p in "$PNG_DIR"/shot-*.png; do
-    echo "<div class=\"pg\"><img src=\"file://$p\"></div>"
-  done
-  echo '</body></html>'
-} > "$PRINT_HTML"
-
-# 3. Chrome headless 打印
-"$CHROME" --headless --disable-gpu --allow-file-access-from-files --no-pdf-header-footer \
-  --virtual-time-budget=8000 --print-to-pdf="$OUT" "file://$PRINT_HTML" >/dev/null 2>&1 || {
-    echo "PDF 打印进程失败" >&2; exit 1;
-  }
-[ -s "$OUT" ] || { echo "PDF 生成失败"; exit 1; }
-echo "ok $OUT ($(du -h "$OUT" | cut -f1))"
-
-# 4. Ghostscript 二次压缩（可选，ebook 150dpi）
-if command -v gs >/dev/null 2>&1; then
-  TMP_PDF="$OUT.tmp.pdf"
-  gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=/ebook -dNOPAUSE -dQUIET -dBATCH \
-    -sOutputFile="$TMP_PDF" "$OUT" && mv "$TMP_PDF" "$OUT"
-  echo "gs 压缩后：$(du -h "$OUT" | cut -f1)"
+MODE="legacy"
+if [ -f "$DECK/render-plan.json" ]; then
+  MODE="$(python3 - "$DECK/render-plan.json" <<'PY'
+import json, sys
+doc=json.load(open(sys.argv[1],encoding='utf-8'))
+print('single-html' if doc.get('document_mode')=='single-html' else 'legacy')
+PY
+)"
 fi
 
-# 5. 复核与清理
+if [ "$MODE" = "single-html" ]; then
+  HTML="$DECK/index.html"
+  [ -f "$HTML" ] || { echo "缺少 single-html 输出：$HTML" >&2; exit 1; }
+  COUNT="$(python3 - "$HTML" <<'PY'
+from html.parser import HTMLParser
+import sys
+class P(HTMLParser):
+    def __init__(self): super().__init__(); self.count=0
+    def handle_starttag(self,tag,attrs):
+        a=dict(attrs)
+        if tag=='section' and 'slide' in a.get('class','').split() and a.get('data-page-id'): self.count+=1
+p=P(); p.feed(open(sys.argv[1],encoding='utf-8').read()); print(p.count)
+PY
+)"
+  [ "$COUNT" -gt 0 ] || { echo "index.html 中没有 slide" >&2; exit 1; }
+  URL="$(python3 - "$HTML" <<'PY'
+from pathlib import Path
+import sys
+print(Path(sys.argv[1]).resolve().as_uri()+'?print=1')
+PY
+)"
+else
+  shopt -s nullglob
+  FRAMES=("$DECK"/frames/shot-*.html)
+  [ "${#FRAMES[@]}" -gt 0 ] || { echo "旧 deck 缺少 frames/shot-*.html" >&2; exit 1; }
+  COUNT="${#FRAMES[@]}"
+  PRINT_HTML="$TMP_ROOT/legacy-print.html"
+  {
+    printf '%s\n' '<!doctype html><html data-deck-ready="false"><head><meta charset="UTF-8"><style>@page{size:20in 11.25in;margin:0}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0}.page{width:1920px;height:1080px;break-after:page;overflow:hidden}.page:last-child{break-after:auto}.page iframe{display:block;width:1920px;height:1080px;border:0}</style></head><body>'
+    for frame in "${FRAMES[@]}"; do
+      URI="$(python3 - "$frame" <<'PY'
+from pathlib import Path
+import sys
+print(Path(sys.argv[1]).resolve().as_uri())
+PY
+)"
+      printf '<div class="page"><iframe src="%s"></iframe></div>\n' "$URI"
+    done
+    printf '%s\n' '<script>(function(){var nodes=[].slice.call(document.querySelectorAll("iframe"));function ready(){var ok=nodes.every(function(f){try{return f.contentDocument&&f.contentDocument.documentElement.dataset.renderReady==="true"}catch(e){return false}});if(ok)document.documentElement.dataset.deckReady="true";else setTimeout(ready,50)}ready()})();</script></body></html>'
+  } > "$PRINT_HTML"
+  URL="$(python3 - "$PRINT_HTML" <<'PY'
+from pathlib import Path
+import sys
+print(Path(sys.argv[1]).resolve().as_uri())
+PY
+)"
+fi
+
+DOM="$TMP_ROOT/ready.html"
+COMMON=(--headless --disable-gpu --allow-file-access-from-files --disable-background-networking --disable-component-update --disable-default-apps --disable-sync --no-first-run --no-default-browser-check --metrics-recording-only)
+"$CHROME" "${COMMON[@]}" --user-data-dir="$TMP_ROOT/ready-profile" --virtual-time-budget=12000 --dump-dom "$URL" >"$DOM" 2>"$TMP_ROOT/load.log" &
+CHROME_PID=$!
+for _ in $(seq 1 240); do
+  if rg -q 'data-deck-ready="true"|data-deck-error=' "$DOM" 2>/dev/null; then break; fi
+  kill -0 "$CHROME_PID" 2>/dev/null || break
+  sleep 0.1
+done
+stop_chrome
+rg -q 'data-deck-ready="true"' "$DOM" || { echo "deck 未在时限内完成渲染" >&2; tail -20 "$TMP_ROOT/load.log" >&2; exit 1; }
+"$CHROME" "${COMMON[@]}" --user-data-dir="$TMP_ROOT/print-profile" --no-pdf-header-footer --virtual-time-budget=12000 --print-to-pdf="$OUT" "$URL" >"$TMP_ROOT/print.log" 2>&1 &
+CHROME_PID=$!
+for _ in $(seq 1 300); do
+  if [ -s "$OUT" ] && [ "$(head -c 5 "$OUT" 2>/dev/null || true)" = "%PDF-" ]; then break; fi
+  kill -0 "$CHROME_PID" 2>/dev/null || break
+  sleep 0.1
+done
+stop_chrome
+[ -s "$OUT" ] || { echo "PDF 生成失败：$OUT" >&2; exit 1; }
 [ "$(head -c 5 "$OUT")" = "%PDF-" ] || { echo "PDF 文件头无效：$OUT" >&2; exit 1; }
 if command -v pdfinfo >/dev/null 2>&1; then
   PDF_PAGES="$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')"
-  [ "$PDF_PAGES" = "$COUNT" ] || {
-    echo "PDF 页数 $PDF_PAGES，与截图页数 $COUNT 不一致：$OUT" >&2
-    exit 1
-  }
+  [ "$PDF_PAGES" = "$COUNT" ] || { echo "PDF 页数 $PDF_PAGES，与 slide 数 $COUNT 不一致" >&2; exit 1; }
 fi
-if [ "$KEEP_PNG" -eq 1 ]; then
-  echo "PNG 保留在 $PNG_DIR"
-fi
-exit 0
+echo "PASS pdf mode=$MODE pages=$COUNT output=$OUT"
