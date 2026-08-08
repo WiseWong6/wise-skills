@@ -1,6 +1,6 @@
 # 纸墨主题组件适配
 
-组件选择由 Core 的语义路由完成；本文件只说明组件落入纸墨 slot 后如何变成同一套视觉语言。
+组件选择由 Core 的语义路由完成；本文件只说明组件落入纸墨 slot 后如何变成同一套视觉语言。Atlas 与 ECharts 都是可选参考源，页面可以完全使用原生 HTML、CSS 或 SVG。
 
 ## 通用契约
 
@@ -60,6 +60,8 @@ render plan 至少声明：
 }
 ```
 
+- 图表类型按 [ECharts 官方 option 文档](https://echarts.apache.org/en/option.html)选择，不维护本地 series 白名单；`radar`、`sankey`、`custom` 等可正常使用。
+- 当前纸墨主题运行时为 ECharts 5；所选配置必须兼容该 major，本次不升级运行时。
 - 色板只用墨色阶梯；`?accent` 只染 encode 指定的唯一主角。
 - 轴线与网格 0.6–1px；去渐变、圆角、面积重填充和阴影。
 - 图例、刻度、单位永不使用强调色；图表必须有来源或数据口径。
@@ -67,7 +69,7 @@ render plan 至少声明：
 
 ## Atlas
 
-`ppt-component-atlas` 只负责“精确组件名 + variant → 裸 HTML”。Core 负责语义选择；不得要求 atlas 猜概念。
+`ppt-component-atlas` 只负责“精确组件名 + variant → 裸 HTML”。仅在页面实际使用 `provider=atlas` 时加载。Core 负责语义选择；不得要求 Atlas 猜概念。
 
 - render plan 必须写可唯一命中的精确 `component` 和可选 `variant`，例如 `流程-默认变体(4步)` / `default`；不要只写会命中多条记录的 `process`。
 - 导出后保留结构，套用 `theme_adapter: paper-ink.atlas`：去色、直角、细线、字体替换、静态化。
