@@ -1,6 +1,5 @@
 {
   "page_id": "page.one",
-  "output_file": "frames/page.one.html",
   "layout_decision": {
     "source": "gallery",
     "reuse_mode": "adapt",
@@ -24,7 +23,11 @@
     "data-layout-source": "gallery",
     "data-layout": "demo.argument.sequence",
     "data-density": "balanced",
-    "data-reuse-mode": "adapt"
+    "data-reuse-mode": "adapt",
+    "data-page-title": "Retention reached 55%",
+    "data-page-summary": "The release moved the metric",
+    "data-section-id": "section.main",
+    "data-section-title": "Result"
   },
   "slots": [
     {

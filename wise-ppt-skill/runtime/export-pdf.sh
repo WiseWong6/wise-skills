@@ -1,10 +1,30 @@
 #!/bin/bash
-# wise-ppt · 无截图 PDF 导出：新 deck 直接打印；旧 frames deck 使用 /tmp 临时加载壳。
+# wise-ppt · 无截图 PDF 导出：只接受 v2 single-HTML deck。
 set -euo pipefail
 DECK="${1:?用法: export-pdf.sh <deck目录> [输出PDF路径]}"
 DECK="$(cd "$DECK" && pwd)"
 NAME="$(basename "$DECK")"
 OUT="${2:-$DECK/$NAME.pdf}"
+PLAN="$DECK/render-plan.json"
+[ -f "$PLAN" ] || { echo "缺少 Render Plan：$PLAN" >&2; exit 1; }
+python3 - "$PLAN" <<'PY'
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    document = json.load(handle)
+expected = {
+    "schema_version": "2.0",
+    "document_mode": "single-html",
+    "output_file": "index.html",
+}
+actual = {key: document.get(key) for key in expected}
+if actual != expected:
+    raise SystemExit(f"仅支持 v2 single-HTML Render Plan：期望 {expected}，实际 {actual}")
+if any("output_file" in page for page in document.get("pages", []) if isinstance(page, dict)):
+    raise SystemExit("pages[] 不得声明 output_file")
+PY
+
 TMP_ROOT="$(mktemp -d /tmp/wise-ppt-pdf.XXXXXX)"
 mkdir -p "$TMP_ROOT/ready-profile" "$TMP_ROOT/print-profile" "$(dirname "$OUT")"
 CHROME_PID=""
@@ -29,20 +49,9 @@ CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 if [ ! -x "$CHROME" ] && [ -x "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" ]; then CHROME="/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"; fi
 [ -x "$CHROME" ] || { echo "找不到 Chrome/Edge" >&2; exit 1; }
 
-MODE="legacy"
-if [ -f "$DECK/render-plan.json" ]; then
-  MODE="$(python3 - "$DECK/render-plan.json" <<'PY'
-import json, sys
-doc=json.load(open(sys.argv[1],encoding='utf-8'))
-print('single-html' if doc.get('document_mode')=='single-html' else 'legacy')
-PY
-)"
-fi
-
-if [ "$MODE" = "single-html" ]; then
-  HTML="$DECK/index.html"
-  [ -f "$HTML" ] || { echo "缺少 single-html 输出：$HTML" >&2; exit 1; }
-  COUNT="$(python3 - "$HTML" <<'PY'
+HTML="$DECK/index.html"
+[ -f "$HTML" ] || { echo "缺少 single-html 输出：$HTML" >&2; exit 1; }
+COUNT="$(python3 - "$HTML" <<'PY'
 from html.parser import HTMLParser
 import sys
 class P(HTMLParser):
@@ -53,39 +62,13 @@ class P(HTMLParser):
 p=P(); p.feed(open(sys.argv[1],encoding='utf-8').read()); print(p.count)
 PY
 )"
-  [ "$COUNT" -gt 0 ] || { echo "index.html 中没有 slide" >&2; exit 1; }
-  URL="$(python3 - "$HTML" <<'PY'
+[ "$COUNT" -gt 0 ] || { echo "index.html 中没有 slide" >&2; exit 1; }
+URL="$(python3 - "$HTML" <<'PY'
 from pathlib import Path
 import sys
 print(Path(sys.argv[1]).resolve().as_uri()+'?print=1')
 PY
 )"
-else
-  shopt -s nullglob
-  FRAMES=("$DECK"/frames/shot-*.html)
-  [ "${#FRAMES[@]}" -gt 0 ] || { echo "旧 deck 缺少 frames/shot-*.html" >&2; exit 1; }
-  COUNT="${#FRAMES[@]}"
-  PRINT_HTML="$TMP_ROOT/legacy-print.html"
-  {
-    printf '%s\n' '<!doctype html><html data-deck-ready="false"><head><meta charset="UTF-8"><style>@page{size:20in 11.25in;margin:0}*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{margin:0}.page{width:1920px;height:1080px;break-after:page;overflow:hidden}.page:last-child{break-after:auto}.page iframe{display:block;width:1920px;height:1080px;border:0}</style></head><body>'
-    for frame in "${FRAMES[@]}"; do
-      URI="$(python3 - "$frame" <<'PY'
-from pathlib import Path
-import sys
-print(Path(sys.argv[1]).resolve().as_uri())
-PY
-)"
-      printf '<div class="page"><iframe src="%s"></iframe></div>\n' "$URI"
-    done
-    printf '%s\n' '<script>(function(){var nodes=[].slice.call(document.querySelectorAll("iframe"));function ready(){var ok=nodes.every(function(f){try{return f.contentDocument&&f.contentDocument.documentElement.dataset.renderReady==="true"}catch(e){return false}});if(ok)document.documentElement.dataset.deckReady="true";else setTimeout(ready,50)}ready()})();</script></body></html>'
-  } > "$PRINT_HTML"
-  URL="$(python3 - "$PRINT_HTML" <<'PY'
-from pathlib import Path
-import sys
-print(Path(sys.argv[1]).resolve().as_uri())
-PY
-)"
-fi
 
 DOM="$TMP_ROOT/ready.html"
 COMMON=(--headless --disable-gpu --allow-file-access-from-files --disable-background-networking --disable-component-update --disable-default-apps --disable-sync --no-first-run --no-default-browser-check --metrics-recording-only)
@@ -112,4 +95,4 @@ if command -v pdfinfo >/dev/null 2>&1; then
   PDF_PAGES="$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')"
   [ "$PDF_PAGES" = "$COUNT" ] || { echo "PDF 页数 $PDF_PAGES，与 slide 数 $COUNT 不一致" >&2; exit 1; }
 fi
-echo "PASS pdf mode=$MODE pages=$COUNT output=$OUT"
+echo "PASS pdf mode=single-html pages=$COUNT output=$OUT"
