@@ -38,7 +38,10 @@ python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 - 卡片和 UI 边框 1px；SVG 主轮廓 1.2–1.4px；粗强调线每页最多一处。
 - 构造线、引线、节点、hatch 都在表达语义，不是填空装饰。
 - 装饰编号、章节纹样和弱线不重复争抢信息；同一层级只保留一个清晰编号源。
-- `?accent` 开启时一页一色、面积 ≤2.5%，且只染 render plan 指定的主角；关闭后回到纯单色。
+- `?accent` 开启时一页一色、面积 ≤2.5%，且只染 render plan 指定主角的语义焦点组；组内必要成员必须完整响应，关闭后回到纯单色。
+- 检查是否为了上色新增了原稿不存在的圆圈、图标、标签或装饰；没有语义对应物时应保持单色，不得硬造载体。
+- ID、hash、运行状态圆点、栏题、图例、刻度、FIG 与页脚默认保持墨色；空间邻近不能成为跟随上色的理由。
+- 主角图表使用 hatch 时，内部斜线须和数值/边框共同响应；同时确认复用 pattern 的其他图形没有被误染。
 - Grid 仅用于同级并列或二维关系；证据墙、六宫格和矩阵都能说明“为什么是这些格”。
 - 同一 deck 不连续三页复用相同 layout；复用时仍须根据内容数量和主次做适配。
 
@@ -54,7 +57,7 @@ python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 1. 远观：主张、主角和阅读方向是否一眼可见。
 2. 中距：证据、层级、组件组合和留白是否服务主张。
 3. 近看：字阶、线宽、对齐、来源、单位、标注和溢出是否合格。
-4. 对照：与 manifest 中同一 `layout_id` 的 general/ai 样例并排，确认结构同源但内容没有被模板改写。
+4. 对照：与 manifest 中同一 `layout_id` 的 general/ai 样例并排，按语义对应物确认强调规则一致；允许两册缺少不同载体，不得为了结构齐整凭空补件。
 5. 解码：对二维码、条码等机器可读组件直接读取最终截图，核对 payload 与来源一致。
 
 几何与解码不包含在 `validate.py` / `lint.py` 的 PASS 中；用 `runtime/screenshot.sh <DECK> "" "" audit` 测量 `#body`，并把装饰后代标成 `data-balance-exclude="true"`。缺少/空主体、非法 mode/frame/tolerance 或越出安全区都会失败；普通截图会校验带 `data-qr-payload` 的 QR，其他机器码须接入对应解码器。验收记录需附中心型主体的 `dx/dy`、意图性非对称的结构锚点，以及机器码的 expected / decoded payload。

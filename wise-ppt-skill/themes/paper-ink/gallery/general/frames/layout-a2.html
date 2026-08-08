@@ -63,6 +63,9 @@
 <script>
 var NS = 'http://www.w3.org/2000/svg';
 var INK = 'rgba(25,25,23,.82)';
+if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
+var ACCENT = document.documentElement.classList.contains('accent');
+var RED = '#C0392B';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -142,7 +145,7 @@ for (var gx = 180; gx < 1760; gx += 42) {
   /* 底部剖面影 */
   el('path', {d:'M '+(x+6)+' '+(y+8)+' L '+(x+w-6)+' '+(y+8)+' L '+(x+w-18)+' '+(y+16)+' L '+(x-6)+' '+(y+16)+' Z', fill:'url(#hatch)'});
   /* 手写吐槽 */
-  txt(x+w/2-10, y-186, 'K-12：你先走。', {'font-family':'LXGW WenKai', 'font-size':34, fill:INK, transform:'rotate(-3 '+(x+w/2)+' '+(y-186)+')'});
+  txt(x+w/2-10, y-186, 'K-12：你先走。', {id:'accent-dialogue', 'data-accent-group':'narrative-focus', 'font-family':'LXGW WenKai', 'font-size':34, fill:ACCENT ? RED : INK, transform:'rotate(-3 '+(x+w/2)+' '+(y-186)+')'});
 })();
 
 /* ============ 货架墙 RACK B-12（三层搁板 + 货箱） ============ */

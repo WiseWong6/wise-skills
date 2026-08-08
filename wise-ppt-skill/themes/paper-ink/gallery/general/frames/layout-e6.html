@@ -116,10 +116,10 @@ el('line', {x1:1190, y1:252, x2:1190, y2:440, stroke:INK, 'stroke-width':.6, opa
 /* ============ 带二 · AFTER ============ */
 el('rect', {x:150, y:500, width:1620, height:280, rx:4, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1});
 el('rect', {x:155, y:505, width:1610, height:270, rx:3, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
-/* ✓ 徽章（accent 唯一落点，E1 先例） */
+/* ✓ 徽章与 After 标题组成同一结果语义组 */
 el('circle', {cx:200, cy:542, r:15, fill:'#DFE0D9', stroke: ACCENT ? RED : INK80, 'stroke-width':1.2});
 el('path', {d:'M 193 542 L 198 548 L 208 535', fill:'none', stroke: ACCENT ? RED : INK, 'stroke-width':3, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
-txt(232, 550, 'After：资料变成知识', {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+txt(232, 550, 'After：资料变成知识', {'data-accent-group':'positive-outcome', 'font-family':SANS, 'font-weight':300, 'font-size':24, fill:ACCENT ? RED : INK});
 txt(1730, 548, 'PIPELINED', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'end', fill:INK45});
 
 /* 六步流水线 */
