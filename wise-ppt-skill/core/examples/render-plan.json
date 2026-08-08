@@ -3,10 +3,11 @@
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "core-example",
+  "document_mode": "single-html",
+  "output_file": "index.html",
   "pages": [
     {
       "page_id": "page.opening",
-      "output_file": "frames/page.opening.html",
       "layout_decision": {
         "source": "gallery",
         "reuse_mode": "copy",
@@ -30,7 +31,11 @@
         "data-layout-source": "gallery",
         "data-layout": "core-example.focus.statement",
         "data-density": "breathing",
-        "data-reuse-mode": "copy"
+        "data-reuse-mode": "copy",
+        "data-page-title": "上线只是过程中的一个节点",
+        "data-page-summary": "学习结果必须进入下一轮发现。",
+        "data-section-id": "section.opening",
+        "data-section-title": "建立判断"
       },
       "slots": [
         {
@@ -56,7 +61,6 @@
     },
     {
       "page_id": "page.six-stage-loop",
-      "output_file": "frames/page.six-stage-loop.html",
       "layout_decision": {
         "source": "gallery",
         "reuse_mode": "adapt",
@@ -80,7 +84,11 @@
         "data-layout-source": "gallery",
         "data-layout": "core-example.flow.looped-sequence",
         "data-density": "dense",
-        "data-reuse-mode": "adapt"
+        "data-reuse-mode": "adapt",
+        "data-page-title": "六个阶段首尾相接，而不是六个孤立格子",
+        "data-page-summary": "发现、界定、构建、验证、发布与学习按顺序推进，并由学习回流到发现。",
+        "data-section-id": "section.mechanism",
+        "data-section-title": "展示机制"
       },
       "slots": [
         {
@@ -135,7 +143,6 @@
     },
     {
       "page_id": "page.close",
-      "output_file": "frames/page.close.html",
       "layout_decision": {
         "source": "custom",
         "reuse_mode": "custom",
@@ -173,7 +180,11 @@
         "data-layout-source": "custom",
         "data-layout": "custom.core-example.close",
         "data-density": "breathing",
-        "data-reuse-mode": "custom"
+        "data-reuse-mode": "custom",
+        "data-page-title": "每次发布都应留下下一轮可用的学习",
+        "data-page-summary": "没有回流的发布，只完成了交付，没有完成学习。",
+        "data-section-id": "section.close",
+        "data-section-title": "收束行动"
       },
       "slots": [
         {
