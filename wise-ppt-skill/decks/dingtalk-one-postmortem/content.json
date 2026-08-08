@@ -1,0 +1,615 @@
+{
+  "schema_version": "1.0",
+  "brief": {
+    "title": "置身钉内：ONE 的系统复盘",
+    "objective": "从 105 页个人复盘中提炼 ONE 从发心、定位、设计、用户、敏捷到组织秩序的因果链。",
+    "audience": "Wise 的晚间验收，以及需要快速理解原文逻辑的评审者",
+    "scenario": "材料解读型 HTML PPT",
+    "language": "zh-CN",
+    "page_limits": {
+      "min": 1,
+      "max": 15,
+      "requested": null
+    },
+    "must_include": [
+      "三层发心与不可能 N 角",
+      "卡片、已读与真实用户的设计教训",
+      "敏捷、秩序、竞争与长期主义"
+    ],
+    "must_avoid": [
+      "把个人叙事压扁成产品失败原因清单",
+      "把共创用户反馈等同于真实用户行为"
+    ],
+    "gaps": [
+      "未指定正式演讲对象与时长；本版按材料解读型通用受众编排。"
+    ]
+  },
+  "sources": [
+    {
+      "id": "src.dingtalk-one-postmortem.pdf",
+      "kind": "file",
+      "title": "置身钉内",
+      "locator": "/Users/wisewong/Downloads/自媒体/置身钉内 14.34.50.pdf（105 页）",
+      "synthetic": false,
+      "observed_at": "2026-08-08",
+      "notes": "本地 PDF；仅用于本轮内容提取与视觉抽查。"
+    }
+  ],
+  "content_items": [
+    {
+      "id": "item.dingtalk-one-postmortem.cover",
+      "kind": "assertion",
+      "statement": "ONE 的问题，不是没有理想，而是理想没有收敛成同一个真实问题",
+      "priority": "should",
+      "status": "inferred",
+      "status_note": "综合全文结构提炼的开场判断。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.cover.01",
+          "label": "复盘对象",
+          "value": "钉钉 ONE：立项、发布、共创到收缩"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "setup",
+        "hook"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.chapter-map",
+      "kind": "assertion",
+      "statement": "八章复盘把产品问题逐步推向组织与长期主义",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 1–105 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.01",
+          "label": "发心",
+          "value": "为什么出发"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.02",
+          "label": "定位",
+          "value": "为谁解决什么"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.03",
+          "label": "设计",
+          "value": "形式如何影响内容"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.04",
+          "label": "用户",
+          "value": "谁的反馈算证据"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.05",
+          "label": "敏捷",
+          "value": "快是否接近正确问题"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.06",
+          "label": "秩序",
+          "value": "谁定义优先级"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.07",
+          "label": "军争",
+          "value": "平台如何取舍"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.chapter-map.08",
+          "label": "长期",
+          "value": "人是目的还是手段"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "setup",
+        "synthesize"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.three-intents",
+      "kind": "assertion",
+      "statement": "ONE 同时承载用户、产品与组织三层发心",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 8 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.three-intents.01",
+          "label": "用户发心",
+          "value": "让重要的事浮上来，少遗漏、少翻找"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.three-intents.02",
+          "label": "产品发心",
+          "value": "把消息、日程、待办、会议、文档重新组织"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.three-intents.03",
+          "label": "组织发心",
+          "value": "聚人心、提士气、改形象"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "setup",
+        "explain"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.positioning",
+      "kind": "assertion",
+      "statement": "定位必须同时回答用户、场景、价值与竞争",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 9–24 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.positioning.01",
+          "label": "用户",
+          "value": "服务谁"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.positioning.02",
+          "label": "场景",
+          "value": "在哪个工作时刻发生"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.positioning.03",
+          "label": "价值",
+          "value": "替用户完成什么"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.positioning.04",
+          "label": "竞争",
+          "value": "为何由钉钉与 ONE 来做"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "setup",
+        "explain"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.impossible-polygon",
+      "kind": "assertion",
+      "statement": "ONE 的目标彼此牵制，构成一个不可能 N 角",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 21–23 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.impossible-polygon.01",
+          "label": "高频",
+          "value": "用户每天使用"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.impossible-polygon.02",
+          "label": "普适",
+          "value": "辐射大多数用户"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.impossible-polygon.03",
+          "label": "管理者",
+          "value": "服务好管理者角色"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.impossible-polygon.04",
+          "label": "成本",
+          "value": "成本可控"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.impossible-polygon.05",
+          "label": "入口",
+          "value": "一处完成钉钉操作"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.impossible-polygon.06",
+          "label": "智能",
+          "value": "召回与准确率可接受"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "setup",
+        "synthesize"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.position-shifts",
+      "kind": "assertion",
+      "statement": "定位反复改写，却没有补上前一阶段留下的缝",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 24 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.position-shifts.01",
+          "label": "交点",
+          "value": "大基数 × 高频 × 付费"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.position-shifts.02",
+          "label": "工作带",
+          "value": "同时承接 DAU 与商业想象"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.position-shifts.03",
+          "label": "指标收束",
+          "value": "回到效率与 AI 组织数"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.position-shifts.04",
+          "label": "过渡层",
+          "value": "让位 Fusion"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "setup",
+        "sequence"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.card-tension",
+      "kind": "assertion",
+      "statement": "卡片很有表现力，却与工作信息的实时性和上下文发生冲突",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 25–36 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.card-tension.01",
+          "label": "卡片吸引力",
+          "value": "可视、可玩、适合展示 AI 结果"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.card-tension.02",
+          "label": "工作信息",
+          "value": "实时、连续、依赖原始上下文"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.card-tension.03",
+          "label": "隐性成本",
+          "value": "排序难感知，操作遮蔽信息"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "product",
+        "compare"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.failure-chain",
+      "kind": "assertion",
+      "statement": "实时、排序、卡片与已读叠加成一条体验失败链",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 31–45 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.failure-chain.01",
+          "label": "实时",
+          "value": "工作信息持续流入"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.failure-chain.02",
+          "label": "排序",
+          "value": "重要性判断需要界面承接"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.failure-chain.03",
+          "label": "卡片",
+          "value": "交互让排序收益难被看见"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.failure-chain.04",
+          "label": "已读",
+          "value": "打开即已读制造压力"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.failure-chain.05",
+          "label": "补丁",
+          "value": "横滑、预览与跳过只缓解痛感"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "product",
+        "explain"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.design-turn",
+      "kind": "assertion",
+      "statement": "放弃大包大揽后，设计才从形式回到用户动作",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 46–54 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.design-turn.01",
+          "label": "形式驱动",
+          "value": "卡片心智"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.design-turn.02",
+          "label": "形式驱动",
+          "value": "大而全"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.design-turn.03",
+          "label": "形式驱动",
+          "value": "覆盖所有工作"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.design-turn.04",
+          "label": "动作驱动",
+          "value": "提升阅读效率"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.design-turn.05",
+          "label": "动作驱动",
+          "value": "降低写作门槛"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.design-turn.06",
+          "label": "动作驱动",
+          "value": "兜底丢失消息"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "product",
+        "compare"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.co-creation",
+      "kind": "assertion",
+      "statement": "共创用户体验的是产品加服务，真实用户只验收眼前价值",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 57–60 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.co-creation.01",
+          "label": "共创用户",
+          "value": "知道取舍背景，会替产品补全意义"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.co-creation.02",
+          "label": "真实用户",
+          "value": "只看到误触、路径变化与新增成本"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.co-creation.03",
+          "label": "运营方式",
+          "value": "共创用户可被密集运营"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.co-creation.04",
+          "label": "产品责任",
+          "value": "真实用户只能被产品本身运营"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "product",
+        "compare"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.behavior-evidence",
+      "kind": "evidence",
+      "statement": "用户最诚实的回答，往往不在嘴上，而在成本里",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 57、104–105 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.behavior-evidence.01",
+          "label": "轻信号",
+          "value": "口头说“不错”"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.behavior-evidence.02",
+          "label": "重信号",
+          "value": "愿意改变路径、交出流程、承担风险"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.behavior-evidence.03",
+          "label": "Mom Test",
+          "value": "谈过去行为与具体成本，不追逐未来承诺"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "product",
+        "prove"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.agile-knife",
+      "kind": "assertion",
+      "statement": "响应快在修补痛感，迭代深才敢回到最初判断",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 68–76 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.agile-knife.01",
+          "label": "响应快",
+          "value": "怎样让现有设计没那么痛"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.agile-knife.02",
+          "label": "迭代深",
+          "value": "这个设计是否一开始就不该这样"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.agile-knife.03",
+          "label": "每日一包",
+          "value": "即时响应制造连续运动"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.agile-knife.04",
+          "label": "根问题",
+          "value": "正确问题被下一天的紧急问题盖过"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "org",
+        "compare"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.order",
+      "kind": "assertion",
+      "statement": "流水线管理追求可见性，创造性劳动需要完整时间与自主判断",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 76–84 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.order.01",
+          "label": "流水线逻辑",
+          "value": "拆任务、即时验收、确定性"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.order.02",
+          "label": "创造性劳动",
+          "value": "连续思考、试错、潜伏期"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.order.03",
+          "label": "西点式秩序",
+          "value": "服从、执行与统一节奏"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.order.04",
+          "label": "雅典学院",
+          "value": "争辩、探索与非线性发现"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "org",
+        "compare"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.strategy",
+      "kind": "assertion",
+      "statement": "平台竞争的终局判断没有错，问题是太早用终局叙事组织中局战斗",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 84–93 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.strategy.01",
+          "label": "钉钉",
+          "value": "组织确定性与执行闭环"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.strategy.02",
+          "label": "飞书",
+          "value": "知识工作与澄清"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.strategy.03",
+          "label": "企业微信",
+          "value": "微信连接"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.strategy.04",
+          "label": "Slack / Salesforce",
+          "value": "企业 Agent 入口"
+        },
+        {
+          "id": "atom.dingtalk-one-postmortem.strategy.05",
+          "label": "取舍",
+          "value": "广积粮、缓称王；选择什么不做"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "org",
+        "synthesize"
+      ]
+    },
+    {
+      "id": "item.dingtalk-one-postmortem.close",
+      "kind": "assertion",
+      "statement": "真正的敏捷，是更快学习、更快校准、更快把资源转向正确问题",
+      "priority": "must",
+      "status": "sourced",
+      "status_note": "可在原 PDF 第 76 页核对；本页仅做压缩与重组。",
+      "source_refs": [
+        "src.dingtalk-one-postmortem.pdf"
+      ],
+      "atomic_values": [
+        {
+          "id": "atom.dingtalk-one-postmortem.close.01",
+          "label": "检验",
+          "value": "运动不等于进步"
+        }
+      ],
+      "relations": [],
+      "tags": [
+        "org",
+        "close"
+      ]
+    }
+  ]
+}
