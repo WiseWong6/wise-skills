@@ -40,7 +40,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var SERIF = 'Han Serif';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
@@ -118,7 +118,7 @@ function kpi(index, value, label, detail, highlight){
   var top = KPI_TOP + index * KPI_BAND;
   txt(CXR, top+20, 'KPI · 0'+(index+1), {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   txt(CXR, top+100, value, {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill:highlight && ACCENT ? RED : INK});
-  txt(CXR, top+168, label, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:highlight && ACCENT ? 'rgba(192,57,43,.85)' : INK});
+  txt(CXR, top+168, label, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:highlight && ACCENT ? 'var(--accent-red-85)' : INK});
   txt(CXR, top+200, detail, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 }
 kpi(0, '600', '份文章已整理', '0 → 600 AUTO-CARD', false);

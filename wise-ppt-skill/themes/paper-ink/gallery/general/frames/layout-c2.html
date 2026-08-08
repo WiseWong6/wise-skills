@@ -47,7 +47,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -97,7 +97,7 @@ PX.forEach(function(p, i){
 /* 峰值注释 */
 var peak = PX[PX.length - 1];
 el('line', {x1:peak[0], y1:peak[1]-8, x2:peak[0], y2:256, stroke: ACCENT ? RED : INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'3 4'});
-txt(peak[0], 248, 'PEAK 52K', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? 'rgba(192,57,43,.85)' : INK});
+txt(peak[0], 248, 'PEAK 52K', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? 'var(--accent-red-85)' : INK});
 /* X 轴标签 */
 weeks.forEach(function(v, i){
   txt(300 + i * 200, 514, 'W' + String(24 + i), {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
@@ -112,7 +112,7 @@ zones.forEach(function(v, i){
   var x = 240 + i * 108, h = v * 1.9, y = 830 - h;
   var fill = i === 0 ? 'url(#hatch92)' : 'none';
   el('rect', {x:x, y:y, width:60, height:h, fill:fill, stroke: i === 0 && ACCENT ? RED : INK80, 'stroke-width': i === 0 && ACCENT ? 1.6 : 1.2});
-  txt(x + 30, y - 8, String(v) + '%', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill: i === 0 && ACCENT ? 'rgba(192,57,43,.85)' : INK});
+  txt(x + 30, y - 8, String(v) + '%', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill: i === 0 && ACCENT ? 'var(--accent-red-85)' : INK});
   txt(x + 30, 852, 'Z' + String.fromCharCode(65 + i), {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
 });
 
@@ -143,7 +143,7 @@ seg(194.4, 270, 'none', ACCENT ? RED : null);              /* 退货 21% */
 });
 /* 中心 */
 txt(CCX, CCY - 2, '100%', {'font-family':MONO, 'font-size':17, 'letter-spacing':1, 'text-anchor':'middle', fill:(ACCENT ? RED : INK)});
-txt(CCX, CCY + 24, 'N=3 MIX', {'font-family':MONO, 'font-size':10, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT ? 'rgba(192,57,43,.65)' : INK45)});
+txt(CCX, CCY + 24, 'N=3 MIX', {'font-family':MONO, 'font-size':10, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT ? 'var(--accent-red-65)' : INK45)});
 /* 扇区标签（引线 + 数值/名称） */
 function segLabel(ang, en, cn, anchor){
   var mid = ang * Math.PI / 180;
@@ -151,7 +151,7 @@ function segLabel(ang, en, cn, anchor){
   var rx = CCX + RO * Math.cos(mid), ry = CCY - RO * Math.sin(mid);
   el('line', {x1:rx, y1:ry, x2:lx, y2:ly, stroke:(ACCENT ? RED : INK), 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'3 4'});
   txt(lx, ly - 6, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':anchor, fill:(ACCENT ? RED : INK)});
-  txt(lx, ly + 16, cn, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':anchor, fill:(ACCENT ? 'rgba(192,57,43,.65)' : INK70)});
+  txt(lx, ly + 16, cn, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':anchor, fill:(ACCENT ? 'var(--accent-red-65)' : INK70)});
 }
 segLabel(-7.2, '46%', '整箱', 'middle');
 segLabel(135, '33%', '拆零', 'middle');
