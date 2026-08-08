@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN" data-page-id="wise-ppt-layout-atlas" data-page-role="compare" data-theme="paper-ink" data-layout-source="gallery" data-layout="paper-ink.comparison.paired-bands" data-density="dense" data-reuse-mode="adapt">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>每一页都有合适的阅读结构</title>
+  <link rel="stylesheet" href="../../themes/paper-ink/assets/shared.css">
+  <style>.scene{position:absolute;inset:0;width:100%;height:100%}.caption{position:absolute;left:0;right:0;bottom:118px;z-index:5;text-align:center;font-family:var(--sans);font-size:30px;font-weight:300;letter-spacing:.04em}</style>
+</head>
+<body>
+  <main class="stage" id="body" data-balance="structural" data-balance-frame="0,140,1920,980">
+    <div class="doc tl" data-balance-exclude="true">WISE PPT SKILL — 04<br>READING STRUCTURES FOR EVERY PAGE</div>
+    <div class="folio" data-balance-exclude="true">04 / 06 — WISE PPT</div>
+    <svg class="scene" viewBox="0 0 1920 1080" role="img" aria-label="每一页都有合适的阅读结构" aria-describedby="atlas-desc"
+      data-block-id="wise-ppt.layout-atlas" data-provider="svg" data-component="paired-bands" data-content-ref="wise-ppt.story.layout-atlas">
+      <desc id="atlas-desc">左侧解释结构应从内容关系出发，右侧示意六种阅读结构：双面板比较、横向流水线、三向放射、分层架构、图表联排和四象限矩阵。</desc>
+    </svg>
+    <div class="caption" data-block-id="wise-ppt.layout-atlas-takeaway" data-provider="typography" data-component="takeaway" data-content-ref="wise-ppt.story.layout-atlas">从信息关系出发，让每一种内容都拥有恰当的阅读结构。</div>
+  </main>
+  <script src="../../themes/paper-ink/assets/particles.js"></script>
+  <script src="frame-input.js"></script>
+  <script>
+    (function(){
+      const svg=document.querySelector('.scene'),NS='http://www.w3.org/2000/svg';
+      const INK='#191917',INK80='rgba(25,25,23,.80)',INK70='rgba(25,25,23,.70)',INK45='rgba(25,25,23,.45)';
+      const SANS='var(--sans)',MONO='var(--mono)',SERIF='var(--serif)';
+      const el=(tag,attrs={},parent=svg)=>{const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n;};
+      const txt=(text,x,y,attrs={},parent=svg)=>{const n=el('text',{x,y,fill:INK,'font-family':SANS,...attrs},parent);n.textContent=text;return n;};
+      const line=(x1,y1,x2,y2,attrs={},parent=svg)=>el('line',{x1,y1,x2,y2,stroke:INK,'stroke-width':1.1,...attrs},parent);
+      txt('FIG. 04 — READING STRUCTURES BY RELATION',200,176,{'font-family':MONO,'font-size':14,'letter-spacing':2.2,fill:INK45});line(200,194,560,194,{stroke:INK45,'stroke-width':.7});
+      const cardTop=360,cardGap=14,cardHeight=140,cardBottom=cardTop+2*(cardHeight+cardGap)+cardHeight;
+      line(690,270,690,cardBottom,{stroke:INK45,'stroke-width':.9});
+
+      txt('版式不是模板',225,277,{'font-family':SANS,'font-size':36,'font-weight':300});
+      txt('它先决定一页的阅读关系',225,319,{'font-family':SANS,'font-size':22,'font-weight':300,fill:INK70});
+      const introTop=cardTop+13;
+      txt('同一段内容，因关系不同，',225,introTop,{'font-size':18,'font-weight':300,fill:INK70});
+      txt('应当拥有不同的组织方式。',225,introTop+28,{'font-size':18,'font-weight':300,fill:INK70});
+      const principle=(y,no,title,lines)=>{el('circle',{cx:246,cy:y-5,r:18,fill:'#DFE0D9',stroke:INK,'stroke-width':1});txt(no,246,y,{'font-family':MONO,'font-size':12,'text-anchor':'middle'});txt(title,282,y,{'font-family':SANS,'font-size':23,'font-weight':300});lines.forEach((t,i)=>txt(t,282,y+29+i*23,{'font-size':16,'font-weight':300,fill:INK70}));};
+      const principleStart=477,principleLast=cardBottom-52,principleStep=(principleLast-principleStart)/2;
+      [['01','先判断信息关系',['对比、流程、层级、数据，','不是同一种表达任务。']],['02','再确定阅读重心',['一页只保留一种主要的','阅读动作与视觉结构。']],['03','结构服务关系',['需要时提供明确构图；','不需要时，仍从内容出发。']]].forEach((item,i)=>principle(principleStart+i*principleStep,item[0],item[1],item[2]));
+
+      txt('每页都有合适的阅读结构',748,277,{'font-family':SANS,'font-size':36,'font-weight':300});
+      txt('按信息关系选择',748,319,{'font-family':SANS,'font-size':22,'font-weight':300,fill:INK70});
+      const preview=(kind,x,y)=>{
+        const px=x+224,py=y+28;
+        if(kind==='compare'){el('rect',{x:px,y:py,width:80,height:82,fill:'none',stroke:INK45,'stroke-width':.8});el('rect',{x:px+94,y:py,width:80,height:82,fill:'rgba(255,255,255,.22)',stroke:INK,'stroke-width':.9});line(px+17,py+25,px+63,py+25,{stroke:INK45,'stroke-width':.8});line(px+111,py+25,px+157,py+25,{stroke:INK45,'stroke-width':.8});}
+        if(kind==='flow'){line(px+4,py+42,px+182,py+42,{stroke:INK45,'stroke-width':1});[0,1,2,3].forEach(i=>{const cx=px+16+i*54;el('circle',{cx,cy:py+42,r:13,fill:'#DFE0D9',stroke:INK,'stroke-width':.9});txt(String(i+1),cx,py+46,{'font-family':MONO,'font-size':9,'text-anchor':'middle'});});}
+        if(kind==='radial'){el('circle',{cx:px+93,cy:py+43,r:26,fill:'none',stroke:INK,'stroke-width':1});[[px+38,py+22],[px+148,py+22],[px+93,py+82]].forEach(p=>{line(px+93,py+43,p[0],p[1],{stroke:INK45,'stroke-width':.8});el('circle',{cx:p[0],cy:p[1],r:9,fill:'#DFE0D9',stroke:INK,'stroke-width':.8});});}
+        if(kind==='stack'){[0,1,2].forEach(i=>{el('rect',{x:px+18+i*12,y:py+12+i*23,width:150-i*24,height:18,fill:i===1?'rgba(255,255,255,.22)':'none',stroke:INK,'stroke-width':.8});});}
+        if(kind==='chart'){[0,1,2].forEach(i=>{const bx=px+8+i*57;el('rect',{x:bx,y:py+10,width:46,height:74,fill:'none',stroke:INK45,'stroke-width':.8});[0,1,2].forEach(n=>line(bx+10+n*10,py+68,bx+10+n*10,py+50-(i*6+n*7),{stroke:INK,'stroke-width':1.4}));});}
+        if(kind==='matrix'){line(px+92,py+4,px+92,py+86,{stroke:INK,'stroke-width':.9});line(px+40,py+45,px+144,py+45,{stroke:INK,'stroke-width':.9});[[67,27],[116,26],[68,65],[118,64]].forEach(p=>el('circle',{cx:px+p[0],cy:py+p[1],r:4,fill:INK}));}
+      };
+      const card=(x,y,code,title,kind)=>{el('rect',{x,y,width:440,height:cardHeight,fill:'rgba(255,255,255,.22)',stroke:INK80,'stroke-width':1.1});el('rect',{x:x+5,y:y+5,width:430,height:cardHeight-10,fill:'none',stroke:INK,'stroke-width':.55,opacity:.3});txt(code,x+22,y+31,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,fill:INK45});txt(title,x+22,y+71,{'font-family':SANS,'font-size':25,'font-weight':300});line(x+198,y+21,x+198,y+119,{stroke:INK45,'stroke-width':.7});preview(kind,x,y);};
+      [['01','双面板比较','compare'],['02','横向流水线','flow'],['03','三向放射','radial'],['04','分层架构堆栈','stack'],['05','图表联排墙','chart'],['06','四象限矩阵','matrix']].forEach((item,i)=>card(i%2?1240:748,cardTop+Math.floor(i/2)*(cardHeight+cardGap),item[0],item[1],item[2]));
+    })();stageFit();
+  </script>
+</body>
+</html>
