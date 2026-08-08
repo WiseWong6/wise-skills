@@ -706,6 +706,25 @@ class ContractValidationTests(unittest.TestCase):
         result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
+    def test_render_plan_v2_single_html_requires_canonical_index_entry(self) -> None:
+        render = copy.deepcopy(self.fixture.render)
+        render["document_mode"] = "single-html"
+        render["output_file"] = "deck.html"
+        page = render["pages"][0]
+        page.pop("output_file")
+        page["html_attributes"].update(
+            {
+                "data-page-title": "Retention reached 55%",
+                "data-page-summary": "The release moved the metric",
+                "data-section-id": "section.main",
+                "data-section-title": "Main",
+            }
+        )
+        result = JsonSchemaValidator(
+            REPO_ROOT / "core" / "schemas" / "render-plan.schema.json"
+        ).validate(render, "render-plan.json")
+        self.assert_has_code(result, "schema.const")
+
     def test_render_checks_canonical_page_and_component_data_attributes(self) -> None:
         html = self.fixture.html_path.read_text(encoding="utf-8")
         html = html.replace('data-theme="minimal-neutral"', 'data-theme-id="minimal-neutral"')
@@ -1000,6 +1019,20 @@ class SingleHtmlContractTests(unittest.TestCase):
     def test_render_plan_v11_single_html_is_valid(self) -> None:
         result = self.validate()
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
+    def test_render_plan_v11_requires_canonical_index_entry(self) -> None:
+        render_path = self.deck / "render-plan.json"
+        render = load_json(render_path)
+        render["output_file"] = "deck.html"
+        write_json(render_path, render)
+        self.assertIn("schema.oneOf", self.error_codes(self.validate()))
+
+    def test_render_plan_v11_requires_layout_source_metadata(self) -> None:
+        render_path = self.deck / "render-plan.json"
+        render = load_json(render_path)
+        render["pages"][0]["html_attributes"].pop("data-layout-source")
+        write_json(render_path, render)
+        self.assertIn("schema.oneOf", self.error_codes(self.validate()))
 
     def test_single_html_rejects_duplicate_page_id(self) -> None:
         source = self.html.read_text(encoding="utf-8").replace(
