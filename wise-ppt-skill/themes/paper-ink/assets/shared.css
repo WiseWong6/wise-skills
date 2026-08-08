@@ -107,7 +107,7 @@
 
 html, body { height: 100%; }
 
-body {
+html:not([data-runtime="wise-ppt"]) body {
   background: #111;
   display: flex;
   align-items: center;
@@ -119,6 +119,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html[data-runtime="wise-ppt"] body {
+  font-family: var(--sans);
+  font-weight: 300;
+  color: var(--ink);
+}
+
 /* ---------- 舞台：宣纸 + 噪点 ---------- */
 .stage {
   flex: none;
@@ -128,6 +134,11 @@ body {
   overflow: hidden;
   background: var(--paper);
   transform-origin: center center;
+}
+
+html[data-runtime="wise-ppt"] .slide > .stage {
+  transform: none;
+  transform-origin: top left;
 }
 
 /* 纸纹噪点 */

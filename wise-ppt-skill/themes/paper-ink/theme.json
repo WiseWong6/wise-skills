@@ -28,7 +28,8 @@
   "assets": {
     "bundle": "themes/paper-ink/assets",
     "stylesheet": "themes/paper-ink/assets/shared.css",
-    "shot_template": "themes/paper-ink/assets/shot-template.html",
+    "slide_template": "themes/paper-ink/assets/slide-template.html",
+    "legacy_shot_template": "themes/paper-ink/assets/shot-template.html",
     "particles": "themes/paper-ink/assets/particles.js",
     "fonts": "themes/paper-ink/assets/fonts"
   },
@@ -62,9 +63,15 @@
     "atlas",
     "svg"
   ],
+  "runtimes": {
+    "echarts": {
+      "major": 5,
+      "source": "https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js",
+      "option_docs": "https://echarts.apache.org/en/option.html"
+    }
+  },
   "output_formats": [
     "html",
-    "pdf",
-    "png"
+    "pdf"
   ]
 }

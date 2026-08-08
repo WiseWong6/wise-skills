@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN" data-page-id="wise-ppt-component-atlas" data-page-role="explain" data-theme="paper-ink" data-layout-source="gallery" data-layout="paper-ink.radial.annotated-hero" data-density="balanced" data-reuse-mode="adapt">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wise PPT Skill 的 PPT 组件</title>
+  <link rel="stylesheet" href="../../themes/paper-ink/assets/shared.css">
+  <style>.scene{position:absolute;inset:0;width:100%;height:100%}.caption{position:absolute;left:0;right:0;bottom:118px;z-index:5;text-align:center;font-size:31px;font-weight:400;letter-spacing:.04em}</style>
+</head>
+<body>
+  <main class="stage" id="body" data-balance="structural" data-balance-frame="0,140,1920,980">
+    <div class="doc tl" data-balance-exclude="true">WISE PPT SKILL — 05<br>COMPONENTS ARE OPTIONAL</div>
+    <div class="folio" data-balance-exclude="true">05 / 05 — WISE PPT</div>
+    <svg class="scene" viewBox="0 0 1920 1080" role="img" aria-labelledby="component-title component-desc"
+      data-block-id="wise-ppt.component-atlas" data-provider="svg" data-component="evidence-annotation" data-content-ref="wise-ppt.story.component-atlas">
+      <title id="component-title">Wise PPT Skill 的可选组件图册</title>
+      <desc id="component-desc">中央是可组合的PPT组件盒，周围注释说明数据、流程、结构和标注组件。组件按页面需要使用，也可以不使用。</desc>
+    </svg>
+    <div class="caption" data-block-id="wise-ppt.component-atlas-takeaway" data-provider="typography" data-component="takeaway" data-content-ref="wise-ppt.story.component-atlas">组件不是强制模板；它们是把高质量表达沉淀成可按需调用的能力。</div>
+  </main>
+  <script src="../../themes/paper-ink/assets/particles.js"></script>
+  <script>
+    (function(){
+      const svg=document.querySelector('.scene'),NS='http://www.w3.org/2000/svg';
+      const INK='#191917',INK80='rgba(25,25,23,.80)',INK70='rgba(25,25,23,.70)',INK45='rgba(25,25,23,.45)';
+      const SANS='var(--sans)',MONO='var(--mono)',SERIF='var(--serif)';
+      const el=(tag,attrs={},parent=svg)=>{const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n;};
+      const txt=(text,x,y,attrs={},parent=svg)=>{const n=el('text',{x,y,fill:INK,'font-family':SANS,...attrs},parent);n.textContent=text;return n;};
+      const line=(x1,y1,x2,y2,attrs={},parent=svg)=>el('line',{x1,y1,x2,y2,stroke:INK,'stroke-width':1.1,...attrs},parent);
+      txt('FIG. 05 — COMPOSABLE PPT COMPONENTS',200,176,{'font-family':MONO,'font-size':14,'letter-spacing':2.2,fill:INK45});line(200,194,560,194,{stroke:INK45,'stroke-width':.7});
+      const PX=650,PY=338,PW=620,PH=410;el('rect',{x:PX,y:PY,width:PW,height:PH,fill:'rgba(255,255,255,.22)',stroke:INK80,'stroke-width':1.3});el('rect',{x:PX+6,y:PY+6,width:PW-12,height:PH-12,fill:'none',stroke:INK,'stroke-width':.6,opacity:.35});
+      txt('WISE PPT COMPONENT ATLAS',PX+34,PY+48,{'font-family':MONO,'font-size':13,'letter-spacing':2,fill:INK70});line(PX+34,PY+68,PX+PW-34,PY+68,{stroke:INK45,'stroke-width':.8});
+      const tiles=[[PX+42,PY+104,236,112,'DATA','数据表达'],[PX+342,PY+104,236,112,'FLOW','流程关系'],[PX+42,PY+258,236,112,'STRUCTURE','结构层级'],[PX+342,PY+258,236,112,'ANNOTATE','引线标注']];
+      tiles.forEach((t,i)=>{const [x,y,w,h,en,cn]=t;el('rect',{x,y,width:w,height:h,fill:i===3?'rgba(255,255,255,.22)':'none',stroke:i===3?INK:INK45,'stroke-width':i===3?1.2:1});txt(en,x+20,y+31,{'font-family':MONO,'font-size':12,'letter-spacing':1.8,fill:INK70});txt(cn,x+20,y+66,{'font-family':SERIF,'font-size':25,'font-weight':600});if(i===0){[0,1,2].forEach(n=>line(x+132+n*22,y+84,x+132+n*22,y+56-n*12,{stroke:INK,'stroke-width':1.1}));}if(i===1){line(x+128,y+72,x+190,y+72,{stroke:INK,'stroke-width':1.2});el('path',{d:`M ${x+178} ${y+66} L ${x+190} ${y+72} L ${x+178} ${y+78}`,fill:'none',stroke:INK,'stroke-width':1.2});}if(i===2){[0,1,2].forEach(n=>el('circle',{cx:x+148+n*28,cy:y+72,r:10-n*2,fill:'none',stroke:INK,'stroke-width':.9}));}if(i===3){line(x+128,y+50,x+192,y+50,{stroke:INK45,'stroke-width':.8,'stroke-dasharray':'3 4'});line(x+192,y+50,x+192,y+82,{stroke:INK45,'stroke-width':.8,'stroke-dasharray':'3 4'});el('circle',{cx:x+128,cy:y+50,r:3,fill:INK});}});
+      const note=(x,y,side,code,cn,targetX,targetY)=>{const end=side==='left'?x+205:x-18,elbow=side==='left'?576:1344;txt(code,x,y,{'font-family':MONO,'font-size':13,'letter-spacing':1.8,fill:INK45});txt(cn,x,y+30,{'font-size':20,'font-weight':300,fill:INK70});line(end,y+8,elbow,y+8,{stroke:INK45,'stroke-width':.8});line(elbow,y+8,elbow,targetY,{stroke:INK45,'stroke-width':.8});line(elbow,targetY,targetX,targetY,{stroke:INK45,'stroke-width':.8});el('circle',{cx:targetX,cy:targetY,r:3,fill:INK});};
+      note(170,380,'left','USE WHEN HELPFUL','按页面表达需要调用',692,498);note(1400,380,'right','NOT A TEMPLATE','不需要时完全跳过',1228,498);note(170,650,'left','REUSABLE','把成熟表达沉淀下来',692,650);note(1400,650,'right','COMPOSABLE','与内容和版式自由组合',1228,650);
+    })();stageFit();
+  </script>
+</body>
+</html>

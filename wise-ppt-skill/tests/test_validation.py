@@ -89,6 +89,9 @@ class FixtureRepo:
                 "theme_id": self.THEME_ID,
                 "name": "Minimal",
                 "layout_manifest": f"themes/{self.THEME_ID}/layout-manifest.json",
+                "atlas_catalog": f"themes/{self.THEME_ID}/atlas-catalog.json",
+                "providers": ["typography", "svg", "echarts", "atlas", "native-html"],
+                "runtimes": {"echarts": {"major": 5}},
                 "galleries": {
                     variant: f"themes/{self.THEME_ID}/gallery/{variant}/index.html"
                     for variant in self.GALLERY_VARIANTS
@@ -177,9 +180,11 @@ class FixtureRepo:
         )
 
     def _write_component_catalog(self) -> None:
-        catalog = load_json(REPO_ROOT / "core" / "catalogs" / "component-manifest.json")
-        catalog["components"].append(
+        write_json(
+            self.root / "themes" / self.THEME_ID / "atlas-catalog.json",
             {
+                "schema_version": "1.0",
+                "components": [{
                 "component_id": "atlas.process-flow.vertical",
                 "name": "纵向流程",
                 "description": "结构组件候选",
@@ -188,11 +193,8 @@ class FixtureRepo:
                 "densities": ["balanced"],
                 "providers": ["atlas"],
                 "selection_notes": "只描述 manifest 支持范围。",
-            }
-        )
-        write_json(
-            self.root / "core" / "catalogs" / "component-manifest.json",
-            catalog,
+                }],
+            },
         )
 
     @staticmethod
@@ -312,7 +314,7 @@ class FixtureRepo:
     @staticmethod
     def _render_document() -> dict:
         return {
-            "schema_version": "1.0",
+            "schema_version": "2.0",
             "content_file": "content.json",
             "deck_plan_file": "deck-plan.json",
             "theme_id": FixtureRepo.THEME_ID,
@@ -320,18 +322,27 @@ class FixtureRepo:
                 {
                     "page_id": "page.one",
                     "output_file": "frames/page.one.html",
-                    "layout_id": "demo.argument.sequence",
+                    "layout_decision": {
+                        "source": "gallery",
+                        "reuse_mode": "adapt",
+                        "layout_id": "demo.argument.sequence",
+                        "candidate_evaluations": [
+                            {
+                                "layout_id": "demo.argument.sequence",
+                                "verdict": "fit",
+                                "reason": "关系、阅读顺序、区域和容量均满足当前页面需求。",
+                            }
+                        ],
+                    },
                     "density": "balanced",
-                    "reuse_mode": "adapt",
-                    "reuse_source": f"themes/{FixtureRepo.THEME_ID}/gallery/baseline/frames/layout-001.html",
                     "rationale": "内容是两个连续语义单元，用线性主区加结论槽位表达因果。",
                     "capacity_status": "fit",
                     "core_primitive": "linear-sequence",
-                    "theme_primitives": ["linear-sequence"],
                     "html_attributes": {
                         "data-page-id": "page.one",
                         "data-page-role": "explain",
                         "data-theme": FixtureRepo.THEME_ID,
+                        "data-layout-source": "gallery",
                         "data-layout": "demo.argument.sequence",
                         "data-density": "balanced",
                         "data-reuse-mode": "adapt",
@@ -341,6 +352,10 @@ class FixtureRepo:
                             "slot_id": "main",
                             "block_id": "block.main",
                             "visual_role": "primary",
+                            "component_decision": {
+                                "action": "replace",
+                                "reason": "用语义 SVG 替换样张中的通用主组件。",
+                            },
                             "renderer": {
                                 "provider": "svg",
                                 "component": "sequence-path",
@@ -352,6 +367,10 @@ class FixtureRepo:
                             "slot_id": "takeaway",
                             "block_id": "block.takeaway",
                             "visual_role": "support",
+                            "component_decision": {
+                                "action": "keep",
+                                "reason": "结论文字槽位与样张组件完全匹配。",
+                            },
                             "renderer": {
                                 "provider": "typography",
                                 "component": "takeaway",
@@ -372,7 +391,8 @@ class FixtureRepo:
         self.html_path.write_text(
             """<!doctype html>
 <main data-page-id="page.one" data-page-role="explain" data-theme="minimal-neutral"
-      data-layout="demo.argument.sequence" data-density="balanced" data-reuse-mode="adapt">
+      data-layout-source="gallery" data-layout="demo.argument.sequence"
+      data-density="balanced" data-reuse-mode="adapt">
   <section data-block-id="block.main" data-provider="svg" data-component="sequence-path"
            data-content-ref="item.metric atom.rate">Retention 55%</section>
   <section data-block-id="block.takeaway" data-provider="typography" data-component="takeaway"
@@ -468,7 +488,9 @@ class ContractValidationTests(unittest.TestCase):
 
     def test_render_rejects_copy_only_rationale(self) -> None:
         page = self.fixture.render["pages"][0]
-        page["reuse_mode"] = "copy"
+        page["layout_decision"]["reuse_mode"] = "copy"
+        for slot in page["slots"]:
+            slot["component_decision"]["action"] = "keep"
         page["rationale"] = "直接照抄模板，不做任何内容关系判断。"
         page["html_attributes"]["data-reuse-mode"] = "copy"
         html = self.fixture.html_path.read_text(encoding="utf-8").replace(
@@ -477,7 +499,23 @@ class ContractValidationTests(unittest.TestCase):
         self.fixture.flush()
         self.fixture.html_path.write_text(html, encoding="utf-8")
         result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.copy_rationale")
+        self.assert_has_code(result, "render.rationale")
+
+    def test_copy_requires_keep_and_adapt_requires_replace(self) -> None:
+        page = self.fixture.render["pages"][0]
+        page["layout_decision"]["reuse_mode"] = "copy"
+        page["html_attributes"]["data-reuse-mode"] = "copy"
+        self.fixture.flush()
+        copy_result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(copy_result, "render.component_decision")
+
+        page["layout_decision"]["reuse_mode"] = "adapt"
+        page["html_attributes"]["data-reuse-mode"] = "adapt"
+        for slot in page["slots"]:
+            slot["component_decision"]["action"] = "keep"
+        self.fixture.flush()
+        adapt_result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(adapt_result, "render.component_decision")
 
     def test_render_rejects_unsupported_provider_and_overflow(self) -> None:
         page = self.fixture.render["pages"][0]
@@ -497,41 +535,166 @@ class ContractValidationTests(unittest.TestCase):
         self.assert_has_code(result, "render.slot_overflow")
         self.assert_has_code(result, "render.capacity_overflow")
 
-    def test_render_enforces_core_and_theme_primitive_chain(self) -> None:
+    def test_render_enforces_core_primitive_chain(self) -> None:
         page = self.fixture.render["pages"][0]
         page["core_primitive"] = "focus-field"
-        page["theme_primitives"] = ["not-declared-by-layout"]
         self.fixture.flush()
         result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assert_has_code(result, "render.core_primitive_mismatch")
         self.assert_has_code(result, "render.unsupported_core_primitive")
-        self.assert_has_code(result, "render.unknown_theme_primitive")
 
-        page["core_primitive"] = "linear-sequence"
-        page["theme_primitives"] = []
-        self.fixture.flush()
-        empty = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(empty, "render.theme_primitives")
-
-    def test_novel_primitive_must_be_registered_before_render(self) -> None:
+    def test_custom_layout_does_not_require_gallery_registration(self) -> None:
         page = self.fixture.render["pages"][0]
-        page["reuse_mode"] = "novel"
-        page.pop("reuse_source")
-        page["theme_primitives"] = ["custom.retention-orbit"]
-        page["html_attributes"]["data-reuse-mode"] = "novel"
-        html = self.fixture.html_path.read_text(encoding="utf-8").replace(
-            'data-reuse-mode="adapt"', 'data-reuse-mode="novel"'
+        page["layout_decision"] = {
+            "source": "custom",
+            "reuse_mode": "custom",
+            "layout_id": "custom.page.one",
+            "candidate_evaluations": [
+                {
+                    "layout_id": "demo.argument.sequence",
+                    "verdict": "reject",
+                    "reason": "现有版式不能承载此页需要的独立自定义区域结构。",
+                }
+            ],
+            "custom_contract": {
+                "reading_order": ["main", "takeaway"],
+                "capacity": {
+                    "semantic_units": {"min": 2, "max": 4},
+                    "primary_items": {"min": 2, "max": 4},
+                },
+                "regions": [
+                    {
+                        "slot_id": "main",
+                        "block_id": "block.main",
+                        "visual_role": "primary",
+                        "min_items": 2,
+                        "max_items": 4,
+                    },
+                    {
+                        "slot_id": "takeaway",
+                        "block_id": "block.takeaway",
+                        "visual_role": "support",
+                        "min_items": 1,
+                        "max_items": 1,
+                    },
+                ],
+            },
+        }
+        for slot in page["slots"]:
+            slot["component_decision"]["action"] = "select"
+        page["html_attributes"]["data-layout-source"] = "custom"
+        page["html_attributes"]["data-layout"] = "custom.page.one"
+        page["html_attributes"]["data-reuse-mode"] = "custom"
+        (self.fixture.root / "themes" / self.fixture.THEME_ID / "atlas-catalog.json").unlink()
+        self.fixture.flush()
+        html = self.fixture.html_path.read_text(encoding="utf-8")
+        html = html.replace('data-layout-source="gallery"', 'data-layout-source="custom"')
+        html = html.replace('data-layout="demo.argument.sequence"', 'data-layout="custom.page.one"')
+        html = html.replace('data-reuse-mode="adapt"', 'data-reuse-mode="custom"')
+        self.fixture.html_path.write_text(html, encoding="utf-8")
+        result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+        self.assertNotIn("render.unsupported_layout", {issue.code for issue in result.errors})
+
+    def test_render_v2_contract_fixtures_cover_copy_adapt_and_custom(self) -> None:
+        fixture_root = FIXTURES / "render-v2"
+        for case in ("gallery-copy", "gallery-adapt", "custom"):
+            with self.subTest(case=case):
+                page = load_json(fixture_root / case / "page.json")
+                self.fixture.render["pages"] = [page]
+                self.fixture.flush()
+                attrs = page["html_attributes"]
+                html = self.fixture.html_path.read_text(encoding="utf-8")
+                html = html.replace(
+                    'data-layout-source="gallery"',
+                    f'data-layout-source="{attrs["data-layout-source"]}"',
+                )
+                html = html.replace(
+                    'data-layout="demo.argument.sequence"',
+                    f'data-layout="{attrs["data-layout"]}"',
+                )
+                html = html.replace(
+                    'data-reuse-mode="adapt"',
+                    f'data-reuse-mode="{attrs["data-reuse-mode"]}"',
+                )
+                self.fixture.html_path.write_text(html, encoding="utf-8")
+                result = validate_render_target(self.fixture.deck, self.fixture.root)
+                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
+    def test_gallery_structure_changes_require_custom(self) -> None:
+        baseline = copy.deepcopy(self.fixture.render["pages"][0])
+
+        cases = {}
+        reordered = copy.deepcopy(baseline)
+        reordered["slots"].reverse()
+        cases["reordered-slot"] = reordered
+
+        added = copy.deepcopy(baseline)
+        extra = copy.deepcopy(added["slots"][1])
+        extra["slot_id"] = "extra"
+        added["slots"].append(extra)
+        cases["added-slot"] = added
+
+        embedded_contract = copy.deepcopy(baseline)
+        embedded_contract["layout_decision"]["custom_contract"] = {
+            "reading_order": ["main", "takeaway"],
+            "capacity": {"semantic_units": {"min": 2, "max": 4}},
+            "regions": [],
+        }
+        cases["embedded-custom-contract"] = embedded_contract
+
+        for case, page in cases.items():
+            with self.subTest(case=case):
+                self.fixture.render["pages"] = [page]
+                self.fixture.flush()
+                result = validate_render_target(self.fixture.deck, self.fixture.root)
+                self.assert_has_code(result, "render.gallery_structure_changed")
+
+    def test_echarts_series_is_not_limited_by_local_catalog(self) -> None:
+        page = self.fixture.render["pages"][0]
+        renderer = page["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "provider": "echarts",
+                "component": "radar",
+                "data_ref": "item.metric",
+                "encode": {"indicator": "metric", "value": "atom.rate"},
+            }
         )
+        (self.fixture.root / "themes" / self.fixture.THEME_ID / "atlas-catalog.json").unlink()
+        self.fixture.flush()
+        html = self.fixture.html_path.read_text(encoding="utf-8")
+        html = html.replace('data-provider="svg"', 'data-provider="echarts"')
+        html = html.replace('data-component="sequence-path"', 'data-component="radar"')
+        self.fixture.html_path.write_text(html, encoding="utf-8")
+        result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
+        renderer.pop("data_ref")
+        renderer["encode"] = {}
         self.fixture.flush()
         self.fixture.html_path.write_text(html, encoding="utf-8")
-        unregistered = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(unregistered, "render.unknown_theme_primitive")
+        invalid = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(invalid, "render.echarts_data_ref")
+        self.assert_has_code(invalid, "render.echarts_encode")
 
-        manifest = load_json(self.fixture.layout_manifest_path)
-        manifest["layouts"][0]["primitives"].append("custom.retention-orbit")
-        write_json(self.fixture.layout_manifest_path, manifest)
-        registered = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assertNotIn("render.unknown_theme_primitive", {issue.code for issue in registered.errors})
+    def test_unknown_atlas_component_is_rejected_only_when_atlas_is_used(self) -> None:
+        page = self.fixture.render["pages"][0]
+        renderer = page["slots"][0]["renderer"]
+        renderer.update({"provider": "atlas", "component": "不存在的组件"})
+        self.fixture.flush()
+        html = self.fixture.html_path.read_text(encoding="utf-8")
+        html = html.replace('data-provider="svg"', 'data-provider="atlas"')
+        html = html.replace('data-component="sequence-path"', 'data-component="不存在的组件"')
+        self.fixture.html_path.write_text(html, encoding="utf-8")
+        result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(result, "render.unknown_component")
+
+    def test_render_plan_v1_is_rejected(self) -> None:
+        self.fixture.render["schema_version"] = "1.0"
+        self.fixture.flush()
+        result = validate_render_target(self.fixture.deck, self.fixture.root)
+        self.assert_has_code(result, "schema.const")
 
     def test_render_checks_canonical_page_and_component_data_attributes(self) -> None:
         html = self.fixture.html_path.read_text(encoding="utf-8")
@@ -805,10 +968,8 @@ class ContractValidationTests(unittest.TestCase):
             capture_output=True,
             text=True,
         )
-        self.assertEqual(echarts_run.returncode, 0, echarts_run.stderr)
-        echarts_payload = json.loads(echarts_run.stdout)
-        self.assertEqual(echarts_payload["count"], 1)
-        self.assertEqual(echarts_payload["items"][0]["id"], "echarts.line")
+        self.assertEqual(echarts_run.returncode, 2, echarts_run.stdout + echarts_run.stderr)
+        self.assertIn("ECharts 请查官方文档", echarts_run.stderr)
 
 
 if __name__ == "__main__":
