@@ -36,8 +36,7 @@
 
   /* 方块刻字（纸色反色） */
   .boxtext {
-    position: absolute; left: 825px; top: 355px;
-    width: 270px; height: 270px; z-index: 3;
+    position: absolute; z-index: 3;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     color: #DFE0D9; pointer-events: none;
@@ -101,10 +100,17 @@
 
 <script src="../../../assets/particles.js"></script>
 <script>
+var HERO = {x:825, y:403, size:270};
+var boxText = document.querySelector('.boxtext');
+boxText.style.left = HERO.x + 'px';
+boxText.style.top = HERO.y + 'px';
+boxText.style.width = HERO.size + 'px';
+boxText.style.height = HERO.size + 'px';
+
 /* ============ 粒子黑方块（极密 + 毛糙边缘） ============ */
 (function(){
   var ctx = document.getElementById('cv').getContext('2d');
-  var BX = 825, BY = 355, BS = 270;
+  var BX = HERO.x, BY = HERO.y, BS = HERO.size;
 
   // 极密实心填充
   for (var y = BY; y < BY + BS; y += 2.6) {
@@ -130,7 +136,7 @@
     PART.dot(ctx, px, py, .6 + Math.random() * 1.1, .1 + Math.random() * .42 * (1 - d / 11));
   }
   // 氛围尘埃（极淡，避开文字区）
-  PART.dust(ctx, 320, 380, 1280, 440, 110, .1);
+  PART.dust(ctx, 320, HERO.y+25, 1280, 440, 110, .1);
 })();
 
 /* ============ SVG 构造线 / 尺寸标注 / 剖面影 ============ */
@@ -148,7 +154,7 @@
     t.textContent = str; return t;
   }
   var MONO = 'Courier Prime';
-  var BX = 825, BY = 355, BS = 270;
+  var BX = HERO.x, BY = HERO.y, BS = HERO.size;
 
   // 构造框（虚线，比方块大一圈）
   el('rect', {x:BX-18, y:BY-18, width:BS+36, height:BS+36, fill:'none',
