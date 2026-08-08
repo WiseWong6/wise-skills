@@ -277,8 +277,8 @@ var RED = '#C0392B';
 
 ### 4.1 舞台与骨架
 
-- 固定舞台 **1920×1080**，`.stage` 相对定位、`overflow: hidden`；`stageFit()` 按 `min(vw/1920, vh/1080)` 等比缩放居中。
-- **一页一个 HTML 文件**（`frames/shot-NN.html`），页与页之间不共享运行时状态。
+- 正式 deck 的每个 `.slide` 都是 **1920×1080**，`.stage` 相对定位、`overflow: hidden`；缩放由统一 runtime 按 `min(vw/1920, vh/1080)` 负责，slide fragment 不调用 `stageFit()`。
+- 正式 deck 的全部 `.slide` 位于同一个 `index.html` 的 `#track`。独立 Gallery 样张继续是一页一个 HTML，并保留其旧 `stageFit()`，两类运行时不可混用。
 
 ### 4.2 固定件三件套（每页必备）
 
@@ -394,16 +394,16 @@ var RED = '#C0392B';
 
 ## 五、运行与输出
 
-- deck 的唯一入口是 `index.html`，由 Core runtime 承担画板/放映切换；主题不维护第二套页面清单。
-- 每页仍是一份独立 HTML，放在 `frames/`；入口读取同一份 render plan，避免页数、标题和顺序漂移。
-- 支持 HTML、PDF、PNG。输出脚本属于 runtime，主题只提供样式、资产和布局适配。
+- deck 的唯一入口和页面文件都是 `index.html`，由 Core runtime 承担实时画册/放映切换；主题不维护第二套页面清单。
+- 画册每次从真实 `.slide` 克隆，页面标题、摘要和章节只读取 slide metadata；不使用 iframe、thumb 或逐页 PNG。
+- 支持 HTML、PDF。PDF 由 `?print=1` 直接打印全部 slide；输出脚本属于 runtime，主题只提供样式、资产和布局适配。
 - `?ppt` 只控制 `.folio` 等放映铬件；`?accent` 只控制已声明的单一强调色。
 
 ---
 
 ## 六、外部依赖（按需引入，必须纸墨化）
 
-默认零外部依赖（字体全本地）。以下两个 CDN 允许按需解开（`shot-template.html` 里已放注释掉的链接）：
+默认零外部依赖（字体全本地）。以下两个 CDN 只允许按需加入正式 `index.html` 或独立 Gallery 样张：
 
 ### 6.1 FontAwesome 6（图标）
 
