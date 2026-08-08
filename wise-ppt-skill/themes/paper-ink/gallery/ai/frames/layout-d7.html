@@ -54,14 +54,12 @@ txt(52, 132, 'CH', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'tex
 txt(52, 162, '02', {'font-family':MONO, 'font-size':22, 'text-anchor':'middle', fill:INK});
 el('line', {x1:34, y1:182, x2:70, y2:182, stroke:INK, 'stroke-width':.6, opacity:.35});
 
-/* 五枚章节齿：当前章 02 加重 */
+/* 五枚章节齿：当前章 02 加重；小号重复编号会干扰竖排章名，只保留轨顶章节号。 */
 var CHY = [320, 430, 540, 650, 760];
 CHY.forEach(function(y, i){
   var cur = (i === 1);
   el('line', {x1:cur ? 72 : 90, y1:y, x2:104, y2:y, stroke:cur ? INK80 : INK,
     'stroke-width': cur ? 1.4 : .8, opacity: cur ? 1 : .4});
-  txt(60, y + 5, '0' + (i + 1), {'font-family':MONO, 'font-size':13, 'text-anchor':'end',
-    fill: cur ? INK : 'rgba(25,25,23,.4)'});
   if (cur) el('circle', {cx:96, cy:y, r:2.4, fill:INK});
 });
 

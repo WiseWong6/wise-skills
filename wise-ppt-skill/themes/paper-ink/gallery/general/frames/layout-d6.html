@@ -2,11 +2,11 @@
 <html lang="zh-CN" data-page-id="gallery-general-d6" data-page-role="act" data-theme="paper-ink" data-layout="paper-ink.scaffold.contact" data-density="balanced" data-reuse-mode="copy">
 <head>
 <meta charset="UTF-8">
-<title>layout-d6 · 联络尾页</title>
+<title>layout-d6 · 联络尾页 · @歪斯Wise</title>
 <!--
-  纸墨线稿样张 · C7 联络尾页
-  衡玑科技「仓储机器人调度平台」产品汇报 · 商务收尾
-  版式纪律（layouts C7）：左地图线稿 + 三行联系文字，右名片双线卡；约 6:4；二维码只做矩阵暗示
+  纸墨线稿样张 · D6 联络尾页
+  @歪斯Wise · 联络信息
+  版式纪律（layout D6）：左抽象联络图 + 三行联系文字，右名片双线卡；约 6:4；二维码使用可扫码真实矩阵
 -->
 <link rel="stylesheet" href="../../../assets/shared.css">
 <style>
@@ -24,14 +24,14 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.d6">
-  <div class="doc tl">PAPER-INK GALLERY — D6<br>CONTACT CLOSING</div>
-  <div class="folio">D6 / 63 — BY WISEWONG</div>
+  <div class="doc tl">PAPER-INK GALLERY — D6<br>CONTACT · @歪斯Wise</div>
+  <div class="folio">D6 / 63 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">联络尾页用地图与名片完成商务收口。</div>
+  <div class="caption">联络尾页。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -63,7 +63,7 @@ el('rect', {x:150, y:220, width:770, height:420, fill:'none', stroke:INK, 'strok
 /* 河：右下斜穿的贝塞尔双细线 */
 el('path', {d:'M 700 220 C 760 320, 700 420, 800 500 C 850 540, 880 600, 870 640', fill:'none', stroke:INK, 'stroke-width':.9, opacity:.5});
 el('path', {d:'M 726 220 C 786 320, 726 420, 826 500 C 876 540, 906 600, 896 640', fill:'none', stroke:INK, 'stroke-width':.9, opacity:.5});
-txt(846, 336, 'WENLAN RIVER', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(74 846 336)'});
+txt(846, 336, 'ABSTRACT TRACE', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(74 846 336)'});
 
 /* 横向路网（主干道 1.2px，次道 .7px） */
 el('path', {d:'M 150 310 C 360 296, 640 324, 920 306', fill:'none', stroke:INK80, 'stroke-width':1.2});
@@ -74,14 +74,14 @@ el('path', {d:'M 330 220 C 324 360, 336 500, 328 640', fill:'none', stroke:INK, 
 el('path', {d:'M 560 220 C 566 340, 554 520, 562 640', fill:'none', stroke:INK80, 'stroke-width':1.2});
 
 /* 街区名 */
-txt(196, 290, 'HUITU AVE', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
-txt(576, 252, 'YUNGU RD', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(88 576 252)'});
+txt(196, 290, 'CONTACT GRID', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+txt(576, 252, 'LINK PATH', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(88 576 252)'});
 
 /* 园区块：双线框 + hatch 角 */
 el('rect', {x:380, y:346, width:150, height:92, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':.9, opacity:.85});
 el('rect', {x:385, y:351, width:140, height:82, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-txt(455, 396, 'HENGJI', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
-txt(455, 416, 'CENTER', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
+txt(455, 396, 'WISE', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
+txt(455, 416, 'CONTACT', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
 
 /* 定位钉：双圈 + 钉尖 */
 el('circle', {cx:560, cy:452, r:10, fill:'none', stroke:INK, 'stroke-width':1.2});
@@ -89,19 +89,19 @@ el('circle', {cx:560, cy:452, r:14, fill:'none', stroke:INK, 'stroke-width':.6, 
 el('circle', {cx:560, cy:452, r:3, fill:INK});
 el('path', {d:'M 560 466 L 560 500', stroke:INK, 'stroke-width':.8, opacity:.5});
 el('path', {d:'M 560 500 L 596 500', stroke:INK, 'stroke-width':.8, opacity:.5});
-txt(604, 505, 'HQ · GATE 3', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK, opacity:.75});
+txt(604, 505, 'WISE · SHENZHEN', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK, opacity:.75});
 
 /* 比例尺 */
 el('line', {x1:180, y1:616, x2:280, y2:616, stroke:INK, 'stroke-width':1, opacity:.6});
 el('line', {x1:180, y1:610, x2:180, y2:622, stroke:INK, 'stroke-width':1, opacity:.6});
 el('line', {x1:280, y1:610, x2:280, y2:622, stroke:INK, 'stroke-width':1, opacity:.6});
-txt(292, 620, '500 M', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+txt(292, 620, 'NOT TO SCALE', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
 
 /* ================= 左块下方：三行联系文字 ================= */
 var contact = [
-  ['商务合作', 'bd@hengji.tech · 工作日 9:00 – 18:00'],
-  ['客户支持', 'support@hengji.tech · 400-8120-660'],
-  ['总部地址', '深圳市衡玑中心 A 座 12F']
+  ['微信', '扫码或搜索 @歪斯Wise'],
+  ['小红书', '@歪斯Wise'],
+  ['官网', 'wisewong.com']
 ];
 contact.forEach(function(c, i){
   var y = 726 + i * 52;
@@ -117,19 +117,19 @@ el('rect', {x:KX, y:KY, width:KW, height:KH, fill:'rgba(255,255,255,.22)', strok
 el('rect', {x:KX+5, y:KY+5, width:KW-10, height:KH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* 卡头 */
-txt(KX+44, KY+64, 'HENGJI TECH — BD OFFICE', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
+txt(KX+44, KY+64, 'WISE — CONTACT', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
 el('line', {x1:KX+44, y1:KY+84, x2:KX+200, y2:KY+84, stroke:INK, 'stroke-width':.8, opacity:.5});
 
 /* 姓名 + 职务 */
-txt(KX+44, KY+156, '沈昭远', {'font-family':SANS, 'font-weight':300, 'font-size':38, fill:INK});
-txt(KX+46, KY+196, 'SHEN ZHAOYUAN · BD DIRECTOR', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
+txt(KX+44, KY+156, '歪斯 Wise', {'font-family':SANS, 'font-weight':300, 'font-size':38, fill:INK});
+txt(KX+46, KY+196, '@歪斯WISE', {'font-family':SANS, 'font-size':14, 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
 el('line', {x1:KX+44, y1:KY+232, x2:KX+KW-44, y2:KY+232, stroke:INK, 'stroke-width':.8, opacity:.4});
 
-/* 电话 / 邮箱 / 网址行 */
+/* 联络渠道行 */
 var lines = [
-  ['TEL',   '+86 138-0166-8800'],
-  ['MAIL',  'zhaoyuan.shen@hengji.tech'],
-  ['WEB',   'www.hengji.tech'],
+  ['小红书',   '@歪斯Wise'],
+  ['微信搜一搜', '歪斯Wise'],
+  ['WEB',   'wisewong.com'],
   ['ADDR',  'SHENZHEN']
 ];
 lines.forEach(function(L, i){
@@ -141,60 +141,67 @@ lines.forEach(function(L, i){
 });
 
 /* 真实可扫二维码（公众号名片），线稿墨色方块渲染 */
+var QR_PAYLOAD = 'http://weixin.qq.com/r/mp/sDgNFUrEMRdOrQ52922i';
 var QR_SIZE = 37;
 var QR_DATA = [
-  "1111111010010110100001001001001111111",
-  "1000001001011011000001110010001000001",
-  "1011101010101101100100111111001011101",
-  "1011101011010110010111101010101011101",
-  "1011101001110000110101100111001011101",
-  "1000001010111000000101100001101000001",
+  "1111111010010100111110000000001111111",
+  "1000001001100110110101011011001000001",
+  "1011101000101010011001110000001011101",
+  "1011101001001100100110110011101011101",
+  "1011101010100101110011011100101011101",
+  "1000001010001111001110000111101000001",
   "1111111010101010101010101010101111111",
-  "0000000011011101100100111001000000000",
-  "1101001101011011001100001110111101101",
-  "1010000111111101001010110111010110110",
-  "1010011100010010010010000110101001000",
-  "0011110010000100000110111000100111100",
-  "1011101001010100011101000100101101000",
-  "1100100101101001001110101111011111101",
-  "0101111001001101000100001001000110111",
-  "1001100111001101000110010001011001110",
-  "1100011000110100000111101000110111001",
-  "1101010000100100111111010100000101101",
-  "0100011011110100010111100010111100000",
-  "0010110000101111010001001110100111010",
-  "0000011101110001101001011111110110001",
-  "0100000000000101101010101111110001000",
-  "1101001001101111100010011001101000011",
-  "0111000110100001010111110100110010111",
-  "0011011100011110100100101100011100111",
-  "1011110001111100101001111010111010011",
-  "0111111011000100001111111001011010110",
-  "1000100010010101111010001100000100100",
-  "1100111000011100101011100110111111000",
-  "0000000000011010010100011010100011011",
-  "1111111010101100001000111010101011110",
-  "1000001000100101001110100101100010010",
-  "1011101000101111000010011111111111111",
-  "1011101010111100111011010110000011011",
-  "1011101001111010101000011110111001011",
-  "1000001011001111111100001110111000001",
-  "1111111010001101111010001100111101001"
+  "0000000001111001111011100100100000000",
+  "0111111101100100100011100010100110001",
+  "1100010101110110010111010001001111101",
+  "0100101000010100011000000111101010011",
+  "1010110110001010111001010011001111000",
+  "1101001101101110011000011111001001010",
+  "0110110100111100111101110100110101110",
+  "0001111010011101101101001111010011011",
+  "1000010010111000010111101010010000011",
+  "1000011111111110100101010111111010101",
+  "0001010101010101010110101100100101000",
+  "0000001101101001001000100111111110011",
+  "0011100100100010010011001010111001000",
+  "1001101010100100110010000110011111110",
+  "0011000010111010111111011010001100000",
+  "1101101101001011100111100001101001111",
+  "0010010000000100100011001010111100000",
+  "0001111000110011011100101000001100001",
+  "1000100100010010110000011011111000101",
+  "1011111011010111010101001010000101111",
+  "1001010111011101011011101010100000110",
+  "1100101101010000010100000110111111011",
+  "0000000010101100010000110100100010010",
+  "1111111011110000100000100011101011011",
+  "1000001011010011111000001010100010000",
+  "1011101011010111011011111111111110110",
+  "1011101011110000101001000010001110100",
+  "1011101010100011100010011100100101101",
+  "1000001010000100100001010001110100001",
+  "1111111001101010101010010011011101111"
 ];
-var QCS = 4.6, QX = KX + KW - QR_SIZE*QCS - 54, QY = KY + KH - QR_SIZE*QCS - 54;
-/* 白底垫（确保扫描对比度） */
-el('rect', {x:QX-16, y:QY-16, width:QR_SIZE*QCS+32, height:QR_SIZE*QCS+32, fill:'rgb(255,255,255)', stroke:INK, 'stroke-width':.7, opacity:.95});  /* QR 白底垫：扫描对比度刚需 */
+var QR_PAD = 16;
+var QCS = 3.6;
+var QX = KX + KW - QR_SIZE*QCS - 40;
+var QY = KY + 292 + 3*62;
+var QR_PARENT = G;
+G = el('g', {'data-qr-payload':QR_PAYLOAD});
+/* 透明静区继承名片底色，避免二维码出现独立白块。 */
+el('rect', {x:QX-QR_PAD, y:QY-QR_PAD, width:QR_SIZE*QCS+QR_PAD*2, height:QR_SIZE*QCS+QR_PAD*2, fill:'none', stroke:INK, 'stroke-width':.7, opacity:.7});
 for (var ri = 0; ri < QR_SIZE; ri++) {
   for (var rj = 0; rj < QR_SIZE; rj++) {
     if (QR_DATA[ri][rj] === '1')
       el('rect', {x:QX + rj*QCS, y:QY + ri*QCS, width:QCS, height:QCS, fill:INK});
   }
 }
-txt(QX-16, QY + QR_SIZE*QCS + 38, 'SCAN · WECHAT', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+G = QR_PARENT;
+txt(QX-QR_PAD, QY + QR_SIZE*QCS + 32, 'SCAN · 微信搜一搜 歪斯Wise', {'font-family':SANS, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
 
 /* 卡内左下：一行中文小注 */
-txt(KX+44, KY+KH-96, '预约拜访请提前一个工作日邮件确认。', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)'});
-txt(KX+44, KY+KH-62, 'VISITS BY APPOINTMENT', {'font-family':MONO, 'font-size':11, 'letter-spacing':2.5, fill:'rgba(25,25,23,.45)'});
+txt(KX+44, KY+KH-96, '扫码或微信搜一搜“歪斯Wise”。', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)'});
+txt(KX+44, KY+KH-62, 'WECHAT SEARCH · 歪斯WISE', {'font-family':SANS, 'font-size':11, 'letter-spacing':2.5, fill:'rgba(25,25,23,.45)'});
 
 stageFit();
 </script>

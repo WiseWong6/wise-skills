@@ -29,7 +29,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">图标六宫格是兜底版式：AI 能力抽象到画不出关系图时，用六枚墨色细线图标并列陈列。</div>
+  <div class="caption">推理、记忆、工具、多模态、理解与生成，构成 Agent 从认知到行动的六项基础能力。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -54,6 +54,9 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. F4 — ICON SIX-GRID', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 六宫格主体连同上下构造线整体上移，避开底部结论并回到可用区中心。 */
+G = el('g', {transform:'translate(0 -28)'});
 
 /* ---------- 6 格：2 行 × 3 列，整体水平居中 ---------- */
 /* 画面 1920，每格宽 440，3 格总宽 1320，居中 → 左缘 (1920-1320)/2=300 */

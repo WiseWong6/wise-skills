@@ -52,6 +52,9 @@ el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opaci
 txt(1770, 100, 'DOC NO. HJ-OPS-2025-017 · REV.3', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 txt(1770, 126, 'HENGJI DISPATCH REGULATIONS (EXCERPT)', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
+/* general 样张较短，条文主体与栏间 guide 整体下移配平；右上文档注记保持固定。 */
+G = el('g', {transform:'translate(0 88)'});
+
 /* ---------- 栏题带（mono EN + 中文栏题 + 短横） ---------- */
 /* 原栏宽栏距不变，整组右移 125 居中：265 / 825 / 1385 */
 var cols = [

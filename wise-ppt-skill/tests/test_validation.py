@@ -568,6 +568,19 @@ class ContractValidationTests(unittest.TestCase):
         result = validate_gallery(REPO_ROOT, "paper-ink")
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
+        # 画册栏只展示面向人的用途；AI 筛选谓词保留在 manifest，不能泄漏到 UI。
+        for variant in ("general", "ai"):
+            gallery_index = (
+                REPO_ROOT / "themes" / "paper-ink" / "gallery" / variant / "index.html"
+            ).read_text(encoding="utf-8")
+            self.assertNotIn("当页面角色属于", gallery_index)
+
+        contact = next(
+            layout for layout in manifest["layouts"] if layout["display_code"] == "D6"
+        )
+        self.assertIn("qr-code", contact["primitives"])
+        self.assertNotIn("qr-placeholder", contact["primitives"])
+
     def test_gallery_validates_core_primitive_registry(self) -> None:
         manifest = load_json(self.fixture.layout_manifest_path)
         manifest["core_primitive_ids"].remove("radial-burst")

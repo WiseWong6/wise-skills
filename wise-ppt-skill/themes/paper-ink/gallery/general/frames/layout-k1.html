@@ -121,14 +121,13 @@ dims.forEach(function(d, r){
   /* 维度栏标签 */
   txt(165, rt+62, d.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK});
   txt(165, rt+90, d.cn, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
-  /* 各阶段列内 1 列 2 字段（原 2×2 太挤，改为单列留白） */
+  /* 各阶段列内 1 列 2 字段：每个半行槽位水平、垂直居中。 */
   d.cells.forEach(function(fields, c){
-    var cl = COLS[c];
     fields.slice(0, 2).forEach(function(f, k){
-      var fx = cl + 28;
-      var fy = rt + 42 + k*58;
-      txt(fx, fy, f[0], {'font-family':MONO, 'font-size':13.5, 'letter-spacing':1, fill:'rgba(25,25,23,.55)'});
-      txt(fx, fy+24, f[1], {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK80});
+      var cellX = CXS[c];
+      var slotCy = rt + (k+.5) * (ROWH/2);
+      txt(cellX, slotCy-12, f[0], {'font-family':MONO, 'font-size':13.5, 'letter-spacing':1, 'text-anchor':'middle', 'dominant-baseline':'middle', fill:'rgba(25,25,23,.55)'});
+      txt(cellX, slotCy+12, f[1], {'font-family':SANS, 'font-weight':300, 'font-size':15, 'text-anchor':'middle', 'dominant-baseline':'middle', fill:INK80});
     });
   });
 });
