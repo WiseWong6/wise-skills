@@ -1,7 +1,7 @@
 # 字体说明
 
-wise-ppt-skill skill 依赖 5 个本地开源字体，字形是纸墨线稿风的视觉根基。
-字体文件（共约 79MB）**不进 git**，避免仓库膨胀。首次使用时由
+wise-ppt-skill skill 依赖 4 个本地开源字体，字形是纸墨线稿风的视觉根基。
+字体文件（共约 63MB）**不进 git**，避免仓库膨胀。首次使用时由
 `download-fonts.sh` 从官方源自动下载。
 
 ## 快速就绪
@@ -19,7 +19,6 @@ bash download-fonts.sh
 |---|---|---|---|---|
 | `SourceHanSerifCN-Medium.otf` | 思源宋体 CN | 500 | 大字标题、金句、结论 | SIL OFL 1.1 |
 | `SourceHanSansCN-Light.otf` | 思源黑体 CN | 300 | 正文、说明、标签 | SIL OFL 1.1 |
-| `SourceHanSansCN-Regular.otf` | 思源黑体 CN | 400 | 正文（小字）、UI | SIL OFL 1.1 |
 | `CourierPrime-Regular.ttf` | Courier Prime | 400 | 编号、图题、刻度、页脚 | SIL OFL 1.1 |
 | `LXGWWenKai-Regular.ttf` | 霞鹜文楷 | 400 | 手写批注、引用大字 | SIL OFL 1.1 |
 

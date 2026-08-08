@@ -4,6 +4,10 @@
 
 ```bash
 python3 scripts/validate.py gallery themes/paper-ink
+python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/general
+python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/general --accent
+python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai
+python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 ```
 
 机器检查通过后，再对实际浏览器截图逐页目检。构建成功不能替代视觉验收。

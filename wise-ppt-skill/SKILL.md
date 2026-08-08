@@ -48,7 +48,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 
 1. 内容治理：`core/references/content-contract.md`
 2. 页数、叙事和 Ghost Deck：`core/references/deck-planning.md`
-3. 逐页关系、密度和空间表达：`core/references/page-expression.md`
+3. 逐页关系、密度和空间表达：先读 `core/references/page-expression.md`，需要选择或组合空间结构时再读 `core/references/layout-primitives.md`
 4. ECharts / atlas / SVG / 图片 / 表格路由：`core/references/component-routing.md`
 5. 交付门禁：`core/references/validation.md`
 6. 解析主题：`themes/registry.json`，再读该主题的 `theme.json` 和 `layout-manifest.json`
@@ -226,6 +226,13 @@ bash <SKILL_ROOT>/runtime/screenshot.sh <DECK> "" "" thumb
 bash <SKILL_ROOT>/runtime/export-pdf.sh <DECK>
 ```
 
+若主题 `theme.json` 声明 `validation.lint_script`，还要按其 `modes` 运行主题机检。纸墨主题必须检查普通与强调色两种模式：
+
+```bash
+python3 <SKILL_ROOT>/themes/paper-ink/scripts/lint.py <DECK>
+python3 <SKILL_ROOT>/themes/paper-ink/scripts/lint.py <DECK> --accent
+```
+
 最后人工逐页检查：
 
 - 内容：事实、数字、单位、引用、来源、must 覆盖。
@@ -244,6 +251,7 @@ bash <SKILL_ROOT>/runtime/export-pdf.sh <DECK>
 - 新主题必须通过同一 Core 契约；Core 不得引用 paper-ink 的 token、稳定 ID 或资产路径。
 - 新版式先写 manifest 能力和 slot 合同，再做两个画册样张；目录由生成脚本刷新。
 - “版式 + 组件”的复合能力见 `themes/paper-ink/examples/`，这些组合不是新的 layout ID。
+- 修改纸墨画册后运行 `python3 scripts/generate-gallery.py --check`，禁止留下 manifest 与目录不一致的手改结果。
 
 ## 交付说明
 

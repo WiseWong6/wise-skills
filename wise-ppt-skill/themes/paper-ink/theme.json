@@ -18,6 +18,13 @@
   "reference_exemplars": [
     "themes/paper-ink/references/provenance.md"
   ],
+  "validation": {
+    "lint_script": "themes/paper-ink/scripts/lint.py",
+    "modes": [
+      "normal",
+      "accent"
+    ]
+  },
   "assets": {
     "bundle": "themes/paper-ink/assets",
     "stylesheet": "themes/paper-ink/assets/shared.css",
