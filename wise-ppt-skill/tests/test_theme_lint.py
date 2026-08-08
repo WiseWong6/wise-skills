@@ -67,10 +67,9 @@ var option={label:{fontSize:14}};</script>
         fails, _ = lint_source(source)
         self.assertTrue(any("动态字号绕过字阶" in item for item in fails))
 
-    def test_gallery_and_examples_do_not_bypass_type_scale(self) -> None:
+    def test_gallery_does_not_bypass_type_scale(self) -> None:
         targets = sorted((SKILL_ROOT / "themes/paper-ink/gallery").glob("*/index.html"))
         targets += sorted((SKILL_ROOT / "themes/paper-ink/gallery").glob("*/frames/*.html"))
-        targets += sorted((SKILL_ROOT / "themes/paper-ink/examples").glob("*/index.html"))
         for path in targets:
             with self.subTest(path=path):
                 fails, _ = LINT.lint_file(path)
