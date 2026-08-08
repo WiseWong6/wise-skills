@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -18,14 +18,14 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.l1">
-  <div class="doc tl">AI ENGINEERING — L1<br>ATTENTION WEIGHTS</div>
+  <div class="doc tl">AI LAYOUT GALLERY — L1<br>WEIGHTED ARC · ATTENTION</div>
   <div class="folio">L1 / 63 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">注意力权重决定 Token 间的连接强弱，低权重关系可被剪断，强关联得到优先保留。</div>
+  <div class="caption">B2 权重弧线图：节点沿刻度排开，三档线宽的弧线表达连接强弱，断口虚线弧即被剪断的关系。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -38,7 +38,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 
 var G = document.getElementById('draw');
 function el(tag, attrs) {
@@ -53,10 +53,9 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 + 右上档案注 ---------- */
-txt(200, 176, 'FIG. L1 — WEIGHTED ARC DIAGRAM', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. L1 — WEIGHTED ARC DIAGRAM', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
-txt(1720, 176, 'TRANSFORMER · ATTENTION MAP', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
-G = el('g', {transform:'translate(0 40)'});
+txt(1720, 176, 'TRANSFORMER · ATTENTION MAP', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 /* ---------- 节点芯片（双线框，y 顶 532） ---------- */
 var chips = [
@@ -76,10 +75,10 @@ chips.forEach(function(c, i){
   el('rect', {x:c.x+4, y:TOP+4, width:c.w-8, height:H-8, fill:'none',
     stroke: hot ? RED : INK, 'stroke-width':.7, opacity:.5});
   txt(c.cx, TOP+H/2+8, c.t, {'font-family':SANS, 'font-weight':300,
-    'font-size':23, 'text-anchor':'middle', fill: hot ? RED : INK});
+    'font-size':'var(--type-body)', 'text-anchor':'middle', fill: hot ? RED : INK});
   /* 下方索引刻度 t0–tn */
   el('line', {x1:c.cx, y1:TOP+H, x2:c.cx, y2:TOP+H+9, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(c.cx, TOP+H+30, 't'+i, {'font-family':MONO, 'font-size':13,
+  txt(c.cx, TOP+H+30, 't'+i, {'font-family':MONO, 'font-size':'var(--type-meta)',
     'text-anchor':'middle', fill:INK45});
 });
 /* 构造基线（虚线 0.6 / .3） */
@@ -108,13 +107,13 @@ arc(594, 1028, 140, 1.1, .4);  /* The ↔ on */
 arc(749, 1171, 110, 1.1, .4);  /* cat ↔ the */
 arc(594, 1171, 190, 1.1, .4);  /* The ↔ the */
 node(1028, 2, .5); node(1171, 2, .5);
-txt(811, 372, 'w ≈ 0.46 · MID', {'font-family':MONO, 'font-size':14,
+txt(811, 372, 'w ≈ 0.46 · MID', {'font-family':MONO, 'font-size':'var(--type-meta)',
   'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 
 /* 强（1.8px @ .9）：The 绑定 cat，本页唯一强调线 */
 arc(594, 749, 110, 1.8, .9, null, true);
 node(594, 2.4, .9, true); node(749, 2.4, .9, true);
-txt(672, 400, 'w ≈ 0.87 · STRONG ATTEND', {'font-family':MONO, 'font-size':15,
+txt(672, 400, 'w ≈ 0.87 · STRONG ATTEND', {'font-family':MONO, 'font-size':'var(--type-label)',
   'text-anchor':'middle', fill: ACCENT ? RED : 'rgba(25,25,23,.85)'});
 el('line', {x1:672, y1:408, x2:672, y2:416, stroke: ACCENT ? RED : INK, 'stroke-width':.6, opacity:.6});
 
@@ -125,13 +124,13 @@ el('line', {x1:1102, y1:424, x2:1116, y2:438, stroke:INK, 'stroke-width':1.1, op
 el('line', {x1:1116, y1:424, x2:1102, y2:438, stroke:INK, 'stroke-width':1.1, opacity:.85});
 el('line', {x1:1136, y1:430, x2:1204, y2:404, stroke:INK, 'stroke-width':.6, opacity:.5});
 el('circle', {cx:1136, cy:430, r:1.4, fill:INK, opacity:.5});
-txt(1212, 408, 'w ≈ 0.04 · ATTENTION BREAK', {'font-family':MONO, 'font-size':14,
+txt(1212, 408, 'w ≈ 0.04 · ATTENTION BREAK', {'font-family':MONO, 'font-size':'var(--type-meta)',
   'text-anchor':'start', fill:'rgba(25,25,23,.75)'});
 
 /* 底部刻度排（mono 档案刻度，贴安全区下缘） */
 for (var i = 0; i <= 10; i++) {
   el('line', {x1:510 + i*90, y1:652, x2:510 + i*90, y2:660, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(510 + i*90, 676, String(i*10), {'font-family':MONO, 'font-size':12,
+  txt(510 + i*90, 676, String(i*10), {'font-family':MONO, 'font-size':'var(--type-micro)',
     'text-anchor':'middle', fill:INK45});
 }
 

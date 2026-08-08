@@ -26,7 +26,7 @@
   }
   .specbar .dot { width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(25,25,23,.3); }
   .specbar .t {
-    font-family: var(--mono); font-size: 13px; letter-spacing: .25em;
+    font-family: var(--mono); font-size: var(--type-meta); letter-spacing: .25em;
     color: var(--ink-45); margin-left: var(--space-3);
   }
   .specbody { padding: 28px var(--space-8) var(--space-6); }
@@ -36,7 +36,7 @@
     flex: none; width: 52px; height: 52px; border-radius: 50%;
     border: 1px solid rgba(25,25,23,.38);
     display: grid; place-items: center;
-    font-family: var(--sans); font-weight: 400; font-size: 15px;
+    font-family: var(--sans); font-weight: 400; font-size: var(--type-label);
     background: rgba(255,255,255,.22);
   }
   .bub {
@@ -46,15 +46,15 @@
     border-radius: 16px;
     box-shadow: var(--shadow-soft);
     font-family: var(--sans); font-weight: 300;
-    font-size: 22px; line-height: 1.8;
+    font-size: var(--type-body); line-height: 1.8;
   }
   .msg.user { flex-direction: row-reverse; }
   .msg.user .bub { border-bottom-right-radius: 4px; font-weight: 400; background: rgba(255,255,255,.22); }
   .msg.ai .bub { border-bottom-left-radius: 4px; }
-  .bub .sc { font-family: var(--mono); font-size: 24px; color: var(--ink); }
-  .bub .rs { color: var(--ink-45); font-size: 18px; }
+  .bub .sc { font-family: var(--mono); font-size: var(--type-subheading); color: var(--ink); }
+  .bub .rs { color: var(--ink-45); font-size: var(--type-body-small); }
   .bub .item { display: flex; gap: var(--space-3); margin-top: var(--space-2); }
-  .bub .item .pt { flex: none; padding-top: var(--space-3); font-size: 12px; color: var(--ink-45); }
+  .bub .item .pt { flex: none; padding-top: var(--space-3); font-size: var(--type-micro); color: var(--ink-45); }
   .bub .wrong { font-weight: 400; }
 
   /* 居中手写批注 */
@@ -66,14 +66,14 @@
     font-family: var(--brush);
     color: var(--ink);
   }
-  .note .big { font-size: 76px; line-height: 1.2; }
-  .note .sub { font-size: 38px; margin-top: var(--space-2); color: var(--ink-70); }
+  .note .big { font-size: var(--type-hero); line-height: 1.2; }
+  .note .sub { font-size: var(--type-heading); margin-top: var(--space-2); color: var(--ink-70); }
 
   .caption {
     position: absolute; left: 0; right: 0; bottom: 108px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 32px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }

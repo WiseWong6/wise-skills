@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -39,7 +39,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -53,7 +53,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. B6 — WINDING ROAD TIMELINE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. B6 — WINDING ROAD TIMELINE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 主角：S 形道路带（衡玑科技调度平台演进） ---------- */
@@ -133,10 +133,10 @@ notes.forEach(function(N, i){
   el('line', {x1:p[0], y1:p[1] + (above ? -11 : 11), x2:ax, y2:ly, stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
   el('circle', {cx:(p[0]+ax)/2, cy:(p[1]+ly)/2, r:2.4, fill:INK, opacity:.6});
   /* 三行：mono EN 标签 → 年份+中文标题 → 注 */
-  txt(ax, yEn, N.en, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-  txt(ax-8, yYr, N.yr, {'font-family':MONO, 'font-size':23, 'letter-spacing':2, 'text-anchor':'end', fill: future && ACCENT ? RED : INK});
-  txt(ax+8, yYr, N.ti, {'font-family':SANS, 'font-weight':300, 'font-size':21, 'text-anchor':'start', fill: future && ACCENT ? RED : INK});
-  txt(ax, yTx, N.tx, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill: future && ACCENT ? RED : INK70});
+  txt(ax, yEn, N.en, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(ax-8, yYr, N.yr, {'font-family':MONO, 'font-size':'var(--type-body)', 'letter-spacing':2, 'text-anchor':'end', fill: future && ACCENT ? RED : INK});
+  txt(ax+8, yYr, N.ti, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'start', fill: future && ACCENT ? RED : INK});
+  txt(ax, yTx, N.tx, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill: future && ACCENT ? RED : INK70});
 });
 
 stageFit();

@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -49,13 +49,13 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. A7 — LOGO CLOUD WALL', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. A7 — LOGO CLOUD WALL', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 统计性导语 ---------- */
-txt(902, 246, '28', {'font-family':MONO, 'font-size':30, 'letter-spacing':2, 'text-anchor':'end', fill:INK});
-txt(924, 246, '款 AI 工具已接入个人工作流', {'font-family':SANS, 'font-weight':300, 'font-size':26, 'text-anchor':'start', fill:INK});
-txt(960, 282, 'AI STACK · DAILY DRIVERS · ALL MARKS FICTIONAL', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+txt(902, 246, '28', {'font-family':MONO, 'font-size':'var(--type-subheading)', 'letter-spacing':2, 'text-anchor':'end', fill:INK});
+txt(924, 246, '款 AI 工具已接入个人工作流', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', 'text-anchor':'start', fill:INK});
+txt(960, 282, 'AI STACK · DAILY DRIVERS · ALL MARKS FICTIONAL', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 格阵：7 列 × 4 行，几何线稿标 + mono 假名 ---------- */
 function poly(x, y, r, n, rot){
@@ -116,7 +116,7 @@ names.forEach(function(nm, i){
   var col = i % 7, row = Math.floor(i / 7);
   var cx = 222.5 + col*245, cy = 365 + row*150;
   mark(i, cx, cy - 14);
-  txt(cx, cy + 42, nm, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
+  txt(cx, cy + 42, nm, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
 });
 
 stageFit();
