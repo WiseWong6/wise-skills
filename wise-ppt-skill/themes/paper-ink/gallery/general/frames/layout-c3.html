@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -53,7 +53,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. C3 — TOP-IMAGE CARD ARRAY', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. C3 — TOP-IMAGE CARD ARRAY', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 三张竖卡（双线框；宽高走变量，非字面阵列） ---------- */
@@ -69,21 +69,21 @@ cardX.forEach(function(px){
 
 /* ---------- 卡内文字：mono 角标 → 卡题 → 分隔 → 履历 → 底脚 ---------- */
 function cardText(px, tag, side, name, rows, foot) {
-  txt(px+36, CY+308, tag, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
-  txt(px+CW-36, CY+308, side, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
-  txt(px+36, CY+348, name, {'font-family':SANS, 'font-weight':300, 'font-size':26, fill:INK});
+  txt(px+36, CY+308, tag, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK45});
+  txt(px+CW-36, CY+308, side, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+  txt(px+36, CY+348, name, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
   el('line', {x1:px+36, y1:CY+368, x2:px+CW-36, y2:CY+368, stroke:INK, 'stroke-width':.8, opacity:.5});
   rows.forEach(function(r, i){
     var y = CY + 404 + i * 42;
     el('circle', {cx:px+44, cy:y-6, r:3.2, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.8});
     el('circle', {cx:px+44, cy:y-6, r:1, fill:INK});
-    txt(px+64, y, r[0], {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK});
-    txt(px+CW-36, y-1, r[1], {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+    txt(px+64, y, r[0], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
+    txt(px+CW-36, y-1, r[1], {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
     if (i < rows.length-1)
       el('line', {x1:px+36, y1:y+21, x2:px+CW-36, y2:y+21, stroke:INK, 'stroke-width':.6, opacity:.22});
   });
   el('line', {x1:px+36, y1:CY+592, x2:px+CW-36, y2:CY+592, stroke:INK, 'stroke-width':.6, opacity:.25});
-  txt(px+36, CY+624, foot, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
+  txt(px+36, CY+624, foot, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK45});
 }
 
 /* ---------- 卡一图区：AMR 机器人侧视立绘 ---------- */
@@ -113,7 +113,7 @@ function cardText(px, tag, side, name, rows, foot) {
   el('line', {x1:cx-64, y1:gy+14, x2:cx+64, y2:gy+14, stroke:INK, 'stroke-width':.5, opacity:.4, 'stroke-dasharray':'2 5'});
   el('line', {x1:cx-64, y1:gy+9, x2:cx-64, y2:gy+19, stroke:INK, 'stroke-width':.7, opacity:.5});
   el('line', {x1:cx+64, y1:gy+9, x2:cx+64, y2:gy+19, stroke:INK, 'stroke-width':.7, opacity:.5});
-  txt(cx, gy+32, 'AMR-1200 · 1.28 M', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, gy+32, 'AMR-1200 · 1.28 M', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 })();
 
 /* ---------- 卡二图区：巷道俯视（货架 + 虚线路径） ---------- */
@@ -134,7 +134,7 @@ function cardText(px, tag, side, name, rows, foot) {
     el('circle', {cx:p[0], cy:p[1], r:8, fill:'none', stroke:INK80, 'stroke-width':1.1});
     el('circle', {cx:p[0], cy:p[1], r:2.4, fill:INK});
   });
-  txt(cx, 470, 'AISLE A-07 · TOP VIEW', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, 470, 'AISLE A-07 · TOP VIEW', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 })();
 
 /* ---------- 卡三图区：库温刻度表盘 ---------- */
@@ -150,16 +150,16 @@ function cardText(px, tag, side, name, rows, foot) {
       stroke:INK, 'stroke-width':(i % 3 === 0) ? 1 : .5, opacity:.55});
   }
   /* 表盘数字 */
-  txt(cx-R-6, cy+22, '-30', {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
-  txt(cx, cy-R-14, '0', {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
-  txt(cx+R+6, cy+22, '10', {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+  txt(cx-R-6, cy+22, '-30', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+  txt(cx, cy-R-14, '0', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+  txt(cx+R+6, cy+22, '10', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
   /* 指针：-18°C（量程 -30~10 → 126°） */
   var na = Math.PI * 126 / 180;
   el('line', {x1:cx, y1:cy, x2:cx+Math.cos(na)*100, y2:cy-Math.sin(na)*100, stroke:INK, 'stroke-width':1.4, opacity:.9});
   el('circle', {cx:cx, cy:cy, r:6, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.1});
   el('circle', {cx:cx, cy:cy, r:1.8, fill:INK});
-  txt(cx, cy+40, '-18°C', {'font-family':MONO, 'font-size':22, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-  txt(cx, 470, 'CORE TEMP · FREEZER', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, cy+40, '-18°C', {'font-family':MONO, 'font-size':'var(--type-body)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(cx, 470, 'CORE TEMP · FREEZER', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 })();
 
 /* ---------- 三卡履历 ---------- */

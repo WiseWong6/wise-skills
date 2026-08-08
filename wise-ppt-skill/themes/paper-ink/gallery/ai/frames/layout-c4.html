@@ -25,7 +25,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -102,19 +102,19 @@ var RAMP_LEGEND = [.12,.27,.40,.52,.65].map(function(frac){
 if (ACCENT_ON) RAMP_LEGEND = [.30,.46,.60,.73,.85];
 
 /* ---------- FIG 图题（基线 y=226，与右侧 PROVINCE TOTALS 水平对齐） ---------- */
-txt(200, 226, 'FIG. C4 — AI COVERAGE MAP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 226, 'FIG. C4 — AI COVERAGE MAP', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:242, x2:600, y2:242, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 经纬构造线（测绘底稿，不擦除）—— 广东约 109.7°–117.2°E / 20.2°–25.5°N ---------- */
 [740, 980].forEach(function(x, i){
   el('line', {x1:x, y1:208, x2:x, y2:832, stroke:INK, 'stroke-width':.5, opacity:.14, 'stroke-dasharray':'2 6'});
-  txt(x, 850, (112 + i*3) + '°E', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(x, 850, (112 + i*3) + '°E', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 });
 el('line', {x1:210, y1:520, x2:1340, y2:520, stroke:INK, 'stroke-width':.5, opacity:.14, 'stroke-dasharray':'2 6'});
-txt(1352, 524, '23°N', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
+txt(1352, 524, '23°N', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
 
 /* ---------- 右侧 KPI 栏（x1360–1780，细线分隔、无外框） ---------- */
-txt(1360, 226, 'PROVINCE TOTALS', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
+txt(1360, 226, 'PROVINCE TOTALS', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:1360, y1:242, x2:1770, y2:242, stroke:INK, 'stroke-width':.8, opacity:.5});
 var kpis = [
   ['117',   '部署节点总数（个）'],
@@ -124,8 +124,8 @@ var kpis = [
 ];
 kpis.forEach(function(k, i){
   var y = 340 + i * 140;
-  txt(1360, y, k[0], {'font-family':MONO, 'font-size':58, 'letter-spacing':1, fill:INK});
-  txt(1360, y+34, k[1], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
+  txt(1360, y, k[0], {'font-family':MONO, 'font-size':'var(--type-metric)', 'letter-spacing':1, fill:INK});
+  txt(1360, y+34, k[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
   if (i < kpis.length - 1)
     el('line', {x1:1360, y1:y+66, x2:1770, y2:y+66, stroke:INK, 'stroke-width':.6, opacity:.25});
 });
@@ -137,9 +137,9 @@ RAMP_LEGEND.forEach(function(a, i){
   el('rect', {x:rampX + i*rampStep, y:rampY - rampH/2, width:rampStep-2, height:rampH,
     fill:'rgba('+RAMP_RGB+','+a+')', stroke:INK, 'stroke-width':.5, opacity:.9});
 });
-txt(rampX,            rampY + rampH/2 + 14, '少', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
-txt(rampX + 4*rampStep + (rampStep-2), rampY + rampH/2 + 14, '多', {'font-family':SANS, 'font-weight':300, 'font-size':11, 'text-anchor':'middle', fill:INK45});
-txt(rampX + 5*rampStep + 8, rampY + 4, 'FILL INTENSITY = NODES · DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
+txt(rampX,            rampY + rampH/2 + 14, '少', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK45});
+txt(rampX + 4*rampStep + (rampStep-2), rampY + rampH/2 + 14, '多', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK45});
+txt(rampX + 5*rampStep + 8, rampY + 4, 'FILL INTENSITY = NODES · DATA © DATAV.GEOATLAS', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
 
 /* ===================== ECharts 广东省地图（纸墨化） =====================
    分工：ECharts geo 只渲染真实市界（21 地级市），节点（双圈+数值+
@@ -213,7 +213,7 @@ loadMap().then(function(geo){
         show: true,
         color: 'rgba(25,25,23,.32)',
         fontFamily: MONO,
-        fontSize: 11
+        fontSize: paperInkTypeSize('micro')
       },
       layoutCenter: ['42%', '50%'],
       layoutSize: '70%'
@@ -249,8 +249,8 @@ loadMap().then(function(geo){
       var anchor = Math.cos(p.dir) >= 0 ? 'start' : 'end';
       var tx = ax + (anchor === 'start' ? 8 : -8);
       /* 节点数（mono 大字）+ 城市名（中文）+ mono EN 注 */
-      oTxt(tx, ay - 6, p.v + ' 节点', {'font-family':MONO, 'font-size':20, 'letter-spacing':1, 'text-anchor':anchor, fill:INK});
-      oTxt(tx, ay + 18, p.tag + ' · ' + p.en, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'letter-spacing':1, 'text-anchor':anchor, fill:INK70});
+      oTxt(tx, ay - 6, p.v + ' 节点', {'font-family':MONO, 'font-size':'var(--type-body)', 'letter-spacing':1, 'text-anchor':anchor, fill:INK});
+      oTxt(tx, ay + 18, p.tag + ' · ' + p.en, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':anchor, fill:INK70});
     });
   }
 

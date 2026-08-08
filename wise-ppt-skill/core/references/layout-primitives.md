@@ -1,6 +1,6 @@
 # 排版原语：关系到空间的通用语法
 
-原语不是模板编号，而是可组合的空间规律。AI 先理解内容关系，再把唯一主原语写入 deck page 的 `spatial_primitive`，最后到当前主题的 manifest 查找已验证实例。模板完全匹配时直接 copy；不匹配时 adapt、compose 或 novel。
+原语不是模板编号，而是可组合的空间规律。AI 先理解内容关系，再把唯一主原语写入 deck page 的 `spatial_primitive`，并先定义所需区域、阅读顺序、容量与组件角色，最后才查询当前主题的 Gallery。Gallery 完全满足时使用 `copy` 或 `adapt`；不满足时直接进入 `custom`，这不是失败或降级路径。
 
 ## 1. 十二个通用原语
 
@@ -44,9 +44,9 @@
 
 用删除测试：去掉哪个结构后 takeaway 就讲不成立，哪个就是主原语。只允许一个主原语，并把其 canonical 名称写入 `spatial_primitive`。
 
-### D. 添加最多两个辅助原语
+### D. 明确空间需求与辅助结构
 
-需要总账时加 KPI / 结论带；需要解释细节时加 annotation；需要显式收口时加 converging path。主题选定 layout 后，把主原语及辅助原语记录到 `theme_primitives`，总数最多三个。超过两个辅助结构通常意味着应拆页。
+需要总账时加 KPI / 结论带；需要解释细节时加 annotation；需要显式收口时加 converging path。辅助结构写进布局需求与选择理由，不再绑定为 Gallery manifest 的 `theme_primitives`。若 Gallery 需要增减区域、调整阅读顺序或改变主结构才能容纳这些需求，必须切换为 `custom`。超过两个辅助结构通常意味着应拆页。
 
 ## 3. 高频歧义
 
@@ -73,5 +73,5 @@
 - 同构框只有在信息确实同级时才成立。
 - 箭头必须表达方向或因果，不能只是装饰。
 - 视觉距离、层级、包裹、连线和尺度都应编码语义。
-- 找到完全匹配的主题样例时优先 copy，不为“原创”强行重画。
-- 找不到匹配样例时可以 novel，但仍需满足主题 capacity 与可读性门禁。
+- 找到完全匹配的 Gallery 版式时优先 `copy`，不为“原创”强行重画。
+- Gallery 查询为空不是失败；改用 `custom`，并通过页内 `custom_contract` 声明 reading order、regions 与 capacity。

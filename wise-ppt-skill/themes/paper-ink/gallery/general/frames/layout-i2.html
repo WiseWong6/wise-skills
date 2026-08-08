@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -18,7 +18,7 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.i2">
-  <div class="doc tl">HENGJI DISPATCH — I2<br>SCHEDULER BLACK BOX</div>
+  <div class="doc tl">PAPER-INK GALLERY — I2<br>INVISIBLE PROCESS CHAIN</div>
   <div class="folio">I2 / 63 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
@@ -30,7 +30,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">外部只看见订单进入与 AGV 到位，中间的任务拆分、算路、避让和电量权衡仍是黑箱。</div>
+  <div class="caption">B3 虚实步骤串：实线气泡是两端的已知，虚线框是中间看不见的过程，实虚对比就是全部叙事。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -52,26 +52,25 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 var CY = 520;
 
 /* ---------- FIG 图题 + 右上档案注 ---------- */
-txt(200, 176, 'FIG. I2 — INVISIBLE PROCESS CHAIN', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. I2 — INVISIBLE PROCESS CHAIN', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
-txt(1720, 176, 'HENGJI ROBOTICS · DISPATCH OS', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
-G = el('g', {transform:'translate(0 40)'});
+txt(1720, 176, 'HENGJI ROBOTICS · DISPATCH OS', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 /* ---------- 顶部 mono 小注 + 短细线 ---------- */
-txt(960, 300, 'INVISIBLE · WHAT THE SCHEDULER DOES INSIDE', {'font-family':MONO, 'font-size':15, 'letter-spacing':5, 'text-anchor':'middle', fill:'rgba(25,25,23,.4)'});
+txt(960, 300, 'INVISIBLE · WHAT THE SCHEDULER DOES INSIDE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':5, 'text-anchor':'middle', fill:'rgba(25,25,23,.4)'});
 el('line', {x1:740, y1:316, x2:1180, y2:316, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 左：已知端点（实线气泡） ---------- */
 el('rect', {x:150, y:CY-64, width:330, height:128, rx:16, fill:'rgba(255,255,255,.22)', stroke:'rgba(25,25,23,.55)', 'stroke-width':1.2});
-txt(180, CY-16, '100 张订单已下发', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
-txt(180, CY+26, '等待调度结果', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
-txt(150, CY-90, '已知 · 输入', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK45});
+txt(180, CY-16, '100 张订单已下发', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+txt(180, CY+26, '等待调度结果', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+txt(150, CY-90, '已知 · 输入', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK45});
 
 /* ---------- 右：已知端点（实线气泡） ---------- */
 el('rect', {x:1440, y:CY-64, width:330, height:128, rx:16, fill:'rgba(255,255,255,.22)', stroke:'rgba(25,25,23,.55)', 'stroke-width':1.2});
-txt(1470, CY-16, 'AGV-07 已到位', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
-txt(1470, CY+26, '开始取货作业', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
-txt(1440, CY-90, '已知 · 输出', {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:INK45});
+txt(1470, CY-16, 'AGV-07 已到位', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+txt(1470, CY+26, '开始取货作业', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+txt(1440, CY-90, '已知 · 输出', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK45});
 
 /* ---------- 中间：不可见的步骤（虚线圆角框 + 虚线箭头） ---------- */
 var steps = ['任务如何拆分？','路径如何规划？','冲突如何消解？','电量如何权衡？'];
@@ -81,8 +80,8 @@ steps.forEach(function(s, i){
   var x = sx0 + i * gapX;
   el('rect', {x:x, y:CY-56, width:170, height:112, rx:12, fill:'none',
     stroke:INK, 'stroke-width':1.1, 'stroke-dasharray':'7 6', opacity:.75});
-  txt(x+85, CY-8, '?', {'font-family':MONO, 'font-size':40, 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
-  txt(x+85, CY+34, s, {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
+  txt(x+85, CY-8, '?', {'font-family':MONO, 'font-size':'var(--type-heading)', 'text-anchor':'middle', fill:'rgba(25,25,23,.55)'});
+  txt(x+85, CY+34, s, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
   if (i < steps.length-1) {
     el('line', {x1:x+170, y1:CY, x2:x+gapX-6, y2:CY, stroke:INK, 'stroke-width':1.2, 'stroke-dasharray':'6 7', 'marker-end':'url(#arrow)', opacity:.6});
   }
@@ -94,9 +93,9 @@ el('line', {x1:560, y1:668, x2:1390, y2:668, stroke:INK, 'stroke-width':.6, 'str
 for (var i = 0; i <= 4; i++) {
   var tx = 560 + i * 207.5;
   el('line', {x1:tx, y1:662, x2:tx, y2:674, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(tx, 700, 'STEP 0' + (i+1), {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(tx, 700, 'STEP 0' + (i+1), {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 }
-txt(975, 736, 'TOTAL 1.8 S · OBSERVED FROM OUTSIDE: NOTHING', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+txt(975, 736, 'TOTAL 1.8 S · OBSERVED FROM OUTSIDE: NOTHING', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 stageFit();
 </script>

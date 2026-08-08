@@ -12,7 +12,7 @@
   .sub-en {
     position: absolute; left: 0; right: 0; top: 628px;
     text-align: center;
-    font-family: var(--mono); font-size: 18px;
+    font-family: var(--mono); font-size: var(--type-body-small);
     letter-spacing: .42em; text-indent: .42em;   /* 末字符补偿，保持视觉居中 */
     color: var(--ink-70);
     z-index: 5;
@@ -20,7 +20,7 @@
   .next-cn {
     position: absolute; left: 0; right: 0; top: 726px;
     text-align: center;
-    font-family: var(--sans); font-weight: 300; font-size: 24px;
+    font-family: var(--sans); font-weight: 300; font-size: var(--type-subheading);
     letter-spacing: .08em;
     color: var(--ink);
     z-index: 5;
@@ -57,7 +57,7 @@ function el(tag, attrs) {
 
 /* ---- 构图参数 ---- */
 var WORD = 'DISPATCH';
-var FS = 240;                                    // 采样字号
+var FS = paperInkTypeSize('particle-sample');    // 采样字号
 var FONT = '500 ' + FS + 'px "Han Serif"';
 var CY = 420;                                    // 单词中心（中央偏上）
 
@@ -71,7 +71,7 @@ function draw() {
 
   /* ① ASCII 乱序字面：0 / 1 / * / - / . 随机落位，打字机小字 */
   var CH = '01*-.';
-  ctx.font = '10px "Courier Prime"';
+  ctx.font = paperInkTypeSize('micro') + 'px "Courier Prime"';
   ctx.fillStyle = '#191917';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -117,7 +117,7 @@ function draw() {
     el('line', {x1: ax, y1: minY, x2: LX, y2: minY, stroke:'#191917', 'stroke-width':.6, 'stroke-dasharray':'2 4', opacity:.3});
     el('line', {x1: ax, y1: maxY, x2: LX, y2: maxY, stroke:'#191917', 'stroke-width':.6, 'stroke-dasharray':'2 4', opacity:.3});
     var t = el('text', {x: ax - 14, y: (minY + maxY) / 2, 'text-anchor':'middle',
-      'font-family':'Courier Prime', 'font-size':13, 'letter-spacing':2,
+      'font-family':'Courier Prime', 'font-size':'var(--type-meta)', 'letter-spacing':2,
       fill:'rgba(25,25,23,.45)', transform:'rotate(-90 ' + (ax - 14) + ' ' + ((minY + maxY) / 2) + ')'});
     t.textContent = 'X-HEIGHT 240';
   })();
@@ -132,7 +132,7 @@ function draw() {
 
   /* 图注 */
   var ft = el('text', {x: 960, y: 806, 'text-anchor':'middle',
-    'font-family':'Courier Prime', 'font-size':14, 'letter-spacing':5,
+    'font-family':'Courier Prime', 'font-size':'var(--type-meta)', 'letter-spacing':5,
     fill:'rgba(25,25,23,.45)'});
   ft.textContent = 'FIG. D2 — END CARD';
 }

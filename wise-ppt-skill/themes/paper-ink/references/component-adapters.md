@@ -1,6 +1,6 @@
 # 纸墨主题组件适配
 
-组件选择由 Core 的语义路由完成；本文件只说明组件落入纸墨 slot 后如何变成同一套视觉语言。
+组件选择由 Core 的语义路由完成；本文件只说明组件落入纸墨 slot 后如何变成同一套视觉语言。Atlas 与 ECharts 都是可选参考源，页面可以完全使用原生 HTML、CSS 或 SVG。
 
 ## 通用契约
 
@@ -18,7 +18,7 @@
 - `data-content-ref` 必须能追到 `content.json`，不能把事实只写死在绘制代码里。
 - 页面只能有一个主要视觉角色；表格、标注、KPI、来源注可作为支持组件。
 - 不允许 decoration-only 组件。每个组件必须承载主张、证据或导航。
-- `render_plan` 中的 provider、component、data_ref、encode 与 HTML 属性必须一致。
+- `render-plan.json` 中的 provider、component、data_ref、encode 与 HTML 属性必须一致。
 
 ## Typography 与 Table
 
@@ -36,7 +36,7 @@
 
 - 适合产品 UI、表格、筛选器、规格单和高密度界面。
 - 统一移除圆角、渐变、彩色状态底和重阴影；状态差异改用线型、hatch、字阶和受控强调色。
-- 交互不是交付依赖；PDF/PNG 导出时关键状态必须静态可见。
+- 交互不是交付依赖；PDF 导出时关键状态必须静态可见。
 
 ## ECharts
 
@@ -60,14 +60,17 @@ render plan 至少声明：
 }
 ```
 
+- 图表类型按 [ECharts 官方 option 文档](https://echarts.apache.org/en/option.html)选择，不维护本地 series 白名单；`radar`、`sankey`、`custom` 等可正常使用。
+- ECharts major 以 `theme.json.runtimes.echarts.major` 为唯一权威；所选配置必须兼容该 major。
 - 色板只用墨色阶梯；`?accent` 只染 encode 指定的唯一主角。
 - 轴线与网格 0.6–1px；去渐变、圆角、面积重填充和阴影。
 - 图例、刻度、单位永不使用强调色；图表必须有来源或数据口径。
-- 异步图表页先在 `<html>` 写 `data-render-pending="true"`；字体、图片和图表全部完成后调用 `markRenderReady()`，由它在页面根节点写唯一的 `data-render-ready="true"`。不要另造 `data-page-ready` 协议。
+- 异步图表页在对应 `.slide` 写 `data-render-pending="true"`；使用 `document.currentScript.closest('.slide')` 和局部查询，默认通过 `WisePPT.createEChart()` 选择 SVG renderer。字体、图片和图表全部完成后调用 `WisePPT.markSlideReady(slide)`。不要另造 `data-page-ready` 协议。
+- ECharts 的 `fontSize` 只能用 `WisePPT.typeSize(role)`，不得在 option 中写数值字号；CSS/SVG 组件直接引用共享 `--type-*` token。
 
 ## Atlas
 
-`ppt-component-atlas` 只负责“精确组件名 + variant → 裸 HTML”。Core 负责语义选择；不得要求 atlas 猜概念。
+`ppt-component-atlas` 只负责“精确组件名 + variant → 裸 HTML”。仅在页面实际使用 `provider=atlas` 时加载。Core 负责语义选择；不得要求 Atlas 猜概念。
 
 - render plan 必须写可唯一命中的精确 `component` 和可选 `variant`，例如 `流程-默认变体(4步)` / `default`；不要只写会命中多条记录的 `process`。
 - 导出后保留结构，套用 `theme_adapter: paper-ink.atlas`：去色、直角、细线、字体替换、静态化。

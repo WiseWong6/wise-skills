@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -41,7 +41,7 @@ var INK80 = 'rgba(25,25,23,.8)';
 var INK45 = 'rgba(25,25,23,.45)';
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -60,7 +60,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans', SERIF = 'Han Serif';
 
 /* ---------- FIG 图题 ---------- */
-txt(304, 176, 'FIG. E4 — BEFORE-AFTER MATRIX + KPI', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(304, 176, 'FIG. E4 — BEFORE-AFTER MATRIX + KPI', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:304, y1:192, x2:664, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ============ 列骨架：4 个环节 ============ */
@@ -72,8 +72,8 @@ var COLS = [
   {x:1554, en:'ANALYZE', cn:'复盘', oldV:'Excel 统计', newV:'看板自动'}
 ];
 COLS.forEach(function(c, i){
-  txt(c.x, 232, '0' + (i+1) + ' · ' + c.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-  txt(c.x, 262, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, 'text-anchor':'middle', fill:INK});
+  txt(c.x, 232, '0' + (i+1) + ' · ' + c.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(c.x, 262, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', 'text-anchor':'middle', fill:INK});
   /* 列向虚线栅格（矩阵感） */
   el('line', {x1:c.x, y1:280, x2:c.x, y2:730, stroke:INK, 'stroke-width':.5, opacity:.16, 'stroke-dasharray':'2 6'});
 });
@@ -81,10 +81,10 @@ COLS.forEach(function(c, i){
 /* 行标签 + 行分隔虚线（中心 x=960，与 KPI 带 200-1720 中心对齐） */
 el('line', {x1:334, y1:465, x2:1754, y2:465, stroke:INK, 'stroke-width':.6, opacity:.25, 'stroke-dasharray':'3 6'});
 el('line', {x1:334, y1:725, x2:1754, y2:725, stroke:INK, 'stroke-width':.6, opacity:.25, 'stroke-dasharray':'3 6'});
-txt(344, 344, 'BEFORE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
-txt(344, 372, '旧流程', {'font-family':SANS, 'font-weight':300, 'font-size':18, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
-txt(344, 604, 'AFTER', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, 'text-anchor':'end', fill:INK});
-txt(344, 632, '新平台', {'font-family':SANS, 'font-weight':300, 'font-size':18, 'text-anchor':'end', fill:INK});
+txt(344, 344, 'BEFORE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+txt(344, 372, '旧流程', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+txt(344, 604, 'AFTER', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, 'text-anchor':'end', fill:INK});
+txt(344, 632, '新平台', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'end', fill:INK});
 
 /* ============ 前行（灰阶虚线）：旧流程四态 ============ */
 var GOLD = elp(G, 'g', {opacity:.45});
@@ -134,7 +134,7 @@ elp(GOLD, 'rect', {x:1539, y:384, width:30, height:16, fill:'url(#hatch)', strok
 
 /* 前行字段行 */
 COLS.forEach(function(c){
-  txt(c.x, 448, c.oldV, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
+  txt(c.x, 448, c.oldV, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
 });
 
 /* ============ 列间下行箭头（前 → 新） ============ */
@@ -156,7 +156,7 @@ el('line', {x1:552, y1:628, x2:556, y2:628, stroke:INK80, 'stroke-width':1});
 el('line', {x1:558, y1:600, x2:560, y2:600, stroke:INK80, 'stroke-width':1});
 el('line', {x1:510, y1:630, x2:512, y2:630, stroke:INK80, 'stroke-width':1});
 el('line', {x1:494, y1:576, x2:584, y2:576, stroke:INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'2 4'});
-txt(535, 570, 'AI', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
+txt(535, 570, 'AI', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 /* 02 审阅（新·协作批注）：文档 + 右侧批注气泡 */
 el('rect', {x:834, y:576, width:50, height:66, rx:2, fill:'none', stroke:INK80, 'stroke-width':1.3});
 [592, 604, 616, 628].forEach(function(yy){
@@ -168,7 +168,7 @@ el('path', {d:'M 904 584 Q 900 584 900 588 L 900 614 Q 900 618 904 618 L 918 618
 /* 气泡内两行批注线 */
 el('line', {x1:906, y1:596, x2:932, y2:596, stroke:INK80, 'stroke-width':.7});
 el('line', {x1:906, y1:606, x2:926, y2:606, stroke:INK80, 'stroke-width':.7});
-txt(874, 612, 'REVIEW', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(874, 612, 'REVIEW', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 /* 03 发布（新·一键多端）：底部按钮 + 向上扇出多端箭头 */
 /* 底部按钮（发布源） */
 el('rect', {x:1190, y:624, width:48, height:20, rx:3, fill:'none', stroke:INK80, 'stroke-width':1.3});
@@ -214,7 +214,7 @@ el('polyline', {points:'1572,636 1582,626 1590,616 1598,600',
 
 /* 新行字段行 */
 COLS.forEach(function(c){
-  txt(c.x, 700, c.newV, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
+  txt(c.x, 700, c.newV, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
 });
 
 /* ============ 底部 KPI 通栏带（总账三数） ============ */
@@ -228,9 +228,9 @@ el('line', {x1:1360, y1:794, x2:1360, y2:866, stroke:INK, 'stroke-width':.6, opa
 function kpi(nx, num, label, note) {
   /* KPI 三个数字是本页总账焦点 → accent 模式下数字染番茄红，标签/注释保持墨色 */
   var nc = ACCENT ? RED : INK;
-  txt(nx, 852, num, {'font-family':SERIF, 'font-size':58, 'text-anchor':'end', fill:nc});
-  txt(nx + 24, 832, label, {'font-family':SANS, 'font-weight':300, 'font-size':20, fill:'rgba(25,25,23,.8)'});
-  txt(nx + 24, 858, note, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK45});
+  txt(nx, 852, num, {'font-family':SERIF, 'font-size':'var(--type-metric)', 'text-anchor':'end', fill:nc});
+  txt(nx + 24, 832, label, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:'rgba(25,25,23,.8)'});
+  txt(nx + 24, 858, note, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
 }
 kpi(520,  '-65%', '产出周期', 'CYCLE TIME');
 kpi(1080, '×3.1',  '内容量',   'OUTPUT');

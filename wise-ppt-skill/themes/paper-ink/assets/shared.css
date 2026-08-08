@@ -35,17 +35,17 @@
 }
 
 :root {
-  --paper: #DFE0D9;             /* f11 实测底色：冷调灰白纸 */
+  --paper: #DFE0D9;
   --paper-deep: #D4D5CD;
   --ink: #191917;
   --ink-70: rgba(25, 25, 23, .7);
   --ink-45: rgba(25, 25, 23, .45);
   --ink-25: rgba(25, 25, 23, .25);
   --ink-12: rgba(25, 25, 23, .12);
-  --cinnabar: #191917;          /* 单色系统：强调色 = 墨色，靠线型/字重表达强调 */
-  --accent-blue: #002FA7;       /* 高饱和·克莱因蓝（?accent 开启后激活）：数据焦点/当前值/达标 */
-  --accent-red: #C0392B;        /* 高饱和·番茄红：否决/警示/异常/未达标 */
-  /* 间距网格（4pt baseline）—— 见 design-tokens §4.7；所有 padding/margin/gap 落于此 */
+  --accent-red: #C0392B;
+  --accent-red-85: rgba(192, 57, 43, .85);
+  --accent-red-65: rgba(192, 57, 43, .65);
+  /* 间距网格（4pt baseline） */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -61,53 +61,45 @@
   --space-24: 96px;
   --space-30: 120px;
   --space-40: 160px;
-  /* 组件质感阴影 —— 见 design-tokens §1.2；色取边框墨色的极淡版（跟随主题），同层级不叠影 */
-  --shadow-soft: 0 0 4px color-mix(in srgb, var(--ink) 2%, transparent);       /* 通用轻阴影：卡片/面板标配（零偏移·极淡·均匀扩散） */
-  --shadow-specimen: 2px 2px 0 color-mix(in srgb, var(--ink) 4%, transparent);  /* 标本贴纸偏移影：硬边·极小偏移 */
-  /* 四族字体，分工不重叠（用户圈定 2026-08-07） */
+  --shadow-soft: 0 0 4px color-mix(in srgb, var(--ink) 2%, transparent);
+  --shadow-specimen: 2px 2px 0 color-mix(in srgb, var(--ink) 4%, transparent);
+  /*
+   * 全局字阶：语义层级只能引用这些 token，页面不得写裸字号。
+   * 特殊图形字号只服务章节标记和离屏粒子采样，不得当正文使用。
+   */
+  --type-display-mark: 300px;
+  --type-particle-sample: 240px;
+  --type-display: 96px;
+  --type-hero: 76px;
+  --type-title: 60px;
+  --type-metric: 52px;
+  --type-heading: 40px;
+  --type-emphasis: 36px;
+  --type-caption: 33px;
+  --type-subheading: 26px;
+  --type-body: 22px;
+  --type-body-small: 18px;
+  --type-label: 15px;
+  --type-meta: 13px;
+  --type-micro: 12px;
+  /* 四族字体 */
   --serif: 'Han Serif', 'Songti SC', serif;        /* 思源宋体 Medium：大字标题/结论/提问符号 */
   --sans: 'Han Sans', 'PingFang SC', sans-serif;   /* 思源黑体 Light：正文 */
   --mono: 'Courier Prime', Menlo, monospace;       /* 打字机体：编号/图题/坐标 */
   --brush: 'LXGW WenKai', 'Xingkai SC', cursive;   /* 霞鹜文楷：朱批手写 */
 }
 
-/* ---------- 冷白实验室主题（?cool 开启） ---------- */
-:root.cool {
-  --paper: #EDF0EE;
-  --paper-deep: #E2E7E4;
-  --ink: #181C1E;
-  --ink-70: rgba(24, 28, 30, .7);
-  --ink-45: rgba(24, 28, 30, .45);
-  --ink-25: rgba(24, 28, 30, .25);
-  --ink-12: rgba(24, 28, 30, .12);
-  --cinnabar: #1D5C9E;          /* 蓝图青：冷版唯一强调色 */
-}
-
-/* ---------- 纯单色主题（?mono 开启，对齐 f11） ---------- */
-:root.mono {
-  --paper: #DFE0D9;
-  --paper-deep: #D4D5CD;
-  --ink: #191917;
-  --ink-70: rgba(25, 25, 23, .7);
-  --ink-45: rgba(25, 25, 23, .45);
-  --ink-25: rgba(25, 25, 23, .25);
-  --ink-12: rgba(25, 25, 23, .12);
-  --cinnabar: #191917;          /* 强调色 = 墨色：单色系统没有彩色 */
-}
-
-/* ---------- 高饱和强调色主题（?accent 开启） ---------- */
-/* particles.js stageFit() 读 URL 加 .accent 类；此处重定义 --cinnabar 为番茄红，
-   让 .cin 工具类、.zhu-* 批注族（均用 var(--cinnabar)）在 accent 模式自动变红。
-   面积配额 ≤2.5%、一页一色、禁染清单见 design-tokens §1.5 */
-:root.accent {
-  --cinnabar: #C0392B;          /* 番茄红：焦点/数据关键值/警示/未达标 */
+:root.accent .slide[data-emphasis-mode="semantic-focus"] [data-emphasis-role] {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+  stroke: var(--accent-red);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body { height: 100%; }
 
-body {
+html:not([data-runtime="wise-ppt"]) body {
   background: #111;
   display: flex;
   align-items: center;
@@ -119,6 +111,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html[data-runtime="wise-ppt"] body {
+  font-family: var(--sans);
+  font-weight: 300;
+  color: var(--ink);
+}
+
 /* ---------- 舞台：宣纸 + 噪点 ---------- */
 .stage {
   flex: none;
@@ -128,6 +126,19 @@ body {
   overflow: hidden;
   background: var(--paper);
   transform-origin: center center;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* 放映页正文必须可框选复制；画册克隆由运行壳单独设为 inert / 不可选。 */
+.stage * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+html[data-runtime="wise-ppt"] .slide > .stage {
+  transform: none;
+  transform-origin: top left;
 }
 
 /* 纸纹噪点 */
@@ -154,11 +165,11 @@ body {
 
 .stage > * { position: relative; z-index: 1; }
 
-/* ---------- 档案角注（Plex Mono 小字） ---------- */
+/* ---------- 档案角注 ---------- */
 .doc {
   position: absolute;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--type-meta);
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--ink-45);
@@ -168,72 +179,45 @@ body {
 }
 .doc.tl { top: 44px; left: 48px; }
 
-/* ---------- 左下页脚：页码 + 制作人（?ppt 模式显示，视频模式隐藏） ---------- */
+/* ---------- 左下页脚：画册隐藏，放映与打印显示 ---------- */
 .folio {
   position: absolute;
   left: 48px; bottom: 44px;
   display: none;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--type-meta);
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--ink-45);
   z-index: 5;
 }
-:root.ppt .folio { display: block; }
+:root.print-mode .folio,
+body.mode-deck .folio { display: block; }
 
-/* ---------- 文字层级（字号阶梯：用户定稿降两档） ---------- */
+/* ---------- 文字层级 ---------- */
 .mono  { font-family: var(--mono); font-weight: 400; }
 .serif { font-family: var(--serif); font-weight: 500; }
 .sans  { font-family: var(--sans); font-weight: 300; }
 .kai   { font-family: var(--brush); font-weight: 400; }
 .dim   { color: var(--ink-45); }
-.cin   { color: var(--cinnabar); }
 
 .giant {
   font-family: var(--serif);
   font-weight: 500;
-  font-size: 76px;          /* 大字上限：96px 以内 */
+  font-size: var(--type-hero);
   line-height: 1.2;
   letter-spacing: .04em;
 }
-.h1 { font-family: var(--serif); font-weight: 500; font-size: 60px; line-height: 1.3; letter-spacing: .03em; }
-.h2 { font-family: var(--serif); font-weight: 500; font-size: 40px; line-height: 1.35; letter-spacing: .03em; }
-.lead { font-family: var(--sans); font-weight: 300; font-size: 24px; line-height: 1.7; color: var(--ink-70); }
+.h1 { font-family: var(--serif); font-weight: 500; font-size: var(--type-title); line-height: 1.3; letter-spacing: .03em; }
+.h2 { font-family: var(--serif); font-weight: 500; font-size: var(--type-heading); line-height: 1.35; letter-spacing: .03em; }
+.lead { font-family: var(--sans); font-weight: 300; font-size: var(--type-subheading); line-height: 1.7; color: var(--ink-70); }
+
+/* 页底 takeaway 的字级只有这一处权威定义。 */
+.stage > .caption { font-size: var(--type-caption); }
 
 /* ---------- 细线框 ---------- */
 .hairline { border: 1px solid var(--ink-25); }
 .hr-ink { height: 1px; background: var(--ink-25); border: 0; }
-
-/* ---------- 朱砂手绘批注 ---------- */
-.zhu-circle {
-  position: absolute;
-  border: 4px solid var(--cinnabar);
-  border-radius: 50%;
-  transform: rotate(-5deg);
-  pointer-events: none;
-}
-.zhu-circle::after {   /* 第二笔，叠出手绘感 */
-  content: "";
-  position: absolute; inset: -7px;
-  border: 3px solid var(--cinnabar);
-  border-radius: 48% 52% 51% 49%;
-  opacity: .55;
-  transform: rotate(9deg);
-}
-.zhu-note {
-  position: absolute;
-  font-family: var(--brush);
-  color: var(--cinnabar);
-  pointer-events: none;
-}
-.zhu-line {
-  position: absolute;
-  height: 4px;
-  background: var(--cinnabar);
-  border-radius: 2px;
-  pointer-events: none;
-}
 
 /* ---------- 底部结论 ---------- */
 .verdict {
@@ -242,7 +226,7 @@ body {
   text-align: center;
   font-family: var(--serif);
   font-weight: 500;
-  font-size: 34px;
+  font-size: var(--type-emphasis);
   letter-spacing: .06em;
   color: var(--ink);
   z-index: 5;
@@ -252,7 +236,7 @@ body {
   margin-top: var(--space-4);
   font-family: var(--sans);
   font-weight: 300;
-  font-size: 18px;
+  font-size: var(--type-body-small);
   letter-spacing: .14em;
   color: var(--ink-45);
 }
@@ -268,7 +252,7 @@ body {
 /* ---------- SVG 图版通用文字 ---------- */
 .fig-title {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: var(--type-label);
   letter-spacing: .3em;
   fill: var(--ink-45);
   text-transform: uppercase;
@@ -276,7 +260,7 @@ body {
 .fig-cap {
   font-family: var(--sans);
   font-weight: 300;
-  font-size: 18px;
+  font-size: var(--type-body-small);
   letter-spacing: .06em;
   fill: var(--ink-70);
 }

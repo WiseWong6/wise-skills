@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -53,7 +53,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. J2 — SERPENTINE LOOP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. J2 — SERPENTINE LOOP', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* 回环主体保持内部结构不变，整体落到 FIG 与结论之间的视觉中心。 */
@@ -122,11 +122,11 @@ function node(cx, cy, w, no, en, cn, field, glyphFn){
   var x = cx - w/2, y = cy - 80;
   el('rect', {x:x, y:y, width:w, height:160, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.3});
   el('rect', {x:x+5, y:y+5, width:w-10, height:150, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(x+16, y+28, no, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
+  txt(x+16, y+28, no, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK45});
   glyphFn(cx, cy-40);
-  txt(cx, cy+14, en, {'font-family':MONO, 'font-size':15, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-  txt(cx, cy+40, cn, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:INK});
-  txt(cx, cy+65, field, {'font-family':MONO, 'font-size':12, 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
+  txt(cx, cy+14, en, {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(cx, cy+40, cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:INK});
+  txt(cx, cy+65, field, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1, 'text-anchor':'middle', fill:INK45});
   return {l:x, r:x+w};
 }
 
@@ -149,8 +149,8 @@ arrow(n3.r+8, n4.l-8, TY, 1);
 /* 右端大弧弯下：上线闸口（本页唯一强调线 2.2px） */
 el('path', {d:'M 1586 370 C 1746 370, 1746 670, 1586 670',
   fill:'none', stroke:INK, 'stroke-width':2.2, opacity:.95});
-txt(1662, 500, 'GO-LIVE', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-txt(1662, 530, '上线闸口', {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
+txt(1662, 500, 'GO-LIVE', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(1662, 530, '上线闸口', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK70});
 
 /* 下排：05 灰度上线 → 06 全量发布 → 07 指标监控 → 08 问题回收（右到左） */
 var n5 = node(CXS[3], BY, 232, '05', 'CANARY',  '灰度上线', '5% FLEET · 2 SITES', gCanary);
@@ -166,8 +166,8 @@ el('path', {d:'M 320 670 C 172 670, 172 370, 320 370',
   fill:'none', stroke:INK80, 'stroke-width':1.4});
 el('line', {x1:320, y1:370, x2:330, y2:360, stroke:INK80, 'stroke-width':1.2});
 el('line', {x1:320, y1:370, x2:330, y2:380, stroke:INK80, 'stroke-width':1.2});
-txt(246, 500, 'ITERATE · W01', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
-txt(246, 530, '持续迭代', {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':'middle', fill:INK70});
+txt(246, 500, 'ITERATE · W01', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(246, 530, '持续迭代', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK70});
 
 /* 构造线：上下排横向基准（作图痕迹，不擦除） */
 el('line', {x1:180, y1:TY, x2:330, y2:TY, stroke:INK, 'stroke-width':.5, opacity:.18, 'stroke-dasharray':'2 6'});

@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -40,7 +40,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var SERIF = 'Han Serif';
 var G = document.getElementById('draw');
 function el(tag, attrs) {
@@ -55,9 +55,12 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. K2 — PAIN — FIX — GAIN', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. K2 — PAIN — FIX — GAIN', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 G = el('g', {transform:'translate(65 68)'});
+
+/* 主体包络整体配平：FIG 等固定件不参与位移 */
+G = el('g', {id:'body', 'data-balance':'structural', transform:'translate(65 52)'});
 
 /* ---------- 栏头：mono 栏题 + 短横 + 中文栏题 ---------- */
 var heads = [
@@ -66,9 +69,9 @@ var heads = [
   {x:1330, en:'OUTCOME',    cn:'上线成效'}
 ];
 heads.forEach(function(h){
-  txt(h.x, 238, h.en, {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+  txt(h.x, 238, h.en, {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
   el('line', {x1:h.x, y1:254, x2:h.x+100, y2:254, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(h.x, 296, h.cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
+  txt(h.x, 296, h.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
 });
 
 /* ---------- 栏间细线开放箭头 ---------- */
@@ -84,11 +87,11 @@ colArrow(1186, 1234, 540);
 function item(x, y, no, title, note1, note2, tag){
   el('circle', {cx:x+22, cy:y, r:13, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:x+22, cy:y, r:9, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(x+22, y+4.5, no, {'font-family':MONO, 'font-size':13, 'text-anchor':'middle', fill:INK});
-  txt(x+52, y+7, title, {'font-family':SANS, 'font-weight':300, 'font-size':21, fill:INK});
-  txt(x+52, y+40, note1, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
-  if (note2) txt(x+52, y+66, note2, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
-  txt(x+444, y+7, tag, {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+  txt(x+22, y+4.5, no, {'font-family':MONO, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK});
+  txt(x+52, y+7, title, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', fill:INK});
+  txt(x+52, y+40, note1, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  if (note2) txt(x+52, y+66, note2, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  txt(x+444, y+7, tag, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 }
 
 var pains = [
@@ -109,21 +112,19 @@ YS.forEach(function(y, i){
   el('line', {x1:616, y1:y, x2:680, y2:y, stroke:INK, 'stroke-width':.5, opacity:.3, 'stroke-dasharray':'2 5'});
 });
 
-/* ---------- 右栏：成效大数字（2 个，整体高度对齐左中栏 y372–738） ---------- */
+/* ---------- 右栏：成效大数字（等分可用高度，避免数值、标签与说明拥挤） ---------- */
 var CXR = 1485;
-/* KPI01 顶部对齐第一条目 y372 */
-txt(CXR, 392, 'KPI · 01', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt(CXR, 470, '+62%', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：成效焦点 */
-txt(CXR, 506, '次日留存率', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill: ACCENT ? 'rgba(192,57,43,.85)' : INK});
-txt(CXR, 534, '34% → 55%', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-
-el('line', {x1:1330, y1:568, x2:1640, y2:568, stroke:INK, 'stroke-width':.6, opacity:.3});
-
-/* KPI02 底部不超过左中栏末条目底部 y738 */
-txt(CXR, 600, 'KPI · 02', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
-txt(CXR, 678, '2.1倍', {'font-family':SERIF, 'font-size':76, 'text-anchor':'middle', fill: ACCENT ? RED : INK});  /* 主角：成效焦点 */
-txt(CXR, 714, '月度付费用户', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill: ACCENT ? 'rgba(192,57,43,.85)' : INK});
-txt(CXR, 738, '82K → 172K PAID USERS', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+var KPI_TOP = 352, KPI_BOTTOM = 760, KPI_BAND = (KPI_BOTTOM - KPI_TOP) / 2;
+function kpi(index, value, label, detail, highlight){
+  var top = KPI_TOP + index * KPI_BAND;
+  txt(CXR, top+20, 'KPI · 0'+(index+1), {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(CXR, top+100, value, {'font-family':SERIF, 'font-size':'var(--type-hero)', 'text-anchor':'middle', fill:highlight && ACCENT ? RED : INK});
+  txt(CXR, top+168, label, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:highlight && ACCENT ? 'var(--accent-red-85)' : INK});
+  txt(CXR, top+200, detail, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+}
+kpi(0, '+62%', '次日留存率', '34% → 55%', true);
+el('line', {x1:1330, y1:KPI_TOP+KPI_BAND, x2:1640, y2:KPI_TOP+KPI_BAND, stroke:INK, 'stroke-width':.6, opacity:.3});
+kpi(1, '2.1倍', '月度付费用户', '82K → 172K PAID USERS', true);
 
 stageFit();
 </script>

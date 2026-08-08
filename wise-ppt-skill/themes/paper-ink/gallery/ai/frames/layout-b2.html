@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -44,7 +44,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -58,7 +58,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. B2 — GANTT WATERFALL', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. B2 — GANTT WATERFALL', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ============ 时间刻度尺：0–90S（模型训练 · 单次完整周期） ============ */
@@ -72,11 +72,11 @@ for (var s = 0; s <= 90; s += 5) {
     stroke:INK80, 'stroke-width': major ? 1.2 : 0.8, opacity: major ? 1 : .55});
   if (major) {
     txt(mx(s), RY - 14, String(s),
-      {'font-family':MONO, 'font-size':16, 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
+      {'font-family':MONO, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:'rgba(25,25,23,.7)'});
   }
 }
-txt(X1 + 30, RY - 14, 'SEC', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:'rgba(25,25,23,.5)'});
-txt(X0 - 14, RY - 14, 'T0', {'font-family':MONO, 'font-size':13, 'text-anchor':'end', fill:'rgba(25,25,23,.45)'});
+txt(X1 + 30, RY - 14, 'SEC', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:'rgba(25,25,23,.5)'});
+txt(X0 - 14, RY - 14, 'T0', {'font-family':MONO, 'font-size':'var(--type-meta)', 'text-anchor':'end', fill:'rgba(25,25,23,.45)'});
 
 /* 主刻度竖向构造栅格（虚线，贯穿图区） */
 [0, 15, 30, 45, 60, 75, 90].forEach(function(s){
@@ -87,9 +87,9 @@ txt(X0 - 14, RY - 14, 'T0', {'font-family':MONO, 'font-size':13, 'text-anchor':'
 /* ============ 四条甘特条带 ============ */
 var BARH = 54;
 function rowLabel(y, en, zh, idx){
-  txt(440, y + 26, en, {'font-family':MONO, 'font-size':16, 'letter-spacing':2, 'text-anchor':'end', fill:INK80});
-  txt(440, y + 50, zh, {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
-  txt(140, y + 34, idx, {'font-family':MONO, 'font-size':13, fill:'rgba(25,25,23,.4)'});
+  txt(440, y + 26, en, {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':2, 'text-anchor':'end', fill:INK80});
+  txt(440, y + 50, zh, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'end', fill:'rgba(25,25,23,.5)'});
+  txt(140, y + 34, idx, {'font-family':MONO, 'font-size':'var(--type-meta)', fill:'rgba(25,25,23,.4)'});
   el('line', {x1:140, y1:y + BARH + 22, x2:X1 + 14, y2:y + BARH + 22,
     stroke:INK, 'stroke-width':0.6, opacity:.3});
 }
@@ -100,7 +100,7 @@ function bar(x1, x2, y){
   el('line', {x1:x2, y1:y - 6, x2:x2, y2:y + BARH + 6, stroke:INK80, 'stroke-width':1.4});
 }
 function durTag(x, y, str){
-  txt(x, y + 20, str, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, fill:'rgba(25,25,23,.55)'});
+  txt(x, y + 20, str, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, fill:'rgba(25,25,23,.55)'});
 }
 
 /* 行 1 · DATA 数据准备 2–11s */
@@ -150,15 +150,15 @@ el('ellipse', {cx:GCX + 4, cy:GCY + 3, rx:140, ry:72, fill:'none',
 el('line', {x1:GCX, y1:GCY - 66, x2:GCX, y2:RY + 24,
   stroke:INK, 'stroke-width':0.6, 'stroke-dasharray':'3 6', opacity:.3});
 el('circle', {cx:GCX, cy:RY, r:3.5, fill:'none', stroke: ACCENT ? RED : INK80, 'stroke-width':1});
-txt(GCX + 12, RY + 44, 'T+40S', {'font-family':MONO, 'font-size':13, fill:'rgba(25,25,23,.5)'});
+txt(GCX + 12, RY + 44, 'T+40S', {'font-family':MONO, 'font-size':'var(--type-meta)', fill:'rgba(25,25,23,.5)'});
 
 /* 细引线：圈底 → 归因标注 */
 el('path', {d:'M ' + (GCX + 16) + ' ' + (GCY + 64) + ' Q ' + (GCX + 70) + ' ' + (GCY + 92) + ' ' + (GCX + 118) + ' ' + (GCY + 98),
   fill:'none', stroke:INK80, 'stroke-width':1, opacity:.7});
 txt(GCX + 185, GCY + 105, 'SFT HALT · GPU OOM@N-128',
-  {'font-family':MONO, 'font-size':16, 'letter-spacing':1.5, 'text-anchor':'end', fill: ACCENT ? RED : INK});
+  {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':1.5, 'text-anchor':'end', fill: ACCENT ? RED : INK});
 txt(GCX + 185, GCY + 132, '显存溢出中断，触发检查点回滚',
-  {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill: ACCENT ? RED : 'rgba(25,25,23,.6)'});
+  {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'end', fill: ACCENT ? RED : 'rgba(25,25,23,.6)'});
 el('line', {x1:GCX + 185 - 292, y1:GCY + 114, x2:GCX + 185 - 250, y2:GCY + 114,
   stroke:INK80, 'stroke-width':0.8, opacity:.5});
 

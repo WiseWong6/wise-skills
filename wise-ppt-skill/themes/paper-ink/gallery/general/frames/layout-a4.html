@@ -12,7 +12,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -55,12 +55,12 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. A4 — STRATEGY × EVIDENCE WALL', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. A4 — STRATEGY × EVIDENCE WALL', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 左栏：策略列表（x150–670） ---------- */
-txt(150, 262, 'STRATEGY · PLAYBOOK', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:INK45});
-txt(150, 300, '四条打法，各有实据', {'font-family':SANS, 'font-weight':300, 'font-size':25, fill:INK});
+txt(150, 262, 'STRATEGY · PLAYBOOK', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:INK45});
+txt(150, 300, '四条打法，各有实据', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
 el('line', {x1:150, y1:320, x2:670, y2:320, stroke:INK, 'stroke-width':.8, opacity:.5});
 
 var strategies = [
@@ -71,17 +71,17 @@ var strategies = [
 ];
 strategies.forEach(function(s, i){
   var y = 372 + i * 139;
-  txt(150, y, s[0], {'font-family':MONO, 'font-size':18, 'letter-spacing':2, fill:INK});
+  txt(150, y, s[0], {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':2, fill:INK});
   el('line', {x1:150, y1:y+12, x2:186, y2:y+12, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(206, y, s[1], {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
-  txt(206, y+34, s[2], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
-  txt(206, y+60, s[3], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK45});
+  txt(206, y, s[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+  txt(206, y+34, s[2], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  txt(206, y+60, s[3], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK45});
   if (i < strategies.length-1)
     el('line', {x1:150, y1:y+88, x2:670, y2:y+88, stroke:INK, 'stroke-width':.6, opacity:.22});
 });
 
 /* ---------- 中央开放箭头（x720–848, y540）：本页唯一强调线 ---------- */
-txt(784, 500, 'PROOF', {'font-family':MONO, 'font-size':13, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+txt(784, 500, 'PROOF', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 el('line', {x1:720, y1:540, x2:848, y2:540, stroke:INK, 'stroke-width':2});
 el('line', {x1:848, y1:540, x2:822, y2:520, stroke:INK80, 'stroke-width':1.3});
 el('line', {x1:848, y1:540, x2:822, y2:560, stroke:INK80, 'stroke-width':1.3});
@@ -97,11 +97,11 @@ var ROW_TOP = 300, ROW_BOT = 610;
 function specFrame(px, py, tag) {
   el('rect', {x:px, y:py, width:CW, height:CH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.3});
   el('rect', {x:px+5, y:py+5, width:CW-10, height:CH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(px+24, py+32, tag, {'font-family':MONO, 'font-size':12, 'letter-spacing':2.5, fill:INK45});
+  txt(px+24, py+32, tag, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2.5, fill:INK45});
 }
 function specLabel(px, py, str) {
   el('line', {x1:px+24, y1:py+CH-52, x2:px+CW-24, y2:py+CH-52, stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(px+24, py+CH-22, str, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK});
+  txt(px+24, py+CH-22, str, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK});
 }
 
 /* 格 1 · 调度台界面线稿（地图网格 + 机器人落点 + 路径） */

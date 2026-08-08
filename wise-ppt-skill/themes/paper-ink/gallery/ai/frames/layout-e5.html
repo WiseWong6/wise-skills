@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -19,14 +19,14 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.e5">
-  <div class="doc tl">AI ENGINEERING — E5<br>ROLES TO CAPABILITIES</div>
+  <div class="doc tl">AI LAYOUT GALLERY — E5<br>TWIN PYRAMID · LEVEL MAPPING</div>
   <div class="folio">E5 / 63 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">人的职级与分工被逐层对译为 AI 能力，架构、决策、协调和执行形成对应层级。</div>
+  <div class="caption">双金字塔把两套层级体系逐层对译：层要对着读，映射箭头才是主角，线宽即映射强度。</div>
 
 </div>
 
@@ -50,21 +50,19 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. E5 — TWIN PYRAMID MAPPING', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. E5 — TWIN PYRAMID MAPPING', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
-G = el('g', {transform:'translate(0 80)'});
 
 /* ---------- 双金字塔：传统班组职级 → 平台任务等级 ---------- */
-var TOP = 220, BASE = 620, HALF = 280;
-var LEFT_CX = 617, RIGHT_CX = 1303;              /* 双塔中心距较原稿缩短 30% */
-var mids = [295, 385, 475, 570];                  /* 四层中位线 */
+var TOP = 250, BASE = 610, HALF = 190;
+var mids = [295, 385, 475, 565];                  /* 四层中位线 */
 function halfAt(y){ return HALF * (y - TOP) / (BASE - TOP); }
 
 /* 对位构造虚线（先画，压在塔与箭头下）+ 中轴 */
 mids.forEach(function(y){
   el('line', {x1:280, y1:y, x2:1640, y2:y, stroke:INK, 'stroke-width':.5, opacity:.18, 'stroke-dasharray':'2 6'});
 });
-el('line', {x1:960, y1:236, x2:960, y2:616, stroke:INK, 'stroke-width':.5, opacity:.2, 'stroke-dasharray':'2 6'});
+el('line', {x1:960, y1:266, x2:960, y2:606, stroke:INK, 'stroke-width':.5, opacity:.2, 'stroke-dasharray':'2 6'});
 
 function tower(cx, layers){
   el('path', {d:'M '+cx+' '+TOP+' L '+(cx+HALF)+' '+BASE+' L '+(cx-HALF)+' '+BASE+' Z',
@@ -73,20 +71,19 @@ function tower(cx, layers){
     var h = halfAt(y);
     el('line', {x1:cx-h, y1:y, x2:cx+h, y2:y, stroke:INK, 'stroke-width':.9, opacity:.5});
   });
-  mids.forEach(function(y, i){
-    var L = layers[i];
-    txt(cx, y+2, L[0], {'font-family':SANS, 'font-weight':300, 'font-size':19, 'text-anchor':'middle', fill:INK});
-    txt(cx, y+24, L[1], {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  layers.forEach(function(L, i){
+    txt(cx, mids[i]+2, L[0], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'middle', fill:INK});
+    txt(cx, mids[i]+24, L[1], {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   });
   /* 塔题在基座下 */
-  el('line', {x1:cx-80, y1:644, x2:cx+80, y2:644, stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(cx, 674, layers[4], {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
-  txt(cx, 702, layers[5], {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
+  el('line', {x1:cx-80, y1:634, x2:cx+80, y2:634, stroke:INK, 'stroke-width':.6, opacity:.3});
+  txt(cx, 664, layers[4], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:INK});
+  txt(cx, 692, layers[5], {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK45});
 }
-tower(LEFT_CX, [
+tower(470,  ['总监','组长','专员','仓务','传统班组职级体系','LEGACY CREW LADDER'].map(function(v,i){return v;}) && [
   ['总监','L4'],['经理','L3 · MGR'],['组长','L2 · LEAD'],['专员','L1 · OPS'],
   '传统职级体系','LEGACY CAREER LADDER']);
-tower(RIGHT_CX, [
+tower(1450, [
   ['架构者','S4'],['决策者','S3 · POLICY'],['协调者','S2 · COORD'],['执行者','S1 · EXEC'],
   'AI 能力分级体系','AI CAPABILITY TIERS']);
 
@@ -98,36 +95,36 @@ function arrow(x1, y1, x2, y2, w, dash, op){
 }
 function edge(cx, y, dir){ return cx + dir * halfAt(y); }
 /* L4 → S4（弱，虚线） */
-arrow(edge(LEFT_CX,295,1)+16, 295, edge(RIGHT_CX,295,-1)-16, 295, .8, '4 5', .55);
-txt(960, 284, 'w .31', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+arrow(edge(470,295,1)+16, 295, edge(1450,295,-1)-16, 295, .8, '4 5', .55);
+txt(960, 284, 'w .31', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 /* L3 → S3（最强，本页唯一强调线） */
-arrow(edge(LEFT_CX,385,1)+16, 385, edge(RIGHT_CX,385,-1)-16, 385, 2.2);
-txt(960, 374, 'w .92', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+arrow(edge(470,385,1)+16, 385, edge(1450,385,-1)-16, 385, 2.2);
+txt(960, 374, 'w .92', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 /* L3 → S2（一对多扇出，弧线） */
-el('path', {d:'M '+(edge(LEFT_CX,385,1)+20)+' 392 C 820 424, 1100 442, '+(edge(RIGHT_CX,475,-1)-18)+' 470',
+el('path', {d:'M '+(edge(470,385,1)+20)+' 392 C 780 424, 1040 442, '+(edge(1450,475,-1)-18)+' 470',
   fill:'none', stroke:INK, 'stroke-width':1, opacity:.7});
-el('line', {x1:edge(RIGHT_CX,475,-1)-18, y1:470, x2:edge(RIGHT_CX,475,-1)-32, y2:462, stroke:INK, 'stroke-width':1.1, opacity:.7});
-el('line', {x1:edge(RIGHT_CX,475,-1)-18, y1:470, x2:edge(RIGHT_CX,475,-1)-33, y2:475, stroke:INK, 'stroke-width':1.1, opacity:.7});
-txt(915, 452, 'w .48', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+el('line', {x1:edge(1450,475,-1)-18, y1:470, x2:edge(1450,475,-1)-32, y2:462, stroke:INK, 'stroke-width':1.1, opacity:.7});
+el('line', {x1:edge(1450,475,-1)-18, y1:470, x2:edge(1450,475,-1)-33, y2:475, stroke:INK, 'stroke-width':1.1, opacity:.7});
+txt(915, 452, 'w .48', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 /* L2 → S2（中） */
-arrow(edge(LEFT_CX,475,1)+16, 475, edge(RIGHT_CX,475,-1)-16, 475, 1.3, null, .85);
-txt(960, 502, 'w .74', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+arrow(edge(470,475,1)+16, 475, edge(1450,475,-1)-16, 475, 1.3, null, .85);
+txt(960, 502, 'w .74', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 /* L1 → S1（轻） */
-arrow(edge(LEFT_CX,570,1)+16, 570, edge(RIGHT_CX,570,-1)-16, 570, .9, null, .65);
-txt(960, 561, 'w .36', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+arrow(edge(470,565,1)+16, 565, edge(1450,565,-1)-16, 565, .9, null, .65);
+txt(960, 556, 'w .36', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 塔外侧弧形引线侧注 ---------- */
-el('path', {d:'M '+(LEFT_CX-halfAt(430))+' 430 C 360 452, 278 470, 242 496', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+el('path', {d:'M '+(470-halfAt(430))+' 430 C 300 452, 258 470, 242 496', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
 el('circle', {cx:242, cy:496, r:2.4, fill:INK, opacity:.6});
-txt(150, 502, 'HUMAN ROLES IN', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:INK45});
-txt(150, 530, '人的职级与分工', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK80});
-txt(150, 558, '映射为 AI 能力', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:INK70});
+txt(150, 502, 'HUMAN ROLES IN', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK45});
+txt(150, 530, '人的职级与分工', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK80});
+txt(150, 558, '映射为 AI 能力', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
 
-el('path', {d:'M '+(RIGHT_CX+halfAt(475))+' 475 C 1560 500, 1640 522, 1672 552', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
+el('path', {d:'M '+(1450+halfAt(475))+' 475 C 1620 500, 1658 522, 1672 552', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.45, 'stroke-dasharray':'3 5'});
 el('circle', {cx:1672, cy:552, r:2.4, fill:INK, opacity:.6});
-txt(1770, 556, 'CAPABILITY OUT', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
-txt(1770, 584, 'AI 能力分级', {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill:INK80});
-txt(1770, 610, '逐层对译人的职级', {'font-family':SANS, 'font-weight':300, 'font-size':17, 'text-anchor':'end', fill:INK70});
+txt(1770, 556, 'CAPABILITY OUT', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1770, 584, 'AI 能力分级', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'end', fill:INK80});
+txt(1770, 610, '逐层对译人的职级', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', 'text-anchor':'end', fill:INK70});
 
 stageFit();
 </script>
