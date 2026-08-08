@@ -16,7 +16,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: #191917;
     z-index: 5;
   }
@@ -63,7 +63,7 @@ el('rect', {x:150, y:220, width:770, height:420, fill:'none', stroke:INK, 'strok
 /* 河：右下斜穿的贝塞尔双细线 */
 el('path', {d:'M 700 220 C 760 320, 700 420, 800 500 C 850 540, 880 600, 870 640', fill:'none', stroke:INK, 'stroke-width':.9, opacity:.5});
 el('path', {d:'M 726 220 C 786 320, 726 420, 826 500 C 876 540, 906 600, 896 640', fill:'none', stroke:INK, 'stroke-width':.9, opacity:.5});
-txt(846, 336, 'WENLAN RIVER', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(74 846 336)'});
+txt(846, 336, 'WENLAN RIVER', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(74 846 336)'});
 
 /* 横向路网（主干道 1.2px，次道 .7px） */
 el('path', {d:'M 150 310 C 360 296, 640 324, 920 306', fill:'none', stroke:INK80, 'stroke-width':1.2});
@@ -74,14 +74,14 @@ el('path', {d:'M 330 220 C 324 360, 336 500, 328 640', fill:'none', stroke:INK, 
 el('path', {d:'M 560 220 C 566 340, 554 520, 562 640', fill:'none', stroke:INK80, 'stroke-width':1.2});
 
 /* 街区名 */
-txt(196, 290, 'HUITU AVE', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
-txt(576, 252, 'YUNGU RD', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(88 576 252)'});
+txt(196, 290, 'HUITU AVE', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+txt(576, 252, 'YUNGU RD', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(88 576 252)'});
 
 /* 园区块：双线框 + hatch 角 */
 el('rect', {x:380, y:346, width:150, height:92, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':.9, opacity:.85});
 el('rect', {x:385, y:351, width:140, height:82, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
-txt(455, 396, 'HENGJI', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
-txt(455, 416, 'CENTER', {'font-family':MONO, 'font-size':12, 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
+txt(455, 396, 'HENGJI', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
+txt(455, 416, 'CENTER', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
 
 /* 定位钉：双圈 + 钉尖 */
 el('circle', {cx:560, cy:452, r:10, fill:'none', stroke:INK, 'stroke-width':1.2});
@@ -89,13 +89,13 @@ el('circle', {cx:560, cy:452, r:14, fill:'none', stroke:INK, 'stroke-width':.6, 
 el('circle', {cx:560, cy:452, r:3, fill:INK});
 el('path', {d:'M 560 466 L 560 500', stroke:INK, 'stroke-width':.8, opacity:.5});
 el('path', {d:'M 560 500 L 596 500', stroke:INK, 'stroke-width':.8, opacity:.5});
-txt(604, 505, 'HQ · GATE 3', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, fill:INK, opacity:.75});
+txt(604, 505, 'HQ · GATE 3', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:INK, opacity:.75});
 
 /* 比例尺 */
 el('line', {x1:180, y1:616, x2:280, y2:616, stroke:INK, 'stroke-width':1, opacity:.6});
 el('line', {x1:180, y1:610, x2:180, y2:622, stroke:INK, 'stroke-width':1, opacity:.6});
 el('line', {x1:280, y1:610, x2:280, y2:622, stroke:INK, 'stroke-width':1, opacity:.6});
-txt(292, 620, '500 M', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+txt(292, 620, '500 M', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
 
 /* ================= 左块下方：三行联系文字 ================= */
 var contact = [
@@ -107,8 +107,8 @@ contact.forEach(function(c, i){
   var y = 726 + i * 52;
   el('circle', {cx:158, cy:y-6, r:3, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.7});
   el('circle', {cx:158, cy:y-6, r:1, fill:INK});
-  txt(178, y, c[0], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK});
-  txt(292, y, c[1], {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:'rgba(25,25,23,.75)'});
+  txt(178, y, c[0], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
+  txt(292, y, c[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.75)'});
 });
 
 /* ================= 右块：名片双线卡 x1100–1720, y200–860 ================= */
@@ -117,12 +117,12 @@ el('rect', {x:KX, y:KY, width:KW, height:KH, fill:'rgba(255,255,255,.22)', strok
 el('rect', {x:KX+5, y:KY+5, width:KW-10, height:KH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* 卡头 */
-txt(KX+44, KY+64, 'HENGJI TECH — BD OFFICE', {'font-family':MONO, 'font-size':14, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
+txt(KX+44, KY+64, 'HENGJI TECH — BD OFFICE', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
 el('line', {x1:KX+44, y1:KY+84, x2:KX+200, y2:KY+84, stroke:INK, 'stroke-width':.8, opacity:.5});
 
 /* 姓名 + 职务 */
-txt(KX+44, KY+156, '沈昭远', {'font-family':SANS, 'font-weight':300, 'font-size':38, fill:INK});
-txt(KX+46, KY+196, 'SHEN ZHAOYUAN · BD DIRECTOR', {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
+txt(KX+44, KY+156, '沈昭远', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-emphasis)', fill:INK});
+txt(KX+46, KY+196, 'SHEN ZHAOYUAN · BD DIRECTOR', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
 el('line', {x1:KX+44, y1:KY+232, x2:KX+KW-44, y2:KY+232, stroke:INK, 'stroke-width':.8, opacity:.4});
 
 /* 电话 / 邮箱 / 网址行 */
@@ -134,8 +134,8 @@ var lines = [
 ];
 lines.forEach(function(L, i){
   var y = KY + 292 + i * 62;
-  txt(KX+44, y, L[0], {'font-family':MONO, 'font-size':13, 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
-  txt(KX+150, y, L[1], {'font-family':MONO, 'font-size':17, 'letter-spacing':1, fill:INK});
+  txt(KX+44, y, L[0], {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
+  txt(KX+150, y, L[1], {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':1, fill:INK});
   if (i < lines.length-1)
     el('line', {x1:KX+44, y1:y+22, x2:KX+KW-44, y2:y+22, stroke:INK, 'stroke-width':.6, opacity:.18});
 });
@@ -190,11 +190,11 @@ for (var ri = 0; ri < QR_SIZE; ri++) {
       el('rect', {x:QX + rj*QCS, y:QY + ri*QCS, width:QCS, height:QCS, fill:INK});
   }
 }
-txt(QX-16, QY + QR_SIZE*QCS + 38, 'SCAN · WECHAT', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+txt(QX-16, QY + QR_SIZE*QCS + 38, 'SCAN · WECHAT', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
 
 /* 卡内左下：一行中文小注 */
-txt(KX+44, KY+KH-96, '预约拜访请提前一个工作日邮件确认。', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.7)'});
-txt(KX+44, KY+KH-62, 'VISITS BY APPOINTMENT', {'font-family':MONO, 'font-size':11, 'letter-spacing':2.5, fill:'rgba(25,25,23,.45)'});
+txt(KX+44, KY+KH-96, '预约拜访请提前一个工作日邮件确认。', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.7)'});
+txt(KX+44, KY+KH-62, 'VISITS BY APPOINTMENT', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2.5, fill:'rgba(25,25,23,.45)'});
 
 stageFit();
 </script>

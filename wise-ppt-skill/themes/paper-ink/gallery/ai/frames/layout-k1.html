@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -50,7 +50,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. K1 — STAGE CHAIN × DIMENSION MATRIX', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. K1 — STAGE CHAIN × DIMENSION MATRIX', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 顶部：四站阶段链 ---------- */
@@ -63,12 +63,12 @@ var stages = [
 ];
 stages.forEach(function(s, i){
   var cx = CXS[i];
-  txt(cx, 240, s.en, {'font-family':MONO, 'font-size':11.5, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
+  txt(cx, 240, s.en, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
   el('circle', {cx:cx, cy:275, r:16, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:cx, cy:275, r:11.5, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
-  txt(cx, 280, s.no, {'font-family':MONO, 'font-size':13, 'text-anchor':'middle', fill:INK});
+  txt(cx, 280, s.no, {'font-family':MONO, 'font-size':'var(--type-meta)', 'text-anchor':'middle', fill:INK});
   el('line', {x1:cx-24, y1:302, x2:cx+24, y2:302, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(cx, 332, s.cn, {'font-family':SANS, 'font-weight':300, 'font-size':22, 'text-anchor':'middle', fill:INK});
+  txt(cx, 332, s.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body)', 'text-anchor':'middle', fill:INK});
   /* 站心 → 矩阵列的锚定虚线（构造线不擦除） */
   el('line', {x1:cx, y1:344, x2:cx, y2:376, stroke:INK, 'stroke-width':.5, opacity:.25, 'stroke-dasharray':'2 5'});
 });
@@ -119,16 +119,16 @@ var dims = [
 dims.forEach(function(d, r){
   var rt = MT + r*ROWH;
   /* 维度栏标签 */
-  txt(165, rt+62, d.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, fill:INK});
-  txt(165, rt+90, d.cn, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:INK70});
+  txt(165, rt+62, d.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK});
+  txt(165, rt+90, d.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
   /* 各阶段列内 1 列 2 字段（原 2×2 太挤，改为单列留白） */
   d.cells.forEach(function(fields, c){
     var cl = COLS[c];
     fields.slice(0, 2).forEach(function(f, k){
       var fx = cl + 28;
       var fy = rt + 42 + k*58;
-      txt(fx, fy, f[0], {'font-family':MONO, 'font-size':13.5, 'letter-spacing':1, fill:'rgba(25,25,23,.55)'});
-      txt(fx, fy+24, f[1], {'font-family':SANS, 'font-weight':300, 'font-size':15, fill:INK80});
+      txt(fx, fy, f[0], {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, fill:'rgba(25,25,23,.55)'});
+      txt(fx, fy+24, f[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-label)', fill:INK80});
     });
   });
 });
@@ -142,7 +142,7 @@ for (var i = 0; i < 4; i++) {
     ? 'M '+x+' '+CY+' L '+(x+CW-16)+' '+CY+' L '+(x+CW)+' '+(CY+CH/2)+' L '+(x+CW-16)+' '+(CY+CH)+' L '+x+' '+(CY+CH)+' Z'
     : 'M '+x+' '+CY+' L '+(x+CW-16)+' '+CY+' L '+(x+CW)+' '+(CY+CH/2)+' L '+(x+CW-16)+' '+(CY+CH)+' L '+x+' '+(CY+CH)+' L '+(x+16)+' '+(CY+CH/2)+' Z';
   el('path', {d:d, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
-  txt(x+CW/2+(i===0?8:16), CY+27, concl[i], {'font-family':MONO, 'font-size':12.5, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+  txt(x+CW/2+(i===0?8:16), CY+27, concl[i], {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 }
 
 stageFit();

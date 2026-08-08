@@ -15,14 +15,14 @@
   .chapter {
     position: absolute; left: 1000px; top: 512px;
     font-family: var(--serif); font-weight: 400;
-    font-size: 72px; letter-spacing: .1em;
+    font-size: var(--type-hero); letter-spacing: .1em;
     color: #191917;
     z-index: 5;
   }
   .lead {
     position: absolute; left: 1004px; top: 636px;
     font-family: var(--mono); font-weight: 400;
-    font-size: 14px; letter-spacing: .3em;
+    font-size: var(--type-meta); letter-spacing: .3em;
     color: rgba(25,25,23,.5);
     text-transform: uppercase;
     z-index: 5;
@@ -59,7 +59,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime';
 
 /* ===== ① 超大空心章节编号（描边不填，测绘感） ===== */
-var t = txt(560, 688, '03', {'font-family':MONO, 'font-size':300, fill:'none', stroke:INK, 'stroke-width':1.2, opacity:.5});
+var t = txt(560, 688, '03', {'font-family':MONO, 'font-size':'var(--type-display-mark)', fill:'none', stroke:INK, 'stroke-width':1.2, opacity:.5});
 
 /* ===== ② 十字准星（唯一装饰，右上空区） ===== */
 el('line', {x1:1382, y1:300, x2:1418, y2:300, stroke:INK, 'stroke-width':.8, opacity:.4});

@@ -10,7 +10,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -49,7 +49,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 var CX = 960, CY = 540, R = 320;
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. G4 — HUB & SATELLITE SYSTEM', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. G4 — HUB & SATELLITE SYSTEM', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 构造基准：十字虚线 ---------- */
@@ -62,8 +62,8 @@ el('circle', {cx:CX, cy:CY, r:R, fill:'none', stroke:INK, 'stroke-width':.7, opa
 /* ---------- 中心空心墨核（双圈+实心核，与卫星同语言；墨字非反白） ---------- */
 el('circle', {cx:CX, cy:CY, r:134, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.45});
 el('circle', {cx:CX, cy:CY, r:120, fill:'none', stroke:INK, 'stroke-width':1.6});
-txt(CX, CY-6, 'AI 平台中枢', {'font-family':SANS, 'font-weight':400, 'font-size':38, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
-txt(CX, CY+34, 'MAAS CORE', {'font-family':MONO, 'font-size':11, 'letter-spacing':4, 'text-anchor':'middle', fill:INK45});
+txt(CX, CY-6, 'AI 平台中枢', {'font-family':SANS, 'font-weight':400, 'font-size':'var(--type-emphasis)', 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(CX, CY+34, 'MAAS CORE', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':4, 'text-anchor':'middle', fill:INK45});
 
 /* ---------- 六颗卫星：双圈节点 + mono 码 ---------- */
 /* 角度：左 150/180/210，右 30/0/330（顶底留空，呼吸） */
@@ -81,7 +81,7 @@ SAT.forEach(function(s){
   s.y = CY - R * Math.sin(rad);
   el('circle', {cx:s.x, cy:s.y, r:35, fill:'#DFE0D9', stroke:INK80, 'stroke-width':1.2});
   el('circle', {cx:s.x, cy:s.y, r:27, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(s.x, s.y+4, s.code, {'font-family':MONO, 'font-size':12, 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK});
+  txt(s.x, s.y+4, s.code, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':1.5, 'text-anchor':'middle', fill:INK});
 });
 
 /* ---------- 注释块 + 肘形引线 ---------- */
@@ -89,10 +89,10 @@ function block(side, y, code, cn, d1, d2) {
   var x = side === 'L' ? 150 : 1400;
   var rx = side === 'L' ? 136 : 1386;
   el('line', {x1:rx, y1:y-58, x2:rx, y2:y+62, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(x, y-40, code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
-  txt(x, y-8, cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
-  txt(x, y+26, d1, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
-  txt(x, y+52, d2, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+  txt(x, y-40, code, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK45});
+  txt(x, y-8, cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+  txt(x, y+26, d1, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  txt(x, y+52, d2, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
 }
 function elbow(pts, endX, endY) {
   var d = 'M ' + pts[0][0] + ' ' + pts[0][1];

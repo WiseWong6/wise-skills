@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -52,7 +52,7 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. O1 — FUNNEL CONVERGENCE', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. O1 — FUNNEL CONVERGENCE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 连续漏斗：一个大倒三角，两侧边一路收为塔尖 ---------- */
@@ -92,17 +92,17 @@ layers.forEach(function(L, i){
   var inkLayer = (ACCENT && last) ? RED : INK;
   var midY = (L.y0 + L.y1)/2;
   /* 层名 */
-  txt(cX, midY-4, L.t, {'font-family':SANS, 'font-weight':300, 'font-size': i===2?24:30, 'text-anchor':'middle', fill:inkLayer});
-  txt(cX, midY+26, L.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT && last ? 'var(--accent-red-65)' : INK45)});
+  txt(cX, midY-4, L.t, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', 'text-anchor':'middle', fill:inkLayer});
+  txt(cX, midY+26, L.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT && last ? 'var(--accent-red-65)' : INK45)});
   /* 左侧：虚线引出 mono 数量 */
   var lw = wAt(midY);
   el('line', {x1:cX-lw/2-16, y1:midY, x2:cX-lw/2-70, y2:midY, stroke:inkLayer, 'stroke-width':.6, 'stroke-dasharray':'3 4', opacity:.5});
-  txt(cX-lw/2-86, midY-4, L.n, {'font-family':MONO, 'font-size':26, 'text-anchor':'end', fill:inkLayer});
-  txt(cX-lw/2-86, midY+22, L.tag, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:(ACCENT && last ? 'var(--accent-red-65)' : INK45)});
+  txt(cX-lw/2-86, midY-4, L.n, {'font-family':MONO, 'font-size':'var(--type-subheading)', 'text-anchor':'end', fill:inkLayer});
+  txt(cX-lw/2-86, midY+22, L.tag, {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:(ACCENT && last ? 'var(--accent-red-65)' : INK45)});
   /* 右侧：实线引出字段注记 */
   el('line', {x1:cX+lw/2+16, y1:midY, x2:cX+lw/2+70, y2:midY, stroke:INK, 'stroke-width':.6, opacity:.5});
   L.notes.forEach(function(n, j){
-    txt(cX+lw/2+86, midY - 45 + j*30, n, {'font-family':SANS, 'font-weight':300, 'font-size':18, fill:'rgba(25,25,23,.7)'});
+    txt(cX+lw/2+86, midY - 45 + j*30, n, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.7)'});
   });
 });
 
@@ -111,16 +111,16 @@ el('line', {x1:cX, y1:botY, x2:cX, y2:botY+30, stroke:INK, 'stroke-width':1.2});
 el('circle', {cx:cX, cy:botY+38, r:3.5, fill:INK});
 el('rect', {x:cX-70, y:botY+46, width:140, height:44, fill:'none', stroke:INK80, 'stroke-width':1.2});
 el('rect', {x:cX-66, y:botY+50, width:132, height:36, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-txt(cX, botY+74, 'TO REVENUE', {'font-family':MONO, 'font-size':17, 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
+txt(cX, botY+74, 'TO REVENUE', {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':2, 'text-anchor':'middle', fill:INK});
 
 /* ---------- 右侧规格单：成交订单清单（标本面板） ---------- */
 (function(){
   var x = 1380, y = 330, w = 400;
   el('rect', {x:x, y:y, width:w, height:330, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.2});
   el('rect', {x:x+5, y:y+5, width:w-10, height:320, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.35});
-  txt(x+26, y+42, 'TOP ORDERS', {'font-family':MONO, 'font-size':16, 'letter-spacing':2, fill:INK});
+  txt(x+26, y+42, 'TOP ORDERS', {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':2, fill:INK});
   el('line', {x1:x+26, y1:y+56, x2:x+90, y2:y+56, stroke:INK, 'stroke-width':1});
-  txt(x+26, y+88, '大促当日 · 成交 9.6 万单', {'font-family':SANS, 'font-weight':300, 'font-size':17, fill:'rgba(25,25,23,.55)'});
+  txt(x+26, y+88, '大促当日 · 成交 9.6 万单', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.55)'});
   var rows = [
     ['ORD #08172', '直播间', '¥ 2,899'],
     ['ORD #08168', '信息流', '¥ 1,580'],
@@ -130,9 +130,9 @@ txt(cX, botY+74, 'TO REVENUE', {'font-family':MONO, 'font-size':17, 'letter-spac
   ];
   rows.forEach(function(r, i){
     var ry = y + 128 + i * 38;
-    txt(x+26, ry, r[0], {'font-family':MONO, 'font-size':16, fill:INK});
-    txt(x+w-120, ry, r[1], {'font-family':MONO, 'font-size':16, 'text-anchor':'end', fill:'rgba(25,25,23,.7)'});
-    txt(x+w-26, ry, r[2], {'font-family':MONO, 'font-size':12, 'text-anchor':'end', fill:INK45});
+    txt(x+26, ry, r[0], {'font-family':MONO, 'font-size':'var(--type-body-small)', fill:INK});
+    txt(x+w-120, ry, r[1], {'font-family':MONO, 'font-size':'var(--type-body-small)', 'text-anchor':'end', fill:'rgba(25,25,23,.7)'});
+    txt(x+w-26, ry, r[2], {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'end', fill:INK45});
     if (i < rows.length-1) el('line', {x1:x+26, y1:ry+14, x2:x+w-26, y2:ry+14, stroke:INK, 'stroke-width':.5, 'stroke-dasharray':'2 5', opacity:.25});
   });
 })();
