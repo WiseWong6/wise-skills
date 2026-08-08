@@ -56,6 +56,9 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 txt(200, 176, 'FIG. J2 — SERPENTINE LOOP', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
+/* 回环主体保持内部结构不变，整体落到 FIG 与结论之间的视觉中心。 */
+G = el('g', {transform:'translate(0 32)'});
+
 /* ---------- 蛇形回环：Agent Loop Engineering · 策略迭代八步 ----------
    上排 01→04 左到右；右端大弧弯下（上线闸口）；下排 05→08 右到左；左端回环弧挂迭代标签 */
 var TY = 370, BY = 670;                 /* 上/下排节点中心 y */

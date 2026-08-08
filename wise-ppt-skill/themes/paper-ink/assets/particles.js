@@ -115,6 +115,147 @@ function stageFit() {
 }
 
 /*
+ * ?audit 浏览器门禁：只测量 #body 中参与配平的语义主体。
+ * 标准工程制图页以 FIG 分隔线与 caption 定位主题安全内容区；
+ * 特殊页可在 #body 声明 data-balance-frame="x1,y1,x2,y2"。
+ */
+function auditBalance() {
+  if (location.search.indexOf('audit') < 0) return;
+  var root = document.documentElement;
+  var stage = document.querySelector('.stage');
+  var body = document.querySelector('#body[data-balance]');
+  if (!stage || !body) {
+    root.dataset.balanceStatus = 'error-no-body';
+    return;
+  }
+
+  var mode = body.getAttribute('data-balance') || '';
+  var allowedModes = ['structural', 'centered', 'intentional-asymmetry'];
+  root.dataset.balanceMode = mode || 'missing';
+  if (allowedModes.indexOf(mode) < 0) {
+    root.dataset.balanceStatus = 'error-invalid-mode';
+    return;
+  }
+
+  var stageRect = stage.getBoundingClientRect();
+  var scale = stageRect.width / 1920;
+  if (!scale) {
+    root.dataset.balanceStatus = 'error-zero-scale';
+    return;
+  }
+
+  function designRect(node) {
+    var r = node.getBoundingClientRect();
+    return {
+      x: (r.left - stageRect.left) / scale,
+      y: (r.top - stageRect.top) / scale,
+      width: r.width / scale,
+      height: r.height / scale
+    };
+  }
+  function round(value) { return Math.round(value * 10) / 10; }
+
+  var frame = null;
+  var frameAttr = body.getAttribute('data-balance-frame');
+  if (frameAttr) {
+    var parts = frameAttr.split(/[ ,]+/).map(Number);
+    if (parts.length !== 4 || !parts.every(Number.isFinite)
+        || parts[2] <= parts[0] || parts[3] <= parts[1]) {
+      root.dataset.balanceStatus = 'error-invalid-frame';
+      return;
+    }
+    frame = {x1:parts[0], y1:parts[1], x2:parts[2], y2:parts[3]};
+  }
+  if (!frame) {
+    var fig = Array.prototype.find.call(document.querySelectorAll('svg text'), function (node) {
+      return (node.textContent || '').trim().indexOf('FIG.') === 0;
+    });
+    var figRule = fig && fig.nextElementSibling && fig.nextElementSibling.tagName.toLowerCase() === 'line'
+      ? fig.nextElementSibling : fig;
+    var caption = document.querySelector('.caption');
+    if (figRule && caption) {
+      var figRect = designRect(figRule);
+      var captionRect = designRect(caption);
+      frame = {
+        x1:150,
+        y1:Math.max(220, figRect.y + figRect.height + 28),
+        x2:1770,
+        y2:Math.min(890, captionRect.y - 24)
+      };
+    }
+  }
+  if (!frame || frame.x2 <= frame.x1 || frame.y2 <= frame.y1) {
+    root.dataset.balanceStatus = 'error-missing-frame';
+    return;
+  }
+
+  function isExcluded(node) {
+    for (var current = node; current && current !== body; current = current.parentElement) {
+      if (current.getAttribute && current.getAttribute('data-balance-exclude') === 'true') return true;
+    }
+    return false;
+  }
+
+  /* SVG 容器的 bbox 会重新包含被排除的后代；只合并实际绘制节点。 */
+  var svgContainers = ['svg', 'g', 'defs', 'clippath', 'mask', 'pattern', 'marker', 'symbol'];
+  var bounds = null;
+  Array.prototype.forEach.call(body.querySelectorAll('*'), function (node) {
+    if (isExcluded(node)) return;
+    if (svgContainers.indexOf(node.tagName.toLowerCase()) >= 0) return;
+    var style = getComputedStyle(node);
+    if (style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) === 0) return;
+    var rect = designRect(node);
+    if (!rect.width && !rect.height) return;
+    var x2 = rect.x + rect.width;
+    var y2 = rect.y + rect.height;
+    if (!bounds) {
+      bounds = {x1:rect.x, y1:rect.y, x2:x2, y2:y2};
+    } else {
+      bounds.x1 = Math.min(bounds.x1, rect.x);
+      bounds.y1 = Math.min(bounds.y1, rect.y);
+      bounds.x2 = Math.max(bounds.x2, x2);
+      bounds.y2 = Math.max(bounds.y2, y2);
+    }
+  });
+  if (!bounds) {
+    root.dataset.balanceStatus = 'error-empty-body';
+    root.dataset.balanceBox = '0,0,0,0';
+    root.dataset.balanceFrame = [round(frame.x1), round(frame.y1), round(frame.x2), round(frame.y2)].join(',');
+    return;
+  }
+
+  var box = {x:bounds.x1, y:bounds.y1, width:bounds.x2-bounds.x1, height:bounds.y2-bounds.y1};
+  var dx = (frame.x1 + frame.x2) / 2 - (box.x + box.width / 2);
+  var dy = (frame.y1 + frame.y2) / 2 - (box.y + box.height / 2);
+  var tolerance = (body.getAttribute('data-balance-tolerance') || '24,32').split(/[ ,]+/).map(Number);
+  if (tolerance.length !== 2 || !tolerance.every(Number.isFinite)
+      || tolerance[0] < 0 || tolerance[1] < 0) {
+    root.dataset.balanceStatus = 'error-invalid-tolerance';
+    return;
+  }
+  var tx = tolerance[0];
+  var ty = tolerance[1];
+  var overflow = {
+    left:Math.max(0, frame.x1 - box.x),
+    top:Math.max(0, frame.y1 - box.y),
+    right:Math.max(0, box.x + box.width - frame.x2),
+    bottom:Math.max(0, box.y + box.height - frame.y2)
+  };
+  var exceedsFrame = Math.max(overflow.left, overflow.top, overflow.right, overflow.bottom) > 1;
+  var status = exceedsFrame ? 'fail-overflow'
+    : mode === 'centered'
+      ? (Math.abs(dx) <= tx && Math.abs(dy) <= ty ? 'pass' : 'fail-center')
+      : 'report';
+
+  root.dataset.balanceStatus = status;
+  root.dataset.balanceDx = String(round(dx));
+  root.dataset.balanceDy = String(round(dy));
+  root.dataset.balanceBox = [round(box.x), round(box.y), round(box.width), round(box.height)].join(',');
+  root.dataset.balanceFrame = [round(frame.x1), round(frame.y1), round(frame.x2), round(frame.y2)].join(',');
+  root.dataset.balanceOverflow = [round(overflow.left), round(overflow.top), round(overflow.right), round(overflow.bottom)].join(',');
+}
+
+/*
  * 截图协议：所有字体、图片和至少两帧布局完成后才标记 ready。
  * 异步图表/地图页面在 <html> 设置 data-render-pending="true"，并在组件完成后
  * 显式调用 markRenderReady()。runtime/screenshot.sh 会把缺少该标记视为失败。
@@ -126,6 +267,7 @@ function markRenderReady() {
     done = true;
     /* 强制一次同步布局，避免 headless --dump-dom 不调度 requestAnimationFrame。 */
     document.documentElement.getBoundingClientRect();
+    auditBalance();
     document.documentElement.dataset.renderReady = 'true';
   }
   var fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();

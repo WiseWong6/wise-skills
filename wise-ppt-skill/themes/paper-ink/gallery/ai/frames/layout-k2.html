@@ -27,7 +27,7 @@
   </svg>
   <canvas id="cv" width="1920" height="1080"></canvas>
 
-  <div class="caption">问题、解法、成效各一栏，编号逐条对位——汇报叙事的最小闭环。</div>
+  <div class="caption">自动归档、知识卡片与个人智能体让 600 篇收藏重新可用，每篇速读耗时降至 1 分钟。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -57,6 +57,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. K2 — PAIN — FIX — GAIN', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:480, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+G = el('g', {transform:'translate(65 68)'});
 
 /* ---------- 栏头：mono 栏题 + 短横 + 中文栏题 ---------- */
 var heads = [

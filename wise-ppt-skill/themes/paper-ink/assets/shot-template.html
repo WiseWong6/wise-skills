@@ -18,6 +18,9 @@
     ④ html 的页面契约属性与组件根节点的追溯属性
     ⑤ 主体图形（在 #draw 内程序化绘制，或按 render plan 组合组件）
     ⑥ .caption 底部一句结论（陈述句、句号收尾；尾卡页可删）
+  配平：只把参与配平的语义主体放入 #body；纯装饰线放 #guides 或标记 data-balance-exclude。
+        data-balance 可取 structural / centered / intentional-asymmetry；后两者按 layout-selection.md 验收，
+        intentional-asymmetry 还须在 render plan rationale 记录结构锚点与配重。
   规约：themes/paper-ink/references/design-tokens.md
   版式：themes/paper-ink/layout-manifest.json · 契约：core/references/validation.md
 -->
@@ -47,6 +50,7 @@
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080"
     data-block-id="block.primary" data-provider="svg" data-component="custom-visual"
     data-content-ref="item.placeholder">
+    <g id="guides" data-balance-exclude="true"></g>
     <g id="draw"></g>
   </svg>
   <canvas id="cv" width="1920" height="1080"></canvas>
@@ -77,6 +81,7 @@ txt(200, 176, 'FIG. NN — TITLE', {'font-family':MONO, 'font-size':15, 'letter-
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ===== 主体图形从这里开始（一页一个主角） ===== */
+G = el('g', {id:'body', 'data-balance':'structural'});
 
 
 /* ===== 主体图形结束 ===== */

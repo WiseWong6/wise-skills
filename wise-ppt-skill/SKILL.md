@@ -26,7 +26,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 2. 所有 `must` 内容被页面覆盖；来源事实没有被改写成无来源结论；推断和占位明确标记。
 3. 每页先有主张、观众问题、证据关系与密度意图，再有主题版式和组件。
 4. Render Plan 中的 layout、slot、renderer、content ref、复用方式和理由都可解析。
-5. HTML 契约、溢出、安全区、资源、字体和真实截图通过；人工检查内容、叙事和视觉。
+5. HTML 契约、溢出、安全区、资源、字体和真实截图通过；主体在主题定义的可用内容区内配平，局部组件对齐，二维码等机器可读图形通过成品截图解码；人工检查内容、叙事和视觉。
 
 ## 不可跳过的规则
 
@@ -35,6 +35,7 @@ description: 标准网页 PPT 编排内核。接收原始资料，先完成内�
 - 业务数字、引语和事实默认保真并记录来源。只有用户要求 mock 或资料确实缺失时才允许 `inferred` / `placeholder`，并明确标记。
 - Core 产物不得出现主题字体、颜色、坐标、画册短码或 ECharts option。
 - 一页只有一个主结论和一个主视觉角色，但可以有多个辅助组件。
+- 画册用途与页面内容严格分层：AI 的 layout 选择条件留在 manifest，画册外层只显示自然语言用途；PPT 内的 caption / takeaway 必须陈述本页结论，不能讲版式如何使用。
 - 版式回答“空间怎么组织”，组件回答“信息块怎么表达”；两者必须正交。
 - Grid 适合真正等权并列或二维交叉。数量相同不代表关系相同：步骤用流程，核心与维度用辐射，证据用证据墙。
 - 不以缩小字号解决溢出。先换媒介，再换密度，再拆页；Theme 只能提议，Core 决定改动。
@@ -223,8 +224,11 @@ python3 <SKILL_ROOT>/scripts/validate.py all <DECK>
 ```bash
 bash <SKILL_ROOT>/runtime/screenshot.sh <DECK> /tmp/wise-ppt-review
 bash <SKILL_ROOT>/runtime/screenshot.sh <DECK> "" "" thumb
+bash <SKILL_ROOT>/runtime/screenshot.sh <DECK> "" "" audit
 bash <SKILL_ROOT>/runtime/export-pdf.sh <DECK>
 ```
+
+`audit` 模式读取页面 `#body[data-balance]`，排除 `data-balance-exclude="true"` 的装饰后代，并输出主题安全内容区内的 `dx/dy` 与四向 overflow。缺少/空 `#body`、非法 mode/frame/tolerance、主体越界都会失败；`centered` 还会检查中心容差，`structural` 与 `intentional-asymmetry` 仅在没有越界后报告结构锚点。普通截图链发现 `data-qr-payload` 时会调用 `scripts/verify_qr.py`，从最终 PNG 解码并比对 expected payload；当前内置自动解码只覆盖 QR，其他机器码须接入对应解码器并留下同等证据。
 
 若主题 `theme.json` 声明 `validation.lint_script`，还要按其 `modes` 运行主题机检。纸墨主题必须检查普通与强调色两种模式：
 
@@ -239,6 +243,8 @@ python3 <SKILL_ROOT>/themes/paper-ink/scripts/lint.py <DECK> --accent
 - 叙事：标题串起来是否能独立说明问题、是否重复或断裂。
 - 表达：关系是否选对，图表是否回答问题，模板是否真的匹配。
 - 视觉：1920×1080 下无溢出、字号可读、密度合理、主次明确、主题一致。
+- 几何：按主题定义的可用内容区检查主体包络；中心型原语检查水平/垂直中心，局部图标、标签、表格单元格检查共同轴线，意图性非对称按结构锚点复核。
+- 机器可读：二维码、条码等必须从权威 payload 生成，并从最终 1920×1080 截图成功解码；近似矩阵、仅源码可解码或被头像遮坏都不算通过。
 
 临时截图默认放 `/tmp`。验收后删除不需要的临时产物；若保留，交付时说明路径。
 

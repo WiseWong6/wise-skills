@@ -25,7 +25,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">一个 AI 平台中枢被六颗能力卫星环绕，注释块左右对位，是页面的信息主体。</div>
+  <div class="caption">模型、数据、评测、部署、监控与治理六套能力，围绕同一个 AI 平台中枢协同运转。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -86,13 +86,14 @@ SAT.forEach(function(s){
 
 /* ---------- 注释块 + 肘形引线 ---------- */
 function block(side, y, code, cn, d1, d2) {
-  var x = side === 'L' ? 150 : 1400;
-  var rx = side === 'L' ? 136 : 1386;
+  var x = side === 'L' ? 355 : 1565;
+  var rx = side === 'L' ? 341 : 1579;
+  var anchor = side === 'L' ? 'start' : 'end';
   el('line', {x1:rx, y1:y-58, x2:rx, y2:y+62, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(x, y-40, code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK45});
-  txt(x, y-8, cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, fill:INK});
-  txt(x, y+26, d1, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
-  txt(x, y+52, d2, {'font-family':SANS, 'font-weight':300, 'font-size':16, fill:INK70});
+  txt(x, y-40, code, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':anchor, fill:INK45});
+  txt(x, y-8, cn, {'font-family':SANS, 'font-weight':300, 'font-size':24, 'text-anchor':anchor, fill:INK});
+  txt(x, y+26, d1, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':anchor, fill:INK70});
+  txt(x, y+52, d2, {'font-family':SANS, 'font-weight':300, 'font-size':16, 'text-anchor':anchor, fill:INK70});
 }
 function elbow(pts, endX, endY) {
   var d = 'M ' + pts[0][0] + ' ' + pts[0][1];
