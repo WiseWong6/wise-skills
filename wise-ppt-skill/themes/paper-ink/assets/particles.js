@@ -97,7 +97,7 @@ var PART = (function () {
            arc: arc, brokenArc: brokenArc, textPoints: textPoints, measure: measure };
 })();
 
-/* 旧独立 frame 兼容入口；新 single-html deck 的舞台缩放由 runtime 统一负责。 */
+/* Gallery 独立样页运行时；正式 single-HTML deck 的舞台缩放由统一 runtime 负责。 */
 function stageFit() {
   var T = location.search;
   if (T.indexOf('cool') >= 0) document.documentElement.classList.add('cool');
@@ -115,7 +115,7 @@ function stageFit() {
 }
 
 /*
- * 旧 frame readiness 协议。新 slide 使用 WisePPT.markSlideReady(slide)。
+ * Gallery 独立样页 readiness 协议。正式 slide 使用 WisePPT.markSlideReady(slide)。
  */
 function markRenderReady() {
   var done = false;

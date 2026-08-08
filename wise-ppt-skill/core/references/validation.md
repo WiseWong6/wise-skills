@@ -43,8 +43,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 ## 4. Render 门禁
 
-- 新 deck 使用 `schema_version: "2.0"`、`document_mode: "single-html"`、根级 `output_file: "index.html"`；`pages[]` 禁止 `output_file`；
-- `1.0` 是只读兼容的 frames 契约，`1.1` 是只读兼容的旧字段 single-HTML 契约；二者继续校验已有产物，但不得替代新 deck 的 `2.0` 语义布局决策契约；
+- Render Plan 只接受 `schema_version: "2.0"`、`document_mode: "single-html"`、根级 `output_file: "index.html"`；`pages[]` 禁止 `output_file`；
 - schema 合法，render page 与 deck page 一一对应；
 - `theme_id` 存在于主题 registry；未知主题立即失败；
 - 每页 `core_primitive` 必须等于对应 deck page 的 `spatial_primitive`；
@@ -68,7 +67,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 ## 6. HTML 与浏览器门禁
 
-2.0 / 1.1 single-HTML 只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。除原有属性外，每页必须有 title、summary、section id/title 元数据，并与 Deck Plan 一致。1.0 继续逐页检查 `output_file`。每个组件包装节点必须有 block、provider、component、content-ref 四个属性。
+v2 single-HTML 只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。每页必须有 title、summary、section id/title 元数据，并与 Deck Plan 一致。每个组件包装节点必须有 block、provider、component、content-ref 四个属性。
 
 页面只有在字体、图片和异步图表全部完成后才能设置：
 
