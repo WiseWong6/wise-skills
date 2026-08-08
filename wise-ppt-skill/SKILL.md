@@ -142,7 +142,7 @@ python3 <SKILL_ROOT>/scripts/validate.py plan <DECK>/deck-plan.json
 
 ### 4. 建立 `render-plan.json`
 
-新生成 deck 使用 `schema_version: "1.1"`、`document_mode: "single-html"` 和根级 `output_file: "index.html"`；`pages[]` 不再声明 `output_file`。`1.0` 仅用于校验和导出旧 frames deck。仓库已有的 `2.0` 布局决策契约继续受支持，但不得作为新 deck 回退到 iframe/PNG 的理由。先根据语义形成布局需求，再解析主题并查询 Gallery：
+新生成 deck 继续使用 `schema_version: "2.0"`、`document_mode: "single-html"` 和根级 `output_file: "index.html"`；`pages[]` 不再声明 `output_file`。`1.0` 仅兼容旧 frames deck，`1.1` 仅兼容旧字段模型的 single-HTML deck 与仓库金样；二者都不是新生成链路的回退入口。先根据语义形成布局需求，再解析主题并查询 Gallery：
 
 ```bash
 python3 <SKILL_ROOT>/scripts/catalog.py layouts --theme paper-ink --role prove --relation evidence --primitive evidence-annotation --density dense
@@ -150,7 +150,7 @@ python3 <SKILL_ROOT>/scripts/catalog.py layouts --theme paper-ink --role prove -
 
 候选决策规则：
 
-以下是语义决策要求。1.1 将结果写入现有 `layout_id`、`reuse_mode`、`reuse_source`、`rationale`、`slots` 字段；只有使用 2.0 时才序列化为 `layout_decision`、`candidate_evaluations` 和 `component_decision` 对象。
+以下是新 deck 的 v2 语义决策要求，必须序列化为 `layout_decision`、`candidate_evaluations` 和 `component_decision` 对象。1.x 兼容契约只用于读取、校验和导出现存产物，不承担新的布局决策编排。
 
 1. 在查询前明确角色、关系、`core_primitive`、密度、容量、regions、reading order、slot 集合与组件角色。
 2. 对 Gallery 候选逐项记录 `fit` 或 `reject` 及具体理由；角色、关系、核心原语、密度、容量、slot 集合和顺序必须全部满足。
