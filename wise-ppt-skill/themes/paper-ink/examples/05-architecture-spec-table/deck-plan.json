@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0", "content_file": "content.json", "thesis": "标准编排能力属于 Core，纸墨风只是可替换 Theme 实现。", "narrative_type": "argument-evidence",
+  "page_budget": {"min": 1, "max": 1, "target": 1, "drivers": [{"type": "independent_claim", "count": 1, "reason": "架构树和规格表从关系与字段两个角度解释同一边界。"}], "reason": "结构与规格必须同页对位，避免读者在两页之间寻找节点映射。"},
+  "confirmation": {"mode": "adaptive", "decision": "proceed", "triggers": [], "questions": []},
+  "sections": [{"section_id": "section.arch", "title": "架构边界", "purpose": "建立 Core 与 Theme 的依赖方向。", "page_refs": ["page.example-architecture-spec"]}],
+  "pages": [{"page_id": "page.example-architecture-spec", "order": 1, "section_id": "section.arch", "role": "explain", "assertion_title": "Core 定义能力，Theme 只实现视觉语法", "audience_question": "哪些能力应该稳定，哪些部分可以替换？", "takeaway": "左侧读依赖方向，右侧查每层接口规格。", "content_refs": ["item.system-architecture", "item.system-specifications", "item.architecture-takeaway"], "evidence_refs": ["item.system-specifications"], "relation_shape": {"primary": "hierarchy", "secondary": ["decomposition", "mapping"], "reason": "三层存在单向依赖，规格字段与每个架构节点一一对应。"}, "spatial_primitive": "layered-stack", "density_intent": "dense", "blocks": [
+    {"block_id": "block.architecture", "purpose": "展示 Core、Theme、Renderer 的依赖层级", "importance": "primary", "semantic_form": "diagram", "content_refs": ["item.system-architecture"]},
+    {"block_id": "block.specifications", "purpose": "列出每层交接协议与稳定标识", "importance": "support", "semantic_form": "table", "content_refs": ["item.system-specifications"]},
+    {"block_id": "block.architecture-takeaway", "purpose": "明确 Core 不依赖具体主题", "importance": "support", "semantic_form": "prose", "content_refs": ["item.architecture-takeaway"]}
+  ]}],
+  "coverage_decisions": [
+    {"content_ref": "item.system-architecture", "disposition": "include", "page_refs": ["page.example-architecture-spec"], "reason": "主要层级关系。"},
+    {"content_ref": "item.system-specifications", "disposition": "include", "page_refs": ["page.example-architecture-spec"], "reason": "结构节点的规格证据。"},
+    {"content_ref": "item.architecture-takeaway", "disposition": "include", "page_refs": ["page.example-architecture-spec"], "reason": "收束依赖边界。"}
+  ]
+}

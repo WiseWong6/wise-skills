@@ -1,0 +1,9 @@
+{
+  "name": "x",
+  "mode": "sourced",
+  "items": [
+    {"id": "wrong", "weight": 9},
+    {"id": "wrong", "weight": 9}
+  ],
+  "extra": true
+}

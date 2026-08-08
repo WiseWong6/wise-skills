@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0", "content_file": "content.json", "thesis": "标准化流水线通过可追溯交接减少交付时间和返工。", "narrative_type": "problem-solution",
+  "page_budget": {"min": 1, "max": 1, "target": 1, "drivers": [{"type": "narrative_turn", "count": 1, "reason": "流程机制和结果指标构成同一次因果转折。"}], "reason": "流程与 KPI 同页才能保持机制到结果的连续阅读。"},
+  "confirmation": {"mode": "adaptive", "decision": "proceed", "triggers": [], "questions": []},
+  "sections": [{"section_id": "section.flow", "title": "交付机制", "purpose": "解释改善结果如何发生。", "page_refs": ["page.example-flow-kpi"]}],
+  "pages": [{"page_id": "page.example-flow-kpi", "order": 1, "section_id": "section.flow", "role": "sequence", "assertion_title": "四步可追溯流水线把交付周期压到 2 天", "audience_question": "更快交付是靠什么机制实现的？", "takeaway": "横向箭头表达先后与传递，底部结果带证明价值。", "content_refs": ["item.delivery-process", "item.delivery-outcomes", "item.flow-takeaway"], "evidence_refs": ["item.delivery-outcomes"], "relation_shape": {"primary": "flow", "secondary": ["sequence"], "reason": "四个步骤存在明确输入输出，两个 KPI 是流程终点的结果。"}, "spatial_primitive": "linear-sequence", "density_intent": "balanced", "blocks": [
+    {"block_id": "block.pipeline", "purpose": "展示四步输入输出传递", "importance": "primary", "semantic_form": "process", "content_refs": ["item.delivery-process"]},
+    {"block_id": "block.outcome-kpis", "purpose": "量化流程的业务结果", "importance": "support", "semantic_form": "metrics", "content_refs": ["item.delivery-outcomes"]},
+    {"block_id": "block.flow-takeaway", "purpose": "明确机制到结果的阅读顺序", "importance": "support", "semantic_form": "prose", "content_refs": ["item.flow-takeaway"]}
+  ]}],
+  "coverage_decisions": [
+    {"content_ref": "item.delivery-process", "disposition": "include", "page_refs": ["page.example-flow-kpi"], "reason": "主要机制。"},
+    {"content_ref": "item.delivery-outcomes", "disposition": "include", "page_refs": ["page.example-flow-kpi"], "reason": "结果证据。"},
+    {"content_ref": "item.flow-takeaway", "disposition": "include", "page_refs": ["page.example-flow-kpi"], "reason": "收束因果表达。"}
+  ]
+}

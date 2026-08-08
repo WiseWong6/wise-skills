@@ -1,0 +1,487 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wise-ppt.local/schemas/deck-plan.schema.json",
+  "title": "Wise PPT Semantic Deck Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "content_file",
+    "thesis",
+    "narrative_type",
+    "page_budget",
+    "confirmation",
+    "sections",
+    "pages",
+    "coverage_decisions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "content_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "thesis": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "narrative_type": {
+      "enum": [
+        "problem-solution",
+        "situation-complication-resolution",
+        "chronology",
+        "argument-evidence",
+        "comparison",
+        "funnel",
+        "custom"
+      ]
+    },
+    "page_budget": {
+      "$ref": "#/$defs/page_budget"
+    },
+    "confirmation": {
+      "$ref": "#/$defs/confirmation"
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/section"
+      }
+    },
+    "pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/page"
+      }
+    },
+    "coverage_decisions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/coverage_decision"
+      }
+    }
+  },
+  "$defs": {
+    "content_ref": {
+      "type": "string",
+      "pattern": "^(item|atom)[.]"
+    },
+    "spatial_primitive": {
+      "enum": [
+        "focus-field",
+        "bilateral-split",
+        "peer-array",
+        "linear-sequence",
+        "parallel-tracks",
+        "radial-burst",
+        "nested-regions",
+        "layered-stack",
+        "matrix-field",
+        "network-field",
+        "converging-path",
+        "evidence-annotation"
+      ]
+    },
+    "page_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min",
+        "max",
+        "target",
+        "drivers",
+        "reason"
+      ],
+      "properties": {
+        "min": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "target": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "drivers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/page_budget_driver"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "page_budget_driver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "count",
+        "reason"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "independent_claim",
+            "evidence_chain",
+            "audience_question",
+            "narrative_turn",
+            "density_split",
+            "required_transition",
+            "time_limit",
+            "page_limit"
+          ]
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "decision",
+        "triggers",
+        "questions"
+      ],
+      "properties": {
+        "mode": {
+          "const": "adaptive"
+        },
+        "decision": {
+          "enum": [
+            "proceed",
+            "needs_confirmation"
+          ]
+        },
+        "triggers": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "missing_objective_or_audience",
+              "source_conflict",
+              "must_content_overflow",
+              "must_infer_or_placeholder_or_remove",
+              "raw_prose_16_plus"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "section_id",
+        "title",
+        "purpose",
+        "page_refs"
+      ],
+      "properties": {
+        "section_id": {
+          "type": "string",
+          "pattern": "^section[.]"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "page_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^page[.]"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "relation_shape": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "secondary",
+        "reason"
+      ],
+      "properties": {
+        "primary": {
+          "enum": [
+            "focus",
+            "sequence",
+            "comparison",
+            "hierarchy",
+            "network",
+            "flow",
+            "cycle",
+            "matrix",
+            "spatial",
+            "convergence",
+            "funnel",
+            "evidence",
+            "decomposition",
+            "mapping",
+            "nesting"
+          ]
+        },
+        "secondary": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "focus",
+              "sequence",
+              "comparison",
+              "hierarchy",
+              "network",
+              "flow",
+              "cycle",
+              "matrix",
+              "spatial",
+              "convergence",
+              "funnel",
+              "evidence",
+              "decomposition",
+              "mapping",
+              "nesting"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 2
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_id",
+        "purpose",
+        "importance",
+        "semantic_form",
+        "content_refs"
+      ],
+      "properties": {
+        "block_id": {
+          "type": "string",
+          "pattern": "^block[.]"
+        },
+        "purpose": {
+          "type": "string",
+          "minLength": 1
+        },
+        "importance": {
+          "enum": [
+            "primary",
+            "support"
+          ]
+        },
+        "semantic_form": {
+          "enum": [
+            "headline",
+            "prose",
+            "quote",
+            "metrics",
+            "table",
+            "image-evidence",
+            "process",
+            "diagram",
+            "code",
+            "annotation",
+            "cta"
+          ]
+        },
+        "content_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/content_ref"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "page": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "page_id",
+        "order",
+        "section_id",
+        "role",
+        "assertion_title",
+        "audience_question",
+        "takeaway",
+        "content_refs",
+        "evidence_refs",
+        "relation_shape",
+        "spatial_primitive",
+        "density_intent",
+        "blocks"
+      ],
+      "properties": {
+        "page_id": {
+          "type": "string",
+          "pattern": "^page[.]"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "section_id": {
+          "type": "string",
+          "pattern": "^section[.]"
+        },
+        "role": {
+          "enum": [
+            "hook",
+            "orient",
+            "explain",
+            "prove",
+            "compare",
+            "sequence",
+            "synthesize",
+            "decide",
+            "act",
+            "close"
+          ]
+        },
+        "assertion_title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audience_question": {
+          "type": "string",
+          "minLength": 1
+        },
+        "takeaway": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/content_ref"
+          },
+          "uniqueItems": true
+        },
+        "evidence_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/content_ref"
+          },
+          "uniqueItems": true
+        },
+        "relation_shape": {
+          "$ref": "#/$defs/relation_shape"
+        },
+        "spatial_primitive": {
+          "$ref": "#/$defs/spatial_primitive"
+        },
+        "density_intent": {
+          "enum": [
+            "breathing",
+            "balanced",
+            "dense"
+          ]
+        },
+        "blocks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        }
+      }
+    },
+    "coverage_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "content_ref",
+        "disposition",
+        "page_refs",
+        "reason"
+      ],
+      "properties": {
+        "content_ref": {
+          "$ref": "#/$defs/content_ref"
+        },
+        "disposition": {
+          "enum": [
+            "include",
+            "defer",
+            "omit"
+          ]
+        },
+        "page_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^page[.]"
+          },
+          "uniqueItems": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disposition": {
+                "const": "include"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "page_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
