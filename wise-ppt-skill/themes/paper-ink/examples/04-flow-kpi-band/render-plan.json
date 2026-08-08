@@ -1,29 +1,34 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "paper-ink",
   "pages": [
     {
       "page_id": "page.example-flow-kpi",
-      "layout_id": "paper-ink.flow.pipeline",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "adapt",
+        "layout_id": "paper-ink.flow.pipeline",
+        "candidate_evaluations": [
+          {
+            "layout_id": "paper-ink.flow.pipeline",
+            "verdict": "fit",
+            "reason": "角色、流程关系、线性原语、容量与槽位顺序均符合本页需求。"
+          }
+        ]
+      },
       "density": "balanced",
-      "reuse_mode": "compose",
-      "reuse_source": "paper-ink.flow.pipeline",
       "rationale": "四步输入输出是线性流，不是四个并列观点；横向流水线承担机制主线，单条 KPI 结果带承担证明，三个语义单元落在 1–7 容量内。",
       "capacity_status": "fit",
       "core_primitive": "linear-sequence",
-      "theme_primitives": [
-        "pipeline",
-        "open-arrow"
-      ],
       "html_attributes": {
         "data-page-id": "page.example-flow-kpi",
         "data-page-role": "sequence",
         "data-theme": "paper-ink",
         "data-layout": "paper-ink.flow.pipeline",
         "data-density": "balanced",
-        "data-reuse-mode": "compose",
+        "data-reuse-mode": "adapt",
         "data-layout-source": "gallery",
         "data-page-title": "四步可追溯流水线把交付周期压到 2 天",
         "data-page-summary": "横向箭头表达先后与传递，底部结果带证明价值。",
@@ -35,6 +40,10 @@
           "slot_id": "steps",
           "block_id": "block.pipeline",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以真实四步流程 SVG 替换样例中的通用主视觉。"
+          },
           "renderer": {
             "provider": "svg",
             "component": "pipeline",
@@ -53,6 +62,10 @@
           "slot_id": "support",
           "block_id": "block.outcome-kpis",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "KPI 支撑槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "kpi-band",
@@ -66,6 +79,10 @@
           "slot_id": "takeaway",
           "block_id": "block.flow-takeaway",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结论槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "takeaway",

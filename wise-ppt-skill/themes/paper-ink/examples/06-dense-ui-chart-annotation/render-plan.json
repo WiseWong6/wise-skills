@@ -1,30 +1,34 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "paper-ink",
   "pages": [
     {
       "page_id": "page.example-dense-ui",
-      "layout_id": "paper-ink.evidence.admin-ui",
+      "layout_decision": {
+        "source": "gallery",
+        "reuse_mode": "adapt",
+        "layout_id": "paper-ink.evidence.admin-ui",
+        "candidate_evaluations": [
+          {
+            "layout_id": "paper-ink.evidence.admin-ui",
+            "verdict": "fit",
+            "reason": "角色、证据关系、空间原语、容量与槽位顺序均符合本页需求。"
+          }
+        ]
+      },
       "density": "dense",
-      "reuse_mode": "compose",
-      "reuse_source": "paper-ink.evidence.admin-ui",
       "rationale": "四个语义单元都服务于同一次异常核查：后台界面是主证据面，折线嵌入界面，肘形批注连接失败行和峰值；该组合符合版式 2–12 个语义单元容量。",
       "capacity_status": "fit",
       "core_primitive": "evidence-annotation",
-      "theme_primitives": [
-        "ui-frame",
-        "table-region",
-        "annotation-leader"
-      ],
       "html_attributes": {
         "data-page-id": "page.example-dense-ui",
         "data-page-role": "prove",
         "data-theme": "paper-ink",
         "data-layout": "paper-ink.evidence.admin-ui",
         "data-density": "dense",
-        "data-reuse-mode": "compose",
+        "data-reuse-mode": "adapt",
         "data-layout-source": "gallery",
         "data-page-title": "一次 620ms 峰值触发重试，随后系统恢复",
         "data-page-summary": "界面、图表、批注共享一个证据面，而不是三个并列模块。",
@@ -36,6 +40,10 @@
           "slot_id": "product-ui",
           "block_id": "block.product-ui",
           "visual_role": "primary",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以真实后台界面替换样例中的通用主证据面。"
+          },
           "renderer": {
             "provider": "native-html",
             "component": "admin-dashboard",
@@ -49,6 +57,10 @@
           "slot_id": "chart",
           "block_id": "block.embedded-chart",
           "visual_role": "support",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以真实延迟趋势替换样例中的通用图表。"
+          },
           "renderer": {
             "provider": "echarts",
             "component": "line",
@@ -68,6 +80,10 @@
           "slot_id": "annotation",
           "block_id": "block.anomaly-note",
           "visual_role": "support",
+          "component_decision": {
+            "action": "replace",
+            "reason": "以异常落点批注替换样例中的通用标注。"
+          },
           "renderer": {
             "provider": "svg",
             "component": "elbow-callout",
@@ -81,6 +97,10 @@
           "slot_id": "takeaway",
           "block_id": "block.ui-takeaway",
           "visual_role": "support",
+          "component_decision": {
+            "action": "keep",
+            "reason": "结论槽位与样例结构及语义完全一致。"
+          },
           "renderer": {
             "provider": "typography",
             "component": "takeaway",
