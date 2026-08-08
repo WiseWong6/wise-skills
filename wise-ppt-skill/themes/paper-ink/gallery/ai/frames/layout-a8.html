@@ -43,8 +43,9 @@
     font-family: var(--mono); font-size: 9px; letter-spacing: .2em;
     background: var(--paper); padding: 0 var(--space-2); color: var(--ink-45);
   }
-  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%;
-    border: 1px solid var(--ink); margin-right: var(--space-2); vertical-align: -1px; }
+  .run-id { display: inline-flex; align-items: center; gap: 12px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto;
+    border: 1px solid var(--ink); }
   .dot.err { background: var(--ink); }
   .dot.part { background: linear-gradient(90deg, var(--ink) 50%, transparent 50%); }
   .ops { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-end; }
@@ -87,9 +88,10 @@
     color: var(--ink); z-index: 5;
   }
 
-  /* accent：异常态染番茄红——.dot.err 红点 + #badstep 超时节点描边 + .st-err 超时文字 */
-  :root.accent .dot.err { background: var(--accent-red); border-color: var(--accent-red); }
+  /* accent：异常节点按“动作 + 角色 + 状态 + 外框”成组上色；运行 ID 圆点属于元数据，保持墨色 */
   :root.accent .tnode.sel { outline-color: var(--accent-red); }
+  :root.accent .tnode.sel .accent-action { color: var(--accent-red); }
+  :root.accent .tnode.sel .accent-role { color: rgba(192,57,43,.65); }
   :root.accent .tnode .st-err { color: var(--accent-red); }
 </style>
 </head>
@@ -110,27 +112,27 @@
       <div class="table">
         <div class="tr hd"><span>创建时间</span><span>RUN ID</span><span>模型</span><span>指令 / 结果</span><span style="text-align:right">操作</span></div>
         <div class="tr">
-          <span>08-06 14:22:10</span><span><i class="dot"></i>t7f3a2****</span><span class="cn">glm-5.2</span>
+          <span>08-06 14:22:10</span><span class="run-id"><i class="dot"></i><span>t7f3a2****</span></span><span class="cn">glm-5.2</span>
           <span class="cn">生成 A1 标本卡 · 估分梗 → 已完成</span>
           <span class="ops"><span>任务详情</span><span>过程日志</span><span>轨迹回放</span></span>
         </div>
         <div class="tr">
-          <span>08-06 13:58:44</span><span><i class="dot part"></i>k2d8e1****</span><span class="cn">claude-4.5</span>
+          <span>08-06 13:58:44</span><span class="run-id"><i class="dot part"></i><span>k2d8e1****</span></span><span class="cn">claude-4.5</span>
           <span class="cn">重构 B1 流水线 · 4 段 · 已挂起</span>
           <span class="ops"><span>任务详情</span><span>过程日志</span><span>轨迹回放</span></span>
         </div>
         <div class="tr sel" id="selrow">
-          <span>08-06 13:41:07</span><span><i class="dot err"></i>a91c5e****</span><span class="cn">glm-5.2</span>
+          <span>08-06 13:41:07</span><span class="run-id"><i class="dot err"></i><span>a91c5e****</span></span><span class="cn">glm-5.2</span>
           <span class="cn">工具调用 · 读 layout-c4 → 超时 · 未执行</span>
           <span class="ops"><span>任务详情</span><span>过程日志</span><span>轨迹回放</span></span>
         </div>
         <div class="tr">
-          <span>08-06 12:30:19</span><span><i class="dot"></i>f55b92****</span><span class="cn">deepseek-v3</span>
+          <span>08-06 12:30:19</span><span class="run-id"><i class="dot"></i><span>f55b92****</span></span><span class="cn">deepseek-v3</span>
           <span class="cn">批量改 D 族 6 页 → 已完成</span>
           <span class="ops"><span>任务详情</span><span>过程日志</span><span>轨迹回放</span></span>
         </div>
         <div class="tr">
-          <span>08-06 11:15:52</span><span><i class="dot"></i>b73e08****</span><span class="cn">glm-5.2</span>
+          <span>08-06 11:15:52</span><span class="run-id"><i class="dot"></i><span>b73e08****</span></span><span class="cn">glm-5.2</span>
           <span class="cn">机检 shot-lint.py · 59 页 → 已完成</span>
           <span class="ops"><span>任务详情</span><span>过程日志</span><span>轨迹回放</span></span>
         </div>
@@ -142,7 +144,7 @@
           <div class="tnode"><span>▸ 读文件 layout-c4 · 任务树</span><span class="tag">ROOT</span><span class="mono st-ok">✓ 受理</span></div>
           <div class="tnode" style="padding-left:var(--space-6)"><span>意图解析</span><span class="tag">PARSER</span><span class="mono st-ok">✓ 8ms</span></div>
           <div class="tnode" style="padding-left:var(--space-6)"><span>路径解析</span><span class="tag">PLANNER</span><span class="mono st-ok">✓ 214ms</span></div>
-          <div class="tnode sel" id="badstep" style="padding-left:var(--space-6)"><span>read_file · layout-c4</span><span class="tag">TOOL</span><span class="mono st-err">✕ 60s 超时</span></div>
+          <div class="tnode sel" id="badstep" style="padding-left:var(--space-6)"><span class="accent-action">read_file · layout-c4</span><span class="tag accent-role">TOOL</span><span class="mono st-err">✕ 60s 超时</span></div>
           <div class="io">
             <span class="lbl">ERROR</span>　<b>ToolTimeoutError</b>：工具调用超时（超过 60s）<br>
             <span class="lbl">INPUT</span>　{ path: "themes/paper-ink/gallery/ai/frames/layout-c4.html" }<br>

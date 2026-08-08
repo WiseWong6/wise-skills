@@ -82,8 +82,8 @@ nodes.forEach(function(n){
   }
   /* 上方：年份 / 名称 / 机构三段 + 短引线 */
   txt(n.x, AXIS-104, String(n.y), {'font-family':MONO, 'font-size': n.hot?34:28, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK});
-  txt(n.x, AXIS-66, n.name, {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill:INK80});
-  txt(n.x, AXIS-42, n.org, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:'rgba(25,25,23,.45)'});
+  txt(n.x, AXIS-66, n.name, {'font-family':MONO, 'font-size':16, 'letter-spacing':1, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? RED : INK80});
+  txt(n.x, AXIS-42, n.org, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':'middle', fill:(n.hot && ACCENT) ? 'rgba(192,57,43,.85)' : 'rgba(25,25,23,.45)'});
   el('line', {x1:n.x, y1:AXIS-28, x2:n.x, y2:AXIS-12, stroke:INK, 'stroke-width':.6, opacity:.4});
   /* 下方注释 */
   if (n.note) {

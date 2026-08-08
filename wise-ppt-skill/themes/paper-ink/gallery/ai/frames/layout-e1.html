@@ -95,7 +95,7 @@ txt(560, 462, 'ERRORS HALT THE FLOW', {'font-family':MONO, 'font-size':13, 'lett
 txt(560, 806, '报错即停，等人工介入', {'font-family':SANS, 'font-weight':300, 'font-size':20, 'text-anchor':'middle', fill:'rgba(25,25,23,.6)'});
 
 /* ---------- 右面板：错了继续 ✓ ---------- */
-txt(1360, 420, '错了继续', {'font-family':SANS, 'font-weight':300, 'font-size':34, 'letter-spacing':4, 'text-anchor':'middle', fill:INK});
+txt(1360, 420, '错了继续', {'data-accent-group':'positive-outcome', 'font-family':SANS, 'font-weight':300, 'font-size':34, 'letter-spacing':4, 'text-anchor':'middle', fill:ACCENT ? RED : INK});
 el('path', {d:'M 1452 404 L 1464 418 L 1488 388', fill:'none', stroke: ACCENT ? RED : INK, 'stroke-width':3.5, 'stroke-linecap':'round', 'stroke-linejoin':'round'});
 txt(1360, 462, 'SELF-HEALING RELAY', {'font-family':MONO, 'font-size':13, 'letter-spacing':2, 'text-anchor':'middle', fill:INK45});
 
