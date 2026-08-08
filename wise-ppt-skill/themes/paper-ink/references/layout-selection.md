@@ -22,7 +22,7 @@ Manifest 中两套原语不可混用：
 
 前者解释“为什么这样排”，后者解释“纸墨主题具体怎么画”。
 
-画册界面只把 `description` 作为面向人的自然语言用途；`roles`、`relations`、`capacity` 与 `selection_notes` 保留在 manifest 供 AI 筛选。样张内部的 `.caption` 是当前示例的页面结论，不是 layout 使用说明。复制或适配样张时必须用 deck page 的 `takeaway` 替换，禁止把 manifest 文案带入画面。
+画册界面只把 `description` 作为面向人的自然语言用途；`roles`、`relations`、`capacity` 与 `selection_notes` 保留在 manifest 供 AI 筛选。样张内部的 `.doc.tl` 标业务主题/章节，`.caption` 是当前示例的页面结论，两者都不是 layout 使用说明。复制或适配样张时必须分别替换为目标 deck 的主题角注与 `takeaway`，禁止把 manifest 文案、`GALLERY`、`LAYOUT`、`MOCK` 或组件名带入画面。
 
 ## 复用强度
 

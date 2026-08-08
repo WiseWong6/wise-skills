@@ -11,17 +11,19 @@
     L2 渐变/阴影/滤镜：linear-gradient、box-shadow（允许标本偏移影豁免值）、filter:
     L3 粗线：stroke-width ≥ 2 超过 1 处
     L4 中文落 mono：txt(...) 调用中 font-family MONO 且字符串含 CJK
-    L5 三件套：.doc tl 角注、.folio、.caption（尾卡页 caption 仅 WARN）
+    L5 三件套：.doc tl 角注、.folio、.caption（封面/章节幕/尾卡按 layout 白名单豁免）
     L6 不做“同尺寸矩形即违规”的静态猜测；Grid/证据墙/矩阵由 manifest 关系与浏览器目检判断
     L7 stageFit() 未调用
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
+    L10 页内文案：caption 必须陈述内容结论；doc tl 必须标主题，禁止解释画册/版式
 
 退出码：有 FAIL 则 1（--strict 时 WARN 也为 1），否则 0。
 注意：静态检查有边界——循环里用变量画的 rect/线无法计数，机检全过 ≠ 目检通过，
      仍须 runtime/screenshot.sh 截图逐张看（visual-checklist 目检顺序）。
 """
 import os
+import html
 import re
 import sys
 
@@ -35,6 +37,25 @@ ACCENT_OK = {
 NAMED_OK = {'none', 'currentcolor', 'inherit', 'transparent'}
 CJK = re.compile(r'[一-鿿　-〿＀-￯]')
 ACCENT_MODE = False                           # 保留 CLI 契约；强调色是否实际启用由浏览器模式验证
+
+CAPTION_EXEMPT_LAYOUTS = {
+    'paper-ink.scaffold.cover',
+    'paper-ink.scaffold.particle-outro',
+    'paper-ink.scaffold.minimal-outro',
+    'paper-ink.scaffold.section-divider',
+}
+CAPTION_META = re.compile(
+    r'当页面角色|优先复用|版式|布局|画册|样张|全\s*deck|几栏|几格|图题|主角|'
+    r'兜底版式|兜底页型|用来|用于|一页讲清|严格对位|列阵|宫格|横带让|时间轴把|'
+    r'环形进度环|分栏清单柱|同心防线用|嵌套变焦框表达|横向流水线解释|'
+    r'循环圆环表达|蛇形回环装下|汇聚流把|漏斗只讲|^[A-O]\d+\s',
+    re.I,
+)
+DOC_META = re.compile(r'PAPER-INK\s+GALLERY|AI\s+LAYOUT\s+GALLERY|\bLAYOUT\b|\bMOCK\b', re.I)
+
+
+def visible_text(fragment):
+    return html.unescape(re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', fragment))).strip()
 
 def lint_file(path):
     fails, warns = [], []
@@ -127,8 +148,14 @@ def lint_file(path):
         fails.append('L5 缺 .doc.tl 角注')
     if 'class="folio"' not in src:
         fails.append('L5 缺 .folio 页脚')
-    if 'class="caption"' not in src:
-        warns.append('L5 无 .caption（尾卡/封面/Outro 可豁免）')
+    layout_match = re.search(r'data-layout="([^"]+)"', src)
+    layout_id = layout_match.group(1) if layout_match else ''
+    caption_match = re.search(r'<div\s+class="caption"[^>]*>(.*?)</div>', src, re.S)
+    if not caption_match:
+        if layout_id not in CAPTION_EXEMPT_LAYOUTS:
+            fails.append(f'L5 无 .caption（仅 {sorted(CAPTION_EXEMPT_LAYOUTS)} 可豁免）')
+    elif not visible_text(caption_match.group(1)):
+        fails.append('L5 .caption 为空')
 
     # L6：不从几何重复推断语义错误。同尺寸 rect 可能是合法的矩阵、证据墙、
     # 表格或同行比较；关系正确性由 render plan、manifest capacity 与截图目检负责。
@@ -167,6 +194,17 @@ def lint_file(path):
         if lum is not None and lum < 0.5:
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L9 深色页面底色 {bm.group(1).strip()[:24]} (line {line})：拒绝暗色系，必须纸底')
+
+    # L10：画册选择规则留在 manifest；PPT 内页只说主题与结论。
+    if caption_match:
+        caption = visible_text(caption_match.group(1))
+        if CAPTION_META.search(caption):
+            fails.append(f'L10 caption 含画册/制作元话语：{caption[:56]}')
+    doc_match = re.search(r'<div\s+class="doc\s+tl"[^>]*>(.*?)</div>', src, re.S)
+    if doc_match:
+        doc = visible_text(doc_match.group(1))
+        if DOC_META.search(doc):
+            fails.append(f'L10 doc tl 含画册/版式元话语：{doc[:56]}')
 
     return fails, warns
 

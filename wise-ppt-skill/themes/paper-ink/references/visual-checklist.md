@@ -29,6 +29,7 @@ python3 themes/paper-ink/scripts/lint.py themes/paper-ink/gallery/ai --accent
 - ECharts、图片和字体加载完成后才由 `markRenderReady()` 设置页面根节点的 `data-render-ready="true"`；截图工具只接受这个唯一 ready 标记。
 - caption 没有被主体压住；最小正文 16px；图表刻度与来源可读。
 - caption 与本页证据和结论一致，不出现“适合/优先复用/几栏/几格/对位/主角/兜底版式”等画册或制作说明；版式用途只留在画册外层。
+- 左上 `.doc.tl` 写当前主题/章节，不写 `GALLERY`、`LAYOUT`、`MOCK` 或组件名称；它与 caption 都必须经逐页语义复核。
 
 ## P1：主题一致
 
