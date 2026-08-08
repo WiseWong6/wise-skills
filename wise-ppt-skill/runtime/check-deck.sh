@@ -58,6 +58,8 @@ done
 stop_chrome
 rg -q 'data-deck-ready="true"' "$TMP_ROOT/dom.html" || { echo "deck readiness 失败" >&2; tail -20 "$TMP_ROOT/chrome.log" >&2; exit 1; }
 rg -q 'data-runtime-check="pass"' "$TMP_ROOT/dom.html" || { echo "runtime 交互检查失败" >&2; rg -o 'data-runtime-check-error="[^"]*"' "$TMP_ROOT/dom.html" >&2 || true; exit 1; }
+rg -q 'data-copy-check="pass"' "$TMP_ROOT/dom.html" || { echo "放映正文选择/复制检查失败" >&2; exit 1; }
+rg -q 'data-type-check="pass"' "$TMP_ROOT/dom.html" || { echo "全局字阶解析检查失败" >&2; exit 1; }
 if rg -q 'data-render-error=|data-deck-error=' "$TMP_ROOT/dom.html"; then echo "页面资源或渲染失败" >&2; exit 1; fi
 COUNT="$(rg -o 'class="slide[^"]*"' "$HTML" | wc -l | tr -d ' ')"
-echo "PASS browser single-html mode=$MODE slides=$COUNT board=ok canvas=ok deeplink=ok navigation=ok esc=ok"
+echo "PASS browser single-html mode=$MODE slides=$COUNT board=ok canvas=ok deeplink=ok navigation=ok selection-copy=ok esc=ok"

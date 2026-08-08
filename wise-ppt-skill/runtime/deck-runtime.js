@@ -26,6 +26,13 @@ function emphasisColor(slide,contentRef,role,fallback){
   if(!color)throw new Error('主题缺少 --accent-red token');
   return color;
 }
+function typeSize(role){
+  var allowed=['display-mark','particle-sample','display','hero','title','metric','heading','emphasis','caption','subheading','body','body-small','label','meta','micro'];
+  if(!allowed.includes(role))throw new Error('未知 paper-ink 字阶: '+role);
+  var value=Number.parseFloat(getComputedStyle(root).getPropertyValue('--type-'+role).trim());
+  if(!Number.isFinite(value))throw new Error('主题缺少 --type-'+role+' token');
+  return value;
+}
 function markSlideReady(slide){
   if(!slide||!slide.classList.contains('slide'))throw new Error('markSlideReady 需要 .slide 节点');
   if(tasks.has(slide))return tasks.get(slide);
@@ -48,13 +55,16 @@ function createEChart(slide,target,option){
   }
   catch(error){if(rejectRender)rejectRender(error);markSlideError(slide,error);throw error}
 }
-global.WisePPT={markSlideReady:markSlideReady,markSlideError:markSlideError,registerSlideTask:registerSlideTask,createEChart:createEChart,emphasisColor:emphasisColor,updateDeckReady:updateDeckReady};
+global.WisePPT={markSlideReady:markSlideReady,markSlideError:markSlideError,registerSlideTask:registerSlideTask,createEChart:createEChart,emphasisColor:emphasisColor,typeSize:typeSize,updateDeckReady:updateDeckReady};
 
 function initialize(){
   var body=document.body,track=document.getElementById('track'),board=document.getElementById('board-sections'),pager=document.getElementById('pager'),deckStage=document.getElementById('deck-stage'),current=0,touchStartX=null;
   if(!track||!board||!deckStage)return;
   function allSlides(){return Array.prototype.slice.call(track.querySelectorAll(':scope>.slide'))}
   function clamp(number){return Math.max(0,Math.min(allSlides().length-1,number))}
+  function hasTextSelection(){var selection=global.getSelection&&global.getSelection();return Boolean(selection&&!selection.isCollapsed&&selection.toString().trim())}
+  function hasEditableTarget(target){return Boolean(target&&target.closest&&target.closest('input,textarea,select,button,[contenteditable="true"]'))}
+  function navigationIsReserved(event){return event.defaultPrevented||event.metaKey||event.ctrlKey||event.altKey||hasEditableTarget(event.target)||hasTextSelection()}
   function copyCanvasPixels(original,clone){
     var originals=original.querySelectorAll('canvas'),clones=clone.querySelectorAll('canvas');
     originals.forEach(function(canvas,index){var target=clones[index];if(!target)return;target.width=canvas.width;target.height=canvas.height;try{target.getContext('2d').drawImage(canvas,0,0);target.dataset.canvasCopied='true'}catch(error){target.dataset.canvasCopied='error'}});
@@ -74,11 +84,49 @@ function initialize(){
   function exitDeck(){body.className='mode-board';history.replaceState(null,'',location.pathname+location.search);rebuildBoard();var card=board.querySelector('[data-index="'+current+'"]');if(card)card.scrollIntoView({block:'center'})}
   function fromHash(){var match=location.hash.match(/^#(\d+)$/);if(match)enterDeck(Number(match[1])-1,false);else if(!root.classList.contains('print-mode')){body.className='mode-board';rebuildBoard()}}
   function selfTest(){
-    try{rebuildBoard();var all=allSlides(),cards=board.querySelectorAll('.board-card');if(cards.length!==all.length)throw new Error('画册卡片数量不一致');var canvasCount=track.querySelectorAll('canvas').length,copied=board.querySelectorAll('canvas[data-canvas-copied="true"]').length;if(copied!==canvasCount)throw new Error('Canvas 克隆像素未完整复制');if(query.has('accent')!==root.classList.contains('accent'))throw new Error('强调模式未按 URL 激活');all.filter(function(slide){return slide.dataset.emphasisMode==='semantic-focus'}).forEach(function(slide){var target=slide.querySelector('[data-emphasis-role]');if(!target)throw new Error('semantic-focus 页面缺少强调载体');var style=getComputedStyle(target),red='rgb(192, 57, 43)',isRed=style.color===red||style.borderColor===red||style.outlineColor===red;if(query.has('accent')&&!isRed)throw new Error('强调载体没有应用主题强调色');if(!query.has('accent')&&isRed)throw new Error('默认模式残留主题强调色')});history.replaceState(null,'','#'+all.length);fromHash();if(!body.classList.contains('mode-deck'))throw new Error('深链未进入放映');if(all.length>1)go(0,false);exitDeck();if(!body.classList.contains('mode-board')||location.hash)throw new Error('ESC 状态切换失败');if(document.fonts&&document.fonts.status!=='loaded')throw new Error('字体尚未加载完成');root.dataset.runtimeCheck='pass'}catch(error){root.dataset.runtimeCheck='fail';root.dataset.runtimeCheckError=error.message;console.error(error)}
+    try{
+      rebuildBoard();
+      var all=allSlides(),cards=board.querySelectorAll('.board-card');
+      if(cards.length!==all.length)throw new Error('画册卡片数量不一致');
+      var canvasCount=track.querySelectorAll('canvas').length,copied=board.querySelectorAll('canvas[data-canvas-copied="true"]').length;
+      if(copied!==canvasCount)throw new Error('Canvas 克隆像素未完整复制');
+      if(query.has('accent')!==root.classList.contains('accent'))throw new Error('强调模式未按 URL 激活');
+      all.filter(function(slide){return slide.dataset.emphasisMode==='semantic-focus'}).forEach(function(slide){
+        var target=slide.querySelector('[data-emphasis-role]');
+        if(!target)throw new Error('semantic-focus 页面缺少强调载体');
+        var style=getComputedStyle(target),red='rgb(192, 57, 43)',isRed=style.color===red||style.borderColor===red||style.outlineColor===red;
+        if(query.has('accent')&&!isRed)throw new Error('强调载体没有应用主题强调色');
+        if(!query.has('accent')&&isRed)throw new Error('默认模式残留主题强调色');
+      });
+      var svgTypeTarget=track.querySelector('[font-size*="var(--type-"]');
+      if(svgTypeTarget){
+        var svgRole=svgTypeTarget.getAttribute('font-size').match(/--type-([a-z-]+)/),svgSize=Number.parseFloat(getComputedStyle(svgTypeTarget).fontSize);
+        if(!svgRole||!Number.isFinite(svgSize)||Math.abs(svgSize-typeSize(svgRole[1]))>.1)throw new Error('SVG 字阶 token 未解析');
+      }
+      typeSize('caption');
+      root.dataset.typeCheck='pass';
+      history.replaceState(null,'','#'+all.length);fromHash();
+      if(!body.classList.contains('mode-deck'))throw new Error('深链未进入放映');
+      go(0);
+      var copyTarget=all[0].querySelector('.caption,h1,h2,p,[data-content-ref]');
+      if(!copyTarget||getComputedStyle(copyTarget).userSelect==='none')throw new Error('放映正文不可选择');
+      var range=document.createRange(),selection=global.getSelection();
+      range.selectNodeContents(copyTarget);selection.removeAllRanges();selection.addRange(range);
+      if(!selection.toString().trim())throw new Error('放映正文无法建立文本选区');
+      var hashBeforeCopy=location.hash;
+      dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
+      if(location.hash!==hashBeforeCopy)throw new Error('文本选区被翻页快捷键抢占');
+      root.dataset.copyCheck='pass';selection.removeAllRanges();
+      if(all.length>1){dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));if(location.hash!=='#2')throw new Error('键盘翻页失败')}
+      exitDeck();
+      if(!body.classList.contains('mode-board')||location.hash)throw new Error('ESC 状态切换失败');
+      if(document.fonts&&document.fonts.status!=='loaded')throw new Error('字体尚未加载完成');
+      root.dataset.runtimeCheck='pass';
+    }catch(error){root.dataset.runtimeCheck='fail';root.dataset.runtimeCheckError=error.message;console.error(error)}
   }
   addEventListener('resize',function(){fit();if(body.classList.contains('mode-board'))rebuildBoard()});addEventListener('hashchange',fromHash);
-  addEventListener('keydown',function(event){if(!body.classList.contains('mode-deck'))return;if(['ArrowRight','ArrowDown',' ','PageDown'].includes(event.key)){event.preventDefault();go(current+1)}else if(['ArrowLeft','ArrowUp','PageUp'].includes(event.key)){event.preventDefault();go(current-1)}else if(event.key==='Home'){event.preventDefault();go(0)}else if(event.key==='End'){event.preventDefault();go(allSlides().length-1)}else if(event.key==='Escape'){event.preventDefault();exitDeck()}});
-  var toggle=document.getElementById('board-toggle'),deck=document.getElementById('deck');if(toggle)toggle.addEventListener('click',exitDeck);if(deck){deck.addEventListener('touchstart',function(event){touchStartX=event.changedTouches[0].clientX},{passive:true});deck.addEventListener('touchend',function(event){if(touchStartX===null)return;var delta=event.changedTouches[0].clientX-touchStartX;if(Math.abs(delta)>48)go(current+(delta<0?1:-1));touchStartX=null},{passive:true})}
+  addEventListener('keydown',function(event){if(!body.classList.contains('mode-deck'))return;if(event.key==='Escape'){event.preventDefault();exitDeck();return}if(navigationIsReserved(event))return;if(['ArrowRight','ArrowDown',' ','PageDown'].includes(event.key)){event.preventDefault();go(current+1)}else if(['ArrowLeft','ArrowUp','PageUp'].includes(event.key)){event.preventDefault();go(current-1)}else if(event.key==='Home'){event.preventDefault();go(0)}else if(event.key==='End'){event.preventDefault();go(allSlides().length-1)}});
+  var toggle=document.getElementById('board-toggle'),deck=document.getElementById('deck');if(toggle)toggle.addEventListener('click',exitDeck);if(deck){deck.addEventListener('touchstart',function(event){touchStartX=hasTextSelection()?null:event.changedTouches[0].clientX},{passive:true});deck.addEventListener('touchend',function(event){if(touchStartX===null||hasTextSelection()){touchStartX=null;return}var delta=event.changedTouches[0].clientX-touchStartX;if(Math.abs(delta)>48)go(current+(delta<0?1:-1));touchStartX=null},{passive:true})}
   document.addEventListener('wise-ppt:ready',function(){if(!root.classList.contains('print-mode'))rebuildBoard();if(query.get('selftest')==='1')selfTest()},{once:true});
   allSlides().forEach(function(slide){if(slide.dataset.renderPending!=='true'&&slide.dataset.renderReady!=='true')markSlideReady(slide)});updateDeckReady();fit();fromHash();global.WisePPTRuntime={rebuildBoard:rebuildBoard,enterDeck:enterDeck,exitDeck:exitDeck,go:go};
 }

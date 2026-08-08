@@ -11,7 +11,7 @@
     position: absolute; left: 0; right: 0; bottom: 118px;
     text-align: center;
     font-family: var(--sans); font-weight: 400;
-    font-size: 33px; letter-spacing: .04em;
+    font-size: var(--type-caption); letter-spacing: .04em;
     color: var(--ink);
     z-index: 5;
   }
@@ -61,12 +61,12 @@ function txt(x, y, str, attrs) {
 var MONO = 'Courier Prime', SANS = 'Han Sans';
 
 /* ---------- FIG 图题 ---------- */
-txt(200, 176, 'FIG. C2 — CHART WALL', {'font-family':MONO, 'font-size':15, 'letter-spacing':3, fill:INK45});
+txt(200, 176, 'FIG. C2 — CHART WALL', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:520, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
 
 /* ---------- 图表小图题（mono + 短横） ---------- */
 function chartTitle(x, y, label){
-  txt(x, y, label, {'font-family':MONO, 'font-size':13, 'letter-spacing':2, fill:INK});
+  txt(x, y, label, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:INK});
   el('line', {x1:x, y1:y+10, x2:x+210, y2:y+10, stroke:INK, 'stroke-width':.6, opacity:.3});
 }
 
@@ -78,7 +78,7 @@ el('line', {x1:200, y1:490, x2:1800, y2:490, stroke:INK, 'stroke-width':1, opaci
 [0, 20, 40, 60].forEach(function(v, i){
   var y = 490 - v * 3.833;
   el('line', {x1:194, y1:y, x2:200, y2:y, stroke:INK, 'stroke-width':.8, opacity:.5});
-  txt(190, y+4, String(v), {'font-family':MONO, 'font-size':11, 'text-anchor':'end', fill:INK45});
+  txt(190, y+4, String(v), {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'end', fill:INK45});
   el('line', {x1:200, y1:y, x2:1800, y2:y, stroke:INK, 'stroke-width':.4, opacity:.15, 'stroke-dasharray':'2 5'});
 });
 /* 折线 + 数据点 */
@@ -97,10 +97,10 @@ PX.forEach(function(p, i){
 /* 峰值注释 */
 var peak = PX[PX.length - 1];
 el('line', {x1:peak[0], y1:peak[1]-8, x2:peak[0], y2:256, stroke: ACCENT ? RED : INK, 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'3 4'});
-txt(peak[0], 248, 'PEAK 52', {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? 'var(--accent-red-85)' : INK});
+txt(peak[0], 248, 'PEAK 52', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill: ACCENT ? 'var(--accent-red-85)' : INK});
 /* X 轴标签 */
 weeks.forEach(function(v, i){
-  txt(300 + i * 200, 514, 'W' + String(24 + i), {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
+  txt(300 + i * 200, 514, 'W' + String(24 + i), {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK45});
 });
 
 /* ========== 底左：各任务 benchmark 得分柱图 ========== */
@@ -114,8 +114,8 @@ zones.forEach(function(v, i){
   var x = 240 + i * 108, h = v * 1.9, y = C2BASE - h;
   var fill = i === 0 ? 'url(#hatch92)' : 'none';
   el('rect', {x:x, y:y, width:60, height:h, fill:fill, stroke: i === 0 && ACCENT ? RED : INK80, 'stroke-width': i === 0 && ACCENT ? 1.6 : 1.2});
-  txt(x + 30, y - 8, String(v) + '%', {'font-family':MONO, 'font-size':12, 'text-anchor':'middle', fill: i === 0 && ACCENT ? 'var(--accent-red-85)' : INK});
-  txt(x + 30, C2ZLAB, ['MMLU','HEVAL','GSM8K','BBH','TRUTH','ARC'][i], {'font-family':MONO, 'font-size':11, 'text-anchor':'middle', fill:INK45});
+  txt(x + 30, y - 8, String(v) + '%', {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill: i === 0 && ACCENT ? 'var(--accent-red-85)' : INK});
+  txt(x + 30, C2ZLAB, ['MMLU','HEVAL','GSM8K','BBH','TRUTH','ARC'][i], {'font-family':MONO, 'font-size':'var(--type-micro)', 'text-anchor':'middle', fill:INK45});
 });
 
 /* ========== 底右：模型调用构成环图（线稿 donut） ========== */
@@ -144,23 +144,23 @@ seg(194.4, 270, 'none', ACCENT ? RED : null);              /* 嵌入 21% */
     stroke:(ACCENT ? RED : INK), 'stroke-width':.8, opacity:.6});
 });
 /* 中心 */
-txt(CCX, CCY - 2, '100%', {'font-family':MONO, 'font-size':17, 'letter-spacing':1, 'text-anchor':'middle', fill:(ACCENT ? RED : INK)});
-txt(CCX, CCY + 24, 'N=3 MIX', {'font-family':MONO, 'font-size':10, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT ? 'var(--accent-red-65)' : INK45)});
+txt(CCX, CCY - 2, '100%', {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':1, 'text-anchor':'middle', fill:(ACCENT ? RED : INK)});
+txt(CCX, CCY + 24, 'N=3 MIX', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT ? 'var(--accent-red-65)' : INK45)});
 /* 扇区标签（引线 + 数值/名称） */
 function segLabel(ang, en, cn, anchor){
   var mid = ang * Math.PI / 180;
   var lx = CCX + 132 * Math.cos(mid), ly = CCY - 132 * Math.sin(mid);
   var rx = CCX + RO * Math.cos(mid), ry = CCY - RO * Math.sin(mid);
   el('line', {x1:rx, y1:ry, x2:lx, y2:ly, stroke:(ACCENT ? RED : INK), 'stroke-width':.6, opacity:.4, 'stroke-dasharray':'3 4'});
-  txt(lx, ly - 6, en, {'font-family':MONO, 'font-size':13, 'letter-spacing':1, 'text-anchor':anchor, fill:(ACCENT ? RED : INK)});
-  txt(lx, ly + 16, cn, {'font-family':SANS, 'font-weight':300, 'font-size':14, 'text-anchor':anchor, fill:(ACCENT ? 'var(--accent-red-65)' : INK70)});
+  txt(lx, ly - 6, en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':1, 'text-anchor':anchor, fill:(ACCENT ? RED : INK)});
+  txt(lx, ly + 16, cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-meta)', 'text-anchor':anchor, fill:(ACCENT ? 'var(--accent-red-65)' : INK70)});
 }
 segLabel(-7.2, '46%', '推理', 'middle');
 segLabel(135, '33%', '训练', 'middle');
 segLabel(232.2, '21%', '嵌入', 'middle');
 
 /* ---------- 来源注 ---------- */
-txt(1800, 749, 'SOURCE · WISE-BENCH REVIEW W31 — SAMPLE DATA', {'font-family':MONO, 'font-size':11, 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1800, 749, 'SOURCE · WISE-BENCH REVIEW W31 — SAMPLE DATA', {'font-family':MONO, 'font-size':'var(--type-micro)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
 
 stageFit();
 </script>

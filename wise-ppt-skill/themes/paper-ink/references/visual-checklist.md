@@ -18,12 +18,14 @@ bash runtime/check-deck.sh <deck-dir> --mode accent
 - `data-page-id`、`data-page-role`、`data-theme`、`data-layout-source`、`data-layout`、`data-density`、`data-reuse-mode`、`data-emphasis-mode` 齐全，并与 Deck Plan、主题、layout decision 及 Render Plan emphasis 的派生值一致。
 - 所有组件有 `data-block-id`、`data-provider`、`data-component`、`data-content-ref`。
 - 纸底、墨色、字体、线宽符合 `design-tokens.md`；无未声明的彩色、渐变、重阴影和大面积深色底。
+- 全 deck 字号只引用共享 `--type-*` 字阶；相同语义层级字号一致，CSS/SVG/Canvas/ECharts 都没有页面级裸字号或 shorthand 绕过。
 - 一页只有一个主要视觉角色；支持组件没有抢走结论。
 - 事实、数字、表格、图表和截图都能追到 `content.json`；推断或占位没有伪装成来源事实。
 - density 与承载量一致：breathing 留白 ≥60%；balanced 为 3–5 个语义单元；dense 通过安全区、字号、遮挡、层级与溢出检查。
 - 居中只用于中心型原语；非对称、时间轴、UI、证据墙、架构和流程按自身结构线对齐。
 - ECharts、图片和字体加载完成后才调用 `WisePPT.markSlideReady(slide)`；全部页面完成后根节点必须是 `data-deck-ready="true"`。
-- caption 没有被主体压住；最小正文 16px；图表刻度与来源可读。
+- caption 没有被主体压住且全 deck 固定为 `--type-caption`；正文只用 `--type-body` / `--type-body-small`；图表刻度与来源可读。
+- 放映正文可框选复制；有文本选区或可编辑控件焦点时，方向键、空格、Home/End 和触控滑动不抢占。
 
 ## P1：主题一致
 
@@ -48,5 +50,5 @@ bash runtime/check-deck.sh <deck-dir> --mode accent
 
 1. 远观：主张、主角和阅读方向是否一眼可见。
 2. 中距：证据、层级、组件组合和留白是否服务主张。
-3. 近看：字阶、线宽、对齐、来源、单位、标注和溢出是否合格。
+3. 近看：同层级字阶是否跨页一致，线宽、对齐、来源、单位、标注和溢出是否合格。
 4. 对照：与 manifest 中同一 `layout_id` 的 general/ai 样例并排，按语义对应物确认强调规则一致；允许两册缺少不同载体，不得为了结构齐整凭空补件。
