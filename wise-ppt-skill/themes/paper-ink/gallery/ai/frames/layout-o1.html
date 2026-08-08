@@ -38,7 +38,7 @@ var INK45 = 'rgba(25,25,23,.45)';
 /* accent 触发：读 URL 加类 + 染色常量（详见 design-tokens §1.5） */
 if (location.search.indexOf('accent') >= 0) document.documentElement.classList.add('accent');
 var ACCENT = document.documentElement.classList.contains('accent');
-var RED = '#C0392B';
+var RED = getComputedStyle(document.documentElement).getPropertyValue('--accent-red').trim();
 var G = document.getElementById('draw');
 function el(tag, attrs) {
   var e = document.createElementNS(NS, tag);
@@ -93,12 +93,12 @@ layers.forEach(function(L, i){
   var midY = (L.y0 + L.y1)/2;
   /* 层名 */
   txt(cX, midY-4, L.t, {'font-family':SANS, 'font-weight':300, 'font-size': i===2?24:30, 'text-anchor':'middle', fill:inkLayer});
-  txt(cX, midY+26, L.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT && last ? 'rgba(192,57,43,.65)' : INK45)});
+  txt(cX, midY+26, L.en, {'font-family':MONO, 'font-size':14, 'letter-spacing':2, 'text-anchor':'middle', fill:(ACCENT && last ? 'var(--accent-red-65)' : INK45)});
   /* 左侧：虚线引出 mono 数量 */
   var lw = wAt(midY);
   el('line', {x1:cX-lw/2-16, y1:midY, x2:cX-lw/2-70, y2:midY, stroke:inkLayer, 'stroke-width':.6, 'stroke-dasharray':'3 4', opacity:.5});
   txt(cX-lw/2-86, midY-4, L.n, {'font-family':MONO, 'font-size':26, 'text-anchor':'end', fill:inkLayer});
-  txt(cX-lw/2-86, midY+22, L.tag, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:(ACCENT && last ? 'rgba(192,57,43,.65)' : INK45)});
+  txt(cX-lw/2-86, midY+22, L.tag, {'font-family':MONO, 'font-size':12, 'letter-spacing':2, 'text-anchor':'end', fill:(ACCENT && last ? 'var(--accent-red-65)' : INK45)});
   /* 右侧：实线引出字段注记 */
   el('line', {x1:cX+lw/2+16, y1:midY, x2:cX+lw/2+70, y2:midY, stroke:INK, 'stroke-width':.6, opacity:.5});
   L.notes.forEach(function(n, j){

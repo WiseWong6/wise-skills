@@ -18,23 +18,7 @@
           }
         ]
       },
-      "density": "balanced",
       "rationale": "四步输入输出是线性流，不是四个并列观点；横向流水线承担机制主线，单条 KPI 结果带承担证明，三个语义单元落在 1–7 容量内。",
-      "capacity_status": "fit",
-      "core_primitive": "linear-sequence",
-      "html_attributes": {
-        "data-page-id": "page.example-flow-kpi",
-        "data-page-role": "sequence",
-        "data-theme": "paper-ink",
-        "data-layout": "paper-ink.flow.pipeline",
-        "data-density": "balanced",
-        "data-reuse-mode": "adapt",
-        "data-layout-source": "gallery",
-        "data-page-title": "四步可追溯流水线把交付周期压到 2 天",
-        "data-page-summary": "横向箭头表达先后与传递，底部结果带证明价值。",
-        "data-section-id": "section.flow",
-        "data-section-title": "交付机制"
-      },
       "slots": [
         {
           "slot_id": "steps",
@@ -92,7 +76,11 @@
             "theme_adapter": "paper-ink.typography"
           }
         }
-      ]
+      ],
+      "emphasis": {
+        "mode": "none",
+        "reason": "本页保持默认单色，不声明语义强调焦点。"
+      }
     }
   ],
   "document_mode": "single-html",

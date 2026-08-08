@@ -15,9 +15,6 @@
   "visual_checklist": "themes/paper-ink/references/visual-checklist.md",
   "layout_guidance": "themes/paper-ink/references/layout-selection.md",
   "component_adapters": "themes/paper-ink/references/component-adapters.md",
-  "reference_exemplars": [
-    "themes/paper-ink/references/provenance.md"
-  ],
   "validation": {
     "lint_script": "themes/paper-ink/scripts/lint.py",
     "modes": [
