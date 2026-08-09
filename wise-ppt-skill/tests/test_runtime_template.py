@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 RUNTIME = SKILL_ROOT / "runtime"
+EXAMPLE = SKILL_ROOT / "themes" / "paper-ink" / "examples" / "wise-ppt-story-six-page"
 
 
 class RuntimeTemplateTests(unittest.TestCase):
@@ -14,15 +17,18 @@ class RuntimeTemplateTests(unittest.TestCase):
         cls.source = (RUNTIME / "app-template.html").read_text(encoding="utf-8")
         cls.runtime = (RUNTIME / "deck-runtime.js").read_text(encoding="utf-8")
 
-    def test_single_html_runtime_has_no_frame_or_thumbnail_dependency(self) -> None:
+    def test_runtime_shell_has_no_frame_or_thumbnail_dependency(self) -> None:
         lowered = self.source.casefold()
         self.assertNotIn("<iframe", lowered)
         self.assertNotIn("thumb-", lowered)
         self.assertNotIn("screenshot.sh", lowered)
         self.assertNotIn("var shots", lowered)
         self.assertNotIn("var acts", lowered)
-        self.assertIn('data-document-mode="single-html"', self.source)
+        self.assertIn('data-runtime="wise-ppt"', self.source)
         self.assertNotIn('<section class="slide"', self.source)
+        self.assertIn("{{SLIDES}}", self.source)
+        self.assertIn("WISE_PPT_SLIDES_START", self.source)
+        self.assertIn("WISE_PPT_SLIDES_END", self.source)
         self.assertIn('id="track"', self.source)
 
     def test_board_clones_live_slides_safely(self) -> None:
@@ -38,9 +44,23 @@ class RuntimeTemplateTests(unittest.TestCase):
             self.assertIn(token, self.runtime)
 
     def test_template_has_one_external_runtime_authority(self) -> None:
-        self.assertEqual(self.source.count('src="assets/deck-runtime.js"'), 1)
+        self.assertEqual(self.source.count('src="{{RUNTIME_SCRIPT_SRC}}"'), 1)
         self.assertNotIn("function initialize()", self.source)
         self.assertNotIn("global.WisePPT", self.source)
+
+    def test_six_page_example_is_generated_from_the_runtime_shell(self) -> None:
+        completed = subprocess.run(
+            [sys.executable, str(SKILL_ROOT / "scripts" / "build_deck.py"), str(EXAMPLE), "--check"],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
+        output = (EXAMPLE / "index.html").read_text(encoding="utf-8")
+        self.assertEqual(output.count("WISE_PPT_SLIDES_START"), 1)
+        self.assertEqual(output.count("WISE_PPT_SLIDES_END"), 1)
+        self.assertIn("Generated shell", output)
+        self.assertNotRegex(output, r"\{\{[A-Z_]+\}\}")
 
     def test_runtime_uses_slide_metadata_and_semantic_emphasis(self) -> None:
         for attribute in (
@@ -98,7 +118,7 @@ class RuntimeTemplateTests(unittest.TestCase):
         self.assertIn("--type-", self.runtime)
 
     def test_board_title_uses_the_shared_sans_type_role(self) -> None:
-        self.assertIn('data-deck-title="Wise PPT · 分镜示例"', self.source)
+        self.assertIn('data-deck-title="{{DECK_TITLE}}"', self.source)
         self.assertIn(
             ".board-head h1{font-family:var(--sans);font-size:var(--type-subheading);font-weight:300}",
             self.source,

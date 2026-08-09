@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0", "content_file": "content.json", "thesis": "同一 DOM 可以同时承载流程表达、Canvas 证据与实时画册。", "narrative_type": "argument-evidence",
+  "content_file": "content.json", "thesis": "同一 DOM 可以同时承载流程表达、Canvas 证据与实时画册。", "narrative_type": "argument-evidence",
   "page_budget": {"min": 2, "max": 2, "target": 2, "drivers": [{"type": "independent_claim", "count": 2, "reason": "流程机制与异常证据是两个独立主张。"}], "reason": "两种渲染介质必须分两页验证。"},
   "confirmation": {"mode": "adaptive", "decision": "proceed", "triggers": [], "questions": []},
   "sections": [
