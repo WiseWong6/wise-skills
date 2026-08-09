@@ -1,84 +1,79 @@
 # 纸墨主题组件适配
 
-组件选择由 Core 的语义路由完成；本文件只说明组件落入纸墨 slot 后如何变成同一套视觉语言。Atlas 与 ECharts 都是可选参考源，页面可以完全使用原生 HTML、CSS 或 SVG。
+本文件只定义组件进入 `paper-ink` 后的视觉适配。Renderer、组件来源和稳定组件 ID 由公共能力层登记与校验：
 
-## 通用契约
+- `capabilities/registry.json`
+- `capabilities/references/component-routing.md`
+- `capabilities/references/media-contract.md`
 
-每个组件根节点必须声明：
+Gallery、ECharts、PPT Component Atlas 与 Codex 宿主图片能力都不属于 Theme。主题 adapter 不能改变组件语义、数据、区域、阅读顺序或来源。
+
+## 通用视觉接口
+
+组件根节点使用 v2 属性表达既有决定：
 
 ```html
 <section
   data-block-id="block.metric"
-  data-provider="echarts"
-  data-component="line"
-  data-content-ref="item.metric-retention">
+  data-renderer-kind="svg"
+  data-component-source="echarts"
+  data-component-id="echarts.retention-line"
+  data-theme-adapter-id="paper-ink.echarts"
+  data-content-ref="item.metric-retention-series">
 </section>
 ```
 
-- `data-content-ref` 必须能追到 `content.json`，不能把事实只写死在绘制代码里。
-- 页面只能有一个主要视觉角色；表格、标注、KPI、来源注可作为支持组件。
-- 不允许 decoration-only 组件。每个组件必须承载主张、证据或导航。
-- `render-plan.json` 中的 provider、component、data_ref、encode 与 HTML 属性必须一致。
+纸墨 adapter 只读取这些属性并应用视觉 token。组件仍须由公共校验器证明内容引用、数据绑定、素材血缘和能力组合合法。
+
+所有组件遵守以下视觉边界：
+
+- 纸底、墨色阶梯、番茄红语义焦点和字体角色只从 `design-tokens.css` 读取；
+- 去除渐变、大面积彩色填充、重阴影、装饰性圆角和无语义装饰；
+- 页面只有一个主视觉角色，辅助表格、标注、KPI 与来源注保持次级；
+- 正文、关键结论和必留内容不得使用小字 token；
+- PDF 中的关键状态必须静态可见，不能依赖悬停或点击才能理解。
 
 ## Typography 与 Table
 
-- 大字、金句、结论走宋体或文楷；正文、数据、UI 走黑体或 mono，具体字阶查 `design-tokens.md`。
-- 表格必须保留真实行列关系；不要把表格拆成同构卡片以追求“好看”。
-- dense 表格可缩到 16–18px 正文，但不得低于 16px；超过安全区就拆页或裁列。
+- 标题、结论、金句和单个大数据按整套 `typography_mode` 映射 serif 或 sans；正文、说明、卡片标题与 UI 按同一模式映射。
+- 表格数字、时间、编号和坐标固定使用 Courier Prime；真实手写批注固定使用 LXGW WenKai。
+- 表头、行列、单位和来源保持真实查值关系，不把表格拆成同构卡片。
+- 16px 的 `micro-secondary` 只用于元信息与次要表格说明；正文下限为 18px。
+- 表格超出安全区时由 Core 调整字段、结构或页数，adapter 不缩小正文。
 
 ## Image
 
-- 真实截图、原件、照片属于证据，优先完整呈现并标来源；只为版式需要时才裁切。
-- 图像外可加 1px 墨线、图题和局部批注；禁止用纸纹滤镜把关键信息盖住。
-- 生成图必须在 `content.json` 标明 `inferred` 或 `placeholder`，不得冒充来源证据。
+- 图片进入主题前必须已经通过公共媒体合同，主题不得放宽重构、来源或披露门禁。
+- 重构产物使用 1px 墨线、图题、来源和局部批注融入纸墨体系；关键内容不叠加纸纹或装饰滤镜。
+- 用于解释原始证据的重构产物必须让“重构示意”清晰可见，样式不得弱化成难以阅读的角注。
+- `paper-ink.image` 只处理边框、留白、题注与视觉层级，不决定素材来源或生成方式。
 
 ## Native HTML
 
-- 适合产品 UI、表格、筛选器、规格单和高密度界面。
-- 统一移除圆角、渐变、彩色状态底和重阴影；状态差异改用线型、hatch、字阶和受控强调色。
-- 交互不是交付依赖；PDF 导出时关键状态必须静态可见。
+- 产品 UI、终端、代码、筛选器和规格单使用直角面板、细线分隔、墨色状态和清晰字段层级。
+- 状态差异优先使用线型、hatch、字重和受控强调色，不使用彩色状态底或重阴影。
+- 输入框、可编辑区域和正文选择状态必须保留公共 runtime 的交互让行规则。
 
 ## ECharts
 
-满足以下任一条件才选 ECharts：连续数值尺度、真实坐标轴、复杂比较、多系列、地理编码，或手写 SVG 会削弱数据正确性。仅有 1–4 个 KPI 时用 Typography/SVG。
+ECharts 的版本、runtime、数据合同和字段映射由公共 Capabilities 管理。`paper-ink.echarts` 只提供视觉参数：
 
-render plan 至少声明：
+- 图表背景透明，色板使用墨色阶梯；语义焦点才可使用番茄红；
+- 轴线与网格使用 0.6–1px 细线，避免渐变、圆角、面积重填充和阴影；
+- 图例、刻度、单位与来源保持墨色，不因位置邻近被误染；
+- 图表文字通过 `WisePPT.typeSize(role)` 读取正式字阶，数字和坐标使用 Courier Prime；
+- readiness、SVG/Canvas 输出和数据消费沿用公共 runtime，不在主题中复制实现。
 
-```json
-{
-  "provider": "echarts",
-  "component": "line",
-  "content_refs": ["item.metric-retention-series"],
-  "data_ref": "item.metric-retention-series",
-  "encode": {
-    "x": "week",
-    "y": "retention_rate",
-    "series": "cohort",
-    "focus": "latest"
-  },
-  "theme_adapter": "paper-ink.echarts"
-}
-```
+## PPT Component Atlas
 
-- 图表类型按 [ECharts 官方 option 文档](https://echarts.apache.org/en/option.html)选择，不维护本地 series 白名单；`radar`、`sankey`、`custom` 等可正常使用。
-- ECharts major 以 `theme.json.runtimes.echarts.major` 为唯一权威；所选配置必须兼容该 major。
-- 色板只用墨色阶梯；`?accent` 只染 encode 指定的唯一主角。
-- 轴线与网格 0.6–1px；去渐变、圆角、面积重填充和阴影。
-- 图例、刻度、单位永不使用强调色；图表必须有来源或数据口径。
-- 异步图表页在对应 `.slide` 写 `data-render-pending="true"`；使用 `document.currentScript.closest('.slide')` 和局部查询，默认通过 `WisePPT.createEChart()` 选择 SVG renderer。字体、图片和图表全部完成后调用 `WisePPT.markSlideReady(slide)`。不要另造 `data-page-ready` 协议。
-- ECharts 的 `fontSize` 只能用 `WisePPT.typeSize(role)`，不得在 option 中写数值字号；CSS/SVG 组件直接引用共享 `--type-*` token。
+Atlas 的查询、精确组件 ID 和导出由公共 Capabilities 管理。导出的 `native-html` 或 `svg` 使用对应的纸墨 adapter：
 
-## Atlas
+- 保留组件结构与语义连线，只替换字体、颜色、线宽、面板和静态状态；
+- 移除组件自带的大面积色块、渐变、重阴影和不必要圆角；
+- 不让组件自带画布突破页面安全区，也不让 adapter 改变节点顺序或比例含义。
 
-`ppt-component-atlas` 只负责“精确组件名 + variant → 裸 HTML”。仅在页面实际使用 `provider=atlas` 时加载。Core 负责语义选择；不得要求 Atlas 猜概念。
+## SVG 与 Canvas
 
-- render plan 必须写可唯一命中的精确 `component` 和可选 `variant`，例如 `流程-默认变体(4步)` / `default`；不要只写会命中多条记录的 `process`。
-- 导出后保留结构，套用 `theme_adapter: paper-ink.atlas`：去色、直角、细线、字体替换、静态化。
-- Atlas 是 slot renderer，不是整页布局；不得让组件自带画布覆盖主题安全区。
-- 候选不唯一时停止该 slot 的渲染并返回候选，不自动取第一个。
-
-## SVG
-
-- 自由 SVG 用于关系图、工程制图、标注、具象线稿和粒子形态。
-- 线型必须编码语义：实/虚代表确定性，线宽代表权重，断口代表缺失，hatch 代表实体或选中。
-- 能由真实数据直接生成的图形要从 `data_ref` 读取；不得在路径代码里另造一套数值。
+- SVG 主轮廓、构造线、引线和 hatch 使用 `design-tokens.md` 的线型系统；实虚、粗细和断口必须继续表达原有语义。
+- Canvas 文字与颜色通过公共 runtime helper 读取主题 token，不在绘制代码中复制字号或色值。
+- adapter 只改变外观；组件使用哪份数据、如何追溯内容，仍由公共能力合同决定。

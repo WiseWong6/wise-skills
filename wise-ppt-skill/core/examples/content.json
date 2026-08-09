@@ -1,44 +1,53 @@
 {
+  "contract_version": 2,
   "brief": {
     "title": "六阶段发布闭环",
     "objective": "说明发布过程为什么应被理解为连续闭环，而不是六个孤立事项",
     "audience": "需要共同执行发布流程的产品与研发团队",
     "scenario": "内部流程说明会",
     "language": "zh-CN",
-    "page_limits": {
-      "min": 3,
-      "max": 3,
-      "requested": 3
-    },
-    "must_include": [
-      "六个阶段的名称与顺序",
-      "发布后的学习会成为下一轮发现输入"
-    ],
-    "must_avoid": [
-      "把六阶段画成没有方向的六宫格"
+    "user_constraints": [
+      {
+        "constraint_id": "constraint.page-count",
+        "type": "page_limit",
+        "exact_pages": 3,
+        "source_refs": [
+          "src.curated-brief"
+        ]
+      },
+      {
+        "constraint_id": "constraint.no-directionless-grid",
+        "type": "must_avoid",
+        "statement": "把六阶段画成没有方向的六宫格",
+        "source_refs": [
+          "src.curated-brief"
+        ]
+      }
     ],
     "gaps": []
   },
   "sources": [
     {
-      "id": "src.synthetic-brief",
+      "id": "src.curated-brief",
       "kind": "raw_text",
-      "title": "合成示例输入，仅用于契约与测试",
-      "locator": "core-example://synthetic-launch-loop",
-      "synthetic": true,
-      "notes": "这不是用户业务事实，不可迁移到真实项目。"
+      "title": "Core 契约示例的已确认输入",
+      "locator": "core-example://curated-launch-loop",
+      "synthetic": false,
+      "notes": "这是维护者明确确认的契约示例材料，不代表用户业务事实。"
     }
   ],
+  "assets": [],
   "content_items": [
     {
       "id": "item.deck-thesis",
-      "kind": "assertion",
+      "epistemic_role": "claim",
+      "content_form": "prose",
       "statement": "发布不是终点，学习会成为下一轮发现的输入。",
       "priority": "must",
-      "status": "placeholder",
-      "status_note": "合成示例值，仅用于展示契约；真实交付前必须由用户材料替换。",
+      "status": "sourced",
+      "status_note": "",
       "source_refs": [
-        "src.synthetic-brief"
+        "src.curated-brief"
       ],
       "atomic_values": [
         {
@@ -54,13 +63,14 @@
     },
     {
       "id": "item.launch-path",
-      "kind": "process",
+      "epistemic_role": "fact",
+      "content_form": "process",
       "statement": "从发现到学习包含六个前后相依的阶段。",
       "priority": "must",
-      "status": "placeholder",
-      "status_note": "合成示例值，仅用于展示契约；真实交付前必须由用户材料替换。",
+      "status": "sourced",
+      "status_note": "",
       "source_refs": [
-        "src.synthetic-brief"
+        "src.curated-brief"
       ],
       "atomic_values": [
         {

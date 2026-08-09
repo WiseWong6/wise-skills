@@ -13,7 +13,7 @@ from _ppt_contracts import VALIDATORS, resolve_root, run_validation, validate_ou
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="validate.py",
-        description="用 Core schema 与 Theme manifest 校验 wise-ppt 产物。",
+        description="校验 Wise PPT v2 内容、规划、公共能力、HTML 与 PDF 交付物。",
     )
     parser.add_argument("command", choices=("location", *tuple(VALIDATORS)), help="校验阶段")
     parser.add_argument("target", help="JSON 文件、deck 目录、主题目录或主题 ID")

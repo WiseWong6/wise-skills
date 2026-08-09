@@ -1,17 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://wise-ppt.local/schemas/render-plan.schema.json",
-  "title": "Wise PPT Theme Render Plan",
+  "title": "Wise PPT Theme Render Plan v2",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "contract_version",
     "content_file",
     "deck_plan_file",
     "theme_id",
+    "typography_mode",
     "output_file",
     "pages"
   ],
   "properties": {
+    "contract_version": {
+      "const": 2
+    },
     "content_file": {
       "type": "string",
       "minLength": 1
@@ -23,6 +28,9 @@
     "theme_id": {
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "typography_mode": {
+      "$ref": "#/$defs/typography_mode"
     },
     "output_file": {
       "const": "index.html"
@@ -39,6 +47,34 @@
     "content_ref": {
       "type": "string",
       "pattern": "^(item|atom)[.]"
+    },
+    "asset_ref": {
+      "type": "string",
+      "pattern": "^asset[.]"
+    },
+    "typography_mode": {
+      "enum": [
+        "mixed",
+        "all-sans",
+        "all-serif"
+      ]
+    },
+    "typography_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "reason"
+      ],
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/typography_mode"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
     },
     "emphasis": {
       "oneOf": [
@@ -103,18 +139,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "layout_id",
+        "recipe_id",
         "verdict",
         "reason"
       ],
       "properties": {
-        "layout_id": {
+        "recipe_id": {
           "type": "string",
           "pattern": "^[a-z0-9][a-z0-9.-]*$"
         },
         "verdict": {
           "enum": [
-            "fit",
+            "exact_fit",
+            "structure_fit",
             "reject"
           ]
         },
@@ -124,21 +161,48 @@
         }
       }
     },
-    "capacity_range": {
+    "payload_binding": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "min",
-        "max"
+        "slot_id",
+        "content_refs"
       ],
       "properties": {
-        "min": {
-          "type": "integer",
-          "minimum": 0
+        "slot_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]*$"
         },
-        "max": {
-          "type": "integer",
-          "minimum": 1
+        "content_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/content_ref"
+          },
+          "uniqueItems": true
+        },
+        "asset_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/asset_ref"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "gallery_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindings"
+      ],
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/payload_binding"
+          }
         }
       }
     },
@@ -182,7 +246,6 @@
       "additionalProperties": false,
       "required": [
         "reading_order",
-        "capacity",
         "regions"
       ],
       "properties": {
@@ -194,21 +257,6 @@
             "minLength": 1
           },
           "uniqueItems": true
-        },
-        "capacity": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "semantic_units"
-          ],
-          "properties": {
-            "semantic_units": {
-              "$ref": "#/$defs/capacity_range"
-            },
-            "primary_items": {
-              "$ref": "#/$defs/capacity_range"
-            }
-          }
         },
         "regions": {
           "type": "array",
@@ -225,6 +273,9 @@
           "$ref": "#/$defs/gallery_layout_decision"
         },
         {
+          "$ref": "#/$defs/composition_layout_decision"
+        },
+        {
           "$ref": "#/$defs/custom_layout_decision"
         }
       ]
@@ -234,31 +285,112 @@
       "additionalProperties": false,
       "required": [
         "source",
-        "reuse_mode",
-        "layout_id",
-        "candidate_evaluations"
+        "recipe_id",
+        "candidate_evaluations",
+        "payload"
       ],
       "properties": {
         "source": {
           "const": "gallery"
         },
-        "reuse_mode": {
-          "enum": [
-            "copy",
-            "adapt"
-          ]
-        },
-        "layout_id": {
+        "recipe_id": {
           "type": "string",
-          "pattern": "^(?!custom[.])[a-z0-9][a-z0-9.-]*$"
+          "pattern": "^[a-z0-9][a-z0-9.-]*$"
         },
         "candidate_evaluations": {
           "type": "array",
           "minItems": 1,
-          "maxItems": 3,
           "items": {
             "$ref": "#/$defs/candidate_evaluation"
-          }
+          },
+          "contains": {
+            "type": "object",
+            "required": [
+              "verdict"
+            ],
+            "properties": {
+              "verdict": {
+                "const": "exact_fit"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1,
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "required": [
+                  "verdict"
+                ],
+                "properties": {
+                  "verdict": {
+                    "const": "structure_fit"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 0
+            }
+          ]
+        },
+        "payload": {
+          "$ref": "#/$defs/gallery_payload"
+        }
+      }
+    },
+    "composition_layout_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "recipe_id",
+        "candidate_evaluations"
+      ],
+      "properties": {
+        "source": {
+          "const": "composition"
+        },
+        "recipe_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9.-]*$"
+        },
+        "candidate_evaluations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/candidate_evaluation"
+          },
+          "contains": {
+            "type": "object",
+            "required": [
+              "verdict"
+            ],
+            "properties": {
+              "verdict": {
+                "const": "structure_fit"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1,
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "required": [
+                  "verdict"
+                ],
+                "properties": {
+                  "verdict": {
+                    "const": "exact_fit"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 0
+            }
+          ]
         }
       }
     },
@@ -267,8 +399,6 @@
       "additionalProperties": false,
       "required": [
         "source",
-        "reuse_mode",
-        "layout_id",
         "candidate_evaluations",
         "custom_contract"
       ],
@@ -276,18 +406,21 @@
         "source": {
           "const": "custom"
         },
-        "reuse_mode": {
-          "const": "custom"
-        },
-        "layout_id": {
-          "type": "string",
-          "pattern": "^custom[.][a-z0-9][a-z0-9.-]*$"
-        },
         "candidate_evaluations": {
           "type": "array",
-          "maxItems": 3,
           "items": {
-            "$ref": "#/$defs/candidate_evaluation"
+            "allOf": [
+              {
+                "$ref": "#/$defs/candidate_evaluation"
+              },
+              {
+                "properties": {
+                  "verdict": {
+                    "const": "reject"
+                  }
+                }
+              }
+            ]
           }
         },
         "custom_contract": {
@@ -295,20 +428,108 @@
         }
       }
     },
-    "component_decision": {
+    "data_ref": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "action",
+        "content_id",
+        "json_pointer"
+      ],
+      "properties": {
+        "content_id": {
+          "type": "string",
+          "pattern": "^item[.]"
+        },
+        "json_pointer": {
+          "type": "string",
+          "pattern": "^(?:/(?:[^~/]|~[01])*)+$"
+        }
+      }
+    },
+    "data_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data_ref",
+        "dataset_id",
+        "encode"
+      ],
+      "properties": {
+        "data_ref": {
+          "$ref": "#/$defs/data_ref"
+        },
+        "dataset_id": {
+          "type": "string",
+          "pattern": "^dataset[.][a-z0-9][a-z0-9._-]*$"
+        },
+        "encode": {
+          "type": "object",
+          "minProperties": 1
+        }
+      }
+    },
+    "material_treatment": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/reconstruct_material_treatment"
+        },
+        {
+          "$ref": "#/$defs/generate_material_treatment"
+        }
+      ]
+    },
+    "reconstruct_material_treatment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "source_asset_refs",
+        "strategy",
+        "output_asset_ref",
         "reason"
       ],
       "properties": {
-        "action": {
+        "mode": {
+          "const": "reconstruct"
+        },
+        "source_asset_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/asset_ref"
+          },
+          "uniqueItems": true
+        },
+        "strategy": {
           "enum": [
-            "keep",
-            "replace",
-            "select"
+            "redraw",
+            "recompose",
+            "regenerate"
           ]
+        },
+        "output_asset_ref": {
+          "$ref": "#/$defs/asset_ref"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "generate_material_treatment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "output_asset_ref",
+        "reason"
+      ],
+      "properties": {
+        "mode": {
+          "const": "generate"
+        },
+        "output_asset_ref": {
+          "$ref": "#/$defs/asset_ref"
         },
         "reason": {
           "type": "string",
@@ -320,24 +541,32 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "provider",
-        "component",
+        "renderer_kind",
+        "component_source",
+        "component_id",
         "content_refs",
-        "theme_adapter"
+        "theme_adapter_id"
       ],
       "properties": {
-        "provider": {
+        "renderer_kind": {
           "enum": [
             "typography",
             "table",
             "image",
             "native-html",
-            "echarts",
-            "atlas",
-            "svg"
+            "svg",
+            "canvas"
           ]
         },
-        "component": {
+        "component_source": {
+          "enum": [
+            "native",
+            "echarts",
+            "ppt-component-atlas",
+            "codex-host"
+          ]
+        },
+        "component_id": {
           "type": "string",
           "minLength": 1
         },
@@ -355,18 +584,97 @@
           },
           "uniqueItems": true
         },
-        "data_ref": {
-          "type": "string",
-          "minLength": 1
+        "data_binding": {
+          "$ref": "#/$defs/data_binding"
         },
-        "encode": {
-          "type": "object"
+        "material_treatment": {
+          "$ref": "#/$defs/material_treatment"
         },
-        "theme_adapter": {
+        "theme_adapter_id": {
           "type": "string",
           "minLength": 1
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "component_source": {
+                "const": "echarts"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "data_binding"
+            ],
+            "properties": {
+              "renderer_kind": {
+                "enum": [
+                  "svg",
+                  "canvas"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "material_treatment"
+            ],
+            "properties": {
+              "material_treatment": {
+                "properties": {
+                  "mode": {
+                    "const": "generate"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "renderer_kind": {
+                "const": "image"
+              },
+              "component_source": {
+                "const": "codex-host"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "component_source": {
+                "const": "codex-host"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "renderer_kind": {
+                "const": "image"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "renderer_kind": {
+                "const": "image"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "material_treatment"
+            ]
+          }
+        }
+      ]
     },
     "slot": {
       "type": "object",
@@ -375,7 +683,6 @@
         "slot_id",
         "block_id",
         "visual_role",
-        "component_decision",
         "renderer"
       ],
       "properties": {
@@ -393,9 +700,6 @@
             "support"
           ]
         },
-        "component_decision": {
-          "$ref": "#/$defs/component_decision"
-        },
         "renderer": {
           "$ref": "#/$defs/renderer"
         }
@@ -408,8 +712,7 @@
         "page_id",
         "layout_decision",
         "rationale",
-        "emphasis",
-        "slots"
+        "emphasis"
       ],
       "properties": {
         "page_id": {
@@ -418,6 +721,9 @@
         },
         "layout_decision": {
           "$ref": "#/$defs/layout_decision"
+        },
+        "typography_decision": {
+          "$ref": "#/$defs/typography_decision"
         },
         "rationale": {
           "type": "string",
@@ -431,9 +737,49 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/slot"
+          },
+          "contains": {
+            "type": "object",
+            "required": [
+              "visual_role"
+            ],
+            "properties": {
+              "visual_role": {
+                "const": "primary"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "layout_decision": {
+                "properties": {
+                  "source": {
+                    "const": "gallery"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "slots"
+              ]
+            }
+          },
+          "else": {
+            "required": [
+              "slots"
+            ]
           }
         }
-      }
+      ]
     }
   }
 }

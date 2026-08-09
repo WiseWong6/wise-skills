@@ -8,7 +8,8 @@ from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parents[1]
 LINT_PATH = SKILL_ROOT / "themes/paper-ink/scripts/lint.py"
-SHARED_CSS = SKILL_ROOT / "themes/paper-ink/assets/shared.css"
+DESIGN_TOKENS = SKILL_ROOT / "themes/paper-ink/assets/design-tokens.css"
+SLIDE_COMPONENTS = SKILL_ROOT / "themes/paper-ink/assets/slide-components.css"
 SPEC = importlib.util.spec_from_file_location("paper_ink_lint", LINT_PATH)
 assert SPEC and SPEC.loader
 LINT = importlib.util.module_from_spec(SPEC)
@@ -23,7 +24,7 @@ def lint_source(source: str) -> tuple[list[str], list[str]]:
 
 
 BASE = """<!doctype html>
-<html data-runtime="wise-ppt"><head><style>{style}</style></head><body>
+<html data-runtime="wise-ppt-deck"><head><style>{style}</style></head><body>
 <div class="doc tl">DOC</div><div class="folio">01</div><div class="caption">结论</div>
 </body></html>
 """
@@ -31,11 +32,22 @@ BASE = """<!doctype html>
 
 class ThemeTypographyLintTests(unittest.TestCase):
     def test_shared_type_scale_has_one_authority_per_role(self) -> None:
-        css = SHARED_CSS.read_text(encoding="utf-8")
+        css = DESIGN_TOKENS.read_text(encoding="utf-8")
         for role in LINT.TYPE_ROLES:
             self.assertEqual(css.count(f"--type-{role}:"), 1, role)
-        self.assertIn(".stage > .caption { font-size: var(--type-caption); }", css)
-        self.assertIn("font-size: var(--type-meta);", css)
+        components = SLIDE_COMPONENTS.read_text(encoding="utf-8")
+        self.assertIn(".slide .stage > .caption { font-size: var(--type-caption); }", components)
+        self.assertIn("font-size: var(--type-meta);", components)
+
+    def test_slide_components_do_not_own_application_shell(self) -> None:
+        css = SLIDE_COMPONENTS.read_text(encoding="utf-8")
+        self.assertNotRegex(css, r"(?m)^\s*(?:html|body)\b")
+        self.assertNotIn('data-runtime=', css)
+
+    def test_micro_secondary_is_formal_16px_token(self) -> None:
+        css = DESIGN_TOKENS.read_text(encoding="utf-8")
+        self.assertIn("--type-micro-secondary: 16px;", css)
+        self.assertNotIn("--type-micro:", css)
 
     def test_semantic_type_token_passes(self) -> None:
         fails, _ = lint_source(BASE.format(style=".caption{font-size:var(--type-caption)}"))
@@ -60,6 +72,13 @@ var option={label:{fontSize:14}};</script>
         fails, _ = lint_source(BASE.format(style=".caption{font-size:var(--type-random)}"))
         self.assertTrue(any("未声明字阶" in item for item in fails))
 
+    def test_retired_micro_helper_role_fails(self) -> None:
+        source = BASE.format(style=".caption{font-size:var(--type-caption)}") + """
+<script>ctx.font=paperInkTypeSize('micro')+'px sans-serif';</script>
+"""
+        fails, _ = lint_source(source)
+        self.assertTrue(any("helper 'micro'" in item for item in fails))
+
     def test_dynamic_svg_size_bypass_fails(self) -> None:
         source = BASE.format(style=".caption{font-size:var(--type-caption)}") + """
 <script>txt(0,0,'x',{'font-size': important ? 34 : 28});</script>
@@ -75,8 +94,8 @@ var option={label:{fontSize:14}};</script>
         self.assertFalse([item for item in fails if item.startswith("L10")])
 
     def test_gallery_does_not_bypass_type_scale(self) -> None:
-        targets = sorted((SKILL_ROOT / "themes/paper-ink/gallery").glob("*/index.html"))
-        targets += sorted((SKILL_ROOT / "themes/paper-ink/gallery").glob("*/frames/*.html"))
+        targets = sorted((SKILL_ROOT / "gallery/paper-ink").glob("*/index.html"))
+        targets += sorted((SKILL_ROOT / "gallery/paper-ink").glob("*/frames/*.html"))
         for path in targets:
             with self.subTest(path=path):
                 fails, _ = LINT.lint_file(path)

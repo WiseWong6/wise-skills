@@ -3,7 +3,7 @@
    语言规则：
    - 画面主体全部由粒子构成，字体只作离屏采样轮廓
    - 秩序网格粒子 = 正确/结构；坠落缺粒 = 错误/异常
-   - 墨色 #191917，纸底 #DFE0D9（见 shared.css）
+   - 墨色 #191917，纸底 #DFE0D9（见 design-tokens.css）
    ============================================================ */
 var PART = (function () {
   var INK = '#191917';
@@ -102,26 +102,13 @@ function paperInkTypeSize(role) {
   var allowed = [
     'display-mark', 'particle-sample', 'display', 'hero', 'title', 'metric',
     'heading', 'emphasis', 'caption', 'subheading', 'body', 'body-small',
-    'label', 'meta', 'micro'
+    'micro-secondary', 'label', 'meta'
   ];
   if (allowed.indexOf(role) < 0) throw new Error('未知 paper-ink 字阶: ' + role);
   var raw = getComputedStyle(document.documentElement).getPropertyValue('--type-' + role).trim();
   var value = Number.parseFloat(raw);
   if (!Number.isFinite(value)) throw new Error('paper-ink 字阶未定义: --type-' + role);
   return value;
-}
-
-/* Gallery 独立样页运行时；正式 deck 的舞台缩放由统一 runtime 负责。 */
-function stageFit() {
-  if (new URLSearchParams(location.search).has('accent')) document.documentElement.classList.add('accent');
-  function fit() {
-    var s = document.querySelector('.stage');
-    var k = Math.min(innerWidth / 1920, innerHeight / 1080);
-    s.style.transform = 'scale(' + k + ')';
-  }
-  addEventListener('resize', fit);
-  fit();
-  if (document.documentElement.dataset.renderPending !== 'true') markRenderReady();
 }
 
 /*

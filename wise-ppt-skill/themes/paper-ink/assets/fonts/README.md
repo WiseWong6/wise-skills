@@ -28,7 +28,7 @@ bash download-fonts.sh
 
 思源字体早期叫 `SC`（简体）/ `TC`（繁体），后改 `CN`/`TW`/`HK`。
 本 skill 统一采用官方仓库当前的 **`CN` 命名**（`SourceHanSerifCN-*`），
-与 `shared.css` 的 `@font-face` 引用保持一致。`SC` 与 `CN` 字形完全相同。
+与 `design-tokens.css` 的 `@font-face` 引用保持一致。`SC` 与 `CN` 字形完全相同。
 
 ## 下载源
 

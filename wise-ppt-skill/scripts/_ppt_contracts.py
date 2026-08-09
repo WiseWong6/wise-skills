@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Shared, dependency-free contracts for wise-ppt command-line tools.
+"""Dependency-free v2 contracts for the Wise PPT command-line tools.
 
-This module deliberately contains no content-planning heuristics.  It loads the
-machine-readable Core schemas and theme manifests, performs deterministic
-validation, and exposes normalized catalog records for filtering.
+The three JSON schemas own document shape.  This module only validates facts
+that cross files: references, planning decisions, public capability routing,
+HTML bindings, reconstructed media and delivery files.
 """
 
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import math
 import os
@@ -16,43 +18,71 @@ import unicodedata
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Mapping, Sequence
-from urllib.parse import urlparse
+from typing import Any, Iterable, Mapping, Sequence
+from urllib.parse import unquote, urlparse
 
 
+CONTRACT_VERSION = 2
 SCHEMA_FILES = {
     "content": "content.schema.json",
     "plan": "deck-plan.schema.json",
     "render": "render-plan.schema.json",
 }
-
 DOCUMENT_FILES = {
     "content": "content.json",
     "plan": "deck-plan.json",
     "render": "render-plan.json",
 }
-
-STRUCTURAL_ROLES = {"hook", "orient", "close"}
-PRIORITIES = {"must", "should", "could"}
-PROVIDERS = {"typography", "table", "image", "native-html", "echarts", "atlas", "svg"}
-CORE_PRIMITIVES = {
-    "focus-field",
-    "bilateral-split",
-    "peer-array",
-    "linear-sequence",
-    "parallel-tracks",
-    "radial-burst",
-    "nested-regions",
-    "layered-stack",
-    "matrix-field",
-    "network-field",
-    "converging-path",
-    "evidence-annotation",
-}
+LEGACY_HTML_ATTRIBUTES = {"data-density", "data-reuse-mode", "data-provider"}
+PLAIN_QUESTION_BANNED = (
+    "契约",
+    "渲染器",
+    "语义单元",
+    "字段名",
+    "错误码",
+    "文件路径",
+    "contract",
+    "schema",
+    "renderer",
+    "semantic unit",
+    "data_ref",
+    "layout_id",
+    "provider",
+)
+PLAIN_QUESTION_IMPACT_CUES = (
+    "影响",
+    "改变",
+    "导致",
+    "关系到",
+    "不同",
+    "重点",
+    "结论",
+    "页序",
+    "建议",
+    "讲法",
+    "取舍",
+    "删减",
+    "附录",
+)
+PLAIN_QUESTION_CHOICE_CUES = (
+    "还是",
+    "或者",
+    "或是",
+    "请选择",
+    "你希望",
+    "您希望",
+    "你想",
+    "您想",
+    "请告诉",
+    "是否",
+    "哪一种",
+    "哪个",
+    "哪份",
+)
 
 
 class ContractError(RuntimeError):
-    """Raised when a required contract file cannot be loaded."""
+    """Raised when a required repository contract cannot be loaded."""
 
 
 @dataclass(frozen=True)
@@ -71,10 +101,10 @@ class ValidationResult:
     issues: list[Issue] = field(default_factory=list)
 
     def error(self, code: str, path: str, message: str) -> None:
-        self.issues.append(Issue(code=code, path=path, message=message))
+        self.issues.append(Issue(code, path, message))
 
     def warn(self, code: str, path: str, message: str) -> None:
-        self.issues.append(Issue(code=code, path=path, message=message, severity="warning"))
+        self.issues.append(Issue(code, path, message, "warning"))
 
     def extend(self, other: "ValidationResult") -> None:
         self.issues.extend(other.issues)
@@ -98,7 +128,9 @@ def load_json(path: Path) -> Any:
     except FileNotFoundError as exc:
         raise ContractError(f"缺少文件：{path}") from exc
     except json.JSONDecodeError as exc:
-        raise ContractError(f"JSON 无法解析：{path}:{exc.lineno}:{exc.colno} {exc.msg}") from exc
+        raise ContractError(
+            f"JSON 无法解析：{path}:{exc.lineno}:{exc.colno} {exc.msg}"
+        ) from exc
 
 
 def resolve_root(explicit: str | os.PathLike[str] | None = None) -> Path:
@@ -112,7 +144,7 @@ def resolve_root(explicit: str | os.PathLike[str] | None = None) -> Path:
 
 def _deck_directory(target: Path) -> Path:
     resolved = target.expanduser().resolve()
-    if resolved.is_file() or (not resolved.exists() and resolved.suffix.casefold() == ".json"):
+    if resolved.is_file() or (not resolved.exists() and resolved.suffix):
         return resolved.parent
     return resolved
 
@@ -126,11 +158,11 @@ def _relative_to(path: Path, parent: Path) -> Path | None:
 
 def _is_internal_contract_path(relative: Path) -> bool:
     parts = relative.parts
-    if len(parts) >= 2 and parts[:2] == ("core", "examples"):
-        return True
-    if len(parts) >= 3 and parts[0] == "themes" and parts[2] in {"examples", "gallery"}:
-        return True
-    return bool(parts and parts[0] == "tests")
+    return bool(
+        (len(parts) >= 2 and parts[:2] == ("core", "examples"))
+        or (len(parts) >= 3 and parts[0] == "themes" and parts[2] == "examples")
+        or (parts and parts[0] in {"gallery", "tests"})
+    )
 
 
 def validate_output_location(
@@ -141,42 +173,27 @@ def validate_output_location(
     allow_internal: bool = False,
     require_workspace: bool = False,
 ) -> ValidationResult:
-    """Validate that a deliverable deck belongs to the user's workspace.
-
-    Contract examples, galleries and test fixtures may be validated in-place by
-    normal validation commands. The explicit ``location`` preflight never
-    treats repository-internal paths as user deliverables.
-    """
+    """Keep formal deliverables outside the skill package itself."""
 
     result = ValidationResult()
     deck = _deck_directory(target)
     skill_root = root.expanduser().resolve()
-
     if require_workspace and workspace is None:
-        result.error(
-            "config.workspace",
-            str(deck),
-            "location 预检必须通过 --workspace 指定用户当前工作区根目录",
-        )
+        result.error("config.workspace", str(deck), "请指定用户工作区根目录")
         return result
 
-    relative_to_skill = _relative_to(deck, skill_root)
-    if relative_to_skill is not None:
-        if not (allow_internal and _is_internal_contract_path(relative_to_skill)):
-            result.error(
-                "output.inside_skill",
-                str(deck),
-                "正式 PPT 产物必须位于用户工作区，不能写入 wise-ppt-skill 根目录或其 output/outputs 子目录",
-            )
+    inside = _relative_to(deck, skill_root)
+    if inside is not None and not (allow_internal and _is_internal_contract_path(inside)):
+        result.error(
+            "output.inside_skill",
+            str(deck),
+            "正式 PPT 产物不能写入 wise-ppt-skill 包内",
+        )
 
     if workspace is not None:
         workspace_root = workspace.expanduser().resolve()
         if not workspace_root.is_dir():
-            result.error(
-                "config.workspace",
-                str(workspace_root),
-                "用户工作区根目录不存在或不是目录",
-            )
+            result.error("config.workspace", str(workspace_root), "用户工作区不存在")
         elif _relative_to(deck, workspace_root) is None:
             result.error(
                 "output.outside_workspace",
@@ -197,8 +214,11 @@ def _json_pointer_get(document: Any, pointer: str) -> Any:
     for raw_part in pointer[1:].split("/"):
         part = raw_part.replace("~1", "/").replace("~0", "~")
         if isinstance(current, list):
-            current = current[int(part)]
-        elif isinstance(current, dict) and part in current:
+            try:
+                current = current[int(part)]
+            except (ValueError, IndexError) as exc:
+                raise ContractError(f"JSON Pointer 不存在：#{pointer}") from exc
+        elif isinstance(current, Mapping) and part in current:
             current = current[part]
         else:
             raise ContractError(f"JSON Pointer 不存在：#{pointer}")
@@ -206,21 +226,15 @@ def _json_pointer_get(document: Any, pointer: str) -> Any:
 
 
 def _type_matches(value: Any, expected: str) -> bool:
-    if expected == "null":
-        return value is None
-    if expected == "boolean":
-        return isinstance(value, bool)
-    if expected == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
-    if expected == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
-    if expected == "string":
-        return isinstance(value, str)
-    if expected == "array":
-        return isinstance(value, list)
-    if expected == "object":
-        return isinstance(value, dict)
-    return True
+    return {
+        "null": value is None,
+        "boolean": isinstance(value, bool),
+        "integer": isinstance(value, int) and not isinstance(value, bool),
+        "number": isinstance(value, (int, float)) and not isinstance(value, bool),
+        "string": isinstance(value, str),
+        "array": isinstance(value, list),
+        "object": isinstance(value, dict),
+    }.get(expected, True)
 
 
 def _json_key(value: Any) -> str:
@@ -228,13 +242,7 @@ def _json_key(value: Any) -> str:
 
 
 class JsonSchemaValidator:
-    """A practical JSON Schema subset sufficient for the repository contracts.
-
-    Supported keywords include local/relative ``$ref``, type, required,
-    properties, additionalProperties, patternProperties, array cardinality,
-    enum/const, string and numeric bounds, allOf/anyOf/oneOf/not and
-    if/then/else. Unknown annotation keywords are intentionally ignored.
-    """
+    """Small JSON Schema 2020-12 subset used by the bundled schemas."""
 
     def __init__(self, schema_path: Path):
         self.schema_path = schema_path.resolve()
@@ -274,37 +282,37 @@ class JsonSchemaValidator:
             result.error("schema.false", path, "该值被 schema 明确禁止")
             return
         if not isinstance(schema, dict):
-            result.error("schema.invalid", path, "schema 节点必须是对象或布尔值")
+            result.error("config.schema", path, "schema 节点必须是对象或布尔值")
             return
 
         if "$ref" in schema:
             try:
                 target, target_file = self._resolve_ref(str(schema["$ref"]), schema_file)
                 self._walk(value, target, path, target_file, result)
-            except (ContractError, ValueError, IndexError) as exc:
+            except ContractError as exc:
                 result.error("config.schema_ref", path, str(exc))
-            sibling = {key: item for key, item in schema.items() if key != "$ref"}
-            if sibling:
-                self._walk(value, sibling, path, schema_file, result)
+            siblings = {key: item for key, item in schema.items() if key != "$ref"}
+            if siblings:
+                self._walk(value, siblings, path, schema_file, result)
             return
 
-        for branch_schema in schema.get("allOf", []):
-            self._walk(value, branch_schema, path, schema_file, result)
-
-        if "anyOf" in schema:
-            if not any(self._branch_valid(value, branch, path, schema_file) for branch in schema["anyOf"]):
-                result.error("schema.anyOf", path, "不符合 anyOf 中任何一种结构")
-                return
-
+        for branch in schema.get("allOf", []):
+            self._walk(value, branch, path, schema_file, result)
+        if "anyOf" in schema and not any(
+            self._branch_valid(value, branch, path, schema_file) for branch in schema["anyOf"]
+        ):
+            result.error("schema.anyOf", path, "不符合任何一种允许结构")
+            return
         if "oneOf" in schema:
-            matches = sum(self._branch_valid(value, branch, path, schema_file) for branch in schema["oneOf"])
+            matches = sum(
+                self._branch_valid(value, branch, path, schema_file)
+                for branch in schema["oneOf"]
+            )
             if matches != 1:
                 result.error("schema.oneOf", path, f"必须且只能符合一种结构，当前符合 {matches} 种")
                 return
-
         if "not" in schema and self._branch_valid(value, schema["not"], path, schema_file):
             result.error("schema.not", path, "命中了禁止结构")
-
         if "if" in schema:
             selected = "then" if self._branch_valid(value, schema["if"], path, schema_file) else "else"
             if selected in schema:
@@ -320,22 +328,21 @@ class JsonSchemaValidator:
                     f"类型应为 {'/'.join(expected_types)}，实际为 {type(value).__name__}",
                 )
                 return
-
         if "const" in schema and value != schema["const"]:
             result.error("schema.const", path, f"值必须为 {schema['const']!r}")
         if "enum" in schema and value not in schema["enum"]:
             result.error("schema.enum", path, f"值 {value!r} 不在允许集合中")
 
         if isinstance(value, dict):
-            self._validate_object(value, schema, path, schema_file, result)
+            self._object(value, schema, path, schema_file, result)
         elif isinstance(value, list):
-            self._validate_array(value, schema, path, schema_file, result)
+            self._array(value, schema, path, schema_file, result)
         elif isinstance(value, str):
-            self._validate_string(value, schema, path, result)
+            self._string(value, schema, path, result)
         elif isinstance(value, (int, float)) and not isinstance(value, bool):
-            self._validate_number(value, schema, path, result)
+            self._number(value, schema, path, result)
 
-    def _validate_object(
+    def _object(
         self,
         value: dict[str, Any],
         schema: dict[str, Any],
@@ -350,25 +357,23 @@ class JsonSchemaValidator:
             result.error("schema.minProperties", path, "对象字段数不足")
         if "maxProperties" in schema and len(value) > schema["maxProperties"]:
             result.error("schema.maxProperties", path, "对象字段数超限")
-
         properties = schema.get("properties", {})
-        pattern_properties = schema.get("patternProperties", {})
+        patterns = schema.get("patternProperties", {})
         matched: set[str] = set()
         for key, item in value.items():
-            child_path = f"{path}.{key}"
+            child = f"{path}.{key}"
             if key in properties:
                 matched.add(key)
-                self._walk(item, properties[key], child_path, schema_file, result)
-            for pattern, child_schema in pattern_properties.items():
+                self._walk(item, properties[key], child, schema_file, result)
+            for pattern, child_schema in patterns.items():
                 try:
                     if re.search(pattern, key):
                         matched.add(key)
-                        self._walk(item, child_schema, child_path, schema_file, result)
+                        self._walk(item, child_schema, child, schema_file, result)
                 except re.error as exc:
-                    result.error("config.schema_pattern", child_path, f"无效正则：{exc}")
+                    result.error("config.schema_pattern", child, f"无效正则：{exc}")
             if "propertyNames" in schema:
-                self._walk(key, schema["propertyNames"], f"{child_path}<name>", schema_file, result)
-
+                self._walk(key, schema["propertyNames"], f"{child}<name>", schema_file, result)
         additional = schema.get("additionalProperties", True)
         for key, item in value.items():
             if key in matched:
@@ -377,7 +382,6 @@ class JsonSchemaValidator:
                 result.error("schema.additionalProperties", f"{path}.{key}", "不允许额外字段")
             elif isinstance(additional, dict):
                 self._walk(item, additional, f"{path}.{key}", schema_file, result)
-
         for key, dependencies in schema.get("dependentRequired", {}).items():
             if key in value:
                 for dependency in dependencies:
@@ -385,10 +389,10 @@ class JsonSchemaValidator:
                         result.error(
                             "schema.dependentRequired",
                             f"{path}.{dependency}",
-                            f"字段 {key!r} 出现时必须同时提供 {dependency!r}",
+                            f"字段 {key!r} 出现时必须提供 {dependency!r}",
                         )
 
-    def _validate_array(
+    def _array(
         self,
         value: list[Any],
         schema: dict[str, Any],
@@ -407,43 +411,42 @@ class JsonSchemaValidator:
                 if key in seen:
                     result.error("schema.uniqueItems", f"{path}[{index}]", "数组项必须唯一")
                 seen.add(key)
-
-        prefix_items = schema.get("prefixItems", [])
-        for index, child_schema in enumerate(prefix_items):
+        prefixes = schema.get("prefixItems", [])
+        for index, child_schema in enumerate(prefixes):
             if index < len(value):
                 self._walk(value[index], child_schema, f"{path}[{index}]", schema_file, result)
         items = schema.get("items")
         if items is not None:
-            start = len(prefix_items) if prefix_items else 0
+            start = len(prefixes) if prefixes else 0
             for index in range(start, len(value)):
                 self._walk(value[index], items, f"{path}[{index}]", schema_file, result)
         if "contains" in schema:
-            matches = sum(self._branch_valid(item, schema["contains"], path, schema_file) for item in value)
+            matches = sum(
+                self._branch_valid(item, schema["contains"], f"{path}[{index}]", schema_file)
+                for index, item in enumerate(value)
+            )
             minimum = schema.get("minContains", 1)
             maximum = schema.get("maxContains")
             if matches < minimum or (maximum is not None and matches > maximum):
                 result.error("schema.contains", path, f"contains 匹配数 {matches} 不在允许范围")
 
     @staticmethod
-    def _validate_string(value: str, schema: dict[str, Any], path: str, result: ValidationResult) -> None:
+    def _string(value: str, schema: Mapping[str, Any], path: str, result: ValidationResult) -> None:
         if len(value) < schema.get("minLength", 0):
             result.error("schema.minLength", path, f"字符串长度至少为 {schema['minLength']}")
         if "maxLength" in schema and len(value) > schema["maxLength"]:
             result.error("schema.maxLength", path, f"字符串长度最多为 {schema['maxLength']}")
         if "pattern" in schema:
             try:
-                if re.search(schema["pattern"], value) is None:
+                if re.search(str(schema["pattern"]), value) is None:
                     result.error("schema.pattern", path, f"字符串不符合正则 {schema['pattern']!r}")
             except re.error as exc:
                 result.error("config.schema_pattern", path, f"无效正则：{exc}")
-        fmt = schema.get("format")
-        if fmt in {"uri", "uri-reference"} and value:
-            parsed = urlparse(value)
-            if fmt == "uri" and not parsed.scheme:
-                result.error("schema.format", path, "不是绝对 URI")
+        if schema.get("format") == "uri" and value and not urlparse(value).scheme:
+            result.error("schema.format", path, "不是绝对 URI")
 
     @staticmethod
-    def _validate_number(value: float, schema: dict[str, Any], path: str, result: ValidationResult) -> None:
+    def _number(value: float, schema: Mapping[str, Any], path: str, result: ValidationResult) -> None:
         if "minimum" in schema and value < schema["minimum"]:
             result.error("schema.minimum", path, f"数值不得小于 {schema['minimum']}")
         if "maximum" in schema and value > schema["maximum"]:
@@ -461,16 +464,15 @@ class JsonSchemaValidator:
 def find_schema(root: Path, kind: str) -> Path:
     if kind not in SCHEMA_FILES:
         raise ContractError(f"未知 schema 类型：{kind}")
-    expected = root / "core" / "schemas" / SCHEMA_FILES[kind]
-    if expected.is_file():
-        return expected
-    raise ContractError(f"缺少 {kind} schema：期望 {expected}")
+    path = root / "core" / "schemas" / SCHEMA_FILES[kind]
+    if not path.is_file():
+        raise ContractError(f"缺少 {kind} schema：{path}")
+    return path
 
 
 def validate_against_schema(root: Path, kind: str, document: Any, label: str) -> ValidationResult:
     try:
-        validator = JsonSchemaValidator(find_schema(root, kind))
-        return validator.validate(document, label)
+        return JsonSchemaValidator(find_schema(root, kind)).validate(document, label)
     except ContractError as exc:
         result = ValidationResult()
         result.error("config.schema", label, str(exc))
@@ -481,24 +483,46 @@ def find_document(target: Path, kind: str, required: bool = True) -> Path | None
     target = target.expanduser().resolve()
     if target.is_file():
         return target
-    if target.is_dir():
-        candidate = target / DOCUMENT_FILES[kind]
-        if candidate.is_file():
-            return candidate
+    candidate = target / DOCUMENT_FILES[kind]
+    if candidate.is_file():
+        return candidate
     if required:
-        raise ContractError(f"在 {target} 下找不到 {kind} 文档：{DOCUMENT_FILES[kind]}")
+        raise ContractError(f"在 {target} 下找不到 {DOCUMENT_FILES[kind]}")
     return None
 
 
-def resolve_link(base_file: Path, link: str | None, root: Path, kind: str) -> Path:
-    if link:
-        raw = Path(link).expanduser()
-        candidates = [raw] if raw.is_absolute() else [base_file.parent / raw, root / raw]
-        for candidate in candidates:
-            if candidate.is_file():
-                return candidate.resolve()
-        raise ContractError(f"{kind} 引用文件不存在：{link}（来自 {base_file}）")
-    raise ContractError(f"{base_file} 未声明 {kind}_file")
+def resolve_link(base_file: Path, link: str | None, root: Path, label: str) -> Path:
+    if not link:
+        raise ContractError(f"{base_file} 未声明 {label}_file")
+    raw = Path(link).expanduser()
+    candidates = [raw] if raw.is_absolute() else [base_file.parent / raw, root / raw]
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate.resolve()
+    raise ContractError(f"{label} 引用文件不存在：{link}（来自 {base_file}）")
+
+
+def _load_document(path: Path, result: ValidationResult, label: str) -> Mapping[str, Any] | None:
+    try:
+        value = load_json(path)
+    except ContractError as exc:
+        result.error("config.document", str(path), str(exc))
+        return None
+    if not isinstance(value, Mapping):
+        result.error("schema.type", label, "文档根节点必须是对象")
+        return None
+    return value
+
+
+def _require_v2(document: Mapping[str, Any], path: Path, result: ValidationResult) -> bool:
+    if document.get("contract_version") != CONTRACT_VERSION:
+        result.error(
+            "contract.version",
+            str(path),
+            "只接受 contract_version: 2；请用 v2 规则重新生成，不提供旧格式兼容",
+        )
+        return False
+    return True
 
 
 @dataclass(frozen=True)
@@ -507,883 +531,772 @@ class ThemeRecord:
     registry_entry: Mapping[str, Any]
     theme_document: Mapping[str, Any]
     theme_path: Path
-    layout_manifest_path: Path
 
 
-def _resolve_registry_path(root: Path, registry_path: Path, value: str) -> Path:
+def _resolve_repo_path(root: Path, owner: Path, value: str) -> Path:
     raw = Path(value).expanduser()
-    candidates = [raw] if raw.is_absolute() else [root / raw, registry_path.parent / raw]
+    candidates = [raw] if raw.is_absolute() else [root / raw, owner.parent / raw]
     for candidate in candidates:
-        if candidate.is_file():
+        if candidate.exists():
             return candidate.resolve()
     return candidates[0].resolve()
 
 
-def _require_known_keys(value: Mapping[str, Any], allowed: set[str], label: str) -> None:
-    unknown = sorted(set(value) - allowed)
-    if unknown:
-        raise ContractError(f"{label} 包含未声明字段：{unknown}")
-
-
 def load_theme_registry(root: Path) -> tuple[Mapping[str, Any], Path]:
     path = root / "themes" / "registry.json"
-    if not path.is_file():
-        raise ContractError(f"缺少主题注册表：{path}")
     document = load_json(path)
-    if not isinstance(document, dict) or not isinstance(document.get("themes"), list):
-        raise ContractError(f"主题注册表结构错误：{path} 必须包含 themes[]")
-    _require_known_keys(document, {"default_theme_id", "themes"}, str(path))
-    for index, entry in enumerate(document["themes"]):
-        if not isinstance(entry, dict):
-            raise ContractError(f"{path}#themes[{index}] 必须是对象")
-        _require_known_keys(
-            entry,
-            {"theme_id", "name", "description", "path", "enabled"},
-            f"{path}#themes[{index}]",
-        )
+    if not isinstance(document, Mapping) or not isinstance(document.get("themes"), list):
+        raise ContractError(f"主题注册表必须包含 themes[]：{path}")
     return document, path
 
 
 def resolve_theme(root: Path, requested: str | None = None) -> ThemeRecord:
     registry, registry_path = load_theme_registry(root)
     theme_id = requested or registry.get("default_theme_id")
-    if not theme_id:
-        raise ContractError(f"主题未指定，且 {registry_path} 没有 default_theme_id")
-    entries = [entry for entry in registry["themes"] if isinstance(entry, dict)]
     entry = next(
         (
             item
-            for item in entries
-            if item.get("theme_id") == theme_id and item.get("enabled") is True
+            for item in registry.get("themes", [])
+            if isinstance(item, Mapping)
+            and item.get("theme_id") == theme_id
+            and item.get("enabled") is True
         ),
         None,
     )
     if entry is None:
-        available = sorted(str(item.get("theme_id")) for item in entries if item.get("theme_id"))
-        raise ContractError(f"未知或未启用的主题 {theme_id!r}；可用主题：{', '.join(available)}")
-
-    theme_ref = entry.get("path")
-    if not theme_ref:
+        raise ContractError(f"未知或未启用的主题：{theme_id!r}")
+    if not entry.get("path"):
         raise ContractError(f"主题 {theme_id!r} 未声明 path")
-    theme_path = _resolve_registry_path(root, registry_path, str(theme_ref))
-    if not theme_path.is_file():
-        raise ContractError(f"主题清单不存在：{theme_path}")
-    theme_doc = load_json(theme_path)
-    if not isinstance(theme_doc, dict):
-        raise ContractError(f"主题清单必须是对象：{theme_path}")
-    _require_known_keys(
-        theme_doc,
-        {
-            "theme_id", "name", "status", "description", "canvas",
-            "tokens", "layout_manifest", "visual_checklist", "layout_guidance",
-            "component_adapters", "validation", "assets", "galleries", "densities",
-            "providers", "runtimes", "output_formats", "atlas_catalog",
-        },
-        str(theme_path),
-    )
-    declared_id = theme_doc.get("theme_id")
-    if declared_id != theme_id:
-        raise ContractError(f"主题 ID 不一致：registry={theme_id!r}, theme={declared_id!r}")
-
-    layout_ref = theme_doc.get("layout_manifest")
-    if not layout_ref:
-        raise ContractError(f"主题 {theme_id!r} 未声明 layout_manifest")
-    layout_path = _resolve_registry_path(root, registry_path, str(layout_ref))
-    if not layout_path.is_file():
-        layout_path = _resolve_registry_path(root, theme_path, str(layout_ref))
-    if not layout_path.is_file():
-        raise ContractError(f"布局 manifest 不存在：{layout_path}")
-    return ThemeRecord(
-        theme_id=str(theme_id),
-        registry_entry=entry,
-        theme_document=theme_doc,
-        theme_path=theme_path,
-        layout_manifest_path=layout_path,
-    )
+    theme_path = _resolve_repo_path(root, registry_path, str(entry["path"]))
+    theme = load_json(theme_path)
+    if not isinstance(theme, Mapping) or theme.get("theme_id") != theme_id:
+        raise ContractError(f"主题清单 ID 不一致：{theme_path}")
+    return ThemeRecord(str(theme_id), entry, theme, theme_path)
 
 
-def _strings(value: Any) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, str):
-        return [value]
-    if isinstance(value, list):
-        output: list[str] = []
-        for item in value:
-            if isinstance(item, str):
-                output.append(item)
-            elif isinstance(item, dict):
-                identifier = item.get("id") or item.get("name") or item.get("value")
-                if identifier:
-                    output.append(str(identifier))
-        return output
-    return []
+@dataclass(frozen=True)
+class CapabilityCatalog:
+    registry: Mapping[str, Any]
+    registry_path: Path
+    renderer_kinds: frozenset[str]
+    component_sources: frozenset[str]
+    allowed_pairs: frozenset[tuple[str, str]]
+    manifest: Mapping[str, Any]
+    manifest_path: Path
+    recipes: Mapping[str, Mapping[str, Any]]
 
 
-def normalize_layout(raw: Mapping[str, Any], source: Path) -> dict[str, Any]:
-    _require_known_keys(
-        raw,
-        {
-            "layout_id", "display_code", "name", "family", "description", "roles",
-            "relations", "core_primitives", "primitives", "densities", "capacity",
-            "slots", "renderers", "examples", "selection_notes", "anti_patterns",
-        },
-        str(source),
-    )
-    layout_id = raw.get("layout_id")
-    if not layout_id:
-        raise ContractError(f"布局缺少 layout_id：{source}")
-    slots = raw.get("slots") if isinstance(raw.get("slots"), list) else []
-    for index, slot in enumerate(slots):
-        if not isinstance(slot, dict):
-            raise ContractError(f"{source}#layout={layout_id}.slots[{index}] 必须是对象")
-        _require_known_keys(
-            slot,
-            {"slot_id", "purpose", "required", "min_items", "max_items", "allowed_providers"},
-            f"{source}#layout={layout_id}.slots[{index}]",
-        )
-    providers = _strings(raw.get("renderers"))
-    for slot in slots:
-        if isinstance(slot, dict):
-            providers.extend(_strings(slot.get("allowed_providers")))
-    providers = list(dict.fromkeys(providers))
-    return {
-        "id": str(layout_id),
-        "name": str(raw.get("name") or layout_id),
-        "display_code": raw.get("display_code"),
-        "family": raw.get("family"),
-        "description": raw.get("description", ""),
-        "roles": _strings(raw.get("roles")),
-        "relations": _strings(raw.get("relations")),
-        "core_primitives": _strings(raw.get("core_primitives")),
-        "densities": _strings(raw.get("densities")),
-        "providers": providers,
-        "primitives": _strings(raw.get("primitives")),
-        "capacity": raw.get("capacity") if isinstance(raw.get("capacity"), dict) else {},
-        "slots": slots,
-        "examples": raw.get("examples") if isinstance(raw.get("examples"), dict) else {},
-        "selection_notes": raw.get("selection_notes") or "",
-        "anti_patterns": raw.get("anti_patterns") if isinstance(raw.get("anti_patterns"), list) else [],
-        "source": str(source),
-        "raw": dict(raw),
+def load_capability_catalog(root: Path) -> CapabilityCatalog:
+    registry_path = root / "capabilities" / "registry.json"
+    registry = load_json(registry_path)
+    if not isinstance(registry, Mapping):
+        raise ContractError(f"公共能力注册表必须是对象：{registry_path}")
+    if registry.get("contract_version") != CONTRACT_VERSION:
+        raise ContractError(f"公共能力注册表 contract_version 必须为 2：{registry_path}")
+    renderers = {
+        str(item.get("renderer_kind"))
+        for item in registry.get("renderer_kinds", [])
+        if isinstance(item, Mapping) and item.get("renderer_kind")
     }
-
-
-def load_layout_catalog(root: Path, theme_id: str | None = None) -> tuple[ThemeRecord, list[dict[str, Any]], Mapping[str, Any]]:
-    theme = resolve_theme(root, theme_id)
-    manifest = load_json(theme.layout_manifest_path)
-    if not isinstance(manifest, dict) or not isinstance(manifest.get("layouts"), list):
-        raise ContractError(f"布局 manifest 必须包含 layouts[]：{theme.layout_manifest_path}")
-    _require_known_keys(
-        manifest,
-        {
-            "theme_id", "description", "layout_count", "gallery_variants",
-            "core_primitive_ids", "density_levels", "provider_ids", "layouts",
-        },
-        str(theme.layout_manifest_path),
-    )
-    manifest_theme = manifest.get("theme_id")
-    if manifest_theme and manifest_theme != theme.theme_id:
-        raise ContractError(
-            f"布局 manifest 主题不一致：theme={theme.theme_id!r}, manifest={manifest_theme!r}"
-        )
-    records: list[dict[str, Any]] = []
-    for index, item in enumerate(manifest["layouts"]):
-        if not isinstance(item, dict):
-            raise ContractError(f"布局 manifest layouts[{index}] 必须是对象：{theme.layout_manifest_path}")
-        records.append(normalize_layout(item, theme.layout_manifest_path))
-    return theme, records, manifest
-
-
-def _slug(value: Any) -> str:
-    normalized = re.sub(r"[^a-z0-9]+", "-", str(value or "").lower()).strip("-")
-    return normalized or "component"
-
-
-def _parse_atlas_js(path: Path) -> list[Mapping[str, Any]]:
-    source = path.read_text(encoding="utf-8")
-    marker = "window.SWISS_CATALOG_DATA"
-    start_marker = source.find(marker)
-    if start_marker < 0:
-        raise ContractError(f"atlas catalog 缺少 {marker}：{path}")
-    start = source.find("{", start_marker)
-    if start < 0:
-        raise ContractError(f"atlas catalog 没有 JSON 对象：{path}")
-    try:
-        document, _ = json.JSONDecoder().raw_decode(source[start:])
-    except json.JSONDecodeError as exc:
-        raise ContractError(f"atlas catalog 无法解析：{path}: {exc}") from exc
-    entries = document.get("entries") if isinstance(document, dict) else None
-    if not isinstance(entries, list):
-        raise ContractError(f"atlas catalog 缺少 entries[]：{path}")
-    return [entry for entry in entries if isinstance(entry, dict)]
-
-
-def _normalize_component(raw: Mapping[str, Any], source: Path, default_provider: str = "atlas") -> dict[str, Any]:
-    number = raw.get("num")
-    name = raw.get("name") or raw.get("component_id") or raw.get("id")
-    variant = raw.get("variant")
-    component_id = raw.get("component_id") or raw.get("id")
-    if not component_id:
-        number_part = f"{int(number):03d}." if isinstance(number, int) else ""
-        component_id = f"atlas.{number_part}{_slug(name)}"
-        if variant:
-            component_id += f".{_slug(variant)}"
-    label = raw.get("label") or raw.get("display_name") or name or component_id
-    aliases = list(
-        dict.fromkeys(
+    sources = {
+        str(item.get("component_source"))
+        for item in registry.get("component_sources", [])
+        if isinstance(item, Mapping) and item.get("component_source")
+    }
+    pairs: set[tuple[str, str]] = set()
+    for item in registry.get("component_sources", []):
+        if not isinstance(item, Mapping) or not item.get("component_source"):
+            continue
+        source = str(item["component_source"])
+        for renderer in item.get("allowed_renderer_kinds", []):
+            pairs.add((str(renderer), source))
+    entry = next(
+        (
             item
-            for item in (
-                name,
-                label,
-                variant,
-                str(number) if number is not None else None,
-                *_strings(raw.get("aliases")),
-            )
-            if item
-        )
+            for item in registry.get("capabilities", [])
+            if isinstance(item, Mapping) and item.get("capability_id") == "layout-gallery"
+        ),
+        None,
     )
-    return {
-        "id": str(component_id),
-        "name": str(label),
-        "canonical_name": str(name or component_id),
-        "variant": variant,
-        "group": raw.get("group"),
-        "group_label": raw.get("groupLabel") or raw.get("group_label"),
-        "description": raw.get("description", ""),
-        "tasks": _strings(raw.get("tasks") or raw.get("task")),
-        "roles": _strings(raw.get("roles")),
-        "relations": _strings(raw.get("relations") or raw.get("relation_shapes")),
-        "densities": _strings(raw.get("densities") or raw.get("density")),
-        "providers": _strings(raw.get("providers") or raw.get("provider")) or [default_provider],
-        "capacity": raw.get("capacity") if isinstance(raw.get("capacity"), dict) else {},
-        "slots": raw.get("slots") if isinstance(raw.get("slots"), list) else [],
-        "aliases": aliases,
-        "selection_notes": raw.get("selection_notes") or raw.get("description") or "",
-        "requires": _strings(raw.get("requires")),
-        "source": str(source),
-        "raw": dict(raw),
-    }
-
-
-def find_component_catalog(root: Path, theme: ThemeRecord | None = None) -> Path:
-    candidates: list[Path] = []
-    configured = os.environ.get("PPT_COMPONENT_ATLAS_CATALOG")
-    if configured:
-        candidates.append(Path(configured).expanduser())
-    if theme:
-        ref = theme.theme_document.get("atlas_catalog")
-        if ref:
-            candidates.extend([root / str(ref), theme.theme_path.parent / str(ref)])
-    candidates.extend(
-        [
-            Path.home() / ".codex" / "skills" / "ppt-component-atlas" / "public" / "catalog-data.js",
-            Path.home() / ".agents" / "skills" / "ppt-component-atlas" / "public" / "catalog-data.js",
-        ]
+    if not entry or not entry.get("manifest"):
+        raise ContractError("公共能力注册表缺少 layout-gallery manifest")
+    manifest_path = _resolve_repo_path(root, registry_path, str(entry["manifest"]))
+    manifest = load_json(manifest_path)
+    if not isinstance(manifest, Mapping) or manifest.get("contract_version") != CONTRACT_VERSION:
+        raise ContractError(f"Gallery manifest contract_version 必须为 2：{manifest_path}")
+    raw_recipes = manifest.get("recipes")
+    if not isinstance(raw_recipes, list):
+        raise ContractError(f"Gallery manifest 缺少 recipes[]：{manifest_path}")
+    recipes: dict[str, Mapping[str, Any]] = {}
+    for item in raw_recipes:
+        if not isinstance(item, Mapping) or not item.get("recipe_id"):
+            raise ContractError(f"Gallery recipe 缺少 recipe_id：{manifest_path}")
+        recipe_id = str(item["recipe_id"])
+        if recipe_id in recipes:
+            raise ContractError(f"Gallery recipe_id 重复：{recipe_id}")
+        recipes[recipe_id] = item
+    return CapabilityCatalog(
+        registry,
+        registry_path,
+        frozenset(renderers),
+        frozenset(sources),
+        frozenset(pairs),
+        manifest,
+        manifest_path,
+        recipes,
     )
-    for candidate in candidates:
-        if candidate.is_file():
-            return candidate.resolve()
-    raise ContractError(
-        "缺少 PPT Component Atlas catalog：请安装 ppt-component-atlas、"
-        "在主题声明 atlas_catalog，或设置 PPT_COMPONENT_ATLAS_CATALOG"
-    )
-
-
-def load_component_catalog(root: Path, theme_id: str | None = None) -> tuple[ThemeRecord, list[dict[str, Any]], Path]:
-    """Load the optional PPT Component Atlas only.
-
-    Native renderers and ECharts are capabilities, not catalog records.  This
-    function is therefore called only by an explicit Atlas query or renderer.
-    """
-
-    theme = resolve_theme(root, theme_id)
-    path = find_component_catalog(root, theme)
-    if path.suffix == ".js":
-        entries = _parse_atlas_js(path)
-        records = [_normalize_component(item, path, "atlas") for item in entries]
-    else:
-        document = load_json(path)
-        entries = document.get("components") if isinstance(document, dict) else None
-        if not isinstance(entries, list):
-            raise ContractError(f"组件 catalog 必须包含 components[]：{path}")
-        records = [_normalize_component(item, path) for item in entries if isinstance(item, dict)]
-
-    records = [record for record in records if "atlas" in record.get("providers", [])]
-    by_id: dict[str, dict[str, Any]] = {}
-    for record in records:
-        by_id.setdefault(record["id"], record)
-    records = list(by_id.values())
-    return theme, records, path
-
-
-def _matches(record: Mapping[str, Any], field: str, requested: Sequence[str]) -> bool:
-    if not requested:
-        return True
-    values = {str(value).casefold() for value in record.get(field, [])}
-    return all(value.casefold() in values for value in requested)
-
-
-def filter_catalog(
-    records: Iterable[Mapping[str, Any]],
-    *,
-    roles: Sequence[str] = (),
-    relations: Sequence[str] = (),
-    densities: Sequence[str] = (),
-    providers: Sequence[str] = (),
-    primitives: Sequence[str] = (),
-    tasks: Sequence[str] = (),
-    name: str | None = None,
-) -> list[dict[str, Any]]:
-    query = (name or "").casefold().strip()
-    output: list[dict[str, Any]] = []
-    for raw in records:
-        record = dict(raw)
-        if not _matches(record, "roles", roles):
-            continue
-        if not _matches(record, "relations", relations):
-            continue
-        if not _matches(record, "densities", densities):
-            continue
-        if not _matches(record, "providers", providers):
-            continue
-        if not _matches(record, "core_primitives", primitives):
-            continue
-        if not _matches(record, "tasks", tasks):
-            continue
-        haystack = " ".join(
-            str(item)
-            for item in (
-                record.get("id"),
-                record.get("name"),
-                record.get("canonical_name"),
-                record.get("display_code"),
-                record.get("description"),
-                *(record.get("aliases") or []),
-            )
-            if item
-        ).casefold()
-        if query and query not in haystack:
-            continue
-        output.append(record)
-    return sorted(output, key=lambda item: str(item.get("id", "")))
-
-
-def public_catalog_record(record: Mapping[str, Any]) -> dict[str, Any]:
-    keys = (
-        "id",
-        "name",
-        "canonical_name",
-        "display_code",
-        "variant",
-        "family",
-        "group",
-        "group_label",
-        "description",
-        "tasks",
-        "roles",
-        "relations",
-        "densities",
-        "providers",
-        "core_primitives",
-        "primitives",
-        "capacity",
-        "slots",
-        "examples",
-        "aliases",
-        "selection_notes",
-        "requires",
-        "anti_patterns",
-        "source",
-    )
-    return {key: record[key] for key in keys if key in record and record[key] not in (None, "", [], {})}
-
-
-def _as_list(value: Any) -> list[Any]:
-    return value if isinstance(value, list) else []
-
-
-def _identifier(item: Any, *keys: str) -> str | None:
-    if not isinstance(item, dict):
-        return None
-    for key in keys:
-        value = item.get(key)
-        if isinstance(value, str) and value:
-            return value
-    return None
 
 
 def content_items(document: Mapping[str, Any]) -> list[Mapping[str, Any]]:
-    value = document.get("content_items")
-    return [item for item in _as_list(value) if isinstance(item, dict)]
+    return [item for item in document.get("content_items", []) if isinstance(item, Mapping)]
 
 
 def content_ref_ids(document: Mapping[str, Any]) -> set[str]:
-    """Return every addressable item/atom ID in a content contract."""
-    output: set[str] = set()
+    refs: set[str] = set()
     for item in content_items(document):
-        item_id = _identifier(item, "id")
-        if item_id:
-            output.add(item_id)
-        for atomic in _as_list(item.get("atomic_values")):
-            atomic_id = _identifier(atomic, "id")
-            if atomic_id:
-                output.add(atomic_id)
-    return output
+        if item.get("id"):
+            refs.add(str(item["id"]))
+        for atom in item.get("atomic_values", []):
+            if isinstance(atom, Mapping) and atom.get("id"):
+                refs.add(str(atom["id"]))
+    return refs
 
 
 def must_content_refs(document: Mapping[str, Any]) -> set[str]:
-    """A must item and each of its atomic values must remain traceable."""
-    output: set[str] = set()
+    refs: set[str] = set()
     for item in content_items(document):
-        if item.get("priority") != "must":
-            continue
-        item_id = _identifier(item, "id")
-        if item_id:
-            output.add(item_id)
-        for atomic in _as_list(item.get("atomic_values")):
-            atomic_id = _identifier(atomic, "id")
-            if atomic_id:
-                output.add(atomic_id)
-    return output
+        if item.get("priority") == "must" and item.get("id"):
+            refs.add(str(item["id"]))
+            refs.update(
+                str(atom["id"])
+                for atom in item.get("atomic_values", [])
+                if isinstance(atom, Mapping) and atom.get("id")
+            )
+    return refs
+
+
+def coverage_required_refs(document: Mapping[str, Any]) -> set[str]:
+    """Items always need a decision; atoms only do when their parent is must."""
+
+    refs: set[str] = set()
+    for item in content_items(document):
+        if item.get("id"):
+            refs.add(str(item["id"]))
+        if item.get("priority") == "must":
+            refs.update(
+                str(atom["id"])
+                for atom in item.get("atomic_values", [])
+                if isinstance(atom, Mapping) and atom.get("id")
+            )
+    return refs
 
 
 def plan_pages(document: Mapping[str, Any]) -> list[Mapping[str, Any]]:
-    value = document.get("pages")
-    return [item for item in _as_list(value) if isinstance(item, dict)]
+    return [item for item in document.get("pages", []) if isinstance(item, Mapping)]
 
 
 def render_pages(document: Mapping[str, Any]) -> list[Mapping[str, Any]]:
-    value = document.get("pages")
-    return [item for item in _as_list(value) if isinstance(item, dict)]
+    return [item for item in document.get("pages", []) if isinstance(item, Mapping)]
 
 
-def _ref_list(value: Any) -> list[str]:
-    if not isinstance(value, list):
-        return []
-    output: list[str] = []
-    for item in value:
-        if isinstance(item, str):
-            output.append(item)
-    return output
+def _refs(value: Any) -> list[str]:
+    return [str(item) for item in value] if isinstance(value, list) else []
 
 
 def page_content_refs(page: Mapping[str, Any]) -> list[str]:
-    refs: list[str] = []
-    for key in ("content_refs", "evidence_refs"):
-        refs.extend(_ref_list(page.get(key)))
-    for block in _as_list(page.get("blocks")):
-        if isinstance(block, dict):
-            refs.extend(_ref_list(block.get("content_refs")))
-    return list(dict.fromkeys(refs))
+    return _refs(page.get("content_refs"))
 
 
 def slot_content_refs(slot: Mapping[str, Any]) -> list[str]:
-    renderer = slot.get("renderer") if isinstance(slot.get("renderer"), dict) else {}
-    return _ref_list(renderer.get("content_refs"))
+    renderer = slot.get("renderer")
+    return _refs(renderer.get("content_refs")) if isinstance(renderer, Mapping) else []
 
 
 def render_page_content_refs(page: Mapping[str, Any]) -> list[str]:
-    refs = _ref_list(page.get("content_refs"))
-    for slot in _as_list(page.get("slots")):
-        if isinstance(slot, dict):
-            refs.extend(slot_content_refs(slot))
-    return list(dict.fromkeys(refs))
+    decision = page.get("layout_decision")
+    if isinstance(decision, Mapping) and decision.get("source") == "gallery":
+        payload = decision.get("payload")
+        return [
+            ref
+            for binding in (payload.get("bindings", []) if isinstance(payload, Mapping) else [])
+            if isinstance(binding, Mapping)
+            for ref in _refs(binding.get("content_refs"))
+        ]
+    return [ref for slot in page.get("slots", []) if isinstance(slot, Mapping) for ref in slot_content_refs(slot)]
 
 
-def _load_document(path: Path, result: ValidationResult, label: str) -> Mapping[str, Any] | None:
-    try:
-        value = load_json(path)
-    except ContractError as exc:
-        result.error("config.document", label, str(exc))
+def _duplicates(values: Iterable[str]) -> set[str]:
+    seen: set[str] = set()
+    output: set[str] = set()
+    for value in values:
+        if value in seen:
+            output.add(value)
+        seen.add(value)
+    return output
+
+
+def _is_local_relative(value: str) -> bool:
+    parsed = urlparse(value)
+    if parsed.scheme or parsed.netloc or value.startswith(("/", "\\")):
+        return False
+    return bool(parsed.path)
+
+
+def _is_deck_relative(value: str) -> bool:
+    if not _is_local_relative(value):
+        return False
+    parsed = urlparse(value)
+    path = Path(unquote(parsed.path))
+    return ".." not in path.parts
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _local_asset_path(content_path: Path, locator: str) -> Path | None:
+    parsed = urlparse(locator)
+    if parsed.scheme or parsed.netloc:
         return None
-    if not isinstance(value, dict):
-        result.error("document.type", label, "顶层必须是 JSON 对象")
-        return None
-    return value
+    raw = Path(unquote(parsed.path)).expanduser()
+    return (raw if raw.is_absolute() else content_path.parent / raw).resolve()
 
 
-def validate_content_document(document: Mapping[str, Any], path: Path, root: Path) -> ValidationResult:
-    label = str(path)
-    result = validate_against_schema(root, "content", document, label)
-    sources = [item for item in _as_list(document.get("sources")) if isinstance(item, dict)]
-    source_ids: set[str] = set()
-    source_synthetic: dict[str, bool] = {}
-    for index, source in enumerate(sources):
-        item_path = f"{label}#.sources[{index}]"
-        source_id = _identifier(source, "id")
-        if not source_id:
-            result.error("content.source_id", item_path, "来源缺少稳定 ID")
-        elif source_id in source_ids:
-            result.error("content.duplicate_source", item_path, f"来源 ID 重复：{source_id}")
-        else:
-            source_ids.add(source_id)
-            source_synthetic[source_id] = source.get("synthetic") is True
+def _asset_map(document: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+    return {
+        str(item["asset_id"]): item
+        for item in document.get("assets", [])
+        if isinstance(item, Mapping) and item.get("asset_id")
+    }
 
-    item_ids: set[str] = set()
-    atomic_ids: set[str] = set()
+
+def validate_content_document(
+    document: Mapping[str, Any], path: Path, root: Path
+) -> ValidationResult:
+    result = ValidationResult()
+    _require_v2(document, path, result)
+    result.extend(validate_against_schema(root, "content", document, str(path)))
+
+    sources = [item for item in document.get("sources", []) if isinstance(item, Mapping)]
+    source_ids = [str(item.get("id")) for item in sources if item.get("id")]
+    for duplicate in sorted(_duplicates(source_ids)):
+        result.error("content.source_duplicate", str(path), f"来源 ID 重复：{duplicate}")
+    source_set = set(source_ids)
+
+    brief = document.get("brief") if isinstance(document.get("brief"), Mapping) else {}
+    constraints = [
+        item for item in brief.get("user_constraints", []) if isinstance(item, Mapping)
+    ]
+    constraint_ids = [str(item.get("constraint_id")) for item in constraints if item.get("constraint_id")]
+    for duplicate in sorted(_duplicates(constraint_ids)):
+        result.error("content.constraint_duplicate", str(path), f"限制 ID 重复：{duplicate}")
+    for index, constraint in enumerate(constraints):
+        label = f"{path}#brief.user_constraints[{index}]"
+        for ref in _refs(constraint.get("source_refs")):
+            if ref not in source_set:
+                result.error("content.source_ref", label, f"未知来源：{ref}")
+        if constraint.get("type") == "page_limit":
+            exact = constraint.get("exact_pages")
+            minimum = constraint.get("min_pages")
+            maximum = constraint.get("max_pages")
+            if minimum is not None and maximum is not None and minimum > maximum:
+                result.error("content.constraint_range", label, "最少页数不能大于最多页数")
+            if exact is not None and minimum is not None and exact < minimum:
+                result.error("content.constraint_range", label, "指定页数小于最少页数")
+            if exact is not None and maximum is not None and exact > maximum:
+                result.error("content.constraint_range", label, "指定页数大于最多页数")
+        if constraint.get("type") == "duration":
+            exact = constraint.get("exact_minutes")
+            minimum = constraint.get("min_minutes")
+            maximum = constraint.get("max_minutes")
+            if minimum is not None and maximum is not None and minimum > maximum:
+                result.error("content.constraint_range", label, "最短时长不能大于最长时长")
+            if exact is not None and minimum is not None and exact < minimum:
+                result.error("content.constraint_range", label, "指定时长短于最短时长")
+            if exact is not None and maximum is not None and exact > maximum:
+                result.error("content.constraint_range", label, "指定时长长于最长时长")
+
+    assets = _asset_map(document)
+    raw_asset_ids = [
+        str(item.get("asset_id"))
+        for item in document.get("assets", [])
+        if isinstance(item, Mapping) and item.get("asset_id")
+    ]
+    for duplicate in sorted(_duplicates(raw_asset_ids)):
+        result.error("content.asset_duplicate", str(path), f"素材 ID 重复：{duplicate}")
+    evidence_asset_refs = {
+        ref
+        for item in content_items(document)
+        if item.get("epistemic_role") == "evidence"
+        for ref in _refs(item.get("asset_refs"))
+    }
+    for asset_id, asset in assets.items():
+        label = f"{path}#assets[{asset_id}]"
+        for ref in _refs(asset.get("source_refs")):
+            if ref not in source_set:
+                result.error("content.source_ref", label, f"未知来源：{ref}")
+        local_asset = _local_asset_path(path, str(asset.get("locator", "")))
+        if local_asset is not None:
+            if not local_asset.is_file():
+                result.error("asset.file_missing", label, f"登记的素材文件不存在：{asset.get('locator')}")
+            elif _sha256(local_asset) != asset.get("sha256"):
+                result.error("asset.fingerprint", label, "素材文件指纹与登记的 SHA-256 不一致")
+        if asset.get("role") != "reconstructed":
+            continue
+        if not _is_deck_relative(str(asset.get("locator", ""))):
+            result.error(
+                "asset.output_local",
+                label,
+                "重构成品必须使用 deck 内的本地相对路径",
+            )
+        creation_mode = asset.get("creation_mode")
+        if creation_mode == "reconstruct" and asset.get("fact_change_risk") not in {
+            "none",
+            "possible",
+        }:
+            result.error(
+                "asset.fact_change_risk",
+                label,
+                "重构成品必须明确事实变化风险为 none 或 possible",
+            )
+        if creation_mode == "generate" and "fact_change_risk" in asset:
+            result.error(
+                "asset.fact_change_risk",
+                label,
+                "纯文本生成图不使用重构事实变化风险字段",
+            )
+        if (
+            creation_mode == "reconstruct"
+            and asset_id in evidence_asset_refs
+            and asset.get("disclosure") != "重构示意"
+        ):
+            result.error("asset.disclosure", label, "重构图必须标明“重构示意”")
+        for source_asset_id in _refs(asset.get("derived_from")):
+            source_asset = assets.get(source_asset_id)
+            if source_asset is None:
+                result.error("asset.derived_from", label, f"未知原素材：{source_asset_id}")
+                continue
+            if source_asset.get("role") != "source":
+                result.error("asset.derived_from", label, f"只能从原素材重构：{source_asset_id}")
+            if source_asset.get("sha256") == asset.get("sha256"):
+                result.error("asset.same_fingerprint", label, "重构成品不能与原素材指纹相同")
+            if str(source_asset.get("locator")) == str(asset.get("locator")):
+                result.error("asset.same_path", label, "重构成品不能沿用原素材路径")
+
+    all_refs: list[str] = []
+    item_ids: list[str] = []
+    relation_checks: list[tuple[str, str]] = []
     for index, item in enumerate(content_items(document)):
-        item_path = f"{label}#.content_items[{index}]"
-        item_id = _identifier(item, "id")
-        if not item_id:
-            result.error("content.item_id", item_path, "内容单元缺少稳定 ID")
-        elif item_id in item_ids:
-            result.error("content.duplicate_item", item_path, f"内容 ID 重复：{item_id}")
-        else:
-            item_ids.add(item_id)
-        priority = item.get("priority")
-        if priority not in PRIORITIES:
-            result.error("content.priority", item_path, f"priority 必须是 {sorted(PRIORITIES)}")
-        status = item.get("status")
-        if not isinstance(status, str) or not status:
-            result.error("content.status", item_path, "内容单元必须声明 status")
-        refs = _ref_list(item.get("source_refs"))
-        if status == "sourced" and not refs:
-            result.error("content.source_refs", item_path, "status=sourced 的内容必须至少引用一个来源")
-        for ref in refs:
-            if ref not in source_ids:
-                result.error("content.unknown_source", item_path, f"引用了未知来源：{ref}")
-            elif source_synthetic.get(ref) and status != "placeholder":
+        label = f"{path}#content_items[{index}]"
+        item_id = str(item.get("id", ""))
+        if item_id:
+            item_ids.append(item_id)
+            all_refs.append(item_id)
+        for ref in _refs(item.get("source_refs")):
+            if ref not in source_set:
+                result.error("content.source_ref", label, f"未知来源：{ref}")
+        for ref in _refs(item.get("asset_refs")):
+            if ref not in assets:
+                result.error("content.asset_ref", label, f"未知素材：{ref}")
+            elif (
+                assets[ref].get("creation_mode") == "generate"
+                and item.get("epistemic_role") == "evidence"
+            ):
                 result.error(
-                    "content.synthetic_status",
-                    item_path,
-                    f"引用 synthetic 来源 {ref} 的内容必须标记为 placeholder，不得标记为 {status!r}",
+                    "asset.generated_evidence",
+                    label,
+                    f"生成图片不能承载原始证据：{ref}",
                 )
-        for atomic_index, atomic in enumerate(_as_list(item.get("atomic_values"))):
-            atomic_path = f"{item_path}.atomic_values[{atomic_index}]"
-            atomic_id = _identifier(atomic, "id")
-            if not atomic_id:
-                result.error("content.atomic_id", atomic_path, "原子值缺少稳定 ID")
-            elif atomic_id in atomic_ids:
-                result.error("content.duplicate_atomic", atomic_path, f"原子值 ID 重复：{atomic_id}")
-            else:
-                atomic_ids.add(atomic_id)
-    if not content_items(document):
-        result.error("content.empty", label, "content_items[] 不能为空")
-    known_relation_targets = item_ids | atomic_ids
-    for item_index, item in enumerate(content_items(document)):
-        item_id = _identifier(item, "id")
-        for relation_index, relation in enumerate(_as_list(item.get("relations"))):
-            if not isinstance(relation, dict):
-                continue
-            relation_path = f"{label}#.content_items[{item_index}].relations[{relation_index}]"
-            target_ref = relation.get("target_ref")
-            if not isinstance(target_ref, str):
-                result.error("content.invalid_relation_target", relation_path, "target_ref 必须是字符串 ID")
-                continue
-            if target_ref not in known_relation_targets:
-                result.error("content.unknown_relation_target", relation_path, f"关系指向了未知内容：{target_ref}")
-            if target_ref == item_id:
-                result.error("content.self_relation", relation_path, f"内容关系不可指向自身：{item_id}")
-    brief = document.get("brief") if isinstance(document.get("brief"), dict) else {}
-    limits = brief.get("page_limits") if isinstance(brief.get("page_limits"), dict) else {}
-    minimum = limits.get("min")
-    maximum = limits.get("max")
-    requested = limits.get("requested")
-    if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
-        result.error("content.page_limits", f"{label}#.brief.page_limits", "min 不能大于 max")
-    if (
-        isinstance(requested, int)
-        and isinstance(minimum, int)
-        and isinstance(maximum, int)
-        and not minimum <= requested <= maximum
-    ):
-        result.error("content.page_limits", f"{label}#.brief.page_limits.requested", "requested 必须落在 min/max 内")
+        for atom in item.get("atomic_values", []):
+            if isinstance(atom, Mapping) and atom.get("id"):
+                all_refs.append(str(atom["id"]))
+        for relation in item.get("relations", []):
+            if isinstance(relation, Mapping) and relation.get("target_ref"):
+                relation_checks.append((label, str(relation["target_ref"])))
+    for duplicate in sorted(_duplicates(all_refs)):
+        result.error("content.ref_duplicate", str(path), f"内容 ID 重复：{duplicate}")
+    known_refs = set(all_refs)
+    for label, target in relation_checks:
+        if target not in known_refs:
+            result.error("content.relation_ref", label, f"关系指向未知内容：{target}")
     return result
 
 
 def validate_content_target(target: Path, root: Path) -> ValidationResult:
     result = ValidationResult()
+    result.extend(validate_output_location(target, root, allow_internal=True))
     try:
         path = find_document(target, "content")
     except ContractError as exc:
         result.error("config.content", str(target), str(exc))
         return result
+    assert path is not None
     document = _load_document(path, result, str(path))
     if document is not None:
         result.extend(validate_content_document(document, path, root))
     return result
 
 
-def validate_plan_document(document: Mapping[str, Any], path: Path, root: Path) -> ValidationResult:
-    label = str(path)
-    result = validate_against_schema(root, "plan", document, label)
+def _constraint_overflow(
+    constraints: Sequence[Mapping[str, Any]], page_count: int
+) -> list[str]:
+    overflow: list[str] = []
+    for constraint in constraints:
+        if constraint.get("type") != "page_limit":
+            continue
+        exact = constraint.get("exact_pages")
+        minimum = constraint.get("min_pages")
+        maximum = constraint.get("max_pages")
+        if (
+            (exact is not None and page_count != exact)
+            or (minimum is not None and page_count < minimum)
+            or (maximum is not None and page_count > maximum)
+        ):
+            overflow.append(str(constraint.get("constraint_id", "")))
+    return overflow
+
+
+def _assessment_has(
+    assessments: Sequence[Mapping[str, Any]], trigger: str, refs: Iterable[str] = ()
+) -> bool:
+    wanted = set(refs)
+    return any(
+        item.get("trigger") == trigger
+        and item.get("resolution") == "needs_user_choice"
+        and (not wanted or bool(wanted & set(_refs(item.get("affected_refs")))))
+        for item in assessments
+    )
+
+
+def _validate_confirmation(
+    confirmation: Mapping[str, Any],
+    content: Mapping[str, Any],
+    overflow_refs: Sequence[str],
+    path: Path,
+    result: ValidationResult,
+) -> None:
+    assessments = [
+        item for item in confirmation.get("assessments", []) if isinstance(item, Mapping)
+    ]
+    needs_choice = [item for item in assessments if item.get("resolution") == "needs_user_choice"]
+    decision = confirmation.get("decision")
+    questions = confirmation.get("user_questions", [])
+    if needs_choice and decision != "needs_confirmation":
+        result.error("confirmation.decision", str(path), "存在需要用户选择的问题，必须暂停")
+    if not needs_choice and decision != "proceed":
+        result.error("confirmation.decision", str(path), "没有待决定问题时应继续生成")
+    if decision == "needs_confirmation":
+        if not isinstance(questions, list) or not 1 <= len(questions) <= 3:
+            result.error("confirmation.question_count", str(path), "暂停时只能问 1–3 个问题")
+    elif questions:
+        result.error("confirmation.question_count", str(path), "继续生成时不能保留待答问题")
+    for index, question in enumerate(questions if isinstance(questions, list) else []):
+        label = f"{path}#confirmation.user_questions[{index}]"
+        question_text = str(question)
+        folded = question_text.casefold()
+        banned = next((term for term in PLAIN_QUESTION_BANNED if term.casefold() in folded), None)
+        if banned:
+            result.error("confirmation.question_jargon", label, f"问题包含内部术语：{banned}")
+        if re.search(r"(?:/Users/|[A-Za-z]:\\|\.(?:json|html|py)\b|#[A-Za-z0-9_./-]+)", question_text):
+            result.error("confirmation.question_path", label, "问题不能暴露文件路径、字段名或错误码")
+        if not any(mark in question_text for mark in ("？", "?")):
+            result.error("confirmation.question_form", label, "请用一句通俗问句说明需要用户选择什么")
+        visible = re.sub(r"[\W_]+", "", question_text, flags=re.UNICODE)
+        has_impact = any(cue in question_text for cue in PLAIN_QUESTION_IMPACT_CUES)
+        has_choice = any(cue in question_text for cue in PLAIN_QUESTION_CHOICE_CUES)
+        if len(visible) < 12 or not has_impact or not has_choice:
+            result.error(
+                "confirmation.question_context",
+                label,
+                "问题要说清发生了什么、会影响什么，以及需要用户选择什么",
+            )
+
+    unresolved = {
+        str(item.get("id"))
+        for item in content_items(content)
+        if item.get("priority") == "must"
+        and item.get("status") in {"inferred", "placeholder"}
+    }
+    if unresolved and not _assessment_has(assessments, "must_content_unresolved", unresolved):
+        result.error(
+            "confirmation.must_unresolved",
+            str(path),
+            "必留内容仍需猜测或占位，必须记录并暂停询问用户",
+        )
+    if overflow_refs and not _assessment_has(
+        assessments, "user_constraint_overflow", overflow_refs
+    ):
+        result.error(
+            "confirmation.constraint_overflow",
+            str(path),
+            "用户明确限制无法满足时，必须记录并暂停询问用户",
+        )
+
+    risky_reconstructions = {
+        str(asset.get("asset_id"))
+        for asset in content.get("assets", [])
+        if isinstance(asset, Mapping)
+        and asset.get("role") == "reconstructed"
+        and asset.get("creation_mode") == "reconstruct"
+        and asset.get("fact_change_risk") == "possible"
+        and asset.get("asset_id")
+    }
+    missing_risk_assessments = {
+        asset_id
+        for asset_id in risky_reconstructions
+        if not _assessment_has(
+            assessments,
+            "reconstruction_fact_risk",
+            (asset_id,),
+        )
+    }
+    if missing_risk_assessments:
+        result.error(
+            "confirmation.reconstruction_fact_risk",
+            str(path),
+            "重构可能改变事实，必须先用通俗问题请用户决定："
+            + "、".join(sorted(missing_risk_assessments)),
+        )
+
+    assets = _asset_map(content)
+    known_assessment_refs = content_ref_ids(content)
+    known_assessment_refs.update(
+        str(item.get("id"))
+        for item in content.get("sources", [])
+        if isinstance(item, Mapping) and item.get("id")
+    )
+    known_assessment_refs.update(assets.keys())
+    brief = content.get("brief") if isinstance(content.get("brief"), Mapping) else {}
+    known_assessment_refs.update(
+        str(item.get("constraint_id"))
+        for item in brief.get("user_constraints", [])
+        if isinstance(item, Mapping) and item.get("constraint_id")
+    )
+    for index, assessment in enumerate(assessments):
+        label = f"{path}#confirmation.assessments[{index}]"
+        for ref in _refs(assessment.get("affected_refs")):
+            if ref not in known_assessment_refs:
+                result.error("confirmation.affected_ref", label, f"确认判断引用未知内容：{ref}")
+
+    conflict_pairs: set[frozenset[str]] = set()
+    for item in content_items(content):
+        source_id = str(item.get("id", ""))
+        for relation in item.get("relations", []):
+            if (
+                source_id
+                and isinstance(relation, Mapping)
+                and relation.get("type") == "contradicts"
+                and relation.get("target_ref")
+            ):
+                conflict_pairs.add(
+                    frozenset((source_id, str(relation.get("target_ref"))))
+                )
+    for pair in sorted(conflict_pairs, key=lambda item: sorted(item)):
+        if not any(
+            assessment.get("trigger") == "source_conflict"
+            and set(pair).issubset(set(_refs(assessment.get("affected_refs"))))
+            for assessment in assessments
+        ):
+            result.error(
+                "confirmation.source_conflict",
+                str(path),
+                f"来源冲突必须评估影响和处理方式：{' / '.join(sorted(pair))}",
+            )
+
+    for index, assessment in enumerate(assessments):
+        label = f"{path}#confirmation.assessments[{index}]"
+        trigger = assessment.get("trigger")
+        impact = assessment.get("impact")
+        resolution = assessment.get("resolution")
+        if trigger in {
+            "must_content_unresolved",
+            "user_constraint_overflow",
+            "reconstruction_fact_risk",
+        } and resolution != "needs_user_choice":
+            result.error("confirmation.hard_pause", label, "该问题必须交给用户决定")
+        if trigger in {"ambiguous_context", "source_conflict"}:
+            if impact == "none" and resolution == "needs_user_choice":
+                result.error("confirmation.unnecessary_pause", label, "不会改变结果的问题不应打断用户")
+            if impact != "none" and resolution != "needs_user_choice":
+                result.error("confirmation.missed_pause", label, "会改变结果的问题必须交给用户决定")
+
+
+def validate_plan_document(
+    document: Mapping[str, Any], path: Path, root: Path
+) -> ValidationResult:
+    result = ValidationResult()
+    _require_v2(document, path, result)
+    result.extend(validate_against_schema(root, "plan", document, str(path)))
     try:
         content_path = resolve_link(path, document.get("content_file"), root, "content")
     except ContractError as exc:
-        result.error("config.content_link", label, str(exc))
+        result.error("config.content_link", str(path), str(exc))
         return result
-    content_doc = _load_document(content_path, result, str(content_path))
-    if content_doc is None:
+    content = _load_document(content_path, result, str(content_path))
+    if content is None:
         return result
-    known_content = content_ref_ids(content_doc)
-    must_refs = must_content_refs(content_doc)
-
+    _require_v2(content, content_path, result)
+    known_refs = content_ref_ids(content)
+    source_ids = {
+        str(item.get("id"))
+        for item in content.get("sources", [])
+        if isinstance(item, Mapping) and item.get("id")
+    }
+    brief = content.get("brief") if isinstance(content.get("brief"), Mapping) else {}
+    constraints = [item for item in brief.get("user_constraints", []) if isinstance(item, Mapping)]
+    constraint_ids = {
+        str(item.get("constraint_id")) for item in constraints if item.get("constraint_id")
+    }
     pages = plan_pages(document)
-    page_ids: set[str] = set()
-    block_ids: set[str] = set()
-    assertion_titles: dict[str, str] = {}
-    takeaways: dict[str, str] = {}
-    total_refs: set[str] = set()
-    page_ref_map: dict[str, set[str]] = {}
-    section_ids: set[str] = set()
-    for section_index, section in enumerate(_as_list(document.get("sections"))):
-        if not isinstance(section, dict):
+    page_ids = [str(page.get("page_id")) for page in pages if page.get("page_id")]
+    for duplicate in sorted(_duplicates(page_ids)):
+        result.error("plan.page_duplicate", str(path), f"页面 ID 重复：{duplicate}")
+    if document.get("page_budget", {}).get("target") != len(pages):
+        result.error("plan.page_budget", str(path), "推荐页数必须等于实际规划页数")
+    expected_orders = list(range(1, len(pages) + 1))
+    actual_orders = [page.get("order") for page in pages]
+    if actual_orders != expected_orders:
+        result.error("plan.page_order", str(path), "页面 order 必须从 1 连续递增")
+
+    confirmation = document.get("confirmation") if isinstance(document.get("confirmation"), Mapping) else {}
+    assessments = [
+        item for item in confirmation.get("assessments", []) if isinstance(item, Mapping)
+    ]
+    overflow = _constraint_overflow(constraints, len(pages))
+    _validate_confirmation(confirmation, content, overflow, path, result)
+
+    planning = document.get("planning_basis") if isinstance(document.get("planning_basis"), Mapping) else {}
+    for ref in _refs(planning.get("user_constraint_refs")):
+        if ref not in constraint_ids:
+            result.error("plan.constraint_ref", str(path), f"页数依据引用未知限制：{ref}")
+    for ref in _refs(planning.get("research_source_refs")):
+        if ref not in source_ids:
+            result.error("plan.source_ref", str(path), f"场景依据引用未知来源：{ref}")
+    page_or_duration = {
+        str(item.get("constraint_id"))
+        for item in constraints
+        if item.get("type") in {"page_limit", "duration"}
+    }
+    mode = planning.get("mode")
+    if mode == "user-constrained" and not (
+        page_or_duration & set(_refs(planning.get("user_constraint_refs")))
+    ):
+        result.error("plan.basis_mode", str(path), "只有用户明确给出页数或时长时才能标为用户限制")
+    if not page_or_duration and mode != "scenario-recommended":
+        result.error("plan.basis_mode", str(path), "用户未给页数或时长，应按使用场景推荐页数")
+
+    scenario_origin = planning.get("scenario_origin")
+    research_refs = set(_refs(planning.get("research_source_refs")))
+    for index, basis in enumerate(document.get("page_budget", {}).get("basis", [])):
+        if not isinstance(basis, Mapping):
             continue
-        section_id = _identifier(section, "section_id")
-        if section_id in section_ids:
-            result.error(
-                "plan.duplicate_section",
-                f"{label}#.sections[{section_index}]",
-                f"section_id 重复：{section_id}",
-            )
-        elif section_id:
-            section_ids.add(section_id)
-    orders: list[int] = []
-    for index, page in enumerate(pages):
-        item_path = f"{label}#.pages[{index}]"
-        page_id = _identifier(page, "page_id")
-        if not page_id:
-            result.error("plan.page_id", item_path, "页面缺少 page_id")
-        elif page_id in page_ids:
-            result.error("plan.duplicate_page", item_path, f"page_id 重复：{page_id}")
-        else:
-            page_ids.add(page_id)
-        order = page.get("order")
-        if isinstance(order, int):
-            orders.append(order)
-        section_id = page.get("section_id")
-        if section_id not in section_ids:
-            result.error("plan.unknown_section", item_path, f"页面引用了未知 section_id：{section_id}")
-        refs = page_content_refs(page)
-        total_refs.update(refs)
-        if page_id:
-            page_ref_map[page_id] = set(refs)
-        role = page.get("role")
-        for field_name, seen_values, duplicate_code, blank_code in (
-            ("assertion_title", assertion_titles, "plan.duplicate_assertion", "plan.blank_assertion"),
-            ("takeaway", takeaways, "plan.duplicate_takeaway", "plan.blank_takeaway"),
-        ):
-            raw_value = page.get(field_name)
-            if not isinstance(raw_value, str) or not raw_value.strip():
-                result.error(blank_code, item_path, f"{field_name} 不能为空或纯空白")
-                continue
-            normalized_value = "".join(
-                character
-                for character in unicodedata.normalize("NFKC", raw_value).casefold()
-                if character.isalnum()
-            )
-            previous_page = seen_values.get(normalized_value)
-            if previous_page:
-                result.error(duplicate_code, item_path, f"{field_name} 与 {previous_page} 重复：{raw_value!r}")
-            elif normalized_value:
-                seen_values[normalized_value] = page_id or f"pages[{index}]"
-        if role not in STRUCTURAL_ROLES and not refs:
-            result.error("plan.ghost_page", item_path, "非结构页没有引用任何 content_items，属于空壳页")
-        for ref in refs:
-            if ref not in known_content:
-                result.error("plan.unknown_content", item_path, f"引用了未知 content_ref：{ref}")
-        declared_refs = set(_ref_list(page.get("content_refs")) + _ref_list(page.get("evidence_refs")))
-        block_refs: set[str] = set()
-        primary_blocks = 0
-        for block_index, block in enumerate(_as_list(page.get("blocks"))):
-            if not isinstance(block, dict):
-                continue
-            block_path = f"{item_path}.blocks[{block_index}]"
-            block_id = _identifier(block, "block_id")
-            if not block_id:
-                result.error("plan.block_id", block_path, "block 缺少 block_id")
-            elif block_id in block_ids:
-                result.error("plan.duplicate_block", block_path, f"block_id 重复：{block_id}")
-            else:
-                block_ids.add(block_id)
-            if block.get("importance") == "primary":
-                primary_blocks += 1
-            current_refs = set(_ref_list(block.get("content_refs")))
-            block_refs.update(current_refs)
-            for ref in current_refs - declared_refs:
-                result.error(
-                    "plan.block_content_mismatch",
-                    block_path,
-                    f"block 引用 {ref}，但 page.content_refs/evidence_refs 未声明",
-                )
-        if primary_blocks != 1:
-            result.error("plan.primary_block", item_path, f"每页必须恰好一个 primary block，实际 {primary_blocks}")
-        for ref in sorted(declared_refs - block_refs):
-            result.error("plan.unmapped_content", item_path, f"页面内容 {ref} 未进入任何 semantic block")
-    if not pages:
-        result.error("plan.empty", label, "pages[] 不能为空")
-    elif not total_refs:
-        result.error("plan.ghost_deck", label, "整份 deck 没有引用任何 content_items")
-    if orders:
-        expected_orders = list(range(1, len(pages) + 1))
-        if sorted(orders) != expected_orders:
-            result.error("plan.page_order", label, f"page order 必须连续且唯一：期望 {expected_orders}，实际 {sorted(orders)}")
+        label = f"{path}#page_budget.basis[{index}]"
+        for ref in _refs(basis.get("content_refs")):
+            if ref not in known_refs:
+                result.error("plan.content_ref", label, f"未知内容：{ref}")
+        for ref in _refs(basis.get("constraint_refs")):
+            if ref not in constraint_ids:
+                result.error("plan.constraint_ref", label, f"未知限制：{ref}")
+        for ref in _refs(basis.get("source_refs")):
+            if ref not in source_ids:
+                result.error("plan.source_ref", label, f"未知来源：{ref}")
+        if basis.get("type") == "scenario_research":
+            basis_refs = set(_refs(basis.get("source_refs")))
+            if scenario_origin != "researched":
+                result.error("plan.scenario_basis", label, "只有实际调研过场景时才能使用调研依据")
+            if not basis_refs.issubset(research_refs):
+                result.error("plan.scenario_basis", label, "页数调研依据必须来自已登记的场景调研来源")
+        if basis.get("type") == "duration":
+            duration_ids = {
+                str(item.get("constraint_id"))
+                for item in constraints
+                if item.get("type") == "duration"
+            }
+            for ref in _refs(basis.get("constraint_refs")):
+                if ref not in duration_ids:
+                    result.error("plan.constraint_ref", label, f"时长依据必须引用用户给出的时长限制：{ref}")
 
-    budget = document.get("page_budget") if isinstance(document.get("page_budget"), dict) else {}
-    minimum = budget.get("min")
-    maximum = budget.get("max")
-    target = budget.get("target")
-    if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
-        result.error("plan.page_budget", f"{label}#.page_budget", "min 不能大于 max")
-    if isinstance(target, int) and isinstance(minimum, int) and isinstance(maximum, int):
-        if not minimum <= target <= maximum:
-            result.error("plan.page_budget", f"{label}#.page_budget.target", "target 必须落在 min/max 内")
-        if target != len(pages):
-            result.error("plan.page_budget", f"{label}#.page_budget.target", f"target={target}，实际 pages={len(pages)}")
-
-    brief = content_doc.get("brief") if isinstance(content_doc.get("brief"), dict) else {}
-
-    for section_index, section in enumerate(_as_list(document.get("sections"))):
-        if not isinstance(section, dict):
+    section_ids: list[str] = []
+    section_page_refs: list[str] = []
+    for index, section in enumerate(document.get("sections", [])):
+        if not isinstance(section, Mapping):
             continue
-        for ref in _ref_list(section.get("page_refs")):
+        section_id = str(section.get("section_id", ""))
+        section_ids.append(section_id)
+        for ref in _refs(section.get("page_refs")):
+            section_page_refs.append(ref)
             if ref not in page_ids:
-                result.error(
-                    "plan.unknown_page",
-                    f"{label}#.sections[{section_index}]",
-                    f"section 引用了未知 page_ref：{ref}",
-                )
-        section_id = _identifier(section, "section_id")
-        actual = {
-            _identifier(page, "page_id")
-            for page in pages
-            if page.get("section_id") == section_id
-        }
-        declared = set(_ref_list(section.get("page_refs")))
-        if actual != declared:
-            result.error(
-                "plan.section_membership",
-                f"{label}#.sections[{section_index}]",
-                f"section.page_refs 与 pages[].section_id 不一致：声明 {sorted(declared)}，实际 {sorted(actual)}",
-            )
+                result.error("plan.section_page_ref", f"{path}#sections[{index}]", f"未知页面：{ref}")
+    for duplicate in sorted(_duplicates(section_ids)):
+        result.error("plan.section_duplicate", str(path), f"章节 ID 重复：{duplicate}")
+    if sorted(section_page_refs) != sorted(page_ids):
+        result.error("plan.section_coverage", str(path), "每页必须且只能属于一个章节")
 
-    decisions_by_ref: dict[str, Mapping[str, Any]] = {}
-    for decision_index, decision in enumerate(_as_list(document.get("coverage_decisions"))):
-        if not isinstance(decision, dict):
-            continue
-        decision_path = f"{label}#.coverage_decisions[{decision_index}]"
-        content_ref = decision.get("content_ref")
-        if isinstance(content_ref, str):
-            if content_ref in decisions_by_ref:
-                result.error("plan.duplicate_coverage", decision_path, f"coverage_decision 重复：{content_ref}")
-            decisions_by_ref[content_ref] = decision
+    page_refs_seen: set[str] = set()
+    block_ids: set[str] = set()
+    visible_refs: set[str] = set()
+    for index, page in enumerate(pages):
+        label = f"{path}#pages[{index}]"
+        page_id = str(page.get("page_id", ""))
+        if page.get("section_id") not in section_ids:
+            result.error("plan.section_ref", label, f"未知章节：{page.get('section_id')}")
+        refs = set(page_content_refs(page))
+        page_refs_seen.update(refs)
+        for ref in refs | set(_refs(page.get("evidence_refs"))):
+            if ref not in known_refs:
+                result.error("plan.content_ref", label, f"未知内容：{ref}")
+        blocks = [item for item in page.get("blocks", []) if isinstance(item, Mapping)]
+        primaries = [item for item in blocks if item.get("importance") == "primary"]
+        if len(primaries) != 1:
+            result.error("plan.primary_block", label, "每页必须有且只有一个主表达块")
+        for block in blocks:
+            block_id = str(block.get("block_id", ""))
+            if block_id in block_ids:
+                result.error("plan.block_duplicate", label, f"表达块 ID 重复：{block_id}")
+            block_ids.add(block_id)
+            block_refs = set(_refs(block.get("content_refs")))
+            visible_refs.update(block_refs)
+            for ref in block_refs:
+                if ref not in known_refs:
+                    result.error("plan.content_ref", label, f"表达块引用未知内容：{ref}")
+                if ref not in refs:
+                    result.error("plan.block_scope", label, f"表达块内容未列入页面内容：{ref}")
+
+    decisions = [item for item in document.get("coverage_decisions", []) if isinstance(item, Mapping)]
+    decision_refs = [str(item.get("content_ref")) for item in decisions if item.get("content_ref")]
+    for duplicate in sorted(_duplicates(decision_refs)):
+        result.error("coverage.duplicate", str(path), f"覆盖决定重复：{duplicate}")
+    missing_decisions = coverage_required_refs(content) - set(decision_refs)
+    extra_decisions = set(decision_refs) - known_refs
+    for ref in sorted(missing_decisions):
+        result.error("coverage.missing", str(path), f"内容缺少覆盖决定：{ref}")
+    for ref in sorted(extra_decisions):
+        result.error("coverage.unknown", str(path), f"覆盖决定引用未知内容：{ref}")
+    must_refs = must_content_refs(content)
+    for index, decision in enumerate(decisions):
+        label = f"{path}#coverage_decisions[{index}]"
+        ref = str(decision.get("content_ref", ""))
         disposition = decision.get("disposition")
-        page_refs = _ref_list(decision.get("page_refs"))
-        if content_ref not in known_content:
-            result.error("plan.coverage_unknown_content", decision_path, f"未知 content_ref：{content_ref}")
-        if disposition == "include" and not page_refs:
-            result.error("plan.coverage_page_refs", decision_path, "disposition=include 必须声明 page_refs")
-        for page_ref in page_refs:
-            if page_ref not in page_ids:
-                result.error("plan.coverage_unknown_page", decision_path, f"未知 page_ref：{page_ref}")
-            else:
-                referenced = page_ref_map.get(page_ref, set())
-                if content_ref not in referenced:
-                    result.error(
-                        "plan.coverage_mismatch",
-                        decision_path,
-                        f"page_refs 包含 {page_ref}，但该页未实际引用 {content_ref}",
-                    )
-    for ref in sorted(must_refs):
-        decision = decisions_by_ref.get(ref)
-        if decision is None:
-            result.error("plan.must_decision", label, f"must 内容缺少 coverage_decision：{ref}")
-        elif decision.get("disposition") != "include":
-            result.error("plan.must_decision", label, f"must 内容必须 include：{ref}")
-        if ref not in total_refs:
-            result.error("plan.must_coverage", label, f"must 内容未进入任何页面：{ref}")
-
-    # Adaptive confirmation is a deterministic gate, not a conversational
-    # suggestion.  Derive every machine-observable trigger from the contracts
-    # and require the plan to acknowledge it before rendering.
-    required_triggers: set[str] = set()
-    objective = brief.get("objective")
-    audience = brief.get("audience")
-    if (
-        not isinstance(objective, str)
-        or not objective.strip()
-        or not isinstance(audience, str)
-        or not audience.strip()
-    ):
-        required_triggers.add("missing_objective_or_audience")
-    if any(
-        relation.get("type") == "contradicts"
-        for item in content_items(content_doc)
-        for relation in _as_list(item.get("relations"))
-        if isinstance(relation, dict)
-    ):
-        required_triggers.add("source_conflict")
-
-    uncertain_must = {
-        _identifier(item, "id")
-        for item in content_items(content_doc)
-        if item.get("priority") == "must" and item.get("status") in {"inferred", "placeholder"}
-    }
-    removed_must = {
-        ref
-        for ref in must_refs
-        if isinstance(decisions_by_ref.get(ref), dict)
-        and decisions_by_ref[ref].get("disposition") in {"defer", "omit"}
-    }
-    if uncertain_must or removed_must:
-        required_triggers.add("must_infer_or_placeholder_or_remove")
-
-    content_limits = brief.get("page_limits") if isinstance(brief.get("page_limits"), dict) else {}
-    content_max = content_limits.get("max")
-    drivers = [driver for driver in _as_list(budget.get("drivers")) if isinstance(driver, dict)]
-    page_limit_overflow = any(
-        driver.get("type") == "page_limit"
-        and isinstance(driver.get("count"), int)
-        and isinstance(content_max, int)
-        and driver["count"] > content_max
-        for driver in drivers
-    )
-    must_missing_at_capacity = (
-        isinstance(maximum, int)
-        and len(pages) >= maximum
-        and bool(must_refs - total_refs)
-    )
-    if page_limit_overflow or must_missing_at_capacity:
-        required_triggers.add("must_content_overflow")
-
-    requested_pages = content_limits.get("requested")
-    has_raw_prose = any(
-        source.get("kind") == "raw_text"
-        for source in _as_list(content_doc.get("sources"))
-        if isinstance(source, dict)
-    )
-    if isinstance(target, int) and target >= 16 and requested_pages is None and has_raw_prose:
-        required_triggers.add("raw_prose_16_plus")
-
-    confirmation = document.get("confirmation") if isinstance(document.get("confirmation"), dict) else {}
-    confirmation_decision = confirmation.get("decision")
-    declared_triggers = set(_strings(confirmation.get("triggers")))
-    for trigger in sorted(required_triggers - declared_triggers):
-        result.error(
-            "plan.confirmation_trigger",
-            f"{label}#.confirmation",
-            f"检测到 {trigger}，必须声明该 trigger",
-        )
-    for trigger in sorted(declared_triggers - required_triggers):
-        result.error(
-            "plan.confirmation_spurious_trigger",
-            f"{label}#.confirmation",
-            f"未检测到 {trigger}，不得机械暂停制作",
-        )
-    expected_confirmation_decision = "needs_confirmation" if required_triggers else "proceed"
-    if confirmation_decision != expected_confirmation_decision:
-        result.error(
-            "plan.confirmation_decision",
-            f"{label}#.confirmation.decision",
-            f"根据派生 triggers，decision 必须为 {expected_confirmation_decision!r}",
-        )
-    if required_triggers and not _strings(confirmation.get("questions")):
-        result.error(
-            "plan.confirmation_questions",
-            f"{label}#.confirmation.questions",
-            "needs_confirmation 必须给出至少一个可回答的问题",
-        )
+        listed_pages = set(_refs(decision.get("page_refs")))
+        if disposition == "include":
+            if not listed_pages:
+                result.error("coverage.page_ref", label, "纳入内容必须落到至少一页")
+            for page_id in listed_pages:
+                page = next((item for item in pages if item.get("page_id") == page_id), None)
+                if page is None:
+                    result.error("coverage.page_ref", label, f"未知页面：{page_id}")
+                elif ref not in page_content_refs(page):
+                    result.error("coverage.page_binding", label, f"{ref} 未出现在 {page_id} 的内容引用中")
+            if ref not in visible_refs:
+                result.error("coverage.visible_block", label, f"{ref} 未进入任何可见表达块")
+        elif listed_pages:
+            result.error("coverage.page_ref", label, "暂缓或省略的内容不能绑定页面")
+        if ref in must_refs and disposition != "include":
+            result.error("coverage.must", label, "priority=must 的内容不能暂缓或省略")
     return result
 
 
@@ -1394,328 +1307,350 @@ def validate_plan_target(target: Path, root: Path) -> ValidationResult:
     except ContractError as exc:
         result.error("config.plan", str(target), str(exc))
         return result
+    assert path is not None
+    result.extend(validate_output_location(path, root, allow_internal=True))
     document = _load_document(path, result, str(path))
     if document is not None:
         result.extend(validate_plan_document(document, path, root))
     return result
 
 
-def _relation_primary(page: Mapping[str, Any]) -> str | None:
-    value = page.get("relation_shape")
-    if isinstance(value, dict):
-        primary = value.get("primary")
-        return str(primary) if primary else None
-    return None
-
-
-def _meaningful_rationale(value: Any) -> bool:
-    if not isinstance(value, str):
-        return False
-    normalized = re.sub(r"\s+", "", value).casefold()
-    if len(normalized) < 10:
-        return False
-    copy_words = ("照抄", "抄模板", "套模板", "复制模板", "直接copy", "copytemplate", "sameastemplate")
-    if any(word in normalized for word in copy_words) and len(normalized) < 32:
-        return False
-    return True
-
-
-def _capacity_bound(capacity: Mapping[str, Any], name: str, bound: str) -> int | None:
-    value = capacity.get(name)
-    if isinstance(value, dict) and isinstance(value.get(bound), int):
-        return value[bound]
-    return None
-
-
-class DeckHtmlContractParser(HTMLParser):
-    """Build one page-aware DOM index for the deck HTML source."""
-
-    VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
-
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self.current_page: str | None = None
-        self.current_block: str | None = None
-        self.stack: list[tuple[str, str | None, str | None]] = []
-        self.page_order: list[str] = []
-        self.page_roots: dict[str, list[dict[str, str]]] = {}
-        self.page_elements: dict[str, list[dict[str, str]]] = {}
-        self.page_source: dict[str, list[str]] = {}
-        self.block_tags: dict[str, dict[str, list[str]]] = {}
-        self.source_ids: dict[str, list[str]] = {}
-        self.document_elements: list[dict[str, str]] = []
-
-    @staticmethod
-    def _attributes(attrs: list[tuple[str, str | None]]) -> dict[str, str]:
-        return {name: value or "" for name, value in attrs}
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        values = self._attributes(attrs)
-        previous_page = self.current_page
-        previous_block = self.current_block
-        classes = set(values.get("class", "").split())
-        declared_page = values.get("data-page-id")
-        if tag == "section" and "slide" in classes and declared_page:
-            self.current_page = declared_page
-            self.page_order.append(declared_page)
-            root = {key: value for key, value in values.items() if key.startswith("data-")}
-            root["__tag__"] = tag
-            self.page_roots.setdefault(declared_page, []).append(root)
-        declared_block = values.get("data-block-id")
-        if self.current_page and declared_block:
-            self.current_block = declared_block
-        if tag not in self.VOID_TAGS:
-            self.stack.append((tag, previous_page, previous_block))
-        data_values = {key: value for key, value in values.items() if key.startswith("data-")}
-        if data_values:
-            data_values["__tag__"] = tag
-            self.document_elements.append(data_values)
-            if self.current_page:
-                self.page_elements.setdefault(self.current_page, []).append(data_values)
-        if self.current_page:
-            start_tag = self.get_starttag_text() or ""
-            self.page_source.setdefault(self.current_page, []).append(start_tag)
-            if self.current_block:
-                self.block_tags.setdefault(self.current_page, {}).setdefault(self.current_block, []).append(tag)
-            source_id = values.get("id")
-            if source_id:
-                self.source_ids.setdefault(source_id, []).append(self.current_page)
-        if tag in self.VOID_TAGS:
-            self.current_block = previous_block
-
-    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        self.handle_starttag(tag, attrs)
-        if tag not in self.VOID_TAGS:
-            self.handle_endtag(tag)
-
-    def handle_endtag(self, tag: str) -> None:
-        while self.stack:
-            opened, previous_page, previous_block = self.stack.pop()
-            if self.current_page:
-                self.page_source.setdefault(self.current_page, []).append(f"</{tag}>")
-            if opened == tag:
-                self.current_page = previous_page
-                self.current_block = previous_block
-                break
-
-    def handle_data(self, data: str) -> None:
-        if self.current_page:
-            self.page_source.setdefault(self.current_page, []).append(data)
-
-
-@dataclass(frozen=True)
-class DeckHtmlContract:
-    path: Path
-    page_order: tuple[str, ...]
-    page_roots: Mapping[str, list[dict[str, str]]]
-    page_elements: Mapping[str, list[dict[str, str]]]
-    page_source: Mapping[str, str]
-    block_tags: Mapping[str, Mapping[str, tuple[str, ...]]]
-    source_ids: Mapping[str, list[str]]
-    document_elements: tuple[dict[str, str], ...]
-
-
-def parse_deck_html_contract(path: Path) -> DeckHtmlContract:
-    parser = DeckHtmlContractParser()
-    try:
-        parser.feed(path.read_text(encoding="utf-8"))
-    except (OSError, UnicodeDecodeError) as exc:
-        raise ContractError(f"HTML 无法读取：{path}: {exc}") from exc
-    return DeckHtmlContract(
-        path=path,
-        page_order=tuple(parser.page_order),
-        page_roots=parser.page_roots,
-        page_elements=parser.page_elements,
-        page_source={key: "".join(parts) for key, parts in parser.page_source.items()},
-        block_tags={
-            page_id: {block_id: tuple(tags) for block_id, tags in blocks.items()}
-            for page_id, blocks in parser.block_tags.items()
-        },
-        source_ids=parser.source_ids,
-        document_elements=tuple(parser.document_elements),
-    )
-
-
-def _deck_html_path(
-    render_path: Path,
-    render_document: Mapping[str, Any],
-) -> Path:
-    return (render_path.parent / str(render_document["output_file"])).resolve()
-
-
-def _layout_slot_map(layout: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
-    output: dict[str, Mapping[str, Any]] = {}
-    for slot in layout.get("slots", []):
-        if isinstance(slot, dict):
-            slot_id = _identifier(slot, "slot_id")
-            if slot_id:
-                output[slot_id] = slot
-    return output
-
-
-def _validate_html_page(
-    page: Mapping[str, Any],
-    plan_page: Mapping[str, Any],
-    page_id: str,
-    layout_id: str,
-    layout_source: str,
-    reuse_mode: str,
-    theme_id: str,
-    section_title: str,
-    render_path: Path,
-    result: ValidationResult,
-    item_path: str,
-    render_document: Mapping[str, Any],
-    html_contract: DeckHtmlContract,
-) -> None:
-    html_path = _deck_html_path(render_path, render_document)
-    if not html_path.is_file():
-        result.error("render.html_missing", item_path, f"找不到 page_id={page_id} 对应的 HTML 文件")
-        return
-    elements = list(html_contract.page_elements.get(page_id, []))
-    emphasis = page.get("emphasis") if isinstance(page.get("emphasis"), dict) else {}
-    emphasis_mode = str(emphasis.get("mode", ""))
-    expected = {
-        "data-page-id": page_id,
-        "data-page-role": str(plan_page.get("role", "")),
-        "data-theme": theme_id,
-        "data-layout-source": layout_source,
-        "data-layout": layout_id,
-        "data-density": str(plan_page.get("density_intent", "")),
-        "data-reuse-mode": reuse_mode,
-        "data-page-title": str(plan_page.get("assertion_title", "")),
-        "data-page-summary": str(plan_page.get("takeaway", "")),
-        "data-section-id": str(plan_page.get("section_id", "")),
-        "data-section-title": section_title,
-        "data-emphasis-mode": emphasis_mode,
+def _recipe_fingerprint(recipe: Mapping[str, Any]) -> str:
+    slots = [
+        {
+            key: slot.get(key)
+            for key in ("slot_id", "required", "visual_role", "min_items", "max_items")
+        }
+        for slot in recipe.get("slots", [])
+        if isinstance(slot, Mapping)
+    ]
+    canonical = {
+        "reading_order": recipe.get("reading_order"),
+        "structure_contract": recipe.get("structure_contract"),
+        "slots": slots,
     }
-    page_element = next(
-        (
-            attrs
-            for attrs in elements
-            if attrs.get("data-page-id") == page_id
-        ),
-        None,
-    )
-    if page_element is None:
-        result.error("render.html_page_data", str(html_path), f"缺少 data-page-id={page_id!r} 的页面声明")
-    else:
-        for key, expected_value in expected.items():
-            if page_element.get(key) != str(expected_value):
-                result.error(
-                    "render.html_page_data",
-                    str(html_path),
-                    f"页面声明 {key} 应为 {expected_value!r}，实际为 {page_element.get(key)!r}",
-                )
-        role_elements = [attrs for attrs in elements if attrs.get("data-emphasis-role")]
-        if emphasis_mode == "semantic-focus":
-            emphasis_ref = str(emphasis.get("content_ref", ""))
-            expected_roles = set(_strings(emphasis.get("member_roles")))
-            actual_roles = set((page_element.get("data-emphasis-roles") or "").split())
-            if page_element.get("data-emphasis-ref") != emphasis_ref:
-                result.error(
-                    "render.html_emphasis",
-                    str(html_path),
-                    f"页面声明 data-emphasis-ref 应为 {emphasis_ref!r}",
-                )
-            if actual_roles != expected_roles:
-                result.error(
-                    "render.html_emphasis",
-                    str(html_path),
-                    f"页面声明 data-emphasis-roles 应为 {sorted(expected_roles)}，实际为 {sorted(actual_roles)}",
-                )
-            carrier_roles: set[str] = set()
-            for attrs in role_elements:
-                refs = set((attrs.get("data-content-ref") or "").split())
-                roles = set((attrs.get("data-emphasis-role") or "").split())
-                if emphasis_ref not in refs:
-                    result.error(
-                        "render.html_emphasis_carrier",
-                        str(html_path),
-                        f"强调载体必须同时声明 data-content-ref={emphasis_ref!r}",
-                    )
-                carrier_roles.update(roles)
-            if carrier_roles != expected_roles:
-                result.error(
-                    "render.html_emphasis_carrier",
-                    str(html_path),
-                    f"强调载体 roles 应完整且仅覆盖 {sorted(expected_roles)}，实际为 {sorted(carrier_roles)}",
-                )
-        else:
-            if page_element.get("data-emphasis-ref") or page_element.get("data-emphasis-roles"):
-                result.error(
-                    "render.html_emphasis",
-                    str(html_path),
-                    "emphasis.mode=none 时不得声明 data-emphasis-ref / data-emphasis-roles",
-                )
-            if role_elements:
-                result.error(
-                    "render.html_emphasis_carrier",
-                    str(html_path),
-                    "emphasis.mode=none 时不得声明 data-emphasis-role",
-                )
+    payload = json.dumps(canonical, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return f"sha256:{hashlib.sha256(payload).hexdigest()}"
 
-    for slot in _as_list(page.get("slots")):
-        if not isinstance(slot, dict):
-            continue
-        block_id = _identifier(slot, "block_id")
-        renderer = slot.get("renderer") if isinstance(slot.get("renderer"), dict) else {}
-        provider = renderer.get("provider")
-        component = renderer.get("component")
-        refs = set(slot_content_refs(slot))
-        matching = [attrs for attrs in elements if attrs.get("data-block-id") == block_id]
-        if not matching:
-            result.error("render.html_component_data", str(html_path), f"block {block_id!r} 缺少组件 data-* 声明")
-            continue
-        if len(matching) > 1:
-            result.error("render.duplicate_block", str(html_path), f"page {page_id!r} 内 block {block_id!r} 重复声明")
-        attrs = matching[0]
-        checks = {
-            "data-provider": provider,
-            "data-component": component,
-        }
-        for key, expected_value in checks.items():
-            if expected_value is not None and attrs.get(key) != str(expected_value):
-                result.error(
-                    "render.html_component_data",
-                    str(html_path),
-                    f"block {block_id!r} 的 {key} 应为 {expected_value!r}，实际为 {attrs.get(key)!r}",
-                )
-        actual_refs = set((attrs.get("data-content-ref") or "").split())
-        if actual_refs != refs:
-            result.error(
-                "render.html_content_refs",
-                str(html_path),
-                f"block {block_id!r} 的 data-content-ref 应为 {sorted(refs)}，实际为 {sorted(actual_refs)}",
+
+def _slot_map(recipe: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+    return {
+        str(item["slot_id"]): item
+        for item in recipe.get("slots", [])
+        if isinstance(item, Mapping) and item.get("slot_id")
+    }
+
+
+def _validate_recipe_semantics(
+    planned: Mapping[str, Any],
+    recipe: Mapping[str, Any],
+    label: str,
+    result: ValidationResult,
+) -> None:
+    role = str(planned.get("role", ""))
+    if role not in _refs(recipe.get("roles")):
+        result.error(
+            "render.recipe_role",
+            label,
+            f"页面角色 {role} 不在所选 Gallery recipe 的适用角色中",
+        )
+    relation_shape = (
+        planned.get("relation_shape")
+        if isinstance(planned.get("relation_shape"), Mapping)
+        else {}
+    )
+    relation = str(relation_shape.get("primary", ""))
+    if relation not in _refs(recipe.get("relations")):
+        result.error(
+            "render.recipe_relation",
+            label,
+            f"页面主关系 {relation} 不在所选 Gallery recipe 的适用关系中",
+        )
+    contract = (
+        recipe.get("structure_contract")
+        if isinstance(recipe.get("structure_contract"), Mapping)
+        else {}
+    )
+    primitive = str(planned.get("spatial_primitive", ""))
+    if primitive not in _refs(contract.get("core_primitives")):
+        result.error(
+            "render.recipe_primitive",
+            label,
+            f"页面空间结构 {primitive} 不在所选 Gallery recipe 的核心结构中",
+        )
+
+
+def _theme_adapters(theme: ThemeRecord) -> dict[str, Mapping[str, Any]]:
+    return {
+        str(item["adapter_id"]): item
+        for item in theme.theme_document.get("adapters", [])
+        if isinstance(item, Mapping) and item.get("adapter_id")
+    }
+
+
+def _validate_theme_adapters(
+    theme: ThemeRecord,
+    catalog: CapabilityCatalog,
+    result: ValidationResult,
+) -> None:
+    adapters = [
+        item
+        for item in theme.theme_document.get("adapters", [])
+        if isinstance(item, Mapping)
+    ]
+    adapter_ids = [str(item.get("adapter_id", "")) for item in adapters]
+    for duplicate in sorted(_duplicates(adapter_ids)):
+        result.error(
+            "theme.adapter_duplicate",
+            str(theme.theme_path),
+            f"主题适配器 ID 重复：{duplicate}",
+        )
+    for index, adapter in enumerate(adapters):
+        label = f"{theme.theme_path}#adapters[{index}]"
+        for renderer_kind in _refs(adapter.get("renderer_kinds")):
+            for component_source in _refs(adapter.get("component_sources")):
+                if (renderer_kind, component_source) not in catalog.allowed_pairs:
+                    result.error(
+                        "theme.adapter_capability",
+                        label,
+                        f"主题适配器声明了公共能力未允许的组合：{renderer_kind} × {component_source}",
+                    )
+
+
+def _dataset_dimensions(value: Any) -> tuple[set[str], int | None]:
+    dimensions: set[str] = set()
+    if isinstance(value, Mapping) and isinstance(value.get("source"), list):
+        raw_dimensions = value.get("dimensions")
+        if isinstance(raw_dimensions, list):
+            dimensions.update(
+                str(item.get("name") if isinstance(item, Mapping) else item)
+                for item in raw_dimensions
             )
-        block_tags = set(html_contract.block_tags.get(page_id, {}).get(str(block_id), ()))
-        required_tags = {
-            "svg": ("svg",),
-            "image": ("img", "picture"),
-            "table": ("table",),
+        value = value["source"]
+    if isinstance(value, list) and value:
+        first = value[0]
+        if isinstance(first, Mapping):
+            for row in value:
+                if isinstance(row, Mapping):
+                    dimensions.update(str(key) for key in row)
+            return dimensions, None
+        if isinstance(first, list):
+            width = max((len(row) for row in value if isinstance(row, list)), default=0)
+            if all(isinstance(item, str) for item in first):
+                dimensions.update(str(item) for item in first)
+            return dimensions, width
+        return dimensions, 1
+    if isinstance(value, Mapping):
+        dimensions.update(str(key) for key in value)
+        return dimensions, None
+    if isinstance(value, list):
+        return dimensions, 0
+    return dimensions, None
+
+
+def _flatten_encode(value: Any) -> list[Any]:
+    if isinstance(value, list):
+        return [child for item in value for child in _flatten_encode(item)]
+    return [value]
+
+
+def _validate_echarts_binding(
+    binding: Mapping[str, Any],
+    items: Mapping[str, Mapping[str, Any]],
+    label: str,
+    result: ValidationResult,
+) -> None:
+    ref = binding.get("data_ref") if isinstance(binding.get("data_ref"), Mapping) else {}
+    content_id = str(ref.get("content_id", ""))
+    item = items.get(content_id)
+    if item is None:
+        result.error("render.data_ref", label, f"图表数据引用未知内容：{content_id}")
+        return
+    try:
+        dataset = _json_pointer_get(item, str(ref.get("json_pointer", "")))
+    except ContractError as exc:
+        result.error("render.data_ref", label, str(exc))
+        return
+    if not isinstance(dataset, (list, Mapping)):
+        result.error("render.dataset", label, "ECharts dataset 必须指向数组或对象数据")
+        return
+    dimensions, width = _dataset_dimensions(dataset)
+    encode = binding.get("encode")
+    if not isinstance(encode, Mapping) or not encode:
+        result.error("render.encode", label, "ECharts encode 必须明确映射字段")
+        return
+    for channel, raw_value in encode.items():
+        for value in _flatten_encode(raw_value):
+            if isinstance(value, int) and not isinstance(value, bool):
+                if width is None or value < 0 or value >= width:
+                    result.error("render.encode", label, f"{channel} 引用了不存在的数据列 {value}")
+            elif isinstance(value, str):
+                if value not in dimensions:
+                    result.error("render.encode", label, f"{channel} 引用了不存在的数据字段 {value!r}")
+            else:
+                result.error("render.encode", label, f"{channel} 的字段映射必须是列名或列序号")
+
+
+def _atlas_component_ids() -> set[str] | None:
+    candidates: list[Path] = []
+    configured = os.environ.get("PPT_COMPONENT_ATLAS_CATALOG")
+    if configured:
+        candidates.append(Path(configured).expanduser())
+    candidates.extend(
+        [
+            Path.home() / ".codex/skills/ppt-component-atlas/public/catalog-data.js",
+            Path.home() / ".agents/skills/ppt-component-atlas/public/catalog-data.js",
+        ]
+    )
+    path = next((candidate for candidate in candidates if candidate.is_file()), None)
+    if path is None:
+        return None
+    try:
+        if path.suffix.casefold() == ".json":
+            document = load_json(path)
+            entries = document.get("components", []) if isinstance(document, Mapping) else []
+        else:
+            source = path.read_text(encoding="utf-8")
+            marker = source.find("window.SWISS_CATALOG_DATA")
+            start = source.find("{", marker)
+            document, _ = json.JSONDecoder().raw_decode(source[start:])
+            entries = document.get("entries", []) if isinstance(document, Mapping) else []
+    except (OSError, ValueError, ContractError):
+        return set()
+    identifiers: set[str] = set()
+    for item in entries:
+        if not isinstance(item, Mapping):
+            continue
+        for key in ("component_id", "id", "name"):
+            if item.get(key):
+                identifiers.add(str(item[key]))
+    return identifiers
+
+
+def _validate_renderer(
+    renderer: Mapping[str, Any],
+    label: str,
+    page_refs: set[str],
+    content: Mapping[str, Any],
+    catalog: CapabilityCatalog,
+    theme: ThemeRecord,
+    result: ValidationResult,
+    datasets: dict[str, str],
+) -> None:
+    kind = str(renderer.get("renderer_kind", ""))
+    source = str(renderer.get("component_source", ""))
+    pair = (kind, source)
+    if pair not in catalog.allowed_pairs:
+        result.error("render.capability_pair", label, f"公共能力未登记组合：{kind} × {source}")
+    refs = set(_refs(renderer.get("content_refs")))
+    known_refs = content_ref_ids(content)
+    for ref in refs:
+        if ref not in known_refs:
+            result.error("render.content_ref", label, f"未知内容：{ref}")
+        if ref not in page_refs:
+            result.error("render.content_scope", label, f"渲染内容未列入页面：{ref}")
+    adapter_id = str(renderer.get("theme_adapter_id", ""))
+    adapter = _theme_adapters(theme).get(adapter_id)
+    if adapter is None:
+        result.error("render.theme_adapter", label, f"主题未登记适配器：{adapter_id}")
+    elif kind not in _refs(adapter.get("renderer_kinds")) or source not in _refs(
+        adapter.get("component_sources")
+    ):
+        result.error("render.theme_adapter", label, f"适配器 {adapter_id} 不支持 {kind} × {source}")
+
+    binding = renderer.get("data_binding")
+    if isinstance(binding, Mapping):
+        data_ref = binding.get("data_ref") if isinstance(binding.get("data_ref"), Mapping) else {}
+        data_content_id = str(data_ref.get("content_id", ""))
+        if data_content_id not in refs:
+            result.error("render.data_ref", label, "数据来源必须同时列入该组件的内容引用")
+        items = {
+            str(item["id"]): item
+            for item in content_items(content)
+            if item.get("id")
         }
-        if provider in required_tags:
-            tags = required_tags[provider]
-            if not block_tags.intersection(tags):
-                result.error(
-                    "render.html_provider_semantics",
-                    str(html_path),
-                    f"block {block_id!r} 声明 provider={provider!r}，但包装节点内没有对应的 {('/'.join(tags))} 元素",
-                )
-        if provider == "echarts":
-            page_source = html_contract.page_source.get(page_id, "")
-            if not re.search(r"WisePPT[.]createEChart\s*[(]", page_source):
-                result.error(
-                    "render.html_provider_semantics",
-                    str(html_path),
-                    f"block {block_id!r} 声明 provider='echarts'，但本页没有调用 WisePPT.createEChart()",
-                )
-            if page_element is None or page_element.get("data-render-pending") != "true":
-                result.error(
-                    "render.html_provider_semantics",
-                    str(html_path),
-                    f"包含 ECharts 的 page {page_id!r} 必须声明 data-render-pending='true'",
-                )
+        if source == "echarts":
+            _validate_echarts_binding(binding, items, label, result)
+        else:
+            ref = binding.get("data_ref") if isinstance(binding.get("data_ref"), Mapping) else {}
+            item = items.get(str(ref.get("content_id", "")))
+            if item is None:
+                result.error("render.data_ref", label, "数据引用指向未知内容")
+            else:
+                try:
+                    _json_pointer_get(item, str(ref.get("json_pointer", "")))
+                except ContractError as exc:
+                    result.error("render.data_ref", label, str(exc))
+        dataset_id = str(binding.get("dataset_id", ""))
+        signature = _json_key(binding)
+        if dataset_id in datasets:
+            result.error("render.dataset_id", label, f"dataset_id 必须唯一：{dataset_id}")
+        datasets[dataset_id] = signature
+    elif source == "echarts":
+        result.error("render.data_binding", label, "ECharts 必须绑定真实 dataset 与 encode")
+
+    if source == "ppt-component-atlas":
+        known_atlas = _atlas_component_ids()
+        component_id = str(renderer.get("component_id", ""))
+        if known_atlas is None:
+            result.error("config.atlas_catalog", label, "缺少 PPT Component Atlas catalog，无法核对组件 ID")
+        elif component_id not in known_atlas:
+            result.error("render.atlas_component", label, f"Atlas 中不存在组件：{component_id}")
+
+    material = renderer.get("material_treatment")
+    if kind == "image" and not isinstance(material, Mapping):
+        result.error("asset.reconstruction", label, "图片只能使用有记录的重构成品")
+    if isinstance(material, Mapping):
+        assets = _asset_map(content)
+        mode = material.get("mode")
+        output_ref = str(material.get("output_asset_ref", ""))
+        output = assets.get(output_ref)
+        linked_items: list[Mapping[str, Any]] = []
+        for item in content_items(content):
+            item_refs = {str(item.get("id", ""))}
+            item_refs.update(
+                str(atom.get("id"))
+                for atom in item.get("atomic_values", [])
+                if isinstance(atom, Mapping) and atom.get("id")
+            )
+            if refs & item_refs:
+                linked_items.append(item)
+        linked_asset_refs = {
+            asset_ref
+            for item in linked_items
+            for asset_ref in _refs(item.get("asset_refs"))
+        }
+        if output is None or output.get("role") != "reconstructed":
+            result.error("asset.output_ref", label, "图片输出必须指向已登记的重构成品")
+        elif output_ref not in linked_asset_refs:
+            result.error(
+                "asset.content_link",
+                label,
+                "图片输出必须登记在该组件承载内容的 asset_refs 中",
+            )
+        if mode == "reconstruct":
+            if output is not None and output.get("creation_mode") != "reconstruct":
+                result.error("asset.output_mode", label, "重构渲染必须指向 reconstruct 成品")
+            for ref in _refs(material.get("source_asset_refs")):
+                source_asset = assets.get(ref)
+                if source_asset is None or source_asset.get("role") != "source":
+                    result.error("asset.source_ref", label, f"重构来源不是已登记原素材：{ref}")
+                elif output is not None and ref not in _refs(output.get("derived_from")):
+                    result.error("asset.provenance", label, f"成品未记录来自原素材：{ref}")
+            if output is not None and output.get("reconstruction_method") != material.get("strategy"):
+                result.error("asset.strategy", label, "渲染方案与素材记录的重构方法不一致")
+        elif mode == "generate":
+            if source != "codex-host":
+                result.error("asset.generate_source", label, "生成图片只能来自 Codex 宿主内置图片能力")
+            if output is not None and output.get("creation_mode") != "generate":
+                result.error("asset.output_mode", label, "生成渲染必须指向 generate 成品")
+            evidence_refs = {
+                str(item.get("id"))
+                for item in content_items(content)
+                if item.get("epistemic_role") == "evidence"
+            }
+            if refs & evidence_refs:
+                result.error("asset.generated_evidence", label, "生成图片不能承载原始证据")
 
 
 def validate_render_document(
@@ -1723,470 +1658,951 @@ def validate_render_document(
     path: Path,
     root: Path,
     *,
-    require_html: bool = True,
+    require_html: bool,
 ) -> ValidationResult:
-    label = str(path)
-    result = validate_against_schema(root, "render", document, label)
+    result = ValidationResult()
+    _require_v2(document, path, result)
+    result.extend(validate_against_schema(root, "render", document, str(path)))
     try:
         content_path = resolve_link(path, document.get("content_file"), root, "content")
-        plan_path = resolve_link(path, document.get("deck_plan_file"), root, "plan")
+        plan_path = resolve_link(path, document.get("deck_plan_file"), root, "deck plan")
     except ContractError as exc:
-        result.error("config.render_link", label, str(exc))
+        result.error("config.render_link", str(path), str(exc))
         return result
-    content_doc = _load_document(content_path, result, str(content_path))
-    plan_doc = _load_document(plan_path, result, str(plan_path))
-    if content_doc is None or plan_doc is None:
+    content = _load_document(content_path, result, str(content_path))
+    plan = _load_document(plan_path, result, str(plan_path))
+    if content is None or plan is None:
         return result
-
-    confirmation = plan_doc.get("confirmation") if isinstance(plan_doc.get("confirmation"), dict) else {}
-    if confirmation.get("decision") != "proceed":
+    _require_v2(content, content_path, result)
+    _require_v2(plan, plan_path, result)
+    confirmation = plan.get("confirmation") if isinstance(plan.get("confirmation"), Mapping) else {}
+    brief = content.get("brief") if isinstance(content.get("brief"), Mapping) else {}
+    constraints = [
+        item
+        for item in brief.get("user_constraints", [])
+        if isinstance(item, Mapping)
+    ]
+    confirmation_result = ValidationResult()
+    _validate_confirmation(
+        confirmation,
+        content,
+        _constraint_overflow(constraints, len(plan_pages(plan))),
+        plan_path,
+        confirmation_result,
+    )
+    if not confirmation_result.ok:
+        result.extend(confirmation_result)
         result.error(
-            "render.confirmation_required",
-            str(plan_path),
-            "deck plan 尚未获得 proceed 决策，必须停止进入 render",
+            "render.gate_confirmation",
+            str(path),
+            "用户还有未决定的问题，必须停止渲染和 PDF 导出",
         )
         return result
-
-    requested_theme = document.get("theme_id")
+    if confirmation.get("decision") != "proceed" or confirmation.get("user_questions"):
+        result.error("render.gate_confirmation", str(path), "用户还有未决定的问题，必须停止渲染和 PDF 导出")
+        return result
+    if Path(str(plan.get("content_file", ""))).name != content_path.name:
+        result.error("render.link_chain", str(path), "render 与 deck plan 没有指向同一份内容")
     try:
-        theme, layouts, _ = load_layout_catalog(root, str(requested_theme) if requested_theme else None)
+        catalog = load_capability_catalog(root)
+        theme = resolve_theme(root, str(document.get("theme_id", "")))
     except ContractError as exc:
-        code = "render.unknown_theme" if "未知" in str(exc) else "config.theme"
-        result.error(code, label, str(exc))
+        result.error("config.capabilities", str(path), str(exc))
         return result
-    layout_by_id = {record["id"]: record for record in layouts}
-    known_content = content_ref_ids(content_doc)
-    plan_by_id = {
-        _identifier(page, "page_id"): page
-        for page in plan_pages(plan_doc)
-        if _identifier(page, "page_id")
-    }
-    section_titles = {
-        _identifier(section, "section_id"): str(section.get("title", ""))
-        for section in _as_list(plan_doc.get("sections"))
-        if isinstance(section, dict) and _identifier(section, "section_id")
-    }
-    output_file = document.get("output_file")
-    if not isinstance(output_file, str) or not output_file:
-        result.error("render.output_file", label, "Render Plan 必须声明根级 output_file")
-        return result
-    html_contract: DeckHtmlContract | None = None
-    if require_html:
-        html_path = (path.parent / output_file).resolve()
-        if not html_path.is_file():
-            result.error("render.html_missing", label, f"deck HTML 输出不存在：{html_path}")
-            return result
-        try:
-            html_contract = parse_deck_html_contract(html_path)
-        except ContractError as exc:
-            result.error("config.html", str(html_path), str(exc))
-            return result
-        expected_page_ids = {
-            _identifier(page, "page_id")
-            for page in render_pages(document)
-            if _identifier(page, "page_id")
-        }
-        actual_page_ids = set(html_contract.page_roots)
-        for page_id, roots in html_contract.page_roots.items():
-            if len(roots) > 1:
-                result.error("render.duplicate_html_page", str(html_contract.path), f"data-page-id 重复：{page_id}")
-        for page_id in sorted(expected_page_ids - actual_page_ids):
-            result.error("render.html_page_missing", str(html_contract.path), f"deck HTML 缺少页面：{page_id}")
-        for page_id in sorted(actual_page_ids - expected_page_ids):
-            result.error("render.html_page_unplanned", str(html_contract.path), f"deck HTML 包含未规划页面：{page_id}")
-        for source_id, owners in sorted(html_contract.source_ids.items()):
-            if len(owners) > 1:
-                result.error(
-                    "render.duplicate_source_id",
-                    str(html_contract.path),
-                    f"源码 id={source_id!r} 重复，归属页面：{owners}",
-                )
-    seen_pages: set[str] = set()
-    atlas_records: list[dict[str, Any]] | None = None
-    theme_providers = set(_strings(theme.theme_document.get("providers")))
-    theme_runtimes = theme.theme_document.get("runtimes")
-    echarts_runtime = theme_runtimes.get("echarts") if isinstance(theme_runtimes, dict) else None
+    _validate_theme_adapters(theme, catalog, result)
 
-    for index, page in enumerate(render_pages(document)):
-        item_path = f"{label}#.pages[{index}]"
-        page_id = _identifier(page, "page_id")
-        if not page_id:
-            result.error("render.page_id", item_path, "页面缺少 page_id")
+    plan_by_id = {str(page.get("page_id")): page for page in plan_pages(plan) if page.get("page_id")}
+    render_list = render_pages(document)
+    render_ids = [str(page.get("page_id")) for page in render_list if page.get("page_id")]
+    if render_ids != list(plan_by_id):
+        result.error("render.page_order", str(path), "渲染页必须与叙事规划逐页同序")
+    for duplicate in sorted(_duplicates(render_ids)):
+        result.error("render.page_duplicate", str(path), f"渲染页面 ID 重复：{duplicate}")
+
+    datasets: dict[str, str] = {}
+    for index, render_page in enumerate(render_list):
+        label = f"{path}#pages[{index}]"
+        page_id = str(render_page.get("page_id", ""))
+        planned = plan_by_id.get(page_id)
+        if planned is None:
+            result.error("render.page_ref", label, f"找不到规划页面：{page_id}")
             continue
-        if page_id in seen_pages:
-            result.error("render.duplicate_page", item_path, f"page_id 重复：{page_id}")
-        seen_pages.add(page_id)
-        plan_page = plan_by_id.get(page_id)
-        if plan_page is None:
-            result.error("render.unknown_page", item_path, f"找不到对应的 deck page：{page_id}")
-            continue
+        page_refs = set(page_content_refs(planned))
+        decision = render_page.get("layout_decision") if isinstance(render_page.get("layout_decision"), Mapping) else {}
+        source = str(decision.get("source", ""))
+        evaluations = [item for item in decision.get("candidate_evaluations", []) if isinstance(item, Mapping)]
+        evaluation_ids = [str(item.get("recipe_id")) for item in evaluations if item.get("recipe_id")]
+        for duplicate in sorted(_duplicates(evaluation_ids)):
+            result.error("render.candidate_duplicate", label, f"布局候选重复：{duplicate}")
+        for recipe_id in evaluation_ids:
+            if recipe_id not in catalog.recipes:
+                result.error("render.recipe_ref", label, f"布局候选不在 Gallery：{recipe_id}")
+        exact = [item for item in evaluations if item.get("verdict") == "exact_fit"]
+        structure = [item for item in evaluations if item.get("verdict") == "structure_fit"]
+        selected_id = str(decision.get("recipe_id", ""))
+        selected = catalog.recipes.get(selected_id)
 
-        decision = page.get("layout_decision") if isinstance(page.get("layout_decision"), dict) else {}
-        if not decision:
-            result.error("render.layout_decision", item_path, "页面必须声明 layout_decision")
-            continue
-        layout_source = decision.get("source")
-        reuse_mode = decision.get("reuse_mode")
-        layout_id = _identifier(decision, "layout_id")
-        if not layout_id:
-            result.error("render.layout_id", item_path, "layout_decision 缺少 layout_id")
-            continue
-
-        role = plan_page.get("role")
-        relation = _relation_primary(plan_page)
-        density = plan_page.get("density_intent")
-        plan_primitive = plan_page.get("spatial_primitive")
-        core_primitive = plan_primitive
-        evaluations = [
-            item
-            for item in _as_list(decision.get("candidate_evaluations"))
-            if isinstance(item, dict)
-        ]
-        evaluation_ids = [_identifier(item, "layout_id") for item in evaluations]
-        if len([value for value in evaluation_ids if value]) != len(set(value for value in evaluation_ids if value)):
-            result.error("render.gallery_assessment", item_path, "candidate_evaluations 不可重复评估同一 layout_id")
-        for evaluation in evaluations:
-            candidate_id = _identifier(evaluation, "layout_id")
-            if candidate_id and candidate_id not in layout_by_id:
-                result.error(
-                    "render.gallery_assessment",
-                    item_path,
-                    f"candidate_evaluations 引用了 Gallery 中不存在的 layout_id：{candidate_id}",
-                )
-
-        metadata_candidates = [
-            record
-            for record in layouts
-            if (not record["roles"] or role in record["roles"])
-            and (not record["relations"] or relation in record["relations"])
-            and (not record["core_primitives"] or core_primitive in record["core_primitives"])
-            and (not record["densities"] or density in record["densities"])
-        ]
-
-        layout: Mapping[str, Any] | None = None
-        custom_contract: Mapping[str, Any] = {}
-        if layout_source == "gallery":
-            if "custom_contract" in decision:
-                result.error(
-                    "render.gallery_structure_changed",
-                    item_path,
-                    "Gallery 页不得嵌入 custom_contract；需要自定义区域或阅读顺序时必须切换为 custom",
-                )
-            layout = layout_by_id.get(layout_id)
-            if layout is None:
-                result.error("render.unsupported_layout", item_path, f"Gallery 未登记 layout_id：{layout_id}")
-            fit_ids = {
-                _identifier(item, "layout_id")
-                for item in evaluations
-                if item.get("verdict") == "fit"
+        if exact and source != "gallery":
+            result.error("render.gallery_termination", label, "已有完全匹配的 Gallery 版式，必须直接使用并停止组合")
+        if source in {"gallery", "composition"} and selected is not None:
+            _validate_recipe_semantics(planned, selected, label, result)
+        if source == "gallery":
+            if selected is None:
+                result.error("render.recipe_ref", label, f"Gallery 中不存在版式：{selected_id}")
+            if len(exact) != 1 or str(exact[0].get("recipe_id")) != selected_id:
+                result.error("render.gallery_exact", label, "Gallery 来源必须选择唯一的 exact_fit 候选")
+            if structure:
+                result.error("render.gallery_termination", label, "Gallery 完整命中后不能继续记录组合候选")
+            bindings = decision.get("payload", {}).get("bindings", []) if isinstance(decision.get("payload"), Mapping) else []
+            binding_map = {
+                str(item.get("slot_id")): item
+                for item in bindings
+                if isinstance(item, Mapping) and item.get("slot_id")
             }
-            fit_ids.discard(None)
-            if fit_ids != {layout_id}:
-                result.error(
-                    "render.gallery_assessment",
-                    item_path,
-                    "Gallery 决策必须且只能把选中的 layout_id 标记为 fit",
-                )
-        elif layout_source == "custom":
-            custom_contract = (
-                decision.get("custom_contract")
-                if isinstance(decision.get("custom_contract"), dict)
-                else {}
-            )
-            if not layout_id.startswith("custom."):
-                result.error("render.custom_layout_id", item_path, "Custom layout_id 必须以 custom. 开头")
-            if layout_id in layout_by_id:
-                result.error("render.custom_layout_collision", item_path, f"Custom layout_id 与 Gallery 冲突：{layout_id}")
-            if any(item.get("verdict") != "reject" for item in evaluations):
-                result.error("render.gallery_assessment", item_path, "Custom 页的候选只能标记为 reject")
-            if metadata_candidates and not evaluations:
-                result.error(
-                    "render.gallery_assessment",
-                    item_path,
-                    "Gallery 返回了元数据候选；Custom 页必须记录最多 3 个候选及拒绝原因",
-                )
-        else:
-            result.error("render.layout_source", item_path, f"未知 layout source：{layout_source!r}")
+            if len(binding_map) != len(bindings):
+                result.error("render.payload_slot", label, "Gallery payload 槽位不能缺失或重复")
+            if selected is not None:
+                slots = _slot_map(selected)
+                expected_order = _refs(selected.get("reading_order"))
+                if [str(item.get("slot_id")) for item in bindings] != expected_order:
+                    result.error("render.payload_order", label, "Gallery payload 必须完整绑定全部槽位并沿用 recipe 的阅读顺序")
+                unknown = set(binding_map) - set(slots)
+                missing = set(slots) - set(binding_map)
+                for slot_id in sorted(unknown):
+                    result.error("render.payload_slot", label, f"Gallery 不存在槽位：{slot_id}")
+                for slot_id in sorted(missing):
+                    result.error("render.payload_slot", label, f"Gallery 槽位未绑定：{slot_id}")
+                for slot_id, binding in binding_map.items():
+                    if slot_id not in slots:
+                        continue
+                    slot = slots[slot_id]
+                    bound_refs = _refs(binding.get("content_refs"))
+                    bound_assets = _refs(binding.get("asset_refs"))
+                    count = len(bound_refs) + len(bound_assets)
+                    if count < int(slot.get("min_items", 0)) or count > int(slot.get("max_items", count)):
+                        result.error("render.payload_capacity", label, f"槽位 {slot_id} 的绑定数量超出容量")
+                    for ref in bound_refs:
+                        if ref not in page_refs:
+                            result.error("render.content_scope", label, f"Gallery 内容未列入页面：{ref}")
+                    assets = _asset_map(content)
+                    for ref in bound_assets:
+                        asset = assets.get(ref)
+                        if asset is None or asset.get("role") != "reconstructed":
+                            result.error("asset.output_ref", label, f"Gallery 图片不是已登记重构成品：{ref}")
+        elif source == "composition":
+            if selected is None:
+                result.error("render.recipe_ref", label, f"Gallery 中不存在结构参考：{selected_id}")
+            if len(structure) != 1 or str(structure[0].get("recipe_id")) != selected_id:
+                result.error("render.composition_fit", label, "组合页必须选择唯一的 structure_fit 候选")
+        elif source == "custom" and any(item.get("verdict") != "reject" for item in evaluations):
+            result.error("render.custom_reject", label, "自定义页只能在所有候选都不合适时使用")
 
-        if layout is not None:
-            supported_core_primitives = set(layout.get("core_primitives", []))
-            if core_primitive not in supported_core_primitives:
-                result.error(
-                    "render.unsupported_core_primitive",
-                    item_path,
-                    f"布局 {layout_id} 不支持 core_primitive={core_primitive!r}；"
-                    f"允许 {sorted(supported_core_primitives)}",
-                )
-
-        rationale = page.get("rationale")
-        if not _meaningful_rationale(rationale):
-            result.error("render.rationale", item_path, "rationale 必须解释内容关系、容量或表达选择，不能只写照抄模板")
-
-        if layout is not None:
-            if layout["roles"] and role not in layout["roles"]:
-                result.error("render.unsupported_role", item_path, f"布局 {layout_id} 不支持 role={role!r}")
-            if layout["relations"] and relation not in layout["relations"]:
-                result.error("render.unsupported_relation", item_path, f"布局 {layout_id} 不支持 relation={relation!r}")
-            if layout["densities"] and density not in layout["densities"]:
-                result.error("render.unsupported_density", item_path, f"布局 {layout_id} 不支持 density={density!r}")
-
-        plan_refs = set(page_content_refs(plan_page))
-        rendered_refs = set(render_page_content_refs(page))
-        for ref in sorted(rendered_refs):
-            if ref not in known_content:
-                result.error("render.unknown_content", item_path, f"渲染引用了未知 content_ref：{ref}")
-            elif ref not in plan_refs:
-                result.error("render.unplanned_content", item_path, f"渲染引用 {ref}，但 deck page 未规划该内容")
-        for ref in sorted(plan_refs - rendered_refs):
-            result.error("render.missing_content", item_path, f"deck page 规划的 {ref} 没有进入任何渲染槽位")
-
-        plan_blocks = {
-            _identifier(block, "block_id")
-            for block in _as_list(plan_page.get("blocks"))
-            if isinstance(block, dict) and _identifier(block, "block_id")
+        slots = [item for item in render_page.get("slots", []) if isinstance(item, Mapping)]
+        block_map = {
+            str(item.get("block_id")): item
+            for item in planned.get("blocks", [])
+            if isinstance(item, Mapping) and item.get("block_id")
         }
-        slots = [slot for slot in _as_list(page.get("slots")) if isinstance(slot, dict)]
-        slot_order = [_identifier(slot, "slot_id") for slot in slots]
-        actions = [
-            slot.get("component_decision", {}).get("action")
-            if isinstance(slot.get("component_decision"), dict)
-            else None
-            for slot in slots
-        ]
-        if layout_source == "gallery" and reuse_mode == "copy" and any(action != "keep" for action in actions):
-            result.error("render.component_decision", item_path, "reuse_mode=copy 要求所有组件 action=keep")
-        if layout_source == "gallery" and reuse_mode == "adapt":
-            if "replace" not in actions or any(action not in {"keep", "replace"} for action in actions):
-                result.error(
-                    "render.component_decision",
-                    item_path,
-                    "reuse_mode=adapt 要求至少一个 action=replace，其他组件只能 keep",
-                )
-        if layout_source == "custom" and any(action != "select" for action in actions):
-            result.error("render.component_decision", item_path, "reuse_mode=custom 要求所有组件 action=select")
+        slot_ids = [str(item.get("slot_id")) for item in slots if item.get("slot_id")]
+        for duplicate in sorted(_duplicates(slot_ids)):
+            result.error("render.slot_duplicate", label, f"渲染槽位重复：{duplicate}")
+        if source == "composition" and selected is not None:
+            recipe_slots = _slot_map(selected)
+            if set(slot_ids) != set(recipe_slots):
+                result.error("render.composition_slots", label, "组合页必须完整保留 Gallery 的全部槽位结构")
+            if slot_ids != _refs(selected.get("reading_order")):
+                result.error("render.composition_order", label, "组合页必须保留 Gallery 的阅读顺序")
+            changed = False
+            for slot in slots:
+                spec = recipe_slots.get(str(slot.get("slot_id")))
+                renderer = slot.get("renderer") if isinstance(slot.get("renderer"), Mapping) else {}
+                if spec is None:
+                    continue
+                if slot.get("visual_role") != spec.get("visual_role"):
+                    result.error("render.slot_role", label, f"槽位 {slot.get('slot_id')} 改变了主次关系")
+                if renderer.get("renderer_kind") not in spec.get("allowed_renderer_kinds", []):
+                    result.error("render.slot_renderer", label, f"槽位 {slot.get('slot_id')} 不支持该渲染方式")
+                if renderer.get("component_source") not in spec.get("allowed_component_sources", []):
+                    result.error("render.slot_source", label, f"槽位 {slot.get('slot_id')} 不支持该组件来源")
+                default = spec.get("default_renderer") if isinstance(spec.get("default_renderer"), Mapping) else {}
+                triple = (renderer.get("renderer_kind"), renderer.get("component_source"), renderer.get("component_id"))
+                default_triple = (default.get("renderer_kind"), default.get("component_source"), default.get("component_id"))
+                changed = changed or triple != default_triple
+            if slots and not changed:
+                result.error("render.composition_redundant", label, "组件完全沿用默认实现时应直接使用 Gallery，不需要再次组合")
+        if source == "custom":
+            custom = decision.get("custom_contract") if isinstance(decision.get("custom_contract"), Mapping) else {}
+            regions = [item for item in custom.get("regions", []) if isinstance(item, Mapping)]
+            region_ids = [str(item.get("slot_id")) for item in regions if item.get("slot_id")]
+            if set(region_ids) != set(slot_ids):
+                result.error("render.custom_slots", label, "自定义结构区域必须与渲染槽位一一对应")
+            if custom.get("reading_order") != region_ids:
+                result.error("render.custom_order", label, "自定义阅读顺序必须与区域顺序一致")
+            region_map = {str(item.get("slot_id")): item for item in regions}
+            for slot in slots:
+                region = region_map.get(str(slot.get("slot_id")))
+                if region and (
+                    region.get("block_id") != slot.get("block_id")
+                    or region.get("visual_role") != slot.get("visual_role")
+                ):
+                    result.error("render.custom_region", label, "自定义区域与渲染槽位定义不一致")
 
-        slot_ids: set[str] = set()
-        mapped_blocks: set[str] = set()
-        primary_visuals = 0
-        layout_slots: dict[str, Mapping[str, Any]] = _layout_slot_map(layout) if layout else {}
-        capacity: Mapping[str, Any] = layout.get("capacity", {}) if layout else {}
-        if layout is not None:
-            declared_order = list(layout_slots)
-            unknown_slots = [slot_id for slot_id in slot_order if slot_id and slot_id not in layout_slots]
-            used_declared_order = [slot_id for slot_id in declared_order if slot_id in slot_order]
-            required_missing = [
-                slot_id
-                for slot_id, spec in layout_slots.items()
-                if spec.get("required") and slot_id not in slot_order
-            ]
-            if unknown_slots or slot_order != used_declared_order or required_missing:
-                result.error(
-                    "render.gallery_structure_changed",
-                    item_path,
-                    "Gallery 页不得增减必填区域、加入未知区域或改变 slots[] 规范顺序；"
-                    f"未知 {unknown_slots}，缺少必填 {required_missing}，实际顺序 {slot_order}",
-                )
-        elif layout_source == "custom":
-            regions = [item for item in _as_list(custom_contract.get("regions")) if isinstance(item, dict)]
-            reading_order = _strings(custom_contract.get("reading_order"))
-            region_ids = [_identifier(region, "slot_id") for region in regions]
-            for region in regions:
-                region_id = _identifier(region, "slot_id")
-                if region_id and region_id not in layout_slots:
-                    layout_slots[region_id] = region
-                elif region_id:
-                    result.error("render.custom_contract", item_path, f"Custom region slot_id 重复：{region_id}")
-                minimum = region.get("min_items")
-                maximum = region.get("max_items")
-                if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
-                    result.error("render.custom_contract", item_path, f"Custom region {region_id} 的 min_items 不能大于 max_items")
-            if reading_order != region_ids or slot_order != reading_order:
-                result.error(
-                    "render.custom_contract",
-                    item_path,
-                    "Custom reading_order、regions[] 与 slots[] 必须包含相同 slot_id 且顺序完全一致",
-                )
-            capacity = custom_contract.get("capacity") if isinstance(custom_contract.get("capacity"), dict) else {}
-            for key in ("semantic_units", "primary_items"):
-                bounds = capacity.get(key) if isinstance(capacity, dict) else None
-                if isinstance(bounds, dict):
-                    minimum = bounds.get("min")
-                    maximum = bounds.get("max")
-                    if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
-                        result.error("render.custom_contract", item_path, f"Custom capacity.{key}.min 不能大于 max")
+        if source in {"composition", "custom"}:
+            mapped_blocks = [str(slot.get("block_id", "")) for slot in slots]
+            for duplicate in sorted(_duplicates(mapped_blocks)):
+                result.error("render.block_duplicate", label, f"表达块只能映射一次：{duplicate}")
+            if set(mapped_blocks) != set(block_map):
+                result.error("render.block_coverage", label, "每个规划表达块必须且只能映射到一个渲染槽位")
+            primary_slots = [slot for slot in slots if slot.get("visual_role") == "primary"]
+            if len(primary_slots) != 1:
+                result.error("render.primary_slot", label, "每页必须有且只有一个主渲染槽")
 
-        primary_items = 0
         for slot_index, slot in enumerate(slots):
-            slot_path = f"{item_path}.slots[{slot_index}]"
-            slot_id = _identifier(slot, "slot_id")
-            block_id = _identifier(slot, "block_id")
-            if not slot_id:
-                result.error("render.slot_id", slot_path, "槽位缺少 slot_id")
-                continue
-            if slot_id in slot_ids:
-                result.error("render.duplicate_slot", slot_path, f"slot_id 重复：{slot_id}")
-            slot_ids.add(slot_id)
-            if block_id not in plan_blocks:
-                result.error("render.unknown_block", slot_path, f"block_id 未在 deck page 声明：{block_id}")
-            elif block_id in mapped_blocks:
-                result.error("render.duplicate_block_mapping", slot_path, f"block_id 被多个 slot 使用：{block_id}")
-            else:
-                mapped_blocks.add(block_id)
-            if slot.get("visual_role") == "primary":
-                primary_visuals += 1
-            slot_spec = layout_slots.get(slot_id) if layout else None
-            if layout_source == "custom":
-                slot_spec = layout_slots.get(slot_id)
-                if slot_spec is None:
-                    result.error("render.custom_contract", slot_path, f"Custom contract 未声明 slot_id={slot_id!r}")
-                else:
-                    if slot_spec.get("block_id") != block_id or slot_spec.get("visual_role") != slot.get("visual_role"):
-                        result.error(
-                            "render.custom_contract",
-                            slot_path,
-                            "Custom region 的 block_id / visual_role 必须与 render slot 一致",
-                        )
-            renderer = slot.get("renderer") if isinstance(slot.get("renderer"), dict) else {}
-            provider = renderer.get("provider")
-            if provider not in PROVIDERS:
-                result.error("render.provider", slot_path, f"未知 provider：{provider!r}")
-            if theme_providers and provider not in theme_providers:
-                result.error("render.unsupported_provider", slot_path, f"主题 {theme.theme_id} 不支持 provider={provider!r}")
-            if layout is not None and slot_spec:
-                allowed = _strings(slot_spec.get("allowed_providers"))
-                if allowed and provider not in allowed:
-                    result.error(
-                        "render.unsupported_provider",
-                        slot_path,
-                        f"slot {slot_id} 不支持 provider={provider!r}；允许 {allowed}",
-                    )
-            refs = slot_content_refs(slot)
-            item_count = len(refs)
-            if renderer.get("data_ref") and not refs:
-                item_count += 1
-            if slot_spec:
-                minimum = slot_spec.get("min_items")
-                maximum = slot_spec.get("max_items")
-                if isinstance(minimum, int) and item_count < minimum:
-                    result.error("render.slot_underfill", slot_path, f"槽位至少需要 {minimum} 项，实际 {item_count}")
-                if isinstance(maximum, int) and item_count > maximum:
-                    result.error("render.slot_overflow", slot_path, f"槽位最多允许 {maximum} 项，实际 {item_count}")
-                if slot_spec.get("required") and item_count == 0 and minimum != 0:
-                    result.error("render.required_slot_empty", slot_path, "必填槽位不能为空")
-            if slot.get("visual_role") == "primary":
-                primary_items += item_count
-
-            component = renderer.get("component")
-            if provider == "echarts":
-                if not renderer.get("data_ref"):
-                    result.error("render.echarts_data_ref", slot_path, "ECharts renderer 必须声明 data_ref")
-                if not isinstance(renderer.get("encode"), dict) or not renderer.get("encode"):
-                    result.error("render.echarts_encode", slot_path, "ECharts renderer 必须声明非空 encode")
-                if not isinstance(echarts_runtime, dict) or not isinstance(echarts_runtime.get("major"), int):
-                    result.error(
-                        "config.echarts_runtime",
-                        slot_path,
-                        f"主题 {theme.theme_id} 必须声明 runtimes.echarts.major",
-                    )
-            if provider == "atlas":
-                if not component:
-                    result.error("render.atlas_component", slot_path, "provider=atlas 必须声明 component")
-                else:
-                    if atlas_records is None:
-                        try:
-                            _, atlas_records, _ = load_component_catalog(root, theme.theme_id)
-                        except ContractError as exc:
-                            result.error("config.component_catalog", slot_path, str(exc))
-                            atlas_records = []
-                    aliases = {
-                        str(alias).casefold()
-                        for record in atlas_records
-                        for alias in (record.get("id"), record.get("canonical_name"), record.get("name"), *(record.get("aliases") or []))
-                        if alias
-                    }
-                    if str(component).casefold() not in aliases:
-                        result.error("render.unknown_component", slot_path, f"atlas catalog 中不存在组件 {component!r}")
-
-            block = next(
-                (
-                    candidate
-                    for candidate in _as_list(plan_page.get("blocks"))
-                    if isinstance(candidate, dict) and _identifier(candidate, "block_id") == block_id
-                ),
-                None,
-            )
-            if block is not None:
-                expected_refs = set(_ref_list(block.get("content_refs")))
-                if set(refs) != expected_refs:
-                    result.error(
-                        "render.block_content_mismatch",
-                        slot_path,
-                        f"renderer.content_refs 应与 block 一致：期望 {sorted(expected_refs)}，实际 {sorted(set(refs))}",
-                    )
-
-        for missing_block in sorted(plan_blocks - mapped_blocks):
-            result.error("render.missing_block", item_path, f"deck block 未映射到 render slot：{missing_block}")
-        if primary_visuals != 1:
-            result.error("render.primary_visual", item_path, f"每页必须恰好一个 primary visual_role，实际 {primary_visuals}")
-
-        semantic_count = plan_page.get("semantic_unit_count")
-        semantic_min = _capacity_bound(capacity, "semantic_units", "min")
-        semantic_max = _capacity_bound(capacity, "semantic_units", "max")
-        primary_min = _capacity_bound(capacity, "primary_items", "min")
-        primary_max = _capacity_bound(capacity, "primary_items", "max")
-        if isinstance(semantic_count, int) and semantic_min is not None and semantic_count < semantic_min:
-            result.error("render.capacity_underfill", item_path, f"语义单元至少 {semantic_min} 个，实际 {semantic_count}")
-        if isinstance(semantic_count, int) and semantic_max is not None and semantic_count > semantic_max:
-            result.error("render.capacity_overflow", item_path, f"语义单元最多 {semantic_max} 个，实际 {semantic_count}")
-        if primary_min is not None and primary_items < primary_min:
-            result.error("render.primary_underfill", item_path, f"主项至少 {primary_min} 个，实际 {primary_items}")
-        if primary_max is not None and primary_items > primary_max:
-            result.error("render.primary_overflow", item_path, f"主项最多 {primary_max} 个，实际 {primary_items}")
-
-        emphasis = page.get("emphasis") if isinstance(page.get("emphasis"), dict) else {}
-        if emphasis.get("mode") == "semantic-focus":
-            emphasis_ref = emphasis.get("content_ref")
-            if emphasis_ref not in rendered_refs:
-                result.error(
-                    "render.emphasis_ref",
-                    item_path,
-                    f"semantic-focus 必须引用本页已渲染内容，实际为 {emphasis_ref!r}",
+            slot_label = f"{label}.slots[{slot_index}]"
+            block_id = str(slot.get("block_id", ""))
+            if block_id not in block_map:
+                result.error("render.block_ref", slot_label, f"未知表达块：{block_id}")
+            elif slot.get("visual_role") == "primary" and block_map[block_id].get("importance") != "primary":
+                result.error("render.primary_binding", slot_label, "主渲染槽必须绑定主表达块")
+            renderer = slot.get("renderer")
+            if isinstance(renderer, Mapping):
+                _validate_renderer(
+                    renderer,
+                    slot_label,
+                    page_refs,
+                    content,
+                    catalog,
+                    theme,
+                    result,
+                    datasets,
                 )
+        expected_refs = page_refs
+        rendered_refs = set(render_page_content_refs(render_page))
+        for ref in sorted(expected_refs - rendered_refs):
+            result.error("render.coverage", label, f"页面内容未进入渲染：{ref}")
+        emphasis = render_page.get("emphasis") if isinstance(render_page.get("emphasis"), Mapping) else {}
+        if emphasis.get("mode") == "semantic-focus":
+            content_ref = str(emphasis.get("content_ref", ""))
+            if content_ref not in page_refs or content_ref not in rendered_refs:
+                result.error("render.emphasis_ref", label, "语义强调必须指向本页实际渲染的内容")
 
-        if html_contract is not None:
-            section_id = str(plan_page.get("section_id", ""))
-            _validate_html_page(
-                page,
-                plan_page,
-                page_id,
-                layout_id,
-                str(layout_source),
-                str(reuse_mode),
-                theme.theme_id,
-                section_titles.get(section_id, ""),
-                path,
-                result,
-                item_path,
-                document,
-                html_contract,
-            )
-
-    missing_pages = sorted(set(plan_by_id) - seen_pages)
-    for page_id in missing_pages:
-        result.error("render.missing_page", label, f"deck page 未进入 render plan：{page_id}")
+    if require_html:
+        html_path = path.parent / str(document.get("output_file", "index.html"))
+        result.extend(_validate_deck_html(html_path, document, plan, content, catalog, theme))
     return result
 
 
-def validate_render_target(target: Path, root: Path) -> ValidationResult:
-    result = ValidationResult()
+@dataclass
+class HtmlElement:
+    tag: str
+    attrs: dict[str, str]
+    text: list[str] = field(default_factory=list)
+
+
+@dataclass
+class HtmlSlide:
+    attrs: dict[str, str]
+    elements: list[HtmlElement] = field(default_factory=list)
+    text: list[str] = field(default_factory=list)
+
+
+HTML_VOID_ELEMENTS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
+
+
+class DeckHtmlParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.root_attrs: dict[str, str] = {}
+        self.slides: list[HtmlSlide] = []
+        self._stack: list[int | None] = []
+        self._element_stack: list[HtmlElement] = []
+        self._tag_stack: list[str] = []
+        self.all_elements: list[HtmlElement] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = {key: value or "" for key, value in attrs}
+        if tag == "html":
+            self.root_attrs = values
+        classes = set(values.get("class", "").split())
+        slide_index = self._stack[-1] if self._stack else None
+        if "slide" in classes:
+            self.slides.append(HtmlSlide(values))
+            slide_index = len(self.slides) - 1
+        element = HtmlElement(tag, values)
+        self.all_elements.append(element)
+        if slide_index is not None:
+            self.slides[slide_index].elements.append(element)
+        if tag in HTML_VOID_ELEMENTS:
+            return
+        self._stack.append(slide_index)
+        self._element_stack.append(element)
+        self._tag_stack.append(tag)
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.handle_starttag(tag, attrs)
+        if tag not in HTML_VOID_ELEMENTS:
+            self.handle_endtag(tag)
+
+    def handle_endtag(self, tag: str) -> None:
+        while self._tag_stack:
+            open_tag = self._tag_stack.pop()
+            self._stack.pop()
+            self._element_stack.pop()
+            if open_tag == tag:
+                break
+
+    def handle_data(self, data: str) -> None:
+        if self._element_stack:
+            self._element_stack[-1].text.append(data)
+        hidden_text = bool(
+            self._element_stack
+            and self._element_stack[-1].tag in {"script", "style"}
+        )
+        if self._stack and self._stack[-1] is not None and data.strip() and not hidden_text:
+            self.slides[self._stack[-1]].text.append(data)
+
+
+def parse_deck_html_contract(path: Path) -> DeckHtmlParser:
     try:
-        path = find_document(target, "render")
-    except ContractError as exc:
-        result.error("config.render", str(target), str(exc))
+        source = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ContractError(f"HTML 无法读取：{path}: {exc}") from exc
+    parser = DeckHtmlParser()
+    try:
+        parser.feed(source)
+    except Exception as exc:  # HTMLParser can surface malformed entity errors.
+        raise ContractError(f"HTML 无法解析：{path}: {exc}") from exc
+    return parser
+
+
+def _normalized_text(values: Iterable[str]) -> str:
+    return unicodedata.normalize("NFKC", " ".join(values)).replace(" ", "")
+
+
+def _resource_value(element: HtmlElement) -> str | None:
+    if element.tag in {"script", "img", "source", "audio", "video", "iframe"}:
+        return element.attrs.get("src")
+    if element.tag == "link" and element.attrs.get("rel") != "canonical":
+        return element.attrs.get("href")
+    if element.tag == "object":
+        return element.attrs.get("data")
+    return None
+
+
+CSS_URL_RE = re.compile(r"url\(\s*(['\"]?)(.*?)\1\s*\)", re.IGNORECASE | re.DOTALL)
+CSS_IMPORT_RE = re.compile(
+    r"@import\s+(?!url\()(['\"])(.*?)\1",
+    re.IGNORECASE,
+)
+STYLE_BLOCK_RE = re.compile(r"<style\b[^>]*>(.*?)</style\s*>", re.IGNORECASE | re.DOTALL)
+IMAGE_SUFFIXES = {
+    ".apng",
+    ".avif",
+    ".bmp",
+    ".gif",
+    ".heic",
+    ".heif",
+    ".jpeg",
+    ".jpg",
+    ".png",
+    ".svg",
+    ".tif",
+    ".tiff",
+    ".webp",
+}
+
+
+def _css_urls(source: str) -> list[str]:
+    values = [match.group(2).strip() for match in CSS_URL_RE.finditer(source)]
+    values.extend(match.group(2).strip() for match in CSS_IMPORT_RE.finditer(source))
+    return values
+
+
+def _srcset_urls(value: str) -> list[str]:
+    return [part.strip().split()[0] for part in value.split(",") if part.strip()]
+
+
+def _reference_path(owner: Path, value: str) -> Path | None:
+    parsed = urlparse(value.strip())
+    if parsed.scheme or parsed.netloc or not parsed.path:
+        return None
+    return (owner.parent / unquote(parsed.path)).resolve()
+
+
+def _validate_local_resources(
+    html_path: Path,
+    source: str,
+    parser: DeckHtmlParser,
+    result: ValidationResult,
+    *,
+    code_prefix: str,
+) -> None:
+    pending_css: list[Path] = []
+
+    def check(owner: Path, value: str, label: str) -> Path | None:
+        value = value.strip()
+        if not value or value.startswith(("#", "data:")):
+            return None
+        if not _is_local_relative(value):
+            result.error(
+                f"{code_prefix}.external_resource",
+                label,
+                f"资源必须使用本地相对路径：{value}",
+            )
+            return None
+        resolved = _reference_path(owner, value)
+        if resolved is None or not resolved.is_file():
+            result.error(
+                f"{code_prefix}.local_resource_missing",
+                label,
+                f"本地资源不存在：{value}",
+            )
+            return None
+        return resolved
+
+    for index, element in enumerate(parser.all_elements):
+        label = f"{html_path}#resource[{index}]"
+        values: list[str] = []
+        resource = _resource_value(element)
+        if resource:
+            values.append(resource)
+        if element.tag == "source":
+            values.extend(_srcset_urls(element.attrs.get("srcset", "")))
+        elif element.tag == "image":
+            values.extend(element.attrs.get(name, "") for name in ("href", "xlink:href"))
+        elif element.tag == "video":
+            values.append(element.attrs.get("poster", ""))
+        for value in values:
+            resolved = check(html_path, value, label)
+            if resolved is not None and resolved.suffix.casefold() == ".css":
+                pending_css.append(resolved)
+        for value in _css_urls(element.attrs.get("style", "")):
+            resolved = check(html_path, value, label)
+            if resolved is not None and resolved.suffix.casefold() == ".css":
+                pending_css.append(resolved)
+
+    for index, css in enumerate(STYLE_BLOCK_RE.findall(source)):
+        for value in _css_urls(css):
+            resolved = check(html_path, value, f"{html_path}#style[{index}]")
+            if resolved is not None and resolved.suffix.casefold() == ".css":
+                pending_css.append(resolved)
+
+    visited: set[Path] = set()
+    while pending_css:
+        css_path = pending_css.pop().resolve()
+        if css_path in visited:
+            continue
+        visited.add(css_path)
+        try:
+            css = css_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            result.error(
+                f"{code_prefix}.local_resource_missing",
+                str(css_path),
+                f"本地 CSS 无法读取：{exc}",
+            )
+            continue
+        for value in _css_urls(css):
+            resolved = check(css_path, value, str(css_path))
+            if resolved is not None and resolved.suffix.casefold() == ".css":
+                pending_css.append(resolved)
+
+
+def _is_image_reference(value: str, resolved: Path | None) -> bool:
+    folded = value.strip().casefold()
+    if folded.startswith("data:image/"):
+        return True
+    suffix = Path(unquote(urlparse(value).path)).suffix.casefold()
+    if suffix in IMAGE_SUFFIXES:
+        return True
+    if resolved is not None and resolved.is_file():
+        try:
+            head = resolved.read_bytes()[:512].lstrip()
+        except OSError:
+            return False
+        return (
+            head.startswith((b"\x89PNG\r\n\x1a\n", b"\xff\xd8\xff", b"GIF87a", b"GIF89a", b"BM"))
+            or b"<svg" in head.lower()
+        )
+    return False
+
+
+def _data_image_sha256(value: str) -> str | None:
+    if not value.strip().casefold().startswith("data:image/"):
+        return None
+    try:
+        header, payload = value.split(",", 1)
+        raw = base64.b64decode(payload, validate=True) if ";base64" in header.casefold() else unquote(payload).encode("utf-8")
+    except (ValueError, UnicodeError):
+        return None
+    return hashlib.sha256(raw).hexdigest()
+
+
+def _resolve_deck_asset(deck_dir: Path, content_path: Path, locator: str) -> Path | None:
+    candidates = [deck_dir / locator, content_path.parent / locator]
+    return next((candidate.resolve() for candidate in candidates if candidate.is_file()), None)
+
+
+def _validate_final_media_reference(
+    value: str,
+    owner: Path,
+    attrs: Mapping[str, str] | None,
+    label: str,
+    deck_dir: Path,
+    assets: Mapping[str, Mapping[str, Any]],
+    asset_paths: Mapping[str, Path],
+    evidence_asset_refs: set[str],
+    result: ValidationResult,
+) -> None:
+    value = value.strip()
+    if not value or value.startswith("#"):
+        return
+    resolved = _reference_path(owner, value)
+    if not _is_image_reference(value, resolved):
+        return
+
+    source_assets = {
+        asset_id: asset
+        for asset_id, asset in assets.items()
+        if asset.get("role") == "source"
+    }
+    reconstructed_assets = {
+        asset_id: asset
+        for asset_id, asset in assets.items()
+        if asset.get("role") == "reconstructed"
+    }
+    data_hash = _data_image_sha256(value)
+    if data_hash is not None:
+        if any(asset.get("sha256") == data_hash for asset in source_assets.values()):
+            result.error("asset.raw_media", label, "最终页面仍在使用原始图片数据")
+        else:
+            result.error("asset.html_unregistered", label, "内嵌图片不是登记过的重构成品")
+        return
+    if resolved is None:
+        result.error("html.external_resource", label, f"图片必须使用 deck 内的本地相对路径：{value}")
+        return
+    if _relative_to(resolved, deck_dir) is None:
+        result.error("asset.output_local", label, f"图片不能离开 deck 目录：{value}")
+        return
+    if not resolved.is_file():
+        result.error("asset.html_missing", label, f"最终图片不存在：{value}")
+        return
+    actual_hash = _sha256(resolved)
+    source_path_ids = {
+        asset_id for asset_id in source_assets if asset_paths.get(asset_id) == resolved
+    }
+    source_hash_ids = {
+        asset_id
+        for asset_id, asset in source_assets.items()
+        if asset.get("sha256") == actual_hash
+    }
+    if source_path_ids or source_hash_ids:
+        result.error("asset.raw_media", label, "最终页面不能直接使用原始图片")
+        return
+    matched_ids = {
+        asset_id
+        for asset_id in reconstructed_assets
+        if asset_paths.get(asset_id) == resolved
+    }
+    if not matched_ids:
+        result.error("asset.html_unregistered", label, "最终图片不是登记过的重构成品")
+        return
+    matching_id = next(iter(sorted(matched_ids)))
+    asset = reconstructed_assets[matching_id]
+    if asset.get("sha256") != actual_hash:
+        result.error("asset.html_fingerprint", label, "最终图片文件指纹与登记不一致")
+        return
+    if (
+        matching_id in evidence_asset_refs
+        and asset.get("creation_mode") == "reconstruct"
+        and (attrs or {}).get("data-disclosure") != "重构示意"
+    ):
+        result.error("asset.html_disclosure", label, "证据重构图必须声明“重构示意”")
+
+
+def _validate_embedded_media(
+    html_path: Path,
+    source: str,
+    parser: DeckHtmlParser,
+    content_path: Path,
+    content: Mapping[str, Any],
+    result: ValidationResult,
+) -> None:
+    deck_dir = html_path.parent.resolve()
+    assets = _asset_map(content)
+    asset_paths = {
+        asset_id: path
+        for asset_id, asset in assets.items()
+        if (path := _local_asset_path(content_path, str(asset.get("locator", "")))) is not None
+    }
+    evidence_asset_refs = {
+        ref
+        for item in content_items(content)
+        if item.get("epistemic_role") == "evidence"
+        for ref in _refs(item.get("asset_refs"))
+    }
+
+    for index, element in enumerate(parser.all_elements):
+        values: list[str] = []
+        if element.tag == "img":
+            values.append(element.attrs.get("src", ""))
+        elif element.tag == "source":
+            values.append(element.attrs.get("src", ""))
+            values.extend(_srcset_urls(element.attrs.get("srcset", "")))
+        elif element.tag == "image":
+            values.extend(
+                element.attrs.get(name, "") for name in ("href", "xlink:href")
+            )
+        elif element.tag == "video":
+            values.append(element.attrs.get("poster", ""))
+        if element.attrs.get("style"):
+            values.extend(_css_urls(element.attrs["style"]))
+        for value in values:
+            _validate_final_media_reference(
+                value,
+                html_path,
+                element.attrs,
+                f"{html_path}#media[{index}]",
+                deck_dir,
+                assets,
+                asset_paths,
+                evidence_asset_refs,
+                result,
+            )
+
+    for index, css in enumerate(STYLE_BLOCK_RE.findall(source)):
+        for value in _css_urls(css):
+            _validate_final_media_reference(
+                value,
+                html_path,
+                None,
+                f"{html_path}#style[{index}]",
+                deck_dir,
+                assets,
+                asset_paths,
+                evidence_asset_refs,
+                result,
+            )
+
+    pending: list[Path] = []
+    for element in parser.all_elements:
+        if element.tag != "link" or "stylesheet" not in element.attrs.get("rel", "").split():
+            continue
+        css_path = _reference_path(html_path, element.attrs.get("href", ""))
+        if css_path is not None and css_path.is_file():
+            pending.append(css_path)
+    visited: set[Path] = set()
+    while pending:
+        css_path = pending.pop().resolve()
+        if css_path in visited:
+            continue
+        visited.add(css_path)
+        try:
+            css = css_path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for value in _css_urls(css):
+            nested = _reference_path(css_path, value)
+            if Path(unquote(urlparse(value).path)).suffix.casefold() == ".css":
+                if nested is None or not nested.is_file():
+                    result.error("html.external_resource", str(css_path), f"CSS 依赖必须是可读取的本地文件：{value}")
+                else:
+                    pending.append(nested)
+                continue
+            _validate_final_media_reference(
+                value,
+                css_path,
+                None,
+                str(css_path),
+                deck_dir,
+                assets,
+                asset_paths,
+                evidence_asset_refs,
+                result,
+            )
+
+
+def _validate_echarts_html_binding(
+    container: HtmlElement,
+    renderer: Mapping[str, Any],
+    slide: HtmlSlide,
+    content: Mapping[str, Any],
+    label: str,
+    result: ValidationResult,
+) -> None:
+    binding = (
+        renderer.get("data_binding")
+        if isinstance(renderer.get("data_binding"), Mapping)
+        else {}
+    )
+    dataset_id = str(binding.get("dataset_id", ""))
+    if container.attrs.get("data-dataset-id") != dataset_id:
+        result.error(
+            "html.echarts_dataset_id",
+            label,
+            "ECharts 容器的 data-dataset-id 必须与 render plan 一致",
+        )
+    dataset_scripts = [
+        element
+        for element in slide.elements
+        if element.tag == "script"
+        and element.attrs.get("type", "").casefold() == "application/json"
+        and element.attrs.get("data-wise-ppt-dataset") == dataset_id
+    ]
+    if len(dataset_scripts) != 1:
+        result.error(
+            "html.echarts_dataset",
+            label,
+            f"ECharts 数据集 {dataset_id} 必须在同一页恰好声明一次",
+        )
+        return
+    raw = "".join(dataset_scripts[0].text).strip()
+    try:
+        actual = json.loads(raw)
+    except (TypeError, ValueError) as exc:
+        result.error(
+            "html.echarts_dataset_json",
+            label,
+            f"ECharts 数据集不是有效 JSON：{exc}",
+        )
+        return
+    data_ref = (
+        binding.get("data_ref")
+        if isinstance(binding.get("data_ref"), Mapping)
+        else {}
+    )
+    item = next(
+        (
+            content_item
+            for content_item in content_items(content)
+            if str(content_item.get("id", "")) == str(data_ref.get("content_id", ""))
+        ),
+        None,
+    )
+    if item is None:
+        return
+    try:
+        expected = _json_pointer_get(item, str(data_ref.get("json_pointer", "")))
+    except ContractError:
+        return
+    if actual != expected:
+        result.error(
+            "html.echarts_dataset_mismatch",
+            label,
+            "页面内嵌的 ECharts JSON 与 content.json 中 data_ref 指向的数据不一致",
+        )
+
+
+def _validate_deck_html(
+    path: Path,
+    render: Mapping[str, Any],
+    plan: Mapping[str, Any],
+    content: Mapping[str, Any],
+    catalog: CapabilityCatalog,
+    theme: ThemeRecord,
+) -> ValidationResult:
+    result = ValidationResult()
+    if not path.is_file():
+        result.error("html.missing", str(path), "缺少可直接打开的 index.html")
         return result
-    document = _load_document(path, result, str(path))
-    if document is not None:
-        result.extend(validate_render_document(document, path, root))
+    try:
+        source = path.read_text(encoding="utf-8")
+        parser = parse_deck_html_contract(path)
+    except ContractError as exc:
+        result.error("html.parse", str(path), str(exc))
+        return result
+    if parser.root_attrs.get("data-runtime") != "wise-ppt-deck":
+        result.error("html.runtime_marker", str(path), '根节点必须声明 data-runtime="wise-ppt-deck"')
+    if parser.root_attrs.get("data-typography-mode") != render.get("typography_mode"):
+        result.error("html.typography_mode", str(path), "HTML 字体模式与 render plan 不一致")
+    if "stageFit(" in source:
+        result.error("html.stage_fit_duplicate", str(path), "正式 deck 不能再次调用页面级 stageFit")
+    for element in parser.all_elements:
+        for attribute in LEGACY_HTML_ATTRIBUTES & set(element.attrs):
+            result.error("html.legacy_attribute", str(path), f"v2 禁止使用旧属性 {attribute}")
+    _validate_local_resources(
+        path,
+        source,
+        parser,
+        result,
+        code_prefix="html",
+    )
+    content_path = (path.parent / str(render.get("content_file", "content.json"))).resolve()
+    _validate_embedded_media(path, source, parser, content_path, content, result)
+
+    render_pages_list = render_pages(render)
+    if len(parser.slides) != len(render_pages_list):
+        result.error("html.page_count", str(path), "HTML 页面数与 render plan 不一致")
+    plan_by_id = {str(item.get("page_id")): item for item in plan_pages(plan)}
+    assets = _asset_map(content)
+    evidence_asset_refs = {
+        ref
+        for item in content_items(content)
+        if item.get("epistemic_role") == "evidence"
+        for ref in _refs(item.get("asset_refs"))
+    }
+    render_by_id = {str(item.get("page_id")): item for item in render_pages_list}
+    html_ids = [slide.attrs.get("data-page-id", "") for slide in parser.slides]
+    if html_ids != [str(item.get("page_id")) for item in render_pages_list]:
+        result.error("html.page_order", str(path), "HTML 页面顺序与 render plan 不一致")
+    for index, slide in enumerate(parser.slides):
+        page_id = slide.attrs.get("data-page-id", "")
+        label = f"{path}#slide[{index}]"
+        render_page = render_by_id.get(page_id)
+        planned = plan_by_id.get(page_id)
+        if render_page is None or planned is None:
+            continue
+        decision = render_page.get("layout_decision") if isinstance(render_page.get("layout_decision"), Mapping) else {}
+        source_type = str(decision.get("source", ""))
+        if slide.attrs.get("data-layout-source") != source_type:
+            result.error("html.layout_source", label, "页面布局来源与 render plan 不一致")
+        selected_id = str(decision.get("recipe_id", ""))
+        if source_type in {"gallery", "composition"}:
+            if slide.attrs.get("data-recipe-id") != selected_id:
+                result.error("html.recipe_id", label, "页面 recipe ID 与 render plan 不一致")
+        elif slide.attrs.get("data-recipe-id"):
+            result.error("html.recipe_id", label, "custom 页面不能冒充 Gallery recipe")
+        override = render_page.get("typography_decision")
+        expected_mode = override.get("mode") if isinstance(override, Mapping) else None
+        if slide.attrs.get("data-typography-mode") != (expected_mode or ""):
+            if expected_mode or "data-typography-mode" in slide.attrs:
+                result.error("html.typography_mode", label, "单页字体例外与 render plan 不一致")
+        components = [element for element in slide.elements if element.attrs.get("data-block-id")]
+        if source_type == "gallery":
+            recipe = catalog.recipes.get(selected_id)
+            defaults = _slot_map(recipe) if recipe else {}
+            payload = decision.get("payload") if isinstance(decision.get("payload"), Mapping) else {}
+            for binding in payload.get("bindings", []):
+                if not isinstance(binding, Mapping):
+                    continue
+                slot_id = str(binding.get("slot_id", ""))
+                matches = [item for item in slide.elements if item.attrs.get("data-slot-id") == slot_id]
+                if len(matches) != 1:
+                    result.error("html.gallery_slot", label, f"Gallery 槽位 {slot_id} 必须恰好出现一次")
+                    continue
+                spec = defaults.get(slot_id, {})
+                default = spec.get("default_renderer") if isinstance(spec, Mapping) else {}
+                attrs = matches[0].attrs
+                for attr, key in (
+                    ("data-renderer-kind", "renderer_kind"),
+                    ("data-component-source", "component_source"),
+                    ("data-component-id", "component_id"),
+                ):
+                    if attrs.get(attr) != default.get(key):
+                        result.error("html.gallery_default", label, f"Gallery 槽位 {slot_id} 改动了默认组件")
+                expected_refs = set(_refs(binding.get("content_refs")))
+                actual_refs = set(attrs.get("data-content-ref", "").split())
+                if not expected_refs.issubset(actual_refs):
+                    result.error("html.content_binding", label, f"Gallery 槽位 {slot_id} 缺少内容绑定")
+        else:
+            for slot in render_page.get("slots", []):
+                if not isinstance(slot, Mapping):
+                    continue
+                block_id = str(slot.get("block_id", ""))
+                matches = [item for item in components if item.attrs.get("data-block-id") == block_id]
+                if len(matches) != 1:
+                    result.error("html.block_binding", label, f"表达块 {block_id} 必须恰好渲染一次")
+                    continue
+                attrs = matches[0].attrs
+                renderer = slot.get("renderer") if isinstance(slot.get("renderer"), Mapping) else {}
+                for attr, key in (
+                    ("data-renderer-kind", "renderer_kind"),
+                    ("data-component-source", "component_source"),
+                    ("data-component-id", "component_id"),
+                    ("data-theme-adapter-id", "theme_adapter_id"),
+                ):
+                    if attrs.get(attr) != str(renderer.get(key, "")):
+                        result.error("html.renderer_binding", label, f"{block_id} 的 {attr} 与 render plan 不一致")
+                expected_refs = set(_refs(renderer.get("content_refs")))
+                actual_refs = set(attrs.get("data-content-ref", "").split())
+                if not expected_refs.issubset(actual_refs):
+                    result.error("html.content_binding", label, f"{block_id} 缺少内容引用")
+                if renderer.get("component_source") == "echarts":
+                    _validate_echarts_html_binding(
+                        matches[0],
+                        renderer,
+                        slide,
+                        content,
+                        f"{label}#{block_id}",
+                        result,
+                    )
+
+        visible = _normalized_text(slide.text)
+        wanted_refs = set(page_content_refs(planned))
+        for item in content_items(content):
+            for atom in item.get("atomic_values", []):
+                if not isinstance(atom, Mapping) or atom.get("id") not in wanted_refs:
+                    continue
+                value = _normalized_text([str(atom.get("value", ""))])
+                if value and value not in visible:
+                    result.error("coverage.atomic_value_missing", label, f"原子值未显示：{atom.get('id')}")
+
+        for image in [item for item in slide.elements if item.tag == "img"]:
+            src = image.attrs.get("src", "")
+            asset_ref = image.attrs.get("data-asset-ref", "")
+            asset = assets.get(asset_ref)
+            if asset is None or asset.get("role") != "reconstructed":
+                result.error("asset.html_unregistered", label, "最终 <img> 只能指向登记过的重构成品")
+                continue
+            if not _is_deck_relative(src):
+                result.error("asset.output_local", label, "最终图片必须使用本地相对路径")
+                continue
+            resolved = _resolve_deck_asset(path.parent, path.parent / str(render.get("content_file")), src)
+            if resolved is None:
+                result.error("asset.html_missing", label, f"最终图片不存在：{src}")
+                continue
+            locator_path = _resolve_deck_asset(path.parent, path.parent / str(render.get("content_file")), str(asset.get("locator", "")))
+            if locator_path is None or resolved != locator_path:
+                result.error("asset.html_path", label, "最终图片路径与重构素材登记不一致")
+            actual_hash = _sha256(resolved)
+            if actual_hash != asset.get("sha256"):
+                result.error("asset.html_fingerprint", label, "最终图片文件指纹与登记不一致")
+            for source_ref in _refs(asset.get("derived_from")):
+                source_asset = assets.get(source_ref)
+                if source_asset and actual_hash == source_asset.get("sha256"):
+                    result.error("asset.same_fingerprint", label, "最终图片仍是原素材文件")
+            material_mode = ""
+            block_id = image.attrs.get("data-block-id", "")
+            if source_type != "gallery":
+                slot = next(
+                    (
+                        item
+                        for item in render_page.get("slots", [])
+                        if isinstance(item, Mapping) and item.get("block_id") == block_id
+                    ),
+                    None,
+                )
+                if isinstance(slot, Mapping) and isinstance(slot.get("renderer"), Mapping):
+                    treatment = slot["renderer"].get("material_treatment")
+                    if isinstance(treatment, Mapping):
+                        material_mode = str(treatment.get("mode", ""))
+            expected_material = {
+                "reconstruct": "reconstruction",
+                "generate": "generation",
+            }.get(material_mode, "")
+            if image.attrs.get("data-material-mode") != expected_material:
+                result.error("asset.html_disclosure", label, "最终图片的生成方式声明与 render plan 不一致")
+            if (
+                material_mode == "reconstruct"
+                and asset_ref in evidence_asset_refs
+                and image.attrs.get("data-disclosure") != "重构示意"
+            ):
+                result.error("asset.html_disclosure", label, "重构图片必须显示“重构示意”")
     return result
 
 
@@ -2197,392 +2613,260 @@ def validate_render_plan_target(target: Path, root: Path) -> ValidationResult:
     except ContractError as exc:
         result.error("config.render", str(target), str(exc))
         return result
+    assert path is not None
+    result.extend(validate_output_location(path, root, allow_internal=True))
     document = _load_document(path, result, str(path))
     if document is not None:
         result.extend(validate_render_document(document, path, root, require_html=False))
     return result
 
 
-def validate_coverage_target(target: Path, root: Path) -> ValidationResult:
+def validate_render_target(target: Path, root: Path) -> ValidationResult:
     result = ValidationResult()
     try:
-        plan_path = find_document(target, "plan")
-        plan_doc = load_json(plan_path)
-        content_path = resolve_link(plan_path, plan_doc.get("content_file"), root, "content")
-        content_doc = load_json(content_path)
+        path = find_document(target, "render")
     except ContractError as exc:
-        result.error("config.coverage", str(target), str(exc))
+        result.error("config.render", str(target), str(exc))
         return result
-    if not isinstance(plan_doc, dict) or not isinstance(content_doc, dict):
-        result.error("coverage.document", str(target), "coverage 输入必须是 JSON 对象")
-        return result
-    must_ids = must_content_refs(content_doc)
-    planned = {ref for page in plan_pages(plan_doc) for ref in page_content_refs(page)}
-    blocked = {
-        ref
-        for page in plan_pages(plan_doc)
-        for block in _as_list(page.get("blocks"))
-        if isinstance(block, dict)
-        for ref in _ref_list(block.get("content_refs"))
-    }
-    for ref in sorted(must_ids - planned):
-        result.error("coverage.must_missing_plan", str(plan_path), f"must 内容未进入 deck plan：{ref}")
-    for ref in sorted(must_ids - blocked):
-        result.error("coverage.must_missing_block", str(plan_path), f"must 内容未进入 semantic block：{ref}")
-
-    decisions = {
-        decision.get("content_ref"): decision
-        for decision in _as_list(plan_doc.get("coverage_decisions"))
-        if isinstance(decision, dict) and decision.get("content_ref")
-    }
-    for ref in sorted(must_ids):
-        decision = decisions.get(ref)
-        if decision is None:
-            result.error("coverage.must_decision", str(plan_path), f"must 内容缺少 coverage_decision：{ref}")
-        elif decision.get("disposition") != "include":
-            result.error(
-                "coverage.must_disposition",
-                str(plan_path),
-                f"must 内容 {ref} 的 disposition 不能是 {decision.get('disposition')!r}",
-            )
-
-    render_path = find_document(target, "render", required=False)
-    if render_path:
-        try:
-            render_doc = load_json(render_path)
-        except ContractError as exc:
-            result.error("config.coverage_render", str(render_path), str(exc))
-            return result
-        if isinstance(render_doc, dict):
-            rendered = {ref for page in render_pages(render_doc) for ref in render_page_content_refs(page)}
-            for ref in sorted(must_ids - rendered):
-                result.error("coverage.must_missing_render", str(render_path), f"must 内容未进入 render plan：{ref}")
-            html_refs: set[str] = set()
-            html_text_by_ref: dict[str, list[str]] = {}
-            html_contract: DeckHtmlContract | None = None
-            output_file = render_doc.get("output_file")
-            if isinstance(output_file, str):
-                html_path = (render_path.parent / output_file).resolve()
-                if not html_path.is_file():
-                    result.error("coverage.html_missing", str(render_path), f"output_file 不存在：{html_path}")
-                else:
-                    try:
-                        html_contract = parse_deck_html_contract(html_path)
-                    except ContractError as exc:
-                        result.error("config.coverage_html", str(html_path), str(exc))
-            for page in render_pages(render_doc):
-                page_id = _identifier(page, "page_id") or "<unknown>"
-                if html_contract is None:
-                    continue
-                source = html_contract.page_source.get(page_id, "")
-                elements = list(html_contract.page_elements.get(page_id, []))
-                for attrs in elements:
-                    refs = (attrs.get("data-content-ref") or "").split()
-                    html_refs.update(refs)
-                    for ref in refs:
-                        html_text_by_ref.setdefault(ref, []).append(source)
-            for ref in sorted(must_ids - html_refs):
-                result.error("coverage.must_missing_html", str(render_path), f"must 内容未进入 HTML data-content-ref：{ref}")
-
-            atomic_values: dict[str, tuple[Any, Any]] = {}
-            for item in content_items(content_doc):
-                for atomic in _as_list(item.get("atomic_values")):
-                    if isinstance(atomic, dict):
-                        atomic_id = _identifier(atomic, "id")
-                        if atomic_id:
-                            atomic_values[atomic_id] = (atomic.get("value"), atomic.get("unit"))
-            for ref in sorted(must_ids & set(atomic_values)):
-                sources = html_text_by_ref.get(ref, [])
-                expected, unit = atomic_values[ref]
-                if expected is not None and sources and not any(str(expected) in source for source in sources):
-                    result.error(
-                        "coverage.atomic_value_missing",
-                        ref,
-                        f"HTML 声明了 {ref}，但未找到原子值 {expected!r}",
-                    )
-                if unit not in (None, "") and sources and not any(str(unit) in source for source in sources):
-                    result.error(
-                        "coverage.atomic_unit_missing",
-                        ref,
-                        f"HTML 声明了 {ref}，但未找到原子单位 {unit!r}",
-                    )
-    for item in content_items(content_doc):
-        if item.get("status") in {"inferred", "placeholder"}:
-            result.warn(
-                "coverage.unverified_content",
-                _identifier(item, "id") or str(content_path),
-                f"{item.get('status')} 内容必须在人工复核时显式确认：{item.get('status_note', '')}",
-            )
+    assert path is not None
+    result.extend(validate_output_location(path, root, allow_internal=True))
+    document = _load_document(path, result, str(path))
+    if document is not None:
+        result.extend(validate_render_document(document, path, root, require_html=True))
     return result
 
 
-def _resolve_example(root: Path, manifest_path: Path, value: str) -> Path:
-    raw = Path(value)
-    candidates = [raw] if raw.is_absolute() else [root / raw, manifest_path.parent / raw]
-    for candidate in candidates:
-        if candidate.is_file():
-            return candidate.resolve()
-    return candidates[0].resolve()
+def validate_coverage_target(target: Path, root: Path) -> ValidationResult:
+    """Coverage is derived by plan and render validators; it has no second rule set."""
+
+    result = validate_plan_target(target, root)
+    result.extend(validate_render_plan_target(target, root))
+    return result
+
+
+def _validate_registry(catalog: CapabilityCatalog, result: ValidationResult) -> None:
+    path = str(catalog.registry_path)
+    if not catalog.renderer_kinds:
+        result.error("capability.renderer_kinds", path, "公共能力注册表缺少 renderer_kinds")
+    if not catalog.component_sources:
+        result.error("capability.component_sources", path, "公共能力注册表缺少 component_sources")
+    for renderer, source in catalog.allowed_pairs:
+        if renderer not in catalog.renderer_kinds:
+            result.error("capability.renderer_ref", path, f"组件来源引用未知渲染方式：{renderer}")
+        if source not in catalog.component_sources:
+            result.error("capability.source_ref", path, f"未知组件来源：{source}")
 
 
 def validate_gallery(root: Path, theme_id: str | None = None) -> ValidationResult:
     result = ValidationResult()
     try:
-        theme, layouts, manifest = load_layout_catalog(root, theme_id)
+        catalog = load_capability_catalog(root)
+        theme = resolve_theme(root, theme_id)
     except ContractError as exc:
         result.error("config.gallery", str(root), str(exc))
         return result
-    manifest_path = theme.layout_manifest_path
-    declared_count = manifest.get("layout_count")
-    valid_declared_count = (
-        isinstance(declared_count, int)
-        and not isinstance(declared_count, bool)
-        and declared_count > 0
-    )
-    if not valid_declared_count:
-        result.error("gallery.layout_count", str(manifest_path), "layout_count 必须是正整数")
-    elif declared_count != len(layouts):
-        result.error(
-            "gallery.layout_count",
-            str(manifest_path),
-            f"layout_count={declared_count!r}，实际 layouts[]={len(layouts)}",
-        )
-    if not layouts:
-        result.error("gallery.empty", str(manifest_path), "layouts[] 不能为空")
-    expected_count = declared_count if valid_declared_count else len(layouts)
-    ids = [record["id"] for record in layouts]
-    if len(ids) != len(set(ids)):
-        result.error("gallery.duplicate_id", str(manifest_path), "layout_id 必须唯一")
-    codes = [record.get("display_code") for record in layouts if record.get("display_code")]
-    if len(codes) != len(set(codes)):
-        result.error("gallery.duplicate_code", str(manifest_path), "display_code 必须唯一")
-
-    declared_densities = set(_strings(manifest.get("density_levels")))
-    declared_providers = set(_strings(manifest.get("provider_ids")))
-    declared_core_primitive_list = _strings(manifest.get("core_primitive_ids"))
-    declared_core_primitives = set(declared_core_primitive_list)
-    if (
-        declared_core_primitives != CORE_PRIMITIVES
-        or len(declared_core_primitive_list) != len(CORE_PRIMITIVES)
-    ):
-        result.error(
-            "gallery.core_primitive_ids",
-            str(manifest_path),
-            "core_primitive_ids 必须精确登记 Core 12 个空间原语；"
-            f"实际条目数 {len(declared_core_primitive_list)}，"
-            f"缺少 {sorted(CORE_PRIMITIVES - declared_core_primitives)}，"
-            f"多出 {sorted(declared_core_primitives - CORE_PRIMITIVES)}",
-        )
-    for record in layouts:
-        record_path = f"{manifest_path}#{record['id']}"
-        display_code = record.get("display_code")
-        if display_code and str(display_code).casefold() in record["id"].casefold().split("."):
-            result.error("gallery.display_code_as_id", record_path, "display_code 只能展示，不能成为稳定 layout_id")
-        unknown_densities = set(record.get("densities", [])) - declared_densities
-        if declared_densities and unknown_densities:
-            result.error("gallery.unknown_density", record_path, f"未登记 density：{sorted(unknown_densities)}")
-        primitives = record.get("primitives", [])
-        core_primitives = record.get("core_primitives", [])
-        if not core_primitives:
-            result.error("gallery.core_primitives", record_path, "layout 必须声明至少一个 Core 空间原语")
-        else:
-            if len(core_primitives) > 3:
-                result.error("gallery.core_primitives", record_path, "layout core_primitives 最多声明 3 个")
-            unknown_core_primitives = set(core_primitives) - declared_core_primitives
-            if unknown_core_primitives:
-                result.error(
-                    "gallery.unknown_core_primitive",
-                    record_path,
-                    f"未知 Core 空间原语：{sorted(unknown_core_primitives)}",
-                )
-            if len(core_primitives) != len(set(core_primitives)):
-                result.error("gallery.duplicate_core_primitive", record_path, "layout core_primitives 不可重复")
-        if not primitives:
-            result.error("gallery.primitives", record_path, "layout 必须声明至少一个主题实现原语")
-        elif len(primitives) != len(set(primitives)):
-            result.error("gallery.duplicate_primitive", record_path, "layout primitives 不可重复")
-        capacity = record.get("capacity", {})
-        for capacity_key in ("semantic_units", "primary_items"):
-            bounds = capacity.get(capacity_key) if isinstance(capacity, dict) else None
-            if isinstance(bounds, dict):
-                minimum = bounds.get("min")
-                maximum = bounds.get("max")
-                if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
-                    result.error("gallery.capacity", record_path, f"{capacity_key}.min 不能大于 max")
-        slot_ids: set[str] = set()
-        for slot in record.get("slots", []):
-            if not isinstance(slot, dict):
+    _validate_registry(catalog, result)
+    _validate_theme_adapters(theme, catalog, result)
+    manifest = catalog.manifest
+    if manifest.get("recipe_count") != len(catalog.recipes):
+        result.error("gallery.recipe_count", str(catalog.manifest_path), "recipe_count 与实际数量不一致")
+    display_codes: list[str] = []
+    for recipe_id, recipe in catalog.recipes.items():
+        label = f"{catalog.manifest_path}#{recipe_id}"
+        display_codes.append(str(recipe.get("display_code", "")))
+        if recipe.get("structure_fingerprint") != _recipe_fingerprint(recipe):
+            result.error("gallery.fingerprint", label, "结构指纹与结构合同不一致")
+        slots = _slot_map(recipe)
+        reading_order = _refs(recipe.get("reading_order"))
+        if set(reading_order) != set(slots) or len(reading_order) != len(slots):
+            result.error("gallery.reading_order", label, "阅读顺序必须完整覆盖且只覆盖槽位")
+        contract = recipe.get("structure_contract") if isinstance(recipe.get("structure_contract"), Mapping) else {}
+        if contract.get("region_count") != len(slots):
+            result.error("gallery.region_count", label, "region_count 与槽位数量不一致")
+        required = {slot_id for slot_id, slot in slots.items() if slot.get("required")}
+        if set(_refs(contract.get("required_slot_ids"))) != required:
+            result.error("gallery.required_slots", label, "结构合同的必填槽位与 slots 不一致")
+        for slot_id, slot in slots.items():
+            default = slot.get("default_renderer") if isinstance(slot.get("default_renderer"), Mapping) else {}
+            pair = (str(default.get("renderer_kind", "")), str(default.get("component_source", "")))
+            if pair not in catalog.allowed_pairs:
+                result.error("gallery.default_renderer", label, f"槽位 {slot_id} 的默认组件组合未登记")
+            if default.get("renderer_kind") not in slot.get("allowed_renderer_kinds", []):
+                result.error("gallery.default_renderer", label, f"槽位 {slot_id} 默认渲染方式不在允许集合")
+            if default.get("component_source") not in slot.get("allowed_component_sources", []):
+                result.error("gallery.default_renderer", label, f"槽位 {slot_id} 默认组件来源不在允许集合")
+            if int(slot.get("min_items", 0)) > int(slot.get("max_items", 0)):
+                result.error("gallery.capacity", label, f"槽位 {slot_id} 最小容量大于最大容量")
+        examples = recipe.get("examples") if isinstance(recipe.get("examples"), Mapping) else {}
+        galleries = theme.theme_document.get("galleries") if isinstance(theme.theme_document.get("galleries"), Mapping) else {}
+        if set(examples) != set(galleries):
+            result.error("gallery.examples", label, "每个 recipe 必须覆盖主题登记的全部 Gallery 样例")
+        for variant, value in examples.items():
+            example = _resolve_repo_path(root, catalog.manifest_path, str(value))
+            if not example.is_file():
+                result.error("gallery.example_missing", label, f"样例不存在：{value}")
                 continue
-            slot_id = _identifier(slot, "slot_id")
-            if not slot_id:
-                result.error("gallery.slot_id", record_path, "layout slot 缺少 slot_id")
-            elif slot_id in slot_ids:
-                result.error("gallery.duplicate_slot", record_path, f"slot_id 重复：{slot_id}")
-            else:
-                slot_ids.add(slot_id)
-            minimum = slot.get("min_items")
-            maximum = slot.get("max_items")
-            if isinstance(minimum, int) and isinstance(maximum, int) and minimum > maximum:
-                result.error("gallery.slot_capacity", record_path, f"slot {slot_id} 的 min_items 不能大于 max_items")
-            unknown_providers = set(_strings(slot.get("allowed_providers"))) - declared_providers
-            if declared_providers and unknown_providers:
-                result.error(
-                    "gallery.unknown_provider",
-                    record_path,
-                    f"slot {slot_id} 使用未登记 provider：{sorted(unknown_providers)}",
-                )
-
-    galleries = theme.theme_document.get("galleries")
-    if not isinstance(galleries, dict) or not galleries:
-        result.error("gallery.index_paths", str(theme.theme_path), "主题必须声明非空 galleries 映射")
-        galleries = {}
-    manifest_variants = _strings(manifest.get("gallery_variants"))
-    variants = manifest_variants or [str(name) for name in galleries]
-    if manifest_variants and set(manifest_variants) != set(galleries):
-        result.error(
-            "gallery.variant_declaration",
-            str(manifest_path),
-            f"manifest gallery_variants 与 theme.galleries 不一致："
-            f"{sorted(manifest_variants)} != {sorted(galleries)}",
-        )
-    if not variants:
-        return result
-
-    example_sets: dict[str, set[Path]] = {variant: set() for variant in variants}
-    for record in layouts:
-        examples = record.get("examples", {})
-        undeclared_variants = set(examples) - set(variants) if isinstance(examples, dict) else set()
-        if undeclared_variants:
-            result.error(
-                "gallery.undeclared_variant",
-                record["id"],
-                f"examples 包含 theme/manifest 未声明的变体：{sorted(undeclared_variants)}",
+            expected_prefix = (root / "gallery" / theme.theme_id / str(variant) / "frames").resolve()
+            if _relative_to(example, expected_prefix) is None:
+                result.error("gallery.example_path", label, f"样例不在公共 Gallery 目录：{value}")
+            try:
+                parser = parse_deck_html_contract(example)
+                source = example.read_text(encoding="utf-8")
+            except ContractError as exc:
+                result.error("gallery.example_parse", label, str(exc))
+                continue
+            if parser.root_attrs.get("data-runtime") != "wise-ppt-specimen":
+                result.error("gallery.example_marker", label, "Gallery frame 必须声明 wise-ppt-specimen")
+            if len(parser.slides) != 1:
+                result.error("gallery.example_slide", label, "Gallery frame 必须恰好包含一页")
+            stage_scripts = [
+                element.attrs.get("src", "")
+                for element in parser.all_elements
+                if element.tag == "script" and element.attrs.get("src", "").endswith("runtime/stage-fit.js")
+            ]
+            if len(stage_scripts) != 1:
+                result.error("gallery.stage_fit_runtime", label, "Gallery frame 必须且只能加载一次公共 stage-fit runtime")
+            if re.search(r"function\s+stageFit\s*\(|(?:window|global)\.stageFit\s*=", source):
+                result.error("gallery.stage_fit_duplicate", label, "Gallery frame 不能自行定义舞台缩放")
+            _validate_local_resources(
+                example,
+                source,
+                parser,
+                result,
+                code_prefix="gallery",
             )
-        for variant in variants:
-            value = examples.get(variant) if isinstance(examples, dict) else None
-            if not isinstance(value, str) or not value:
-                result.error("gallery.example_path", record["id"], f"缺少 examples.{variant} 路径")
-                continue
-            path = _resolve_example(root, manifest_path, value)
-            example_sets[variant].add(path)
-            if not path.is_file():
-                result.error("gallery.example_missing", record["id"], f"画册文件不存在：{path}")
-
-    for variant in variants:
-        index_ref = galleries.get(variant)
-        if not isinstance(index_ref, str):
-            result.error("gallery.index_path", str(theme.theme_path), f"缺少 galleries.{variant}")
-            continue
-        index_path = _resolve_example(root, theme.theme_path, index_ref)
+            for element in parser.all_elements:
+                for attribute in LEGACY_HTML_ATTRIBUTES & set(element.attrs):
+                    result.error("gallery.legacy_attribute", label, f"v2 Gallery 禁止旧属性 {attribute}")
+    for duplicate in sorted(_duplicates(display_codes)):
+        result.error("gallery.display_code", str(catalog.manifest_path), f"display_code 重复：{duplicate}")
+    for variant, relative in theme.theme_document.get("galleries", {}).items():
+        index_path = _resolve_repo_path(root, theme.theme_path, str(relative))
         if not index_path.is_file():
-            result.error("gallery.index_missing", str(theme.theme_path), f"画册入口不存在：{index_path}")
+            result.error("gallery.index_missing", str(theme.theme_path), f"Gallery 入口不存在：{relative}")
             continue
-        frame_dir = index_path.parent / "frames"
-        actual = {path.resolve() for path in frame_dir.glob("*.html")} if frame_dir.is_dir() else set()
-        if len(actual) != expected_count:
-            result.error(
-                "gallery.variant_count",
-                str(frame_dir),
-                f"{variant} 画册应有 layout_count={expected_count} 页，实际 {len(actual)}",
-            )
-        declared = example_sets[variant]
-        missing_declared = sorted(str(path) for path in actual - declared)
-        missing_files = sorted(str(path) for path in declared - actual)
-        if missing_declared:
-            result.error("gallery.unregistered_page", str(frame_dir), f"未登记页面：{', '.join(missing_declared)}")
-        if missing_files:
-            result.error("gallery.path_mismatch", str(frame_dir), f"manifest 路径不在画册目录：{', '.join(missing_files)}")
-    total = sum(len(paths) for paths in example_sets.values())
-    expected_total = expected_count * len(variants)
-    if total != expected_total:
-        result.error(
-            "gallery.total_count",
-            str(manifest_path),
-            f"{len(variants)} 套画册应有 {expected_total} 条唯一示例路径，实际 {total}",
+        try:
+            parser = parse_deck_html_contract(index_path)
+            source = index_path.read_text(encoding="utf-8")
+        except ContractError as exc:
+            result.error("gallery.index_parse", str(index_path), str(exc))
+            continue
+        if parser.root_attrs.get("data-runtime") != "wise-ppt-gallery":
+            result.error("gallery.index_marker", str(index_path), "Gallery 入口必须声明 wise-ppt-gallery")
+        stage_scripts = [
+            element.attrs.get("src", "")
+            for element in parser.all_elements
+            if element.tag == "script" and element.attrs.get("src", "").endswith("runtime/stage-fit.js")
+        ]
+        if len(stage_scripts) != 1:
+            result.error("gallery.stage_fit_runtime", str(index_path), "Gallery shell 必须且只能加载一次公共 stage-fit runtime")
+        if re.search(r"function\s+stageFit\s*\(|(?:window|global)\.stageFit\s*=", source):
+            result.error("gallery.stage_fit_duplicate", str(index_path), "Gallery shell 不能自行定义舞台缩放")
+        _validate_local_resources(
+            index_path,
+            source,
+            parser,
+            result,
+            code_prefix="gallery",
         )
     return result
-
-
-CORE_STYLE_TOKENS = (
-    "#dfe0d9",
-    "#191917",
-    "--paper",
-    "--ink",
-    "paper-ink",
-    "纸墨",
-    "线稿",
-    "sourcehansans",
-    "sourcehanserif",
-    "courier prime",
-    "lxgw wenkai",
-)
-GALLERY_SHORTCODE_RE = re.compile(r"(?<![A-Za-z0-9])(?:[A-O][1-9][0-9]?)(?![A-Za-z0-9])")
 
 
 def validate_core_purity(root: Path) -> ValidationResult:
     result = ValidationResult()
-    core = root / "core"
-    if not core.is_dir():
-        result.error("config.core", str(core), "缺少 core/ 目录")
-        return result
-    suffixes = {".md", ".json", ".py", ".js", ".html", ".css", ".txt", ".yaml", ".yml"}
-    for path in sorted(item for item in core.rglob("*") if item.is_file() and item.suffix.lower() in suffixes):
-        try:
-            text = path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
+    targets = [root / "core" / "schemas", root / "core" / "references"]
+    banned = ("themes/paper-ink", "paper-ink.")
+    for target in targets:
+        if not target.exists():
             continue
-        lowered = text.casefold()
-        found_tokens = [token for token in CORE_STYLE_TOKENS if token in lowered]
-        if found_tokens:
-            result.error("core.theme_token", str(path), f"Core 含主题专属 token：{', '.join(found_tokens)}")
-        codes = sorted(set(GALLERY_SHORTCODE_RE.findall(text)))
-        if codes:
-            result.error("core.gallery_shortcode", str(path), f"Core 含画册短码：{', '.join(codes[:12])}")
+        for path in target.rglob("*"):
+            if not path.is_file() or path.suffix.casefold() not in {".md", ".json"}:
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            for token in banned:
+                if token in text:
+                    result.error("core.theme_leak", str(path), f"Core 不应绑定具体主题：{token}")
     return result
 
 
 def select_theme_for_target(target: Path, root: Path) -> str | None:
-    render_path = find_document(target, "render", required=False)
-    if render_path:
-        try:
-            document = load_json(render_path)
-            if isinstance(document, dict):
-                value = document.get("theme_id") or document.get("theme")
-                if isinstance(value, str):
-                    return value
-        except ContractError:
-            pass
+    raw = str(target)
+    try:
+        registry, _ = load_theme_registry(root)
+    except ContractError:
+        return None
+    ids = {
+        str(item.get("theme_id"))
+        for item in registry.get("themes", [])
+        if isinstance(item, Mapping) and item.get("theme_id")
+    }
+    if raw in ids:
+        return raw
+    resolved = target.expanduser().resolve()
+    for theme_id in ids:
+        if theme_id in resolved.parts:
+            return theme_id
     return None
 
 
 def validate_gallery_target(target: Path, root: Path) -> ValidationResult:
-    theme_id: str | None = None
-    target_text = str(target)
-    if not target.exists() and target_text not in {".", ""}:
-        theme_id = target_text
-    elif target.is_dir() and (target / "layout-manifest.json").is_file():
+    return validate_gallery(root, select_theme_for_target(target, root))
+
+
+def _pdf_page_count(path: Path) -> int:
+    for module_name in ("pypdf", "PyPDF2"):
         try:
-            manifest = load_json(target / "layout-manifest.json")
-            if isinstance(manifest, dict):
-                theme_id = manifest.get("theme_id")
-        except ContractError:
-            pass
-    else:
-        theme_id = select_theme_for_target(target, root)
-    return validate_gallery(root, theme_id)
+            module = __import__(module_name)
+            reader = module.PdfReader(str(path))
+            return len(reader.pages)
+        except Exception:
+            continue
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return 0
+    return len(re.findall(rb"/Type\s*/Page(?!s)\b", data))
+
+
+def validate_delivery_target(target: Path, root: Path) -> ValidationResult:
+    result = validate_render_target(target, root)
+    deck = _deck_directory(target)
+    html = deck / "index.html"
+    pdfs = sorted(deck.glob("*.pdf")) if deck.is_dir() else []
+    if not pdfs:
+        result.error("delivery.pdf_missing", str(deck), "缺少可直接打开的 PDF")
+        return result
+    if len(pdfs) > 1:
+        preferred = deck / f"{deck.name}.pdf"
+        if preferred in pdfs:
+            pdfs = [preferred]
+        else:
+            result.error("delivery.pdf_ambiguous", str(deck), "目录中存在多个 PDF，无法确定交付文件")
+            return result
+    pdf = pdfs[0]
+    if pdf.stat().st_size <= 0:
+        result.error("delivery.pdf_empty", str(pdf), "PDF 文件为空")
+        return result
+    try:
+        html_pages = len(parse_deck_html_contract(html).slides)
+    except ContractError:
+        html_pages = 0
+    pdf_pages = _pdf_page_count(pdf)
+    if pdf_pages <= 0:
+        result.error("delivery.pdf_parse", str(pdf), "无法读取 PDF 页数")
+    elif pdf_pages != html_pages:
+        result.error("delivery.page_count", str(pdf), "PDF 页数与 HTML 页面数不一致")
+    return result
 
 
 def validate_all(target: Path, root: Path) -> ValidationResult:
     result = ValidationResult()
-    location = validate_output_location(target, root, allow_internal=True)
-    result.extend(location)
-    if not location.ok:
-        return result
     result.extend(validate_content_target(target, root))
     result.extend(validate_plan_target(target, root))
     result.extend(validate_render_target(target, root))
-    result.extend(validate_coverage_target(target, root))
-    result.extend(validate_gallery_target(target, root))
     result.extend(validate_core_purity(root))
     return result
 
@@ -2594,15 +2878,16 @@ VALIDATORS = {
     "render": validate_render_target,
     "coverage": validate_coverage_target,
     "gallery": validate_gallery_target,
+    "core": lambda target, root: validate_core_purity(root),
+    "delivery": validate_delivery_target,
     "all": validate_all,
 }
 
 
 def run_validation(kind: str, target: Path, root: Path) -> ValidationResult:
-    if kind not in VALIDATORS:
-        raise ContractError(f"未知校验类型：{kind}")
-    if kind in {"content", "plan", "render-plan", "render", "coverage"}:
-        location = validate_output_location(target, root, allow_internal=True)
-        if not location.ok:
-            return location
-    return VALIDATORS[kind](target, root)
+    validator = VALIDATORS.get(kind)
+    if validator is None:
+        result = ValidationResult()
+        result.error("config.validator", str(target), f"未知校验阶段：{kind}")
+        return result
+    return validator(target, root)

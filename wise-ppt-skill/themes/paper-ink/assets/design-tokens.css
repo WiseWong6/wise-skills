@@ -1,0 +1,102 @@
+/* Paper Ink design tokens. This file contains no application-shell rules. */
+@font-face {
+  font-family: 'Han Serif';
+  src: url('fonts/SourceHanSerifCN-Medium.otf') format('opentype');
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Han Sans';
+  src: url('fonts/SourceHanSansCN-Light.otf') format('opentype');
+  font-style: normal;
+  font-weight: 300;
+  font-display: block;
+}
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('fonts/CourierPrime-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+@font-face {
+  font-family: 'LXGW WenKai';
+  src: url('fonts/LXGWWenKai-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+}
+
+:root {
+  --paper: #DFE0D9;
+  --paper-deep: #D4D5CD;
+  --ink: #191917;
+  --ink-70: rgba(25, 25, 23, .7);
+  --ink-45: rgba(25, 25, 23, .45);
+  --ink-25: rgba(25, 25, 23, .25);
+  --ink-12: rgba(25, 25, 23, .12);
+  --accent-red: #C0392B;
+  --accent-red-85: rgba(192, 57, 43, .85);
+  --accent-red-65: rgba(192, 57, 43, .65);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-30: 120px;
+  --space-40: 160px;
+  --shadow-soft: 0 0 4px color-mix(in srgb, var(--ink) 2%, transparent);
+  --shadow-specimen: 2px 2px 0 color-mix(in srgb, var(--ink) 4%, transparent);
+
+  --type-display-mark: 300px;
+  --type-particle-sample: 240px;
+  --type-display: 96px;
+  --type-hero: 76px;
+  --type-title: 60px;
+  --type-metric: 52px;
+  --type-heading: 40px;
+  --type-emphasis: 36px;
+  --type-caption: 33px;
+  --type-subheading: 26px;
+  --type-body: 22px;
+  --type-body-small: 18px;
+  --type-micro-secondary: 16px;
+  --type-label: 15px;
+  --type-meta: 13px;
+
+  --font-serif-family: 'Han Serif', 'Songti SC', serif;
+  --font-sans-family: 'Han Sans', 'PingFang SC', sans-serif;
+  --font-mono-family: 'Courier Prime', Menlo, monospace;
+  --font-brush-family: 'LXGW WenKai', 'Xingkai SC', cursive;
+  --serif: var(--font-serif-family);
+  --sans: var(--font-sans-family);
+  --mono: var(--font-mono-family);
+  --brush: var(--font-brush-family);
+}
+
+[data-typography-mode="mixed"] {
+  --serif: var(--font-serif-family);
+  --sans: var(--font-sans-family);
+}
+
+[data-typography-mode="all-sans"] {
+  --serif: var(--font-sans-family);
+  --sans: var(--font-sans-family);
+}
+
+[data-typography-mode="all-serif"] {
+  --serif: var(--font-serif-family);
+  --sans: var(--font-serif-family);
+}
+
+/* mono and brush deliberately remain fixed in all three typography modes. */
