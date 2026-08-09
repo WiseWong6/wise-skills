@@ -51,6 +51,11 @@ class RuntimeTemplateTests(unittest.TestCase):
         self.assertEqual(source.count("['g"), 11)
         page01 = (RUNTIME / "frames" / "shot-01.html").read_text(encoding="utf-8")
         self.assertIn("ICON、EMOJI滥用", page01)
+        page06 = (RUNTIME / "frames" / "shot-06.html").read_text(encoding="utf-8")
+        self.assertNotIn("SCAN · 微信搜一搜 歪斯Wise", page06)
+        self.assertIn("Wise PPT · 分镜示例", source)
+        self.assertIn('font-family: "Han Sans", "Source Han Sans SC", "思源黑体"', source)
+        self.assertIn("font-weight: 300", source)
 
     def test_runtime_controls_hide_until_activity(self) -> None:
         source = (RUNTIME / "app-template.html").read_text(encoding="utf-8")
