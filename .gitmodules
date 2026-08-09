@@ -1,0 +1,3 @@
+[submodule "wise-ppt"]
+	path = wise-ppt
+	url = git@github.com:WiseWong6/wise-ppt.git
