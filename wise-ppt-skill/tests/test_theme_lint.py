@@ -67,6 +67,13 @@ var option={label:{fontSize:14}};</script>
         fails, _ = lint_source(source)
         self.assertTrue(any("动态字号绕过字阶" in item for item in fails))
 
+    def test_runtime_type_size_helper_passes(self) -> None:
+        source = BASE.format(style=".caption{font-size:var(--type-caption)}") + """
+<script>txt(0,0,'x',{'font-size':WisePPT.typeSize('body')});</script>
+"""
+        fails, _ = lint_source(source)
+        self.assertFalse([item for item in fails if item.startswith("L10")])
+
     def test_gallery_does_not_bypass_type_scale(self) -> None:
         targets = sorted((SKILL_ROOT / "themes/paper-ink/gallery").glob("*/index.html"))
         targets += sorted((SKILL_ROOT / "themes/paper-ink/gallery").glob("*/frames/*.html"))
@@ -74,6 +81,21 @@ var option={label:{fontSize:14}};</script>
             with self.subTest(path=path):
                 fails, _ = LINT.lint_file(path)
                 self.assertFalse([item for item in fails if item.startswith("L10")])
+
+    def test_emoji_icon_fails_but_text_symbols_pass(self) -> None:
+        emoji_source = BASE.format(style=".caption{font-size:var(--type-caption)}").replace(
+            '<div class="caption">结论</div>',
+            '<div class="caption">🚀 结论</div>',
+        )
+        emoji_fails, _ = lint_source(emoji_source)
+        self.assertTrue(any(item.startswith("L12") for item in emoji_fails))
+
+        symbol_source = BASE.format(style=".caption{font-size:var(--type-caption)}").replace(
+            '<div class="caption">结论</div>',
+            '<div class="caption">输入 → 输出，状态 ✓ / ✗</div>',
+        )
+        symbol_fails, _ = lint_source(symbol_source)
+        self.assertFalse([item for item in symbol_fails if item.startswith("L12")])
 
 
 if __name__ == "__main__":

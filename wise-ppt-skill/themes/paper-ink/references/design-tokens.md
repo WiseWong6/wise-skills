@@ -70,6 +70,8 @@ Deck HTML 和页内脚本不得复制番茄红字面量；DOM 使用共享 CSS t
 
 大字使用衬线气质，正文和 UI 使用无衬线，数据与档案字段使用 mono。中文长句不得依赖 Courier Prime 的 fallback。手写批注每份 deck 最多三处，只用于真实批注。
 
+图标与符号遵循 `SKILL.md` 的全局 Emoji 禁用规则；本主题不另建第二套白名单。Font Awesome 图标必须继承墨色或语义强调色，自绘 SVG 也须复用本文件的线宽与色彩 token。
+
 字号是全局类型系统，不是页面调参。相同语义层级在所有页面、Gallery 样张、SVG、Canvas 和 ECharts 中必须引用同一个 token；禁止裸写 `font-size: 33px`、`font: 22px ...`、`fontSize: 12` 或 `ctx.font='18px ...'`。CSS / SVG 直接使用 `var(--type-*)`，正式 deck 的 Canvas / ECharts 使用 `WisePPT.typeSize(role)`，Gallery 独立样页使用 `paperInkTypeSize(role)`。
 
 | 层级 Token | 固定字号 | 用途 |

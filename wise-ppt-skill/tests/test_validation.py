@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import html
 import json
 import os
 import re
@@ -906,58 +905,9 @@ class ContractValidationTests(unittest.TestCase):
                 REPO_ROOT / "themes" / "paper-ink" / "gallery" / variant / "index.html"
             ).read_text(encoding="utf-8")
             self.assertNotIn("当页面角色属于", gallery_index)
-
-        # 126 张样张逐页校验：页角标主题，caption 讲内容；四类呼吸页显式豁免 caption。
-        exempt_layouts = {
-            "paper-ink.scaffold.cover",
-            "paper-ink.scaffold.particle-outro",
-            "paper-ink.scaffold.minimal-outro",
-            "paper-ink.scaffold.section-divider",
-        }
-        caption_meta = re.compile(
-            r"当页面角色|优先复用|版式|布局|画册|样张|全\s*deck|几栏|几格|图题|主角|"
-            r"兜底版式|兜底页型|用来|用于|一页讲清|严格对位|列阵|宫格|横带让|时间轴把|"
-            r"环形进度环|分栏清单柱|同心防线用|嵌套变焦框表达|横向流水线解释|"
-            r"循环圆环表达|蛇形回环装下|汇聚流把|漏斗只讲|^[A-O]\d+\s",
-            re.I,
-        )
-        doc_meta = re.compile(r"PAPER-INK\s+GALLERY|AI\s+LAYOUT\s+GALLERY|\bLAYOUT\b|\bMOCK\b", re.I)
-        frame_files = []
-        caption_count = 0
-        exempt_count = 0
-        for variant in ("general", "ai"):
-            frame_files.extend(
-                sorted((REPO_ROOT / "themes" / "paper-ink" / "gallery" / variant / "frames").glob("layout-*.html"))
-            )
-        self.assertEqual(len(frame_files), 126)
-        for frame in frame_files:
-            with self.subTest(frame=str(frame.relative_to(REPO_ROOT))):
-                src = frame.read_text(encoding="utf-8")
-                layout_match = re.search(r'data-layout="([^"]+)"', src)
-                self.assertIsNotNone(layout_match)
-                layout_id = layout_match.group(1)
-
-                doc_match = re.search(r'<div\s+class="doc\s+tl"[^>]*>(.*?)</div>', src, re.S)
-                self.assertIsNotNone(doc_match)
-                doc = html.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", doc_match.group(1)))).strip()
-                self.assertTrue(doc)
-                self.assertNotRegex(doc, doc_meta)
-
-                caption_match = re.search(r'<div\s+class="caption"[^>]*>(.*?)</div>', src, re.S)
-                if caption_match is None:
-                    exempt_count += 1
-                    self.assertIn(layout_id, exempt_layouts)
-                    continue
-                caption_count += 1
-                caption = html.unescape(
-                    re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", caption_match.group(1)))
-                ).strip()
-                self.assertTrue(caption)
-                self.assertNotRegex(caption, caption_meta)
-                self.assertLessEqual(len(caption), 52)
-
-        self.assertEqual(caption_count, 118)
-        self.assertEqual(exempt_count, 8)
+            self.assertIn('src="../../assets/gallery-frame-loader.js"', gallery_index)
+            self.assertIn("createGalleryFrameLoader(stagebox)", gallery_index)
+            self.assertNotIn("document.getElementById('fr').src", gallery_index)
 
         contact = next(
             layout for layout in manifest["layouts"] if layout["display_code"] == "D6"
@@ -993,17 +943,22 @@ class ContractValidationTests(unittest.TestCase):
                 "meta-caption.html": (
                     page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "时间轴把六个节点钉在一根主轴上。"),
                     1,
-                    "L10 caption",
+                    "L11 caption",
                 ),
                 "meta-doc.html": (
                     page("paper-ink.explain.demo", "AI LAYOUT GALLERY — B1", "六次能力跃迁共同组成演进路径。"),
                     1,
-                    "L10 doc tl",
+                    "L11 doc tl",
                 ),
                 "missing-caption.html": (
                     page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", None),
                     1,
                     "L5 无 .caption",
+                ),
+                "long-caption.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "这是一条明显超过五十二个字符限制的页面结论，因为它不断补充无关信息并且继续扩写，最终失去快速扫描所需要的紧凑结构与单一判断。"),
+                    1,
+                    "L11 caption 过长",
                 ),
                 "cover.html": (
                     page("paper-ink.scaffold.cover", "AI ENGINEERING — COVER", None),
@@ -1385,8 +1340,23 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
 
-    def test_theme_has_no_second_full_deck_example_source(self) -> None:
-        self.assertFalse((REPO_ROOT / "themes" / "paper-ink" / "examples").exists())
+    def test_theme_keeps_one_six_page_single_html_golden_story(self) -> None:
+        examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
+        expected = {"wise-ppt-story-six-page"}
+        self.assertEqual(
+            {path.name for path in examples.iterdir() if path.is_dir()},
+            expected,
+        )
+        for name in sorted(expected):
+            target = examples / name
+            with self.subTest(example=name):
+                self.assertFalse((target / "frames").exists())
+                html = (target / "index.html").read_text(encoding="utf-8")
+                self.assertNotIn("<iframe", html.casefold())
+                self.assertEqual(html.count('<section class="slide"'), 6)
+                result = validate_all(target, REPO_ROOT)
+                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
         decision_fixtures = FIXTURES / "render-v2"
         self.assertEqual(
             {path.name for path in decision_fixtures.iterdir() if path.is_dir()},
