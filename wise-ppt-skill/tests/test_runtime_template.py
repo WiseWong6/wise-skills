@@ -97,6 +97,13 @@ class RuntimeTemplateTests(unittest.TestCase):
         self.assertIn("typeSize:typeSize", self.runtime)
         self.assertIn("--type-", self.runtime)
 
+    def test_board_title_uses_the_shared_sans_type_role(self) -> None:
+        self.assertIn('data-deck-title="Wise PPT · 分镜示例"', self.source)
+        self.assertIn(
+            ".board-head h1{font-family:var(--sans);font-size:var(--type-subheading);font-weight:300}",
+            self.source,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
