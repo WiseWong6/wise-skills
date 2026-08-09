@@ -1,7 +1,0 @@
-.DS_Store
-.playwright-mcp/
-.zcode/
-logs/
-output/
-__pycache__/
-*.py[cod]
