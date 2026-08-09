@@ -19,7 +19,7 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.h3">
-  <div class="doc tl">PAPER-INK GALLERY — H3<br>AI PRODUCT ARCHITECTURE</div>
+  <div class="doc tl">AI PRODUCT — H3<br>PRODUCT ARCHITECTURE</div>
   <div class="folio">H3 / 63 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
@@ -27,7 +27,7 @@
   </svg>
   <canvas id="cv" width="1920" height="1080"></canvas>
 
-  <div class="caption">左列层标、右带能力件，层间一线贯通——AI 产品分几层、每层有什么，一屏读完。</div>
+  <div class="caption">产品体验建立在模型、数据与基础设施之上，任何一层断裂都会传导到应用层。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -52,6 +52,7 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. H3 — LAYERED ARCHITECTURE STACK', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+G = el('g', {transform:'translate(0 48)'});
 
 /* ---------- 骨架：4 层横带，层间 0.6px 贯通 ---------- */
 var BT = 240, BH = 132, BB = BT + BH*4;      /* y240–768 */

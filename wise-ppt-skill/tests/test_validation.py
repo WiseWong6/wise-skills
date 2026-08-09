@@ -899,6 +899,87 @@ class ContractValidationTests(unittest.TestCase):
         result = validate_gallery(REPO_ROOT, "paper-ink")
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
+        # 画册栏只展示面向人的用途；AI 筛选谓词保留在 manifest，不能泄漏到 UI。
+        for variant in ("general", "ai"):
+            gallery_index = (
+                REPO_ROOT / "themes" / "paper-ink" / "gallery" / variant / "index.html"
+            ).read_text(encoding="utf-8")
+            self.assertNotIn("当页面角色属于", gallery_index)
+            self.assertIn('src="../../assets/gallery-frame-loader.js"', gallery_index)
+            self.assertIn("createGalleryFrameLoader(stagebox)", gallery_index)
+            self.assertNotIn("document.getElementById('fr').src", gallery_index)
+
+        contact = next(
+            layout for layout in manifest["layouts"] if layout["display_code"] == "D6"
+        )
+        self.assertIn("qr-code", contact["primitives"])
+        self.assertNotIn("qr-placeholder", contact["primitives"])
+
+    def test_paper_ink_lint_enforces_slide_copy_boundary(self) -> None:
+        lint = REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"
+
+        def page(layout: str, doc: str, caption: str | None) -> str:
+            caption_html = "" if caption is None else f'<div class="caption">{caption}</div>'
+            return f"""<!doctype html>
+<html data-layout="{layout}">
+<style>body {{ background: #dfe0d9; }}</style>
+<body>
+  <div class="doc tl">{doc}</div>
+  <div class="folio">01</div>
+  {caption_html}
+  <script>stageFit();</script>
+</body>
+</html>
+"""
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            cases = {
+                "valid.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "检索与重排把候选片段收敛为可用上下文。"),
+                    0,
+                    None,
+                ),
+                "meta-caption.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "时间轴把六个节点钉在一根主轴上。"),
+                    1,
+                    "L11 caption",
+                ),
+                "meta-doc.html": (
+                    page("paper-ink.explain.demo", "AI LAYOUT GALLERY — B1", "六次能力跃迁共同组成演进路径。"),
+                    1,
+                    "L11 doc tl",
+                ),
+                "missing-caption.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", None),
+                    1,
+                    "L5 无 .caption",
+                ),
+                "long-caption.html": (
+                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "这是一条明显超过五十二个字符限制的页面结论，因为它不断补充无关信息并且继续扩写，最终失去快速扫描所需要的紧凑结构与单一判断。"),
+                    1,
+                    "L11 caption 过长",
+                ),
+                "cover.html": (
+                    page("paper-ink.scaffold.cover", "AI ENGINEERING — COVER", None),
+                    0,
+                    None,
+                ),
+            }
+            for name, (source, expected_code, expected_text) in cases.items():
+                with self.subTest(name=name):
+                    target = root / name
+                    target.write_text(source, encoding="utf-8")
+                    completed = subprocess.run(
+                        [sys.executable, str(lint), str(target)],
+                        check=False,
+                        capture_output=True,
+                        text=True,
+                    )
+                    self.assertEqual(completed.returncode, expected_code, completed.stdout + completed.stderr)
+                    if expected_text:
+                        self.assertIn(expected_text, completed.stdout)
+
     def test_gallery_validates_core_primitive_registry(self) -> None:
         manifest = load_json(self.fixture.layout_manifest_path)
         manifest["core_primitive_ids"].remove("radial-burst")
@@ -1259,8 +1340,23 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
 
-    def test_theme_has_no_second_full_deck_example_source(self) -> None:
-        self.assertFalse((REPO_ROOT / "themes" / "paper-ink" / "examples").exists())
+    def test_theme_keeps_one_six_page_single_html_golden_story(self) -> None:
+        examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
+        expected = {"wise-ppt-story-six-page"}
+        self.assertEqual(
+            {path.name for path in examples.iterdir() if path.is_dir()},
+            expected,
+        )
+        for name in sorted(expected):
+            target = examples / name
+            with self.subTest(example=name):
+                self.assertFalse((target / "frames").exists())
+                html = (target / "index.html").read_text(encoding="utf-8")
+                self.assertNotIn("<iframe", html.casefold())
+                self.assertEqual(html.count('<section class="slide"'), 6)
+                result = validate_all(target, REPO_ROOT)
+                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
+
         decision_fixtures = FIXTURES / "render-v2"
         self.assertEqual(
             {path.name for path in decision_fixtures.iterdir() if path.is_dir()},
