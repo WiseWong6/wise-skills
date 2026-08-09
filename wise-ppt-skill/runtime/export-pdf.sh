@@ -1,5 +1,5 @@
 #!/bin/bash
-# wise-ppt · 无截图 PDF 导出：只接受 v2 single-HTML deck。
+# wise-ppt · 无截图 PDF 导出：只接受当前 Render Plan 契约。
 set -euo pipefail
 DECK="${1:?用法: export-pdf.sh <deck目录> [输出PDF路径]}"
 DECK="$(cd "$DECK" && pwd)"
@@ -7,23 +7,8 @@ NAME="$(basename "$DECK")"
 OUT="${2:-$DECK/$NAME.pdf}"
 PLAN="$DECK/render-plan.json"
 [ -f "$PLAN" ] || { echo "缺少 Render Plan：$PLAN" >&2; exit 1; }
-python3 - "$PLAN" <<'PY'
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as handle:
-    document = json.load(handle)
-expected = {
-    "schema_version": "2.0",
-    "document_mode": "single-html",
-    "output_file": "index.html",
-}
-actual = {key: document.get(key) for key in expected}
-if actual != expected:
-    raise SystemExit(f"仅支持 v2 single-HTML Render Plan：期望 {expected}，实际 {actual}")
-if any("output_file" in page for page in document.get("pages", []) if isinstance(page, dict)):
-    raise SystemExit("pages[] 不得声明 output_file")
-PY
+SKILL_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+python3 "$SKILL_ROOT/scripts/validate.py" render-plan "$PLAN"
 
 TMP_ROOT="$(mktemp -d /tmp/wise-ppt-pdf.XXXXXX)"
 mkdir -p "$TMP_ROOT/ready-profile" "$TMP_ROOT/print-profile" "$(dirname "$OUT")"
@@ -50,7 +35,7 @@ if [ ! -x "$CHROME" ] && [ -x "/Applications/Microsoft Edge.app/Contents/MacOS/M
 [ -x "$CHROME" ] || { echo "找不到 Chrome/Edge" >&2; exit 1; }
 
 HTML="$DECK/index.html"
-[ -f "$HTML" ] || { echo "缺少 single-html 输出：$HTML" >&2; exit 1; }
+[ -f "$HTML" ] || { echo "缺少 deck HTML 输出：$HTML" >&2; exit 1; }
 COUNT="$(python3 - "$HTML" <<'PY'
 from html.parser import HTMLParser
 import sys
@@ -95,4 +80,4 @@ if command -v pdfinfo >/dev/null 2>&1; then
   PDF_PAGES="$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')"
   [ "$PDF_PAGES" = "$COUNT" ] || { echo "PDF 页数 $PDF_PAGES，与 slide 数 $COUNT 不一致" >&2; exit 1; }
 fi
-echo "PASS pdf mode=single-html pages=$COUNT output=$OUT"
+echo "PASS pdf pages=$COUNT output=$OUT"

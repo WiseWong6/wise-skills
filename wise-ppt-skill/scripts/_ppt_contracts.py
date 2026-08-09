@@ -532,7 +532,7 @@ def load_theme_registry(root: Path) -> tuple[Mapping[str, Any], Path]:
     document = load_json(path)
     if not isinstance(document, dict) or not isinstance(document.get("themes"), list):
         raise ContractError(f"主题注册表结构错误：{path} 必须包含 themes[]")
-    _require_known_keys(document, {"schema_version", "default_theme_id", "themes"}, str(path))
+    _require_known_keys(document, {"default_theme_id", "themes"}, str(path))
     for index, entry in enumerate(document["themes"]):
         if not isinstance(entry, dict):
             raise ContractError(f"{path}#themes[{index}] 必须是对象")
@@ -574,7 +574,7 @@ def resolve_theme(root: Path, requested: str | None = None) -> ThemeRecord:
     _require_known_keys(
         theme_doc,
         {
-            "schema_version", "theme_id", "name", "status", "description", "canvas",
+            "theme_id", "name", "status", "description", "canvas",
             "tokens", "layout_manifest", "visual_checklist", "layout_guidance",
             "component_adapters", "validation", "assets", "galleries", "densities",
             "providers", "runtimes", "output_formats", "atlas_catalog",
@@ -677,7 +677,7 @@ def load_layout_catalog(root: Path, theme_id: str | None = None) -> tuple[ThemeR
     _require_known_keys(
         manifest,
         {
-            "schema_version", "theme_id", "description", "layout_count", "gallery_variants",
+            "theme_id", "description", "layout_count", "gallery_variants",
             "core_primitive_ids", "density_levels", "provider_ids", "layouts",
         },
         str(theme.layout_manifest_path),
@@ -1427,8 +1427,8 @@ def _capacity_bound(capacity: Mapping[str, Any], name: str, bound: str) -> int |
     return None
 
 
-class SingleHtmlContractParser(HTMLParser):
-    """Build one page-aware DOM index for a single-HTML deck source."""
+class DeckHtmlContractParser(HTMLParser):
+    """Build one page-aware DOM index for the deck HTML source."""
 
     VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
 
@@ -1504,7 +1504,7 @@ class SingleHtmlContractParser(HTMLParser):
 
 
 @dataclass(frozen=True)
-class SingleHtmlContract:
+class DeckHtmlContract:
     path: Path
     page_order: tuple[str, ...]
     page_roots: Mapping[str, list[dict[str, str]]]
@@ -1515,13 +1515,13 @@ class SingleHtmlContract:
     document_elements: tuple[dict[str, str], ...]
 
 
-def parse_single_html_contract(path: Path) -> SingleHtmlContract:
-    parser = SingleHtmlContractParser()
+def parse_deck_html_contract(path: Path) -> DeckHtmlContract:
+    parser = DeckHtmlContractParser()
     try:
         parser.feed(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError) as exc:
         raise ContractError(f"HTML 无法读取：{path}: {exc}") from exc
-    return SingleHtmlContract(
+    return DeckHtmlContract(
         path=path,
         page_order=tuple(parser.page_order),
         page_roots=parser.page_roots,
@@ -1536,7 +1536,7 @@ def parse_single_html_contract(path: Path) -> SingleHtmlContract:
     )
 
 
-def _single_html_path(
+def _deck_html_path(
     render_path: Path,
     render_document: Mapping[str, Any],
 ) -> Path:
@@ -1566,13 +1566,13 @@ def _validate_html_page(
     result: ValidationResult,
     item_path: str,
     render_document: Mapping[str, Any],
-    single_contract: SingleHtmlContract,
+    html_contract: DeckHtmlContract,
 ) -> None:
-    html_path = _single_html_path(render_path, render_document)
+    html_path = _deck_html_path(render_path, render_document)
     if not html_path.is_file():
         result.error("render.html_missing", item_path, f"找不到 page_id={page_id} 对应的 HTML 文件")
         return
-    elements = list(single_contract.page_elements.get(page_id, []))
+    elements = list(html_contract.page_elements.get(page_id, []))
     emphasis = page.get("emphasis") if isinstance(page.get("emphasis"), dict) else {}
     emphasis_mode = str(emphasis.get("mode", ""))
     expected = {
@@ -1688,7 +1688,7 @@ def _validate_html_page(
                 str(html_path),
                 f"block {block_id!r} 的 data-content-ref 应为 {sorted(refs)}，实际为 {sorted(actual_refs)}",
             )
-        block_tags = set(single_contract.block_tags.get(page_id, {}).get(str(block_id), ()))
+        block_tags = set(html_contract.block_tags.get(page_id, {}).get(str(block_id), ()))
         required_tags = {
             "svg": ("svg",),
             "image": ("img", "picture"),
@@ -1703,7 +1703,7 @@ def _validate_html_page(
                     f"block {block_id!r} 声明 provider={provider!r}，但包装节点内没有对应的 {('/'.join(tags))} 元素",
                 )
         if provider == "echarts":
-            page_source = single_contract.page_source.get(page_id, "")
+            page_source = html_contract.page_source.get(page_id, "")
             if not re.search(r"WisePPT[.]createEChart\s*[(]", page_source):
                 result.error(
                     "render.html_provider_semantics",
@@ -1768,37 +1768,37 @@ def validate_render_document(
     }
     output_file = document.get("output_file")
     if not isinstance(output_file, str) or not output_file:
-        result.error("render.single_html_output", label, "Render Plan 必须声明根级 output_file")
+        result.error("render.output_file", label, "Render Plan 必须声明根级 output_file")
         return result
-    single_contract: SingleHtmlContract | None = None
+    html_contract: DeckHtmlContract | None = None
     if require_html:
-        single_path = (path.parent / output_file).resolve()
-        if not single_path.is_file():
-            result.error("render.html_missing", label, f"single-html 输出不存在：{single_path}")
+        html_path = (path.parent / output_file).resolve()
+        if not html_path.is_file():
+            result.error("render.html_missing", label, f"deck HTML 输出不存在：{html_path}")
             return result
         try:
-            single_contract = parse_single_html_contract(single_path)
+            html_contract = parse_deck_html_contract(html_path)
         except ContractError as exc:
-            result.error("config.html", str(single_path), str(exc))
+            result.error("config.html", str(html_path), str(exc))
             return result
         expected_page_ids = {
             _identifier(page, "page_id")
             for page in render_pages(document)
             if _identifier(page, "page_id")
         }
-        actual_page_ids = set(single_contract.page_roots)
-        for page_id, roots in single_contract.page_roots.items():
+        actual_page_ids = set(html_contract.page_roots)
+        for page_id, roots in html_contract.page_roots.items():
             if len(roots) > 1:
-                result.error("render.duplicate_html_page", str(single_contract.path), f"data-page-id 重复：{page_id}")
+                result.error("render.duplicate_html_page", str(html_contract.path), f"data-page-id 重复：{page_id}")
         for page_id in sorted(expected_page_ids - actual_page_ids):
-            result.error("render.html_page_missing", str(single_contract.path), f"single-html 缺少页面：{page_id}")
+            result.error("render.html_page_missing", str(html_contract.path), f"deck HTML 缺少页面：{page_id}")
         for page_id in sorted(actual_page_ids - expected_page_ids):
-            result.error("render.html_page_unplanned", str(single_contract.path), f"single-html 包含未规划页面：{page_id}")
-        for source_id, owners in sorted(single_contract.source_ids.items()):
+            result.error("render.html_page_unplanned", str(html_contract.path), f"deck HTML 包含未规划页面：{page_id}")
+        for source_id, owners in sorted(html_contract.source_ids.items()):
             if len(owners) > 1:
                 result.error(
                     "render.duplicate_source_id",
-                    str(single_contract.path),
+                    str(html_contract.path),
                     f"源码 id={source_id!r} 重复，归属页面：{owners}",
                 )
     seen_pages: set[str] = set()
@@ -2153,7 +2153,7 @@ def validate_render_document(
                     f"semantic-focus 必须引用本页已渲染内容，实际为 {emphasis_ref!r}",
                 )
 
-        if single_contract is not None:
+        if html_contract is not None:
             section_id = str(plan_page.get("section_id", ""))
             _validate_html_page(
                 page,
@@ -2168,7 +2168,7 @@ def validate_render_document(
                 result,
                 item_path,
                 document,
-                single_contract,
+                html_contract,
             )
 
     missing_pages = sorted(set(plan_by_id) - seen_pages)
@@ -2259,23 +2259,23 @@ def validate_coverage_target(target: Path, root: Path) -> ValidationResult:
                 result.error("coverage.must_missing_render", str(render_path), f"must 内容未进入 render plan：{ref}")
             html_refs: set[str] = set()
             html_text_by_ref: dict[str, list[str]] = {}
-            single_contract: SingleHtmlContract | None = None
+            html_contract: DeckHtmlContract | None = None
             output_file = render_doc.get("output_file")
             if isinstance(output_file, str):
-                single_path = (render_path.parent / output_file).resolve()
-                if not single_path.is_file():
-                    result.error("coverage.html_missing", str(render_path), f"output_file 不存在：{single_path}")
+                html_path = (render_path.parent / output_file).resolve()
+                if not html_path.is_file():
+                    result.error("coverage.html_missing", str(render_path), f"output_file 不存在：{html_path}")
                 else:
                     try:
-                        single_contract = parse_single_html_contract(single_path)
+                        html_contract = parse_deck_html_contract(html_path)
                     except ContractError as exc:
-                        result.error("config.coverage_html", str(single_path), str(exc))
+                        result.error("config.coverage_html", str(html_path), str(exc))
             for page in render_pages(render_doc):
                 page_id = _identifier(page, "page_id") or "<unknown>"
-                if single_contract is None:
+                if html_contract is None:
                     continue
-                source = single_contract.page_source.get(page_id, "")
-                elements = list(single_contract.page_elements.get(page_id, []))
+                source = html_contract.page_source.get(page_id, "")
+                elements = list(html_contract.page_elements.get(page_id, []))
                 for attrs in elements:
                     refs = (attrs.get("data-content-ref") or "").split()
                     html_refs.update(refs)

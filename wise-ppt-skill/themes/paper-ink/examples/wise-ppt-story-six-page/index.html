@@ -1,5 +1,6 @@
 <!doctype html>
-<html lang="zh-CN" data-runtime="wise-ppt" data-document-mode="single-html" data-deck-title="Wise PPT · 分镜示例">
+<!-- Generated shell: edit slides only between WISE_PPT_SLIDES markers, then run scripts/build_deck.py. -->
+<html lang="zh-CN" data-runtime="wise-ppt" data-deck-title="Wise PPT · 分镜示例">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -10,15 +11,13 @@
 #board{padding:48px 40px 80px;min-height:100vh}.board-head,.section-label,.board-grid{max-width:1560px;margin-inline:auto}.board-head h1{font-family:var(--sans);font-size:var(--type-subheading);font-weight:300}.board-head p,.section-label,.board-title{font-family:var(--mono)}.board-head p{color:var(--ink-70)}.section-label{margin-top:34px;padding-bottom:10px;border-bottom:1px solid var(--ink-45);letter-spacing:.16em}.board-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:18px}.board-card{appearance:none;border:0;background:none;color:inherit;text-align:left;cursor:pointer;padding:0}.board-preview{position:relative;overflow:hidden;aspect-ratio:16/9;border:1px solid var(--ink-45);background:var(--paper)}.board-clone{position:absolute!important;inset:0!important;transform:scale(var(--board-scale));transform-origin:top left;pointer-events:none;-webkit-user-select:none!important;user-select:none!important}.board-title{margin-top:10px;font-size:var(--type-meta)}.board-summary{margin-top:5px;color:var(--ink-70);line-height:1.5}.board-card:hover .board-preview,.board-card.active .board-preview{border-color:var(--ink);outline:1px solid var(--ink)}
 #deck{position:fixed;inset:0;display:grid;place-items:center;background:var(--ink);visibility:hidden;overflow:hidden}#deck-stage{width:1920px;height:1080px;overflow:hidden;transform-origin:center}#track{display:flex;width:max-content;height:1080px;transition:transform .25s ease}#pager,#board-toggle{position:fixed;right:28px;z-index:5;color:var(--paper);background:color-mix(in srgb,var(--ink) 72%,transparent);border:1px solid rgba(255,255,255,.32);font:var(--type-meta) var(--mono);-webkit-user-select:none;user-select:none}#pager{bottom:20px;padding:7px 11px;border-radius:999px}#board-toggle{bottom:58px;padding:8px 12px;border-radius:5px;cursor:pointer}body.mode-deck #board{display:none}body.mode-deck #deck{visibility:visible}body.mode-board #pager,body.mode-board #board-toggle{display:none}
 @page{size:20in 11.25in;margin:0}html.print-mode,html.print-mode body{background:#fff}html.print-mode #board,html.print-mode #pager,html.print-mode #board-toggle{display:none!important}html.print-mode #deck{position:static;display:block;visibility:visible;background:#fff;overflow:visible}html.print-mode #deck-stage{width:1920px;height:auto;overflow:visible;transform:none!important}html.print-mode #track{display:block;width:1920px;height:auto;transform:none!important;transition:none!important}html.print-mode .slide{break-after:page;page-break-after:always}html.print-mode .slide:last-child{break-after:auto;page-break-after:auto}@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}@media(max-width:900px){.board-grid{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){#track{transition:none}}
-
-.scene{position:absolute;inset:0;width:100%;height:100%}
-.caption{position:absolute;left:0;right:0;bottom:118px;z-index:5;text-align:center;font-family:var(--sans);font-size:var(--type-caption);font-weight:300;letter-spacing:.04em}
 </style>
 <script src="../../../../runtime/deck-runtime.js"></script>
 </head>
 <body class="mode-board">
 <main id="board"><header class="board-head"><h1 id="deck-title"></h1><p id="deck-subtitle"></p></header><div id="board-sections"></div></main>
 <section id="deck" aria-label="横向放映"><div id="deck-stage"><div id="track">
+<!-- WISE_PPT_SLIDES_START -->
 <section class="slide" data-render-pending="true" data-page-id="page.story.why" data-page-role="compare" data-theme="paper-ink" data-layout-source="gallery" data-layout="paper-ink.comparison.dual-panel" data-density="balanced" data-reuse-mode="adapt" data-page-title="AI 做 PPT 总是千篇一律，因为缺的是设计判断" data-page-summary="AI 缺的不是生成页面的能力，而是好的设计标准。" data-section-id="section.problem" data-section-title="问题与标准" data-emphasis-mode="none"><main class="stage" data-balance="structural" data-balance-frame="0,140,1920,980">
     <div class="doc tl" data-balance-exclude="true">WISE PPT SKILL — 01<br>THE GAPS OF AI-MADE PPT</div>
     <div class="folio" data-balance-exclude="true">01 / 06 — WISE PPT</div>
@@ -329,6 +328,7 @@
       txt('扫码或微信搜一搜“歪斯Wise”。',KX+44,KY+KH-96,{'font-size':WisePPT.typeSize('body-small'),'font-weight':300,fill:'rgba(25,25,23,.7)'});txt('WECHAT SEARCH · 歪斯WISE',KX+44,KY+KH-62,{'font-size':WisePPT.typeSize('micro'),'letter-spacing':2.5,fill:INK45});
     WisePPT.markSlideReady(slide);
     })();</script></section>
+<!-- WISE_PPT_SLIDES_END -->
 </div></div><div id="pager"></div><button id="board-toggle" type="button" aria-label="返回画册">返回画册</button></section>
 </body>
 </html>

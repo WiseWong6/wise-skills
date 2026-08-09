@@ -5,15 +5,11 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version",
     "brief",
     "sources",
     "content_items"
   ],
   "properties": {
-    "schema_version": {
-      "const": "1.0"
-    },
     "brief": {
       "$ref": "#/$defs/brief"
     },

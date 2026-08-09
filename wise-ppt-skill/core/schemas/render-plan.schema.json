@@ -5,18 +5,13 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version",
     "content_file",
     "deck_plan_file",
     "theme_id",
-    "document_mode",
     "output_file",
     "pages"
   ],
   "properties": {
-    "schema_version": {
-      "const": "2.0"
-    },
     "content_file": {
       "type": "string",
       "minLength": 1
@@ -28,9 +23,6 @@
     "theme_id": {
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*$"
-    },
-    "document_mode": {
-      "const": "single-html"
     },
     "output_file": {
       "const": "index.html"

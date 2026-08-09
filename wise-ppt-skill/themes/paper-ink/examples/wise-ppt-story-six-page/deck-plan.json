@@ -1,5 +1,4 @@
 {
-  "schema_version": "1.0",
   "content_file": "content.json",
   "thesis": "稳定的网页演示来自内容、叙事、关系、版式和组件的连续判断，而不是随机套模板。",
   "narrative_type": "problem-solution",

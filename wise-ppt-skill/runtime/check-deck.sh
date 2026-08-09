@@ -1,5 +1,5 @@
 #!/bin/bash
-# wise-ppt · single-html 无截图浏览器检查
+# wise-ppt · deck 无截图浏览器检查
 set -euo pipefail
 DECK="${1:?用法: check-deck.sh <deck目录> [--mode normal|accent]}"
 shift
@@ -16,8 +16,8 @@ esac
 DECK="$(cd "$DECK" && pwd)"
 HTML="$DECK/index.html"
 [ -f "$HTML" ] || { echo "缺少 $HTML" >&2; exit 1; }
-rg -q 'data-document-mode="single-html"' "$HTML" || { echo "不是 single-html deck" >&2; exit 1; }
-if rg -ni '<iframe|thumb-[a-z0-9_-]+' "$HTML"; then echo "single-html runtime 不得引用 frame 或缩略图" >&2; exit 1; fi
+rg -q 'data-runtime="wise-ppt"' "$HTML" || { echo "不是 Wise PPT deck" >&2; exit 1; }
+if rg -ni '<iframe|thumb-[a-z0-9_-]+' "$HTML"; then echo "deck runtime 不得引用 frame 或缩略图" >&2; exit 1; fi
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 [ -x "$CHROME" ] || CHROME="$(command -v google-chrome || command -v chrome || command -v chromium || command -v chromium-browser || true)"
 [ -x "$CHROME" ] || { echo "找不到 Chrome" >&2; exit 1; }
@@ -62,4 +62,4 @@ rg -q 'data-copy-check="pass"' "$TMP_ROOT/dom.html" || { echo "放映正文选�
 rg -q 'data-type-check="pass"' "$TMP_ROOT/dom.html" || { echo "全局字阶解析检查失败" >&2; exit 1; }
 if rg -q 'data-render-error=|data-deck-error=' "$TMP_ROOT/dom.html"; then echo "页面资源或渲染失败" >&2; exit 1; fi
 COUNT="$(rg -o 'class="slide[^"]*"' "$HTML" | wc -l | tr -d ' ')"
-echo "PASS browser single-html mode=$MODE slides=$COUNT board=ok canvas=ok deeplink=ok navigation=ok selection-copy=ok esc=ok"
+echo "PASS browser deck mode=$MODE slides=$COUNT board=ok canvas=ok deeplink=ok navigation=ok selection-copy=ok esc=ok"

@@ -111,7 +111,7 @@ function paperInkTypeSize(role) {
   return value;
 }
 
-/* Gallery 独立样页运行时；正式 single-HTML deck 的舞台缩放由统一 runtime 负责。 */
+/* Gallery 独立样页运行时；正式 deck 的舞台缩放由统一 runtime 负责。 */
 function stageFit() {
   if (new URLSearchParams(location.search).has('accent')) document.documentElement.classList.add('accent');
   function fit() {

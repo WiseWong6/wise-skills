@@ -1,9 +1,7 @@
 {
-  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "core-example",
-  "document_mode": "single-html",
   "output_file": "index.html",
   "pages": [
     {

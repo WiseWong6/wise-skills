@@ -1,6 +1,6 @@
 ---
 name: wise-ppt-skill
-description: 标准网页 PPT 编排内核。接收原始资料或现有演示内容，完成内容治理、叙事与页数规划、逐页语义表达，再组合主题版式与 ECharts、PPT Component Atlas、SVG、图片、表格或原生 HTML，输出可浏览、横向放映和打印 PDF 的单 HTML 16:9 deck。适用于制作、重排或扩写演示文稿；当前唯一且默认主题为 paper-ink 纸墨风。
+description: 标准网页 PPT 编排内核。接收原始资料或现有演示内容，完成内容治理、叙事与页数规划、逐页语义表达，再组合主题版式与 ECharts、PPT Component Atlas、SVG、图片、表格或原生 HTML，输出可浏览、横向放映和打印 PDF 的 16:9 `index.html` deck。适用于制作、重排或扩写演示文稿；当前唯一且默认主题为 paper-ink 纸墨风。
 ---
 
 # Wise PPT
@@ -27,7 +27,7 @@ description: 标准网页 PPT 编排内核。接收原始资料或现有演示�
 3. 所有 `must` 内容被页面覆盖；来源事实没有被改写成无来源结论；推断和占位明确标记。
 4. 每页先有主张、观众问题、证据关系与密度意图，再有主题版式和组件。
 5. Render Plan 中的 layout、slot、renderer、content ref、复用方式和理由都可解析。
-6. 单 HTML 契约、浏览器状态检查、溢出、安全区、资源和字体通过；人工检查内容、叙事和视觉。
+6. Deck HTML 契约、浏览器状态检查、溢出、安全区、资源和字体通过；人工检查内容、叙事和视觉。
 
 ## 输入与输出
 
@@ -134,7 +134,7 @@ python3 <SKILL_ROOT>/scripts/validate.py plan <DECK>/deck-plan.json
 
 ### 4. 建立 `render-plan.json`
 
-Render Plan 唯一使用 `schema_version: "2.0"`、`document_mode: "single-html"` 和根级 `output_file: "index.html"`；`pages[]` 禁止声明 `output_file`。先根据语义形成布局需求，再解析主题并查询 Gallery：
+Render Plan 只声明当前契约需要的字段，并固定使用根级 `output_file: "index.html"`；`pages[]` 禁止声明 `output_file`。先根据语义形成布局需求，再解析主题并查询 Gallery：
 
 ```bash
 python3 <SKILL_ROOT>/scripts/catalog.py layouts --theme paper-ink --role prove --relation evidence --primitive evidence-annotation --density dense
@@ -142,7 +142,7 @@ python3 <SKILL_ROOT>/scripts/catalog.py layouts --theme paper-ink --role prove -
 
 候选决策规则：
 
-以下是 v2 语义决策要求，必须序列化为 `layout_decision`、`candidate_evaluations` 和 `component_decision` 对象。
+以下语义决策必须序列化为 `layout_decision`、`candidate_evaluations` 和 `component_decision` 对象。
 
 1. 在查询前明确角色、关系、`spatial_primitive`、密度、容量、regions、reading order、slot 集合与组件角色。
 2. 对 Gallery 候选逐项记录 `fit` 或 `reject` 及具体理由；角色、关系、核心原语、密度、容量、slot 集合和顺序必须全部满足。
@@ -198,7 +198,13 @@ cp -R <SKILL_ROOT>/<THEME_CONFIG.assets.bundle> <DECK>/assets
 cp <SKILL_ROOT>/runtime/deck-runtime.js <DECK>/assets/deck-runtime.js
 ```
 
-把 `slide_template` 作为 fragment 插入 `index.html` 的 `#track`。所有页面都在同一 DOM 内；禁止生成 `frames/`、iframe、thumb 配置或 PNG 缩略图。每页 `<section class="slide">` 必须声明：
+读取 `slide_template` 作为页面起点，只把最终的 `<section class="slide">` fragments 写入 `index.html` 的 `WISE_PPT_SLIDES_START` / `WISE_PPT_SLIDES_END` 标记区，再由唯一运行壳规范化标记区之外的内容：
+
+```bash
+python3 <SKILL_ROOT>/scripts/build_deck.py <DECK>
+```
+
+`runtime/app-template.html` 是壳层权威源，`index.html` 的标记区是页面内容唯一权威源；标记区外由构建器生成，不得手工编辑。仓库内金样使用 `deck-build.json` 记录非默认资产相对路径，并以 `build_deck.py --check` 防止壳层漂移。所有页面都在同一 DOM 内；禁止生成 `frames/`、iframe、thumb 配置或 PNG 缩略图。每页 `<section class="slide">` 必须声明：
 
 ```html
 data-page-id data-page-role data-theme data-layout data-layout-source data-density data-reuse-mode

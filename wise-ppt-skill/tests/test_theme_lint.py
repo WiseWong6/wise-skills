@@ -23,7 +23,7 @@ def lint_source(source: str) -> tuple[list[str], list[str]]:
 
 
 BASE = """<!doctype html>
-<html data-document-mode="single-html"><head><style>{style}</style></head><body>
+<html data-runtime="wise-ppt"><head><style>{style}</style></head><body>
 <div class="doc tl">DOC</div><div class="folio">01</div><div class="caption">结论</div>
 </body></html>
 """

@@ -1,5 +1,4 @@
 {
-  "schema_version": "2.0",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "paper-ink",
@@ -147,6 +146,5 @@
       "emphasis": {"mode": "none", "reason": "示例保持纸墨单色，不声明语义强调焦点。"}
     }
   ],
-  "document_mode": "single-html",
   "output_file": "index.html"
 }

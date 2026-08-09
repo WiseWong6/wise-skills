@@ -17,7 +17,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 命令退出码必须可靠：任一 error 返回非零；warning 不改变退出码。不存在的文件、未知主题或无法读取的 manifest 都不得报告成功。
 
-`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、主题金样、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。`themes/<theme>/examples/` 只维护一套可完整通过当前契约的多页单 HTML 金样；主题视觉候选只进入 gallery，三种渲染决策的最小覆盖只进入测试夹具。
+`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、主题金样、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。`themes/<theme>/examples/` 只维护一套可完整通过当前契约的多页 `index.html` 金样；主题视觉候选只进入 gallery，三种渲染决策的最小覆盖只进入测试夹具。金样壳层必须由运行模板生成，页面只存在于 `index.html` 标记区，并通过 `build_deck.py --check`。
 
 ## 2. Content 门禁
 
@@ -48,7 +48,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 ## 4. Render 门禁
 
-- Render Plan 只接受 `schema_version: "2.0"`、`document_mode: "single-html"`、根级 `output_file: "index.html"`；`pages[]` 禁止 `output_file`；
+- Render Plan 固定使用根级 `output_file: "index.html"`；`pages[]` 禁止 `output_file`；
 - schema 合法，render page 与 deck page 一一对应；
 - `theme_id` 存在于主题 registry；未知主题立即失败；
 - role、density、空间原语和容量值直接从 Deck Plan 读取，Render Plan 不得维护副本；
@@ -74,7 +74,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 ## 6. HTML 与浏览器门禁
 
-v2 single-HTML 只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。每页必须有 title、summary、section id/title 与 emphasis 派生元数据，并与权威 JSON 一致。每个组件包装节点必须有 block、provider、component、content-ref 四个属性；语义焦点载体还必须用 `data-emphasis-role` 精确覆盖 Render Plan 的成员角色。
+验证器只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。每页必须有 title、summary、section id/title 与 emphasis 派生元数据，并与权威 JSON 一致。每个组件包装节点必须有 block、provider、component、content-ref 四个属性；语义焦点载体还必须用 `data-emphasis-role` 精确覆盖 Render Plan 的成员角色。
 
 组件声明还必须与真实 DOM 一致：`svg` 包装节点必须实际包含 `<svg>`，`image` 包含 `<img>` / `<picture>`，`table` 包含 `<table>`；手写 Canvas 属于 `native-html`，不得冒充 ECharts。ECharts 页必须声明 `data-render-pending="true"` 并通过 `WisePPT.createEChart()` 注册异步任务。
 
@@ -99,7 +99,7 @@ WisePPT.markSlideReady(slide);
 - 二维码、条码等从最终渲染结果解码回权威 payload，不能只验证源码矩阵；
 - 图片、字体、外部依赖没有空白或闪退。
 
-`validate.py all`、主题 `lint.py` 与 `check-deck.sh` 不计算浏览器 bbox，也不解码机器码。主体对齐、意图性非对称和机器码解码属于人工验收项；交付记录必须写明检查对象与结果，不得把静态 lint 或运行时自检通过描述成这些项目已通过。需要自动化时应扩展现有无截图浏览器检查，禁止恢复逐页截图链或另建旧版兼容入口。
+`validate.py all`、主题 `lint.py` 与 `check-deck.sh` 不计算浏览器 bbox，也不解码机器码。主体对齐、意图性非对称和机器码解码属于人工验收项；交付记录必须写明检查对象与结果，不得把静态 lint 或运行时自检通过描述成这些项目已通过。需要自动化时应扩展现有无截图浏览器检查，禁止恢复逐页截图链或另建并行入口。
 
 ## 7. Gallery 与主题隔离门禁
 
@@ -116,4 +116,4 @@ WisePPT.markSlideReady(slide);
 
 `core/examples/` 是主题中立的契约示例：三份 JSON 应分别通过 schema，`content.json` 与 `deck-plan.json` 还应通过来源、引用、Ghost Deck、must 覆盖和 semantic block 校验。示例 `render-plan.json` 使用虚拟主题名称，只证明通用 render contract，不承诺直接通过需要已注册主题、layout manifest 与真实 HTML 的 `render`、`coverage` 或 `all`。完整链路由测试目录中的隔离最小主题与页面 fixture 验证。
 
-`themes/<theme>/examples/` 是主题级多页单 HTML 金样：当前只保留 `wise-ppt-story-six-page/`，同时包含 `content.json`、`deck-plan.json`、`render-plan.json` 与唯一根级 `index.html`，并完整通过 `validate.py all`。它用于展示跨层契约如何落到一套真实六页成品，不得包含 `frames/`、iframe、缩略图或旧 schema；gallery 负责版式候选，测试夹具负责最小分支覆盖，不得在此重复造单页样张。
+`themes/<theme>/examples/` 是主题级多页金样：当前只保留 `wise-ppt-story-six-page/`，同时包含三份权威 JSON、`deck-build.json` 与根级 `index.html`，并完整通过 `build_deck.py --check` 和 `validate.py all`。六页正文只存在于 `index.html` 的受控标记区，壳层来自 runtime 模板。它用于展示跨层契约如何落到一套真实六页成品，不得包含 `frames/`、iframe 或缩略图；gallery 负责版式候选，测试夹具负责最小分支覆盖，不得在此重复造单页样张。
