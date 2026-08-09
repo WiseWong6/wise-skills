@@ -1354,6 +1354,8 @@ class SingleHtmlContractTests(unittest.TestCase):
                 html = (target / "index.html").read_text(encoding="utf-8")
                 self.assertNotIn("<iframe", html.casefold())
                 self.assertEqual(html.count('<section class="slide"'), 6)
+                self.assertIn('data-deck-title="Wise PPT · 分镜示例"', html)
+                self.assertNotIn("SCAN · 微信搜一搜 歪斯Wise", html)
                 result = validate_all(target, REPO_ROOT)
                 self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
