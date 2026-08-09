@@ -18,7 +18,7 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.i1">
-  <div class="doc tl">PAPER-INK GALLERY — I1<br>HORIZONTAL PIPELINE</div>
+  <div class="doc tl">HENGJI DISPATCH — I1<br>ORDER TO DISPATCH</div>
   <div class="folio">I1 / 63 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
@@ -30,7 +30,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">横向流水线解释机制——四段仪器吊在同一把基线尺上，形态各异，最重的一段就是全页重心。</div>
+  <div class="caption">订单先汇入时窗，再合并成波次，最后交给调度引擎统一求解。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -56,6 +56,9 @@ var RAD = Math.PI / 180;
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. I1 — HORIZONTAL PIPELINE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:560, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 流水线主体连同公共基线尺整体垂直配平。 */
+G = el('g', {transform:'translate(0 32)'});
 
 /* ---------- 共享基线尺（四段站位的公共刻度） ---------- */
 var BY = 590, X0 = 280, X1 = 1640;

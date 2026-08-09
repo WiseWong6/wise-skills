@@ -17,7 +17,7 @@ python3 scripts/validate.py all      <deck-dir>
 
 命令退出码必须可靠：任一 error 返回非零；warning 不改变退出码。不存在的文件、未知主题或无法读取的 manifest 都不得报告成功。
 
-`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。主题目录不得再维护完整 deck 示例；主题视觉样张只进入 gallery，三种渲染决策只进入测试夹具。
+`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、主题金样、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。`themes/<theme>/examples/` 只维护一套可完整通过当前契约的多页单 HTML 金样；主题视觉候选只进入 gallery，三种渲染决策的最小覆盖只进入测试夹具。
 
 ## 2. Content 门禁
 
@@ -39,6 +39,8 @@ python3 scripts/validate.py all      <deck-dir>
 - section、page、block、content 引用全部存在；
 - 每页恰好一个 primary block；
 - Ghost Deck 的 assertion title / takeaway 均非空；
+- takeaway / caption 只陈述页面内容，能由本页证据推出；不得混入版式选择条件、画册复用说明或制作方法；
+- 页角 `.doc.tl` 只标当前主题/章节，不得把 gallery、layout、mock 或组件名称当作 PPT 文案；
 - 每页 `spatial_primitive` 属于十二个通用原语；
 - 每页声明唯一的 `semantic_unit_count`，作为后续容量校验依据；
 - must 内容有 include 决策和页面承载；
@@ -91,7 +93,13 @@ WisePPT.markSlideReady(slide);
 - breathing / balanced / dense 的实际信息负担；
 - 图表轴、图例、单位、排序与源数据一致；
 - 主视觉唯一，支持件没有抢夺焦点；
+- 主体包络位于主题定义的可用内容区；中心型原语检查水平与垂直中心；被设计成一个中心型局部单元的图形、标题和标签检查共同轴线，侧注与引线则按结构锚点验收；意图性非对称按结构锚点与视觉重量复核，不能用全页 bbox 强行居中；
+- 短标签、等权矩阵和稀疏固定高度单元格默认水平、垂直居中；分析表格的文字按扫读路径左对齐，数字按位数、单位或小数点右对齐；
+- 对称结构的左右/上下外缘成镜像，连接线、标注轨和主体仍保持结构关系；
+- 二维码、条码等从最终渲染结果解码回权威 payload，不能只验证源码矩阵；
 - 图片、字体、外部依赖没有空白或闪退。
+
+`validate.py all`、主题 `lint.py` 与 `check-deck.sh` 不计算浏览器 bbox，也不解码机器码。主体对齐、意图性非对称和机器码解码属于人工验收项；交付记录必须写明检查对象与结果，不得把静态 lint 或运行时自检通过描述成这些项目已通过。需要自动化时应扩展现有无截图浏览器检查，禁止恢复逐页截图链或另建旧版兼容入口。
 
 ## 7. Gallery 与主题隔离门禁
 
@@ -99,6 +107,7 @@ WisePPT.markSlideReady(slide);
 - 每个 layout ID 唯一，display code 只用于展示；
 - manifest 的 general / domain examples 数量与文件一一对应；
 - 画册目录由 manifest 生成，禁止维护第二份手写数组；
+- 画册外层用途文案与 iframe 内页面结论分层：外层不直出机器筛选谓词，页内不讲版式如何制作；
 - core schema 与文档不含任何具体主题 token、layout ID 或资产路径；
 - 用最小测试主题运行 schema、catalog 与 render 校验，证明 core 不依赖默认主题。
 - Gallery 查询结果为空不是失败；Custom 是正常主路径之一，普通生成任务不得把 Custom 写回 manifest 或新增 Gallery 样张。
@@ -106,3 +115,5 @@ WisePPT.markSlideReady(slide);
 ## 8. Core 示例的边界
 
 `core/examples/` 是主题中立的契约示例：三份 JSON 应分别通过 schema，`content.json` 与 `deck-plan.json` 还应通过来源、引用、Ghost Deck、must 覆盖和 semantic block 校验。示例 `render-plan.json` 使用虚拟主题名称，只证明通用 render contract，不承诺直接通过需要已注册主题、layout manifest 与真实 HTML 的 `render`、`coverage` 或 `all`。完整链路由测试目录中的隔离最小主题与页面 fixture 验证。
+
+`themes/<theme>/examples/` 是主题级多页单 HTML 金样：当前只保留 `wise-ppt-story-six-page/`，同时包含 `content.json`、`deck-plan.json`、`render-plan.json` 与唯一根级 `index.html`，并完整通过 `validate.py all`。它用于展示跨层契约如何落到一套真实六页成品，不得包含 `frames/`、iframe、缩略图或旧 schema；gallery 负责版式候选，测试夹具负责最小分支覆盖，不得在此重复造单页样张。

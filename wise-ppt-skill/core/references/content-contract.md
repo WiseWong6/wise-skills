@@ -65,6 +65,8 @@
 
 后续页面可以引用整个 `item.launch-path`，也可以直接引用 `atom.stage.discover`。覆盖校验会逐一检查 must 项及其原子值，避免“主题看似出现，细节实际丢失”。
 
+**容量口径提醒**：每个被页面 `content_refs` 引用的 item 和 atom 各算 1 个语义单元（`semantic_units`）。一个 must assertion 带 3 个 must atom，若全部进入同一页 `content_refs`，即算 4 个单元。breathing 页（上限 2）装不下时，封面/章节页只引用 item 本身，把 atom 留到后续内容页引用；atom 仍然 must 可追溯（覆盖校验会逐一追踪），不必挤进同一页。
+
 ## 6. Brief 缺失时的写法
 
 目标、受众、场景缺失时写 `null`，并把缺口写入 `brief.gaps`；禁止猜一个看似合理的答案。`content.json` 仍然要生成，因为内部规划始终存在，是否暂停由 `deck-plan.json.confirmation` 决定。

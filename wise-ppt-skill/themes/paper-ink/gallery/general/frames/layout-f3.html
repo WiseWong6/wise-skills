@@ -18,14 +18,14 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.f3">
-  <div class="doc tl">PAPER-INK GALLERY — F3<br>COLUMN LIST</div>
+  <div class="doc tl">HENGJI DISPATCH — F3<br>OPERATIONS CAPABILITY</div>
   <div class="folio">F3 / 63 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">分栏清单柱用于并列陈列无优先级的离散要点，每柱保持栏题、条目题、注三层级。</div>
+  <div class="caption">调度、地图与运维三类能力共同决定车队能否在高峰期稳定运行。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -49,6 +49,9 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. F3 — COLUMN LIST', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 三栏清单与分隔 guide 作为一个主体整体垂直配平。 */
+G = el('g', {transform:'translate(0 32)'});
 
 /* ---------- 栏间分隔虚线 ---------- */
 [640, 1220].forEach(function(x){

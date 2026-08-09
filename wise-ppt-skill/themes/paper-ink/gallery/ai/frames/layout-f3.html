@@ -18,14 +18,14 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.f3">
-  <div class="doc tl">AI LAYOUT GALLERY — F3<br>COLUMN LIST · AI PM SKILLS</div>
+  <div class="doc tl">AI ENGINEERING — F3<br>AI PRODUCT LEAD SKILLS</div>
   <div class="folio">F3 / 63 — BY @歪斯Wise</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">分栏清单柱用于并列陈列无优先级的离散要点，AI 产品经理的核心能力按认知、工程、落地三栏并列陈列。</div>
+  <div class="caption">AI 产品负责人需要同时具备认知、工程与落地能力，任何一柱缺失都会卡住交付。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -49,6 +49,9 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. F3 — COLUMN LIST', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:500, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 三栏清单与分隔 guide 作为一个主体整体垂直配平。 */
+G = el('g', {transform:'translate(0 32)'});
 
 /* ---------- 栏间分隔虚线 ---------- */
 [640, 1220].forEach(function(x){

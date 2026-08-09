@@ -79,7 +79,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -169,7 +169,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -256,7 +256,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -347,7 +347,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -438,7 +438,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -528,7 +528,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -620,7 +620,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -651,7 +651,7 @@
     {
       "layout_id": "paper-ink.evidence.admin-ui",
       "display_code": "A8",
-      "name": "后台界面mock",
+      "name": "后台任务追踪台",
       "family": "证据",
       "description": "展示产品后台（列表/筛选/下钻），证明真实存在",
       "roles": [
@@ -736,7 +736,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -830,7 +830,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -918,7 +918,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1004,7 +1004,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1091,7 +1091,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1180,7 +1180,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1267,7 +1267,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1351,7 +1351,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1440,7 +1440,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1528,7 +1528,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1618,7 +1618,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1708,7 +1708,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1795,7 +1795,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1885,7 +1885,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -1972,7 +1972,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2036,6 +2036,7 @@
           "min_items": 1,
           "max_items": 2,
           "allowed_providers": [
+            "typography",
             "svg"
           ]
         },
@@ -2119,6 +2120,7 @@
           "min_items": 1,
           "max_items": 2,
           "allowed_providers": [
+            "typography",
             "svg"
           ]
         },
@@ -2201,6 +2203,7 @@
           "min_items": 1,
           "max_items": 2,
           "allowed_providers": [
+            "typography",
             "svg"
           ]
         },
@@ -2306,7 +2309,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2372,6 +2375,7 @@
           "min_items": 1,
           "max_items": 2,
           "allowed_providers": [
+            "typography",
             "svg"
           ]
         },
@@ -2422,7 +2426,7 @@
       "display_code": "D6",
       "name": "联络尾页",
       "family": "骨架",
-      "description": "商务 deck 收尾——联系方式与地址",
+      "description": "联络尾页",
       "roles": [
         "act",
         "close"
@@ -2432,7 +2436,7 @@
       ],
       "primitives": [
         "contact-columns",
-        "qr-placeholder"
+        "qr-code"
       ],
       "densities": [
         "balanced"
@@ -2478,7 +2482,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2496,7 +2500,7 @@
         "general": "themes/paper-ink/gallery/general/frames/layout-d6.html",
         "ai": "themes/paper-ink/gallery/ai/frames/layout-d6.html"
       },
-      "selection_notes": "商务 deck 收尾——联系方式与地址。当页面角色属于act/close、关系形状为hierarchy且容量落在 2–6 个语义单元时优先复用。",
+      "selection_notes": "联络尾页。",
       "anti_patterns": [
         "不要在呼吸页加入第二信息层",
         "不要用骨架页承载正文堆叠"
@@ -2648,7 +2652,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2731,7 +2735,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2815,7 +2819,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2905,7 +2909,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -2994,7 +2998,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3026,7 +3030,7 @@
       "display_code": "E6",
       "name": "前后双带演进页",
       "family": "对比",
-      "description": "Before 散件带 vs After 流水线带的状态跃迁，底部金句收束",
+      "description": "适合把同一对象的前后状态上下对照，并用处理链说明变化如何发生",
       "roles": [
         "compare",
         "sequence"
@@ -3081,7 +3085,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3165,7 +3169,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3254,7 +3258,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3344,7 +3348,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3433,7 +3437,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3520,7 +3524,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3609,7 +3613,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3700,7 +3704,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3787,7 +3791,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3874,7 +3878,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -3963,7 +3967,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4053,7 +4057,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4122,6 +4126,7 @@
           "min_items": 1,
           "max_items": 7,
           "allowed_providers": [
+            "native-html",
             "svg",
             "atlas"
           ]
@@ -4143,7 +4148,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4231,7 +4236,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4319,7 +4324,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4410,7 +4415,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4501,7 +4506,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4588,7 +4593,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4678,7 +4683,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4768,7 +4773,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4802,7 +4807,7 @@
       "display_code": "K2",
       "name": "痛点→解法→成效三栏",
       "family": "矩阵",
-      "description": "销售/汇报叙事最小闭环：问题→做法→结果",
+      "description": "将问题、做法与结果按栏对位，建立从现状到成效的闭环",
       "roles": [
         "synthesize",
         "prove"
@@ -4863,7 +4868,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -4960,7 +4965,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -5056,7 +5061,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -5147,7 +5152,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -5236,7 +5241,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -5385,6 +5390,7 @@
           "min_items": 1,
           "max_items": 2,
           "allowed_providers": [
+            "typography",
             "svg"
           ]
         },
@@ -5492,7 +5498,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
@@ -5583,7 +5589,7 @@
         {
           "slot_id": "takeaway",
           "purpose": "页面一句话结论",
-          "required": true,
+          "required": false,
           "min_items": 0,
           "max_items": 1,
           "allowed_providers": [
