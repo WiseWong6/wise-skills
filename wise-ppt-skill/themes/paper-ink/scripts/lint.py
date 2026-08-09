@@ -12,7 +12,7 @@
     L4 中文长句落 mono：txt(...) 调用中 font-family MONO 且含 8 个以上 CJK 字符
     L5 三件套：.doc tl 角注、.folio、.caption（尾卡页 caption 仅 WARN）
     L6 不做“同尺寸矩形即违规”的静态猜测；Grid/证据墙/矩阵由 manifest 关系与浏览器目检判断
-    L7 Gallery 样页未调用 stageFit()，或 single-html 未声明统一 runtime
+    L7 Gallery 样页未调用 stageFit()，或 deck 未声明统一 runtime
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
     L10 字阶：页面只能引用共享 --type-* token；CSS/SVG/Canvas/ECharts 禁止裸字号
@@ -147,7 +147,7 @@ def lint_file(path):
     # 表格或同行比较；关系正确性由 render plan、manifest capacity 与截图目检负责。
 
     # L7 stageFit（或等价的本地 fit()：min(vw/1920, vh/1080) 缩放）
-    if 'stageFit(' not in src and 'innerWidth/1920' not in src and 'data-document-mode="single-html"' not in src:
+    if 'stageFit(' not in src and 'innerWidth/1920' not in src and 'data-runtime="wise-ppt"' not in src:
         fails.append('L7 未调用 stageFit() 或等价缩放')
 
     # L8 纯白填充

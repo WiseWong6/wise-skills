@@ -1,5 +1,4 @@
 {
-  "schema_version": "1.0",
   "theme_id": "paper-ink",
   "description": "纸墨主题 63 个布局的唯一机器可读登记源；core_primitives 声明通用语义空间能力，primitives 声明纸墨实现原语；semantic layout_id 是契约，A1 等仅用于画册展示。",
   "layout_count": 63,

@@ -5,7 +5,6 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema_version",
     "content_file",
     "thesis",
     "narrative_type",
@@ -16,9 +15,6 @@
     "coverage_decisions"
   ],
   "properties": {
-    "schema_version": {
-      "const": "1.0"
-    },
     "content_file": {
       "type": "string",
       "minLength": 1

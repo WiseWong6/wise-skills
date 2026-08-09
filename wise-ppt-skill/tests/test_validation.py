@@ -71,7 +71,6 @@ class FixtureRepo:
         write_json(
             self.root / "themes" / "registry.json",
             {
-                "schema_version": "1.0",
                 "default_theme_id": self.THEME_ID,
                 "themes": [
                     {
@@ -86,7 +85,6 @@ class FixtureRepo:
         write_json(
             self.root / "themes" / self.THEME_ID / "theme.json",
             {
-                "schema_version": "1.0",
                 "theme_id": self.THEME_ID,
                 "name": "Minimal",
                 "layout_manifest": f"themes/{self.THEME_ID}/layout-manifest.json",
@@ -169,7 +167,6 @@ class FixtureRepo:
         write_json(
             self.layout_manifest_path,
             {
-                "schema_version": "1.0",
                 "theme_id": self.THEME_ID,
                 "layout_count": 2,
                 "gallery_variants": list(self.GALLERY_VARIANTS),
@@ -184,7 +181,6 @@ class FixtureRepo:
         write_json(
             self.root / "themes" / self.THEME_ID / "atlas-catalog.json",
             {
-                "schema_version": "1.0",
                 "components": [{
                 "component_id": "atlas.process-flow.vertical",
                 "name": "纵向流程",
@@ -201,7 +197,6 @@ class FixtureRepo:
     @staticmethod
     def _content_document() -> dict:
         return {
-            "schema_version": "1.0",
             "brief": {
                 "title": "Retention",
                 "objective": "Explain the result",
@@ -242,7 +237,6 @@ class FixtureRepo:
     @staticmethod
     def _plan_document() -> dict:
         return {
-            "schema_version": "1.0",
             "content_file": "content.json",
             "thesis": "The release improved retention",
             "narrative_type": "argument-evidence",
@@ -316,11 +310,9 @@ class FixtureRepo:
     @staticmethod
     def _render_document() -> dict:
         return {
-            "schema_version": "2.0",
             "content_file": "content.json",
             "deck_plan_file": "deck-plan.json",
             "theme_id": FixtureRepo.THEME_ID,
-            "document_mode": "single-html",
             "output_file": "index.html",
             "pages": [
                 {
@@ -385,7 +377,7 @@ class FixtureRepo:
         self.html_path.parent.mkdir(parents=True, exist_ok=True)
         self.html_path.write_text(
             """<!doctype html>
-<html data-document-mode="single-html" data-deck-ready="true"><body>
+<html data-runtime="wise-ppt" data-deck-ready="true"><body>
 <section class="slide" data-page-id="page.one" data-page-role="explain" data-theme="minimal-neutral"
       data-layout-source="gallery" data-layout="demo.argument.sequence"
       data-density="balanced" data-reuse-mode="adapt"
@@ -659,8 +651,8 @@ class ContractValidationTests(unittest.TestCase):
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
         self.assertNotIn("render.unsupported_layout", {issue.code for issue in result.errors})
 
-    def test_render_v2_contract_fixtures_cover_copy_adapt_and_custom(self) -> None:
-        fixture_root = FIXTURES / "render-v2"
+    def test_render_contract_fixtures_cover_copy_adapt_and_custom(self) -> None:
+        fixture_root = FIXTURES / "render-decisions"
         for case in ("gallery-copy", "gallery-adapt", "custom"):
             with self.subTest(case=case):
                 page = load_json(fixture_root / case / "page.json")
@@ -763,7 +755,7 @@ class ContractValidationTests(unittest.TestCase):
         result = validate_render_target(self.fixture.deck, self.fixture.root)
         self.assert_has_code(result, "render.unknown_component")
 
-    def test_render_plan_v2_single_html_requires_canonical_index_entry(self) -> None:
+    def test_render_plan_requires_canonical_index_entry(self) -> None:
         render = copy.deepcopy(self.fixture.render)
         render["output_file"] = "deck.html"
         result = JsonSchemaValidator(
@@ -771,40 +763,12 @@ class ContractValidationTests(unittest.TestCase):
         ).validate(render, "render-plan.json")
         self.assert_has_code(result, "schema.const")
 
-    def test_render_plan_rejects_legacy_versions_modes_and_page_outputs(self) -> None:
+    def test_render_plan_rejects_page_outputs(self) -> None:
         schema = JsonSchemaValidator(REPO_ROOT / "core" / "schemas" / "render-plan.schema.json")
-        cases = {}
-
-        legacy_version = copy.deepcopy(self.fixture.render)
-        legacy_version["schema_version"] = "1.1"
-        cases["legacy-version"] = (legacy_version, "schema.const")
-
-        missing_mode = copy.deepcopy(self.fixture.render)
-        missing_mode.pop("document_mode")
-        cases["missing-document-mode"] = (missing_mode, "schema.required")
-
         page_output = copy.deepcopy(self.fixture.render)
         page_output["pages"][0]["output_file"] = "frames/page.one.html"
-        cases["page-output"] = (page_output, "schema.additionalProperties")
-
-        for case, (render, expected_code) in cases.items():
-            with self.subTest(case=case):
-                result = schema.validate(render, "render-plan.json")
-                self.assert_has_code(result, expected_code)
-
-    def test_v2_only_contract_has_no_legacy_deck_artifacts(self) -> None:
-        removed_paths = [
-            REPO_ROOT / "core" / "schemas" / "render-plan-v1.schema.json",
-            REPO_ROOT / "themes" / "paper-ink" / "assets" / "shot-template.html",
-            REPO_ROOT / "runtime" / "frames",
-        ]
-        self.assertTrue(all(not path.exists() for path in removed_paths), removed_paths)
-
-        contracts = (REPO_ROOT / "scripts" / "_ppt_contracts.py").read_text(encoding="utf-8")
-        exporter = (REPO_ROOT / "runtime" / "export-pdf.sh").read_text(encoding="utf-8")
-        self.assertNotIn("_validate_render_v1_document", contracts)
-        self.assertNotIn("frames/shot-", exporter)
-        self.assertNotIn("legacy-print", exporter)
+        result = schema.validate(page_output, "render-plan.json")
+        self.assert_has_code(result, "schema.additionalProperties")
 
     def test_theme_lint_rejects_removed_accent_flag(self) -> None:
         completed = subprocess.run(
@@ -822,7 +786,7 @@ class ContractValidationTests(unittest.TestCase):
         self.assertIn("unrecognized arguments: --accent", completed.stderr)
 
     def test_theme_lint_rejects_hardcoded_accent_in_deck_html(self) -> None:
-        source = (FIXTURES / "single-html-deck" / "index.html").read_text(encoding="utf-8")
+        source = (FIXTURES / "deck-contract" / "index.html").read_text(encoding="utf-8")
         target = Path(self.temporary.name) / "hardcoded-accent.html"
         target.write_text(source.replace("</style>", ".bad-accent{color:#C0392B}</style>", 1), encoding="utf-8")
         completed = subprocess.run(
@@ -851,8 +815,8 @@ class ContractValidationTests(unittest.TestCase):
                 )
                 self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
 
-    def test_export_pdf_rejects_legacy_plan_before_browser_work(self) -> None:
-        self.fixture.render["schema_version"] = "1.1"
+    def test_export_pdf_runs_the_render_plan_gate_before_browser_work(self) -> None:
+        self.fixture.render["output_file"] = "deck.html"
         self.fixture.flush()
         completed = subprocess.run(
             ["bash", str(REPO_ROOT / "runtime" / "export-pdf.sh"), str(self.fixture.deck)],
@@ -861,7 +825,7 @@ class ContractValidationTests(unittest.TestCase):
             text=True,
         )
         self.assertNotEqual(completed.returncode, 0)
-        self.assertIn("仅支持 v2 single-HTML Render Plan", completed.stderr)
+        self.assertIn("schema.const", completed.stdout + completed.stderr)
         self.assertFalse((self.fixture.deck / f"{self.fixture.deck.name}.pdf").exists())
 
     def test_render_checks_canonical_page_and_component_data_attributes(self) -> None:
@@ -1004,9 +968,9 @@ class ContractValidationTests(unittest.TestCase):
         self.assert_has_code(empty, "gallery.layout_count")
         self.assert_has_code(empty, "gallery.empty")
 
-    def test_theme_contract_rejects_unknown_or_legacy_alias_fields(self) -> None:
+    def test_theme_contract_rejects_unknown_alias_fields(self) -> None:
         manifest = load_json(self.fixture.layout_manifest_path)
-        manifest["layouts"][0]["id"] = "legacy-layout-alias"
+        manifest["layouts"][0]["id"] = "unknown-layout-alias"
         write_json(self.fixture.layout_manifest_path, manifest)
         self.assert_has_code(
             validate_gallery(self.fixture.root, FixtureRepo.THEME_ID),
@@ -1230,12 +1194,12 @@ class ContractValidationTests(unittest.TestCase):
         self.assertIn("ECharts 请查官方文档", echarts_run.stderr)
 
 
-class SingleHtmlContractTests(unittest.TestCase):
+class DeckContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.deck = Path(self.temporary.name) / "single-html-deck"
-        shutil.copytree(FIXTURES / "single-html-deck", self.deck)
+        self.deck = Path(self.temporary.name) / "deck-contract"
+        shutil.copytree(FIXTURES / "deck-contract", self.deck)
         self.html = self.deck / "index.html"
 
     @staticmethod
@@ -1245,7 +1209,7 @@ class SingleHtmlContractTests(unittest.TestCase):
     def validate(self):
         return validate_render_target(self.deck, REPO_ROOT)
 
-    def test_render_plan_v2_single_html_is_valid(self) -> None:
+    def test_render_plan_and_deck_html_are_valid(self) -> None:
         result = self.validate()
         self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
@@ -1284,7 +1248,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_provider_semantics", self.error_codes(self.validate()))
 
-    def test_render_plan_v2_requires_canonical_index_entry(self) -> None:
+    def test_render_plan_requires_canonical_index_entry(self) -> None:
         render_path = self.deck / "render-plan.json"
         render = load_json(render_path)
         render["output_file"] = "deck.html"
@@ -1300,7 +1264,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_page_data", self.error_codes(self.validate()))
 
-    def test_single_html_rejects_duplicate_page_id(self) -> None:
+    def test_deck_html_rejects_duplicate_page_id(self) -> None:
         source = self.html.read_text(encoding="utf-8").replace(
             'data-page-id="page.example-dense-ui"',
             'data-page-id="page.example-flow-kpi"',
@@ -1311,7 +1275,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.assertIn("render.duplicate_html_page", codes)
         self.assertIn("render.html_page_missing", codes)
 
-    def test_single_html_rejects_cross_slide_source_id(self) -> None:
+    def test_deck_html_rejects_cross_slide_source_id(self) -> None:
         source = self.html.read_text(encoding="utf-8").replace(
             '<div class="stage">',
             '<div class="stage" id="shared-source">',
@@ -1319,7 +1283,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.duplicate_source_id", self.error_codes(self.validate()))
 
-    def test_single_html_rejects_missing_page(self) -> None:
+    def test_deck_html_rejects_missing_page(self) -> None:
         source = self.html.read_text(encoding="utf-8")
         source = re.sub(
             r'<section class="slide" data-page-id="page[.]example-dense-ui".*?</section>\s*</div></div>',
@@ -1331,7 +1295,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_page_missing", self.error_codes(self.validate()))
 
-    def test_single_html_rejects_content_owned_by_wrong_slide(self) -> None:
+    def test_deck_html_rejects_content_owned_by_wrong_slide(self) -> None:
         source = self.html.read_text(encoding="utf-8").replace(
             'data-content-ref="item.delivery-process"',
             'data-content-ref="item.product-ui-state"',
@@ -1340,7 +1304,7 @@ class SingleHtmlContractTests(unittest.TestCase):
         self.html.write_text(source, encoding="utf-8")
         self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
 
-    def test_theme_keeps_one_six_page_single_html_golden_story(self) -> None:
+    def test_theme_keeps_one_six_page_golden_story(self) -> None:
         examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
         expected = {"wise-ppt-story-six-page"}
         self.assertEqual(
@@ -1359,7 +1323,7 @@ class SingleHtmlContractTests(unittest.TestCase):
                 result = validate_all(target, REPO_ROOT)
                 self.assertTrue(result.ok, [issue.format() for issue in result.issues])
 
-        decision_fixtures = FIXTURES / "render-v2"
+        decision_fixtures = FIXTURES / "render-decisions"
         self.assertEqual(
             {path.name for path in decision_fixtures.iterdir() if path.is_dir()},
             {"gallery-copy", "gallery-adapt", "custom"},
