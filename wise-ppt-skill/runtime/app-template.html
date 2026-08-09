@@ -30,7 +30,11 @@
   body.mode-board { overflow: auto; }
   #board { padding: 48px 40px 80px; }
   #board > header { max-width: 1560px; margin: 0 auto 36px; }
-  #board > header h1 { font-size: 30px; font-weight: 700; }
+  #board > header h1 {
+    font-size: 30px;
+    font-family: "Han Sans", "Source Han Sans SC", "思源黑体", "PingFang SC", sans-serif;
+    font-weight: 300;
+  }
   #board > header p {
     margin-top: 10px; color: rgba(25,25,23,.55);
     font-size: 14px; font-family: ui-monospace, Menlo, monospace; letter-spacing: .08em;
@@ -132,7 +136,7 @@
 <!-- ===== 画板视图 ===== -->
 <main id="board">
   <header>
-    <h1 id="deck-title">《标题》分镜总览</h1>
+    <h1 id="deck-title">Wise PPT · 分镜示例</h1>
     <p id="deck-sub">N SHOTS · 点击任意镜头进入全屏放映</p>
   </header>
   <div id="acts"></div>
