@@ -12,6 +12,7 @@ python3 "$SKILL_ROOT/scripts/validate.py" render-plan "$PLAN"
 
 TMP_ROOT="$(mktemp -d /tmp/wise-ppt-pdf.XXXXXX)"
 mkdir -p "$TMP_ROOT/ready-profile" "$TMP_ROOT/print-profile" "$(dirname "$OUT")"
+TMP_PDF="$TMP_ROOT/rendered.pdf"
 CHROME_PID=""
 stop_chrome() {
   [ -n "$CHROME_PID" ] || return 0
@@ -66,18 +67,19 @@ for _ in $(seq 1 240); do
 done
 stop_chrome
 rg -q 'data-deck-ready="true"' "$DOM" || { echo "deck 未在时限内完成渲染" >&2; tail -20 "$TMP_ROOT/load.log" >&2; exit 1; }
-"$CHROME" "${COMMON[@]}" --user-data-dir="$TMP_ROOT/print-profile" --no-pdf-header-footer --virtual-time-budget=12000 --print-to-pdf="$OUT" "$URL" >"$TMP_ROOT/print.log" 2>&1 &
+"$CHROME" "${COMMON[@]}" --user-data-dir="$TMP_ROOT/print-profile" --no-pdf-header-footer --virtual-time-budget=12000 --print-to-pdf="$TMP_PDF" "$URL" >"$TMP_ROOT/print.log" 2>&1 &
 CHROME_PID=$!
 for _ in $(seq 1 300); do
-  if [ -s "$OUT" ] && [ "$(head -c 5 "$OUT" 2>/dev/null || true)" = "%PDF-" ]; then break; fi
+  if [ -s "$TMP_PDF" ] && [ "$(head -c 5 "$TMP_PDF" 2>/dev/null || true)" = "%PDF-" ]; then break; fi
   kill -0 "$CHROME_PID" 2>/dev/null || break
   sleep 0.1
 done
 stop_chrome
-[ -s "$OUT" ] || { echo "PDF 生成失败：$OUT" >&2; exit 1; }
-[ "$(head -c 5 "$OUT")" = "%PDF-" ] || { echo "PDF 文件头无效：$OUT" >&2; exit 1; }
+[ -s "$TMP_PDF" ] || { echo "PDF 生成失败：$OUT" >&2; exit 1; }
+[ "$(head -c 5 "$TMP_PDF")" = "%PDF-" ] || { echo "PDF 文件头无效：$OUT" >&2; exit 1; }
 if command -v pdfinfo >/dev/null 2>&1; then
-  PDF_PAGES="$(pdfinfo "$OUT" | awk '/^Pages:/ {print $2}')"
+  PDF_PAGES="$(pdfinfo "$TMP_PDF" | awk '/^Pages:/ {print $2}')"
   [ "$PDF_PAGES" = "$COUNT" ] || { echo "PDF 页数 $PDF_PAGES，与 slide 数 $COUNT 不一致" >&2; exit 1; }
 fi
+mv "$TMP_PDF" "$OUT"
 echo "PASS pdf pages=$COUNT output=$OUT"

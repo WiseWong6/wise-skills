@@ -1,13 +1,44 @@
 {
+  "contract_version": 2,
   "brief": {
     "title": "Wise PPT Skill · 六页示例",
     "objective": "用六页说明 AI 演示的常见问题、Wise PPT 的工作方式、设计原则、版式与组件能力，并引导关注。",
     "audience": "希望稳定生成高质量网页演示的创作者与产品团队",
     "scenario": "Skill 能力介绍",
     "language": "zh-CN",
-    "page_limits": {"min": 6, "max": 6, "requested": 6},
-    "must_include": ["AI 演示的常见问题", "五步工作流", "三项设计原则", "版式图册", "PPT 组件", "联系信息"],
-    "must_avoid": ["iframe 与逐页 HTML", "缩略图图片依赖", "逐页裸写字号", "用 Emoji 代替图标"],
+    "user_constraints": [
+      {
+        "constraint_id": "constraint.story.page-count",
+        "type": "page_limit",
+        "exact_pages": 6,
+        "source_refs": ["src.story-six-page"],
+        "note": "用户确认保留六页叙事。"
+      },
+      {
+        "constraint_id": "constraint.story.no-iframe-page-html",
+        "type": "must_avoid",
+        "statement": "不要使用 iframe 或逐页 HTML。",
+        "source_refs": ["src.story-six-page"]
+      },
+      {
+        "constraint_id": "constraint.story.no-thumbnail-dependency",
+        "type": "must_avoid",
+        "statement": "不要依赖缩略图图片。",
+        "source_refs": ["src.story-six-page"]
+      },
+      {
+        "constraint_id": "constraint.story.no-bare-font-size",
+        "type": "must_avoid",
+        "statement": "不要逐页裸写字号。",
+        "source_refs": ["src.story-six-page"]
+      },
+      {
+        "constraint_id": "constraint.story.no-emoji-icon",
+        "type": "must_avoid",
+        "statement": "不要用 Emoji 代替图标。",
+        "source_refs": ["src.story-six-page"]
+      }
+    ],
     "gaps": []
   },
   "sources": [
@@ -20,10 +51,12 @@
       "notes": "仅继承内容与页面表达；旧 iframe、frames 和 thumb 运行方式不继承。"
     }
   ],
+  "assets": [],
   "content_items": [
     {
       "id": "item.story.why",
-      "kind": "comparison",
+      "epistemic_role": "claim",
+      "content_form": "comparison",
       "statement": "默认 AI 输出常见格子优先、颜色优先、缺少焦点和图标滥用；好的演示先做内容规划、版式适配、组件供给与视觉强调。",
       "priority": "must",
       "status": "sourced",
@@ -36,14 +69,16 @@
     },
     {
       "id": "item.story.why-takeaway",
-      "kind": "assertion",
+      "epistemic_role": "claim",
+      "content_form": "prose",
       "statement": "AI 缺的不是生成页面的能力，而是好的设计标准。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "relations": [{"type": "depends_on", "target_ref": "item.story.why", "reason": "判断来自默认输出与演示意图的对照。"}], "tags": ["takeaway"]
     },
     {
       "id": "item.story.workflow",
-      "kind": "process",
+      "epistemic_role": "fact",
+      "content_form": "process",
       "statement": "Wise PPT 依次分析内容、梳理叙事、判断版式、组合组件并生成网页 PPT。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "structured_data": {"steps": ["分析内容", "梳理叙事", "判断版式", "组合组件", "生成网页 PPT"]},
@@ -51,13 +86,14 @@
     },
     {
       "id": "item.story.workflow-takeaway",
-      "kind": "assertion", "statement": "先理解内容，再安排重点、层级与关系。",
+      "epistemic_role": "claim", "content_form": "prose", "statement": "先理解内容，再安排重点、层级与关系。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "relations": [{"type": "depends_on", "target_ref": "item.story.workflow", "reason": "结论依赖五步工作流。"}], "tags": ["takeaway"]
     },
     {
       "id": "item.story.principles",
-      "kind": "definition",
+      "epistemic_role": "instruction",
+      "content_form": "definition",
       "statement": "一页一个重心，内容先于装饰，颜色必须有语义，密度服从层级。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "structured_data": {"center": "一页一个重心", "principles": ["内容先于装饰", "颜色必须有语义", "密度服从层级"]},
@@ -65,13 +101,14 @@
     },
     {
       "id": "item.story.principles-takeaway",
-      "kind": "assertion", "statement": "设计不是把信息填满，而是为观众的阅读顺序作出取舍。",
+      "epistemic_role": "claim", "content_form": "prose", "statement": "设计不是把信息填满，而是为观众的阅读顺序作出取舍。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "relations": [{"type": "depends_on", "target_ref": "item.story.principles", "reason": "结论由三项设计原则收束。"}], "tags": ["takeaway"]
     },
     {
       "id": "item.story.layout-atlas",
-      "kind": "evidence",
+      "epistemic_role": "evidence",
+      "content_form": "prose",
       "statement": "版式图册提供双面板比较、横向流水线、三向放射、分层架构、图表联排和四象限矩阵等阅读结构，也允许内容不匹配时跳过。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "structured_data": {"layouts": ["双面板比较", "横向流水线", "三向放射", "分层架构堆栈", "图表联排墙", "四象限矩阵"]},
@@ -79,13 +116,14 @@
     },
     {
       "id": "item.story.layout-atlas-takeaway",
-      "kind": "assertion", "statement": "从信息关系出发，让每一种内容都拥有恰当的阅读结构。",
+      "epistemic_role": "claim", "content_form": "prose", "statement": "从信息关系出发，让每一种内容都拥有恰当的阅读结构。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "relations": [{"type": "depends_on", "target_ref": "item.story.layout-atlas", "reason": "结论依赖版式图册的多关系示例。"}], "tags": ["takeaway"]
     },
     {
       "id": "item.story.component-atlas",
-      "kind": "evidence",
+      "epistemic_role": "evidence",
+      "content_form": "prose",
       "statement": "成熟表达可以沉淀为流程、同心圆、架构、统计卡片、数据图表与关系矩阵等可复用单元，并由内容按需调用。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "structured_data": {"components": ["流程", "同心圆", "架构", "统计卡片", "数据图表", "关系矩阵"]},
@@ -93,13 +131,14 @@
     },
     {
       "id": "item.story.component-atlas-takeaway",
-      "kind": "assertion", "statement": "提供成熟的表达组件，并由页面内容决定是否调用。",
+      "epistemic_role": "claim", "content_form": "prose", "statement": "提供成熟的表达组件，并由页面内容决定是否调用。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "relations": [{"type": "depends_on", "target_ref": "item.story.component-atlas", "reason": "结论依赖六类组件示例。"}], "tags": ["takeaway"]
     },
     {
       "id": "item.story.contact",
-      "kind": "cta",
+      "epistemic_role": "instruction",
+      "content_form": "cta",
       "statement": "通过小红书或微信搜索 @歪斯Wise，或访问 wisewong.com 获取更新资讯。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "structured_data": {"xiaohongshu": "@歪斯Wise", "wechat": "歪斯Wise", "website": "wisewong.com"},
@@ -107,7 +146,7 @@
     },
     {
       "id": "item.story.contact-takeaway",
-      "kind": "cta", "statement": "关注 @歪斯Wise，及时获取更新资讯。",
+      "epistemic_role": "instruction", "content_form": "cta", "statement": "关注 @歪斯Wise，及时获取更新资讯。",
       "priority": "must", "status": "sourced", "status_note": "", "source_refs": ["src.story-six-page"], "atomic_values": [],
       "relations": [{"type": "depends_on", "target_ref": "item.story.contact", "reason": "行动结论依赖可执行的联络渠道。"}], "tags": ["takeaway", "cta"]
     }

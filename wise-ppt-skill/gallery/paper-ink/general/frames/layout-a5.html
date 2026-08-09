@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-runtime="wise-ppt-specimen" data-typography-mode="mixed" data-page-id="gallery-general-a5" data-page-role="prove" data-theme="paper-ink" data-layout="paper-ink.evidence.policy-columns" data-layout-source="gallery">
+<head>
+<meta charset="UTF-8">
+<title>layout-a5 · 条文陈列页</title>
+<link rel="stylesheet" href="../../../../themes/paper-ink/assets/design-tokens.css">
+<link rel="stylesheet" href="../../../../themes/paper-ink/assets/slide-components.css">
+<link rel="stylesheet" href="../../../shell.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: var(--type-caption); letter-spacing: .04em;
+    color: var(--ink);
+    z-index: 5;
+  }
+</style>
+</head>
+<body class="slide">
+<div class="stage" data-block-id="gallery-primary" data-renderer-kind="svg" data-component-source="native" data-component-id="native.paper-ink.evidence.policy-columns.clauses" data-content-ref="example.a5">
+  <div class="doc tl">HENGJI DISPATCH — A5<br>OPERATING REGULATIONS</div>
+  <div class="folio">A5 / 63 — BY WISEWONG</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">派单、抢占、补能与异常处置被写进统一规则，调度才具备可执行边界。</div>
+</div>
+
+<script src="../../../../runtime/stage-fit.js"></script>
+<script src="../../../../themes/paper-ink/assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK70 = 'rgba(25,25,23,.7)';
+var INK45 = 'rgba(25,25,23,.45)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ---------- FIG 图题 + 文档编号（右上档案注记） ---------- */
+txt(200, 176, 'FIG. A5 — CLAUSE COLUMN PAGE', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
+el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+txt(1770, 100, 'DOC NO. HJ-OPS-2025-017 · REV.3', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+txt(1770, 126, 'HENGJI DISPATCH REGULATIONS (EXCERPT)', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, 'text-anchor':'end', fill:INK45});
+
+/* general 样张较短，条文主体与栏间 guide 整体下移配平；右上文档注记保持固定。 */
+G = el('g', {transform:'translate(0 88)'});
+
+/* ---------- 栏题带（mono EN + 中文栏题 + 短横） ---------- */
+/* 原栏宽栏距不变，整组右移 125 居中：265 / 825 / 1385 */
+var cols = [
+  {x:265, en:'CH.1 · GENERAL RULES',   cn:'调度总则'},
+  {x:825, en:'CH.2 · TASK PRIORITY',   cn:'任务优先级'},
+  {x:1385,en:'CH.3 · EXCEPTION HANDLING', cn:'异常处置'}
+];
+cols.forEach(function(c){
+  txt(c.x, 214, c.en, {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:INK45});
+  txt(c.x, 252, c.cn, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-subheading)', fill:INK});
+  el('line', {x1:c.x, y1:268, x2:c.x+150, y2:268, stroke:INK, 'stroke-width':.8, opacity:.5});
+  el('line', {x1:c.x, y1:272, x2:c.x+64, y2:272, stroke:INK, 'stroke-width':.6, opacity:.25});
+});
+
+/* ---------- 栏间细分隔（0.6px，在两栏内容间隙正中，高度不超栏高） ---------- */
+/* 栏内容右缘≈x+289；分隔线=（上一栏右缘 与 下一栏左缘 的中点） */
+[690, 1250].forEach(function(x){
+  el('line', {x1:x, y1:290, x2:x, y2:726, stroke:INK, 'stroke-width':.6, opacity:.18});
+});
+
+/* ---------- 编号条款（①②③ 多级缩进，17px / 行距 36） ---------- */
+function clause(x, y, mark, lines) {
+  txt(x, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
+  lines.forEach(function(ln, i){
+    txt(x+34, y + i*36, ln, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
+  });
+  return y + lines.length * 36 + 22;
+}
+function sub(x, y, mark, line) {
+  txt(x+34, y, mark, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  txt(x+70, y, line, {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK70});
+  return y + 32;
+}
+
+/* 栏一 · 调度总则 */
+var y = 308;
+y = clause(265, y, '①', ['平台以订单波次为最小调度单元，', '波次生成周期不得超过 90 秒。']);
+y = clause(265, y, '②', ['每台机器人同一时刻仅承载一个主任务，', '空闲 45 秒自动转入待命区待命。']);
+y = clause(265, y, '③', ['任务分配遵循就近、均衡、避让三原则，', '权重由调度引擎按实时负载动态计算。']);
+y = clause(265, y, '④', ['跨巷道任务须经全局路径校验，', '禁止机器人逆行进入单行巷道。']);
+y = clause(265, y, '⑤', ['电量低于 20% 的机器人自动退出任务池，', '优先返回最近空闲充电位补能。']);
+
+/* 栏二 · 任务优先级 */
+y = 308;
+y = clause(825, y, '①', ['优先级由高到低依次为：紧急插单、', '时效单、常规单、移库单、盘点单。']);
+y = clause(825, y, '②', ['紧急插单可抢占常规单运力，', '被抢占任务自动进入重排队列。']);
+y = sub(825, y, 'a.', '抢占范围限于同巷道 30 米内机器人；');
+y = sub(825, y, 'b.', '同一任务一小时内至多被抢占一次。') + 14;
+y = clause(825, y, '③', ['时效单距截止 15 分钟仍未出库的，', '系统自动将其优先级上调一级。']);
+y = clause(825, y, '④', ['盘点任务仅在波次低谷窗口执行，', '低谷窗口由系统前一晚自动生成。']);
+
+/* 栏三 · 异常处置 */
+y = 308;
+y = clause(1385, y, '①', ['机器人离线超过 10 秒的，', '其任务自动迁移至最近同型机器人。']);
+y = clause(1385, y, '②', ['巷道阻塞时系统绕行重规划路径，', '预计延误超 5 分钟上报值班调度员。']);
+y = clause(1385, y, '③', ['电量异常、货损告警与安全急停', '列为一类事件，须双人复核闭环。']);
+y = clause(1385, y, '④', ['所有异常自动生成处置记录，', '记录保留 180 天，供回溯审计调阅。']);
+y = clause(1385, y, '⑤', ['每月首个周五开展全仓应急演练，', '演练数据单独归档，不计入考核。']);
+
+stageFit();
+</script>
+</body>
+</html>

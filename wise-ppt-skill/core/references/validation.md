@@ -1,119 +1,92 @@
 # 验证门禁：从 JSON 到真实页面
 
-验证顺序固定为“结构 → 引用 → 容量 → DOM → 视觉”。后一个门禁不能替代前一个；构建成功也不能替代真实浏览器复核。
+验证顺序固定为“结构 → 引用 → 决策 → renderer → DOM / 资产 → 浏览器”。后一个门禁不能替代前一个；构建成功也不能替代真实页面复核。
 
 ## 1. 命令入口
 
 ```bash
 python3 scripts/validate.py location <deck-dir> --workspace <workspace-root>
-python3 scripts/validate.py content  <deck-or-content.json>
-python3 scripts/validate.py plan     <deck-or-deck-plan.json>
+python3 scripts/validate.py content <deck-or-content.json>
+python3 scripts/validate.py plan <deck-or-deck-plan.json>
 python3 scripts/validate.py render-plan <deck-or-render-plan.json>
-python3 scripts/validate.py render   <deck-or-render-plan.json>
+python3 scripts/validate.py render <deck-or-render-plan.json>
 python3 scripts/validate.py coverage <deck-dir>
-python3 scripts/validate.py gallery  <skill-root-or-theme-dir>
-python3 scripts/validate.py all      <deck-dir>
+python3 scripts/validate.py gallery <skill-root-or-theme-dir>
+python3 scripts/validate.py all <deck-dir>
 ```
 
-命令退出码必须可靠：任一 error 返回非零；warning 不改变退出码。不存在的文件、未知主题或无法读取的 manifest 都不得报告成功。
+任一 error 返回非零；warning 不改变退出码。不存在的文件、未知主题、无法读取的 registry / manifest 或 contract version 不一致都不得报告成功。
 
-`location` 是创建文件前的第一道门禁：正式 deck 必须位于用户当前工作区内，同时位于 Skill 根目录之外。`content`、`plan`、`render-plan`、`render`、`coverage`、`all` 也会拒绝落在 Skill 根目录内的正式产物；`core/examples`、主题金样、gallery 和测试夹具只作为仓库内部契约资产保留，不视为用户交付物。`themes/<theme>/examples/` 只维护一套可完整通过当前契约的多页 `index.html` 金样；主题视觉候选只进入 gallery，三种渲染决策的最小覆盖只进入测试夹具。金样壳层必须由运行模板生成，页面只存在于 `index.html` 标记区，并通过 `build_deck.py --check`。
+正式 deck 必须位于用户工作区内且位于 Skill 根目录外。`core/examples`、主题金样、Gallery 与测试 fixture 是仓库合同资产，不是用户交付物。
 
 ## 2. Content 门禁
 
-- schema 合法；
-- source、item、atom ID 全局唯一；
-- 每个 `source_ref` 存在；
-- 每个 relation 的 `target_ref` 存在；出现 `contradicts` 时必须进入 confirmation trigger；
-- sourced 至少一个来源；
-- 引用 `synthetic: true` 来源的内容只能标记为 placeholder；
-- inferred / placeholder 有说明；
-- `brief.page_limits.min <= max`；
-- must 项与原子值可被 coverage 逐一追踪。
+- 根级 `contract_version` 必须为 2；
+- source、asset、constraint、item、atom ID 唯一，所有引用存在；
+- `brief.user_constraints[]` 只登记用户明确约束；页数区间内部一致；
+- 不允许 `must_include`；必留唯一来自 `content_items[].priority: must`；
+- sourced 至少一个来源；inferred / placeholder 有说明；
+- `epistemic_role` 与 `content_form` 均合法；
+- 每个 relation 目标存在；来源冲突进入 Plan assessment；
+- source image 具有 SHA-256 且要求重构；reconstructed asset 的 creation mode、来源链或生成说明、输出 hash、用途与披露合法；generate 资产不得作为 evidence；
+- `content_form: image` 的 asset refs 存在。
 
 ## 3. Plan 门禁
 
-- schema 合法，page order 连续且唯一；
-- target 等于实际页数，且位于 min/max 内；
-- `page_budget.drivers` 非空，每个 driver 有可数数量与具体理由；
-- section、page、block、content 引用全部存在；
+- Schema 合法，page order 连续且唯一；
+- `planning_basis` 的约束、假设和调研来源可解析；
+- `scenario_origin: inferred` 至少一个 assumption；`researched` 至少一个 research source；
+- `page_budget` 只有 target、basis、reason；target 等于实际页数；
+- `scenario_research` basis 只能在实际 researched 时出现；
+- section、page、block、content 与 constraint 引用全部存在；
 - 每页恰好一个 primary block；
-- Ghost Deck 的 assertion title / takeaway 均非空；
-- takeaway / caption 只陈述页面内容，能由本页证据推出；不得混入版式选择条件、画册复用说明或制作方法；
-- 页角 `.doc.tl` 只标当前主题/章节，不得把 gallery、layout、mock 或组件名称当作 PPT 文案；
-- 每页 `spatial_primitive` 属于十二个通用原语；
-- 每页声明唯一的 `semantic_unit_count`，作为后续容量校验依据；
-- must 内容有 include 决策和页面承载；
-- `needs_confirmation` 时停止进入 render。
+- assertion title、audience question、takeaway 均非空；
+- v2 页面不得出现 `density_intent` 或 `semantic_unit_count`；
+- must 内容有合法 coverage decision；
+- 每个来源冲突、未决 must 与约束溢出均有 assessment；
+- assessment 的 affected refs、impact、resolution 与 reason 完整；
+- 任一 `needs_user_choice` 推导出 `needs_confirmation`，并有 1–3 条自然语言问题；
+- `proceed` 时不存在 `needs_user_choice`，且 `user_questions` 为空。
 
-## 4. Render 门禁
+## 4. Render Plan 门禁
 
-- Render Plan 固定使用根级 `output_file: "index.html"`；`pages[]` 禁止 `output_file`；
-- schema 合法，render page 与 deck page 一一对应；
-- `theme_id` 存在于主题 registry；未知主题立即失败；
-- role、density、空间原语和容量值直接从 Deck Plan 读取，Render Plan 不得维护副本；
-- 每页先声明布局需求，再通过 `layout_decision` 选择 `gallery` 或 `custom`，并保留候选判断理由；
-- Gallery 路径要求 layout ID 存在，且角色、relation、core primitive、density、capacity、slot 集合、slot 顺序与 provider 全部匹配；
-- `copy` 必须全部 `keep`；`adapt` 必须至少一个 `replace`，且不得增减、重排 slot 或嵌入 custom contract；结构变化统一报 `render.gallery_structure_changed`；
-- Custom 路径要求 `custom.*` ID 不与 Gallery 冲突，并声明 reading order、regions 与 capacity；每个 block 恰好映射一次，reading order 覆盖全部 region；
-- block 与 slot 一一映射，恰好一个 primary visual role；Custom 的每个组件决策必须是 `select`；
-- `emphasis=semantic-focus` 必须指向本页已渲染内容并声明语义成员角色；`none` 不得暗示隐藏焦点；
-- ECharts 只要求 `data_ref`、非空 `encode`、主题 adapter 与真实渲染通过，不使用本地图表类型白名单；
-- Atlas 只在实际使用 `provider=atlas` 时加载，并校验精确组件名；
-- 原生 HTML、SVG、Typography、Table、Image 都可独立通过，不强制 Atlas 或 ECharts；
+- 根级 contract version 为 2，且 content / deck / render 三份版本一致；
+- render page 与 deck page 一一对应；
+- `typography_mode` 合法；page override 仅在确有理由时出现；
+- `theme_id` 存在于 `themes/registry.json`，recipe 存在于 Gallery manifest，adapter 与能力来源存在于 capabilities registry；
+- candidate evaluations 不重复 recipe，并使用 `exact_fit | structure_fit | reject`；
+- Gallery：恰好一个 exact fit，选中 `recipe_id` 与它一致，无 structure fit，无 slots；payload binding 必须覆盖 manifest 的完整 slot 集合并严格遵循 reading order，不能省略可选 slot；
+- Composition：没有 exact fit，恰好一个 structure fit，选中 recipe 与它一致；slots 满足 structure contract；
+- Custom：候选全部 reject，不含 recipe ID；reading order 覆盖全部 regions；
+- Composition / Custom 每个 block 恰好映射一次，且恰好一个 primary visual role；
+- renderer kind、component source、component ID 与 adapter 的能力组合合法；
+- ECharts 只能声明为 svg / canvas + echarts，并有可解析 data binding；
+- `data_ref.content_id` 存在，JSON Pointer 解析成功，dataset ID 唯一，encode 非空；Deck Plan 的角色、主要关系与空间原语必须和 exact / structure fit 的 recipe 相符；
+- 图片 renderer 的 material treatment 明确为 reconstruct 或 generate；两者输出资产均已登记。reconstruct 有来源链且 hash 不同，generate 来自 codex-host 且不作为 evidence；证据重构声明“重构示意”；
+- semantic emphasis 指向本页实际绑定或渲染的内容。
 
-`render-plan` 执行上述结构、引用、主题和容量检查，但不要求 HTML 已存在；`render` 在此基础上继续校验 `index.html`。
+`render-plan` 完成上述 JSON、引用与能力检查，不要求 HTML 已存在；`render` 在此基础上继续检查实际 DOM 与资源。
 
 ## 5. Coverage 门禁
 
-从 `content.json` 正向追踪：
+从 `priority: must` 内容正向追踪：
 
-`must item / atom → coverage_decision → deck page → semantic block → render slot → HTML data-content-ref`
+`item / atom → coverage_decision → deck page → primary/support block → Gallery payload 或 Composition/Custom slot → HTML 可见内容`
 
-任何一环缺失都失败。静态覆盖校验会核对带 `data-content-ref` 的 HTML 源码中是否包含 must 原子值及单位；动态 Canvas/SVG 图表的真实可见值由浏览器和人工检查负责。对 inferred / placeholder 输出显式清单，禁止静默混入事实。
+任何一环缺失都失败。Gallery 页沿 payload binding 追踪，不要求伪造 renderer slot。静态检查核对可见文本与单位；动态 SVG / Canvas / 图表由浏览器状态和人工检查补充。
 
-## 6. HTML 与浏览器门禁
+## 6. DOM、资源与浏览器门禁
 
-验证器只解析一次根级 `index.html`，按 `<section class="slide" data-page-id>` 建立页面索引。页面必须与 Render Plan 一一对应，page ID 和源码 ID 不得重复，组件只能归属当前 slide。每页必须有 title、summary、section id/title 与 emphasis 派生元数据，并与权威 JSON 一致。每个组件包装节点必须有 block、provider、component、content-ref 四个属性；语义焦点载体还必须用 `data-emphasis-role` 精确覆盖 Render Plan 的成员角色。
+构建器只处理根级 `index.html`。每页 DOM 元数据必须与 Deck / Render Plan 以及 recipe 或 custom contract 一致；renderer wrapper 的实际元素必须与 `renderer_kind` 一致。
 
-组件声明还必须与真实 DOM 一致：`svg` 包装节点必须实际包含 `<svg>`，`image` 包含 `<img>` / `<picture>`，`table` 包含 `<table>`；手写 Canvas 属于 `native-html`，不得冒充 ECharts。ECharts 页必须声明 `data-render-pending="true"` 并通过 `WisePPT.createEChart()` 注册异步任务。
+页面只有在字体、图片和异步 renderer 都完成后才能调用 `WisePPT.markSlideReady(slide)`；任一失败调用 `WisePPT.markSlideError`。根节点只在全部页面 ready 且无错误时声明 deck ready。
 
-页面只有在字体、图片和异步图表全部完成后才能设置：
+所有本地脚本、样式、字体和媒体路径必须真实存在；CSS 的 `@import` 与 `url()` 递归检查。ECharts 容器的 `data-dataset-id` 必须与 Render Plan 一致，同页必须恰好有一个对应的 JSON 数据块，且其值与 `data_ref` 指向的 Content 数据完全一致。
 
-```js
-WisePPT.markSlideReady(slide);
-```
+无截图浏览器检查至少覆盖：深链、翻页、ESC、实时画册、正文选择复制、字体与图片加载、异步 SVG / Canvas 状态、打印模式和资源错误。人工检查覆盖 1920×1080 溢出、字号、对比度、安全区、事实、单位、阅读顺序、主视觉唯一性与证据披露。
 
-根节点只有在所有 slide ready 且没有错误时才写 `data-deck-ready="true"`。`check-deck.sh --mode normal|accent` 等待该标记并检查实时画册、Canvas 克隆、深链、翻页与 ESC；accent 模式还必须激活语义焦点组。`export-pdf.sh` 使用 `?print=1` 直接打印 HTML。两者都不得产生 PNG。
+## 7. Core 示例与交付边界
 
-真实浏览器复核至少覆盖：
+`core/examples/` 的三份 JSON 必须独立通过当前 Schema，并展示 Gallery、Composition、Custom、数据绑定和字体 override 的 v2 写法。`tests/fixtures/deck-contract/` 负责真实主题与 runtime 的最小链路；validator 升级期间不得用旧 validator 的失败否定已通过的新 Schema。
 
-- 1920×1080 无横纵溢出；
-- 最小字号、对比度、安全区和文本截断；
-- breathing / balanced / dense 的实际信息负担；
-- 图表轴、图例、单位、排序与源数据一致；
-- 主视觉唯一，支持件没有抢夺焦点；
-- 主体包络位于主题定义的可用内容区；中心型原语检查水平与垂直中心；被设计成一个中心型局部单元的图形、标题和标签检查共同轴线，侧注与引线则按结构锚点验收；意图性非对称按结构锚点与视觉重量复核，不能用全页 bbox 强行居中；
-- 短标签、等权矩阵和稀疏固定高度单元格默认水平、垂直居中；分析表格的文字按扫读路径左对齐，数字按位数、单位或小数点右对齐；
-- 对称结构的左右/上下外缘成镜像，连接线、标注轨和主体仍保持结构关系；
-- 二维码、条码等从最终渲染结果解码回权威 payload，不能只验证源码矩阵；
-- 图片、字体、外部依赖没有空白或闪退。
-
-`validate.py all`、主题 `lint.py` 与 `check-deck.sh` 不计算浏览器 bbox，也不解码机器码。主体对齐、意图性非对称和机器码解码属于人工验收项；交付记录必须写明检查对象与结果，不得把静态 lint 或运行时自检通过描述成这些项目已通过。需要自动化时应扩展现有无截图浏览器检查，禁止恢复逐页截图链或另建并行入口。
-
-## 7. Gallery 与主题隔离门禁
-
-- registry 的默认主题存在；
-- 每个 layout ID 唯一，display code 只用于展示；
-- manifest 的 general / domain examples 数量与文件一一对应；
-- 画册目录由 manifest 生成，禁止维护第二份手写数组；
-- 画册外层用途文案与 iframe 内页面结论分层：外层不直出机器筛选谓词，页内不讲版式如何制作；
-- core schema 与文档不含任何具体主题 token、layout ID 或资产路径；
-- 用最小测试主题运行 schema、catalog 与 render 校验，证明 core 不依赖默认主题。
-- Gallery 查询结果为空不是失败；Custom 是正常主路径之一，普通生成任务不得把 Custom 写回 manifest 或新增 Gallery 样张。
-
-## 8. Core 示例的边界
-
-`core/examples/` 是主题中立的契约示例：三份 JSON 应分别通过 schema，`content.json` 与 `deck-plan.json` 还应通过来源、引用、Ghost Deck、must 覆盖和 semantic block 校验。示例 `render-plan.json` 使用虚拟主题名称，只证明通用 render contract，不承诺直接通过需要已注册主题、layout manifest 与真实 HTML 的 `render`、`coverage` 或 `all`。完整链路由测试目录中的隔离最小主题与页面 fixture 验证。
-
-`themes/<theme>/examples/` 是主题级多页金样：当前只保留 `wise-ppt-story-six-page/`，同时包含三份权威 JSON、`deck-build.json` 与根级 `index.html`，并完整通过 `build_deck.py --check` 和 `validate.py all`。六页正文只存在于 `index.html` 的受控标记区，壳层来自 runtime 模板。它用于展示跨层契约如何落到一套真实六页成品，不得包含 `frames/`、iframe 或缩略图；gallery 负责版式候选，测试夹具负责最小分支覆盖，不得在此重复造单页样张。
+用户交付只列最终 HTML 与 PDF 的绝对路径。三份 JSON、主题资产和 fixture 是内部合同或验证证据，不列为用户交付文件。

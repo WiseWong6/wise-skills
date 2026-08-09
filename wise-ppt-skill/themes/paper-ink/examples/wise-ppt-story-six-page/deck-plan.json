@@ -1,15 +1,41 @@
 {
+  "contract_version": 2,
   "content_file": "content.json",
   "thesis": "稳定的网页演示来自内容、叙事、关系、版式和组件的连续判断，而不是随机套模板。",
   "narrative_type": "problem-solution",
+  "planning_basis": {
+    "mode": "user-constrained",
+    "scenario": "Skill 能力介绍",
+    "scenario_origin": "user",
+    "user_constraint_refs": ["constraint.story.page-count"],
+    "research_source_refs": [],
+    "assumptions": [],
+    "reason": "用户明确确认保留六页能力介绍，因此按六页限制组织从问题到行动的叙事。"
+  },
   "page_budget": {
-    "min": 6, "max": 6, "target": 6,
-    "drivers": [
-      {"type": "independent_claim", "count": 6, "reason": "问题、流程、原则、版式、组件和行动各自回答一个独立观众问题。"}
+    "target": 6,
+    "basis": [
+      {
+        "type": "user_constraint",
+        "constraint_refs": ["constraint.story.page-count"],
+        "reason": "用户明确要求保留六页。"
+      },
+      {
+        "type": "content_structure",
+        "content_refs": [
+          "item.story.why",
+          "item.story.workflow",
+          "item.story.principles",
+          "item.story.layout-atlas",
+          "item.story.component-atlas",
+          "item.story.contact"
+        ],
+        "reason": "问题、流程、原则、版式、组件和行动各自回答一个独立观众问题。"
+      }
     ],
     "reason": "六个独立主张组成从问题到方法、再到行动的完整能力介绍。"
   },
-  "confirmation": {"mode": "adaptive", "decision": "proceed", "triggers": [], "questions": []},
+  "confirmation": {"mode": "adaptive", "decision": "proceed", "assessments": [], "user_questions": []},
   "sections": [
     {"section_id": "section.problem", "title": "问题与标准", "purpose": "说明 AI 演示同质化的根因。", "page_refs": ["page.story.why"]},
     {"section_id": "section.workflow", "title": "从内容到放映", "purpose": "解释标准网页演示的编排链。", "page_refs": ["page.story.workflow"]},
@@ -25,7 +51,7 @@
       "takeaway": "AI 缺的不是生成页面的能力，而是好的设计标准。",
       "content_refs": ["item.story.why", "item.story.why-takeaway"], "evidence_refs": ["item.story.why"],
       "relation_shape": {"primary": "comparison", "secondary": ["mapping"], "reason": "左侧问题与右侧设计决策形成逐项对照。"},
-      "spatial_primitive": "bilateral-split", "semantic_unit_count": 2, "density_intent": "balanced",
+      "spatial_primitive": "bilateral-split",
       "blocks": [
         {"block_id": "block.story.why-comparison", "purpose": "对照默认输出与演示意图", "importance": "primary", "semantic_form": "diagram", "content_refs": ["item.story.why"]},
         {"block_id": "block.story.why-takeaway", "purpose": "收束根因判断", "importance": "support", "semantic_form": "prose", "content_refs": ["item.story.why-takeaway"]}
@@ -38,9 +64,10 @@
       "takeaway": "先理解内容，再安排重点、层级与关系。",
       "content_refs": ["item.story.workflow", "item.story.workflow-takeaway"], "evidence_refs": [],
       "relation_shape": {"primary": "flow", "secondary": ["sequence"], "reason": "五个阶段存在明确的输入输出顺序。"},
-      "spatial_primitive": "linear-sequence", "semantic_unit_count": 2, "density_intent": "balanced",
+      "spatial_primitive": "linear-sequence",
       "blocks": [
         {"block_id": "block.story.workflow", "purpose": "展示五步工作流", "importance": "primary", "semantic_form": "process", "content_refs": ["item.story.workflow"]},
+        {"block_id": "block.story.workflow-support", "purpose": "补充工作流机制说明", "importance": "support", "semantic_form": "annotation", "content_refs": ["item.story.workflow"]},
         {"block_id": "block.story.workflow-takeaway", "purpose": "明确内容优先原则", "importance": "support", "semantic_form": "prose", "content_refs": ["item.story.workflow-takeaway"]}
       ]
     },
@@ -51,7 +78,7 @@
       "takeaway": "设计不是把信息填满，而是为观众的阅读顺序作出取舍。",
       "content_refs": ["item.story.principles", "item.story.principles-takeaway"], "evidence_refs": [],
       "relation_shape": {"primary": "decomposition", "secondary": ["focus"], "reason": "三个原则围绕一个中心设计意图展开。"},
-      "spatial_primitive": "radial-burst", "semantic_unit_count": 2, "density_intent": "balanced",
+      "spatial_primitive": "radial-burst",
       "blocks": [
         {"block_id": "block.story.design-principles", "purpose": "呈现中心判断与三项原则", "importance": "primary", "semantic_form": "diagram", "content_refs": ["item.story.principles"]},
         {"block_id": "block.story.principles-takeaway", "purpose": "收束阅读顺序判断", "importance": "support", "semantic_form": "prose", "content_refs": ["item.story.principles-takeaway"]}
@@ -64,7 +91,7 @@
       "takeaway": "从信息关系出发，让每一种内容都拥有恰当的阅读结构。",
       "content_refs": ["item.story.layout-atlas", "item.story.layout-atlas-takeaway"], "evidence_refs": ["item.story.layout-atlas"],
       "relation_shape": {"primary": "decomposition", "secondary": ["spatial"], "reason": "左侧原则与右侧六种结构样本形成总分说明。"},
-      "spatial_primitive": "bilateral-split", "semantic_unit_count": 2, "density_intent": "balanced",
+      "spatial_primitive": "bilateral-split",
       "blocks": [
         {"block_id": "block.story.layout-atlas", "purpose": "解释规则并展示六种结构样本", "importance": "primary", "semantic_form": "diagram", "content_refs": ["item.story.layout-atlas"]},
         {"block_id": "block.story.layout-atlas-takeaway", "purpose": "明确关系优先", "importance": "support", "semantic_form": "prose", "content_refs": ["item.story.layout-atlas-takeaway"]}
@@ -77,7 +104,7 @@
       "takeaway": "提供成熟的表达组件，并由页面内容决定是否调用。",
       "content_refs": ["item.story.component-atlas", "item.story.component-atlas-takeaway"], "evidence_refs": ["item.story.component-atlas"],
       "relation_shape": {"primary": "decomposition", "secondary": ["spatial"], "reason": "左侧调用原则与右侧六种组件样本共同解释组件边界。"},
-      "spatial_primitive": "bilateral-split", "semantic_unit_count": 2, "density_intent": "balanced",
+      "spatial_primitive": "bilateral-split",
       "blocks": [
         {"block_id": "block.story.component-atlas", "purpose": "解释调用原则并展示六类组件", "importance": "primary", "semantic_form": "diagram", "content_refs": ["item.story.component-atlas"]},
         {"block_id": "block.story.component-atlas-takeaway", "purpose": "明确内容决定调用", "importance": "support", "semantic_form": "prose", "content_refs": ["item.story.component-atlas-takeaway"]}
@@ -90,7 +117,7 @@
       "takeaway": "关注 @歪斯Wise，及时获取更新资讯。",
       "content_refs": ["item.story.contact", "item.story.contact-takeaway"], "evidence_refs": [],
       "relation_shape": {"primary": "hierarchy", "secondary": ["focus"], "reason": "联络卡承担主行动，辅助网格和渠道列表补充路径。"},
-      "spatial_primitive": "layered-stack", "semantic_unit_count": 2, "density_intent": "balanced",
+      "spatial_primitive": "layered-stack",
       "blocks": [
         {"block_id": "block.story.contact", "purpose": "展示联络渠道与二维码", "importance": "primary", "semantic_form": "cta", "content_refs": ["item.story.contact"]},
         {"block_id": "block.story.contact-takeaway", "purpose": "给出关注行动", "importance": "support", "semantic_form": "cta", "content_refs": ["item.story.contact-takeaway"]}

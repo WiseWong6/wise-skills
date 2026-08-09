@@ -1,83 +1,58 @@
 # 页面表达：从语义页到视觉任务
 
-页面表达的核心不是“选几列”，而是把一个 takeaway 翻译成可看见的关系。数量只影响容量；关系、证据形态和阅读顺序才决定版式。
+页面表达的核心不是“选几列”，而是把唯一 takeaway 翻译成可见关系。数量只参与容量校验；关系、证据形态、阅读顺序和主视觉角色决定 recipe 与 renderer。
 
 ## 1. 表达推导链
 
-每页按固定顺序思考：
+每页按固定顺序处理：
 
-1. 写出唯一 takeaway；
-2. 确定观众需要看见的证据；
-3. 判断内容之间的 `relation_shape`，并据此确定唯一 `spatial_primitive`；
-4. 写入 `semantic_unit_count` 并确定 `density_intent`；
-5. 把关系翻译成所需区域、阅读顺序、容量与组件角色；
-6. 再到主题 Gallery manifest 查询候选并逐项判断；
-7. 选择 `gallery` 或 `custom`，然后为每个 slot 选择 renderer。
+1. 写唯一 takeaway；
+2. 确定观众必须看见的证据；
+3. 判断 `relation_shape`，选择唯一 `spatial_primitive`；
+4. 拆成一个 primary block 和必要的 support blocks；
+5. 明确 regions、reading order、slot 集合与各 renderer 的容量要求；
+6. 查询 recipe 并记录 `candidate_evaluations`；
+7. 选择 Gallery、Composition 或 Custom。
 
-组件永远排在关系和空间需求之后，但复杂组件的容量约束可以让上一步回退重选布局。Render 校验直接读取语义页的 `spatial_primitive` 和 `semantic_unit_count`，Render Plan 不重复声明。只有决定采用 Gallery 后，才读取对应样张 HTML；不得先看样张再倒推内容。
+Render Plan 不重复 role、relation 或空间原语；这些字段从 Deck Plan 派生。v2 不存在 `density_intent` 或人工填写的 `semantic_unit_count`。
 
-## 2. 相同数量不代表相同版式
+## 2. 相同数量不代表相同表达
 
-同样是六项信息，关系不同，表达就完全不同：
-
-| 六项信息的真实关系 | 应优先表达成 | 不应默认做成 |
+| 内容关系 | 优先表达 | 不应默认 |
 |---|---|---|
-| 六个无先后的同级指标 | peer array 或 matrix | 带箭头的流程 |
-| 六个前后相依的阶段 | sequence / flow | 六宫格 |
-| 六层上下支撑的系统 | layered stack / hierarchy | 横向六列 |
-| 围绕一个核心的六个维度 | radial | 普通列表 |
-| 六份可核查材料 | evidence wall + annotation | 抽象图标卡 |
-| 六个从输入到结果逐步减少的量 | funnel / convergence | 等宽卡片 |
+| 无先后的同级指标 | peer array / matrix | 带箭头流程 |
+| 前后相依的阶段 | sequence / flow | 无方向卡片 |
+| 上下支撑的系统 | layered stack / hierarchy | 等宽横排 |
+| 围绕核心的维度 | radial | 普通列表 |
+| 可核查材料 | evidence annotation | 抽象图标卡 |
+| 逐步减少的量 | funnel / convergence | 等宽卡片 |
 
-Grid 是并列或双维度关系的有效答案，但不是元素多时的自动答案。
+Grid 是并列或二维关系的答案，不是元素多时的自动答案。
 
-## 3. 密度是容量意图
+## 3. 主角与支持件
 
-密度由信息单元和阅读负担决定，而不是主题风格：
+每页必须恰好一个 `importance: primary` block。Composition / Custom 页也必须恰好一个 `visual_role: primary` slot。支持组件可以多个，但必须共同证明同一 takeaway，例如主图表配 KPI 与注释、主流程配结果带。
 
-| 密度 | 容量参考 | 适用页面 |
-|---|---:|---|
-| `breathing` | 1–2 个语义单元 | hook、金句、单一判断、close |
-| `balanced` | 3–5 个语义单元 | 常规解释、比较、证据页 |
-| `dense` | 6–12 个语义单元，或一个完整表格、数据图、界面、架构复合体 | 数据总账、规格、复杂系统、界面审阅 |
+如果两个组件都需要独立解释，应拆成两页。仅为丰富而增加的装饰组件应删除。
 
-`dense` 不等于字号变小。它允许更多结构层级，但仍须满足可读字号、安全区、溢出和主次门禁。超过 12 个独立单元时，优先拆页或分层交互；不要继续压缩。
+## 4. 容量回退
 
-`semantic_unit_count` 严格按 `content-contract.md` 的“容量口径提醒”计算；本层只使用计数结果判断密度和 layout 容量，不再定义第二套计数规则。
+容量来自真实内容和能力注册表，不保存为页面“密度”标签：
 
-## 4. 主角与支持件
+- recipe 的 slot 合同限定必填区域、reading order 和每个 slot 的 min/max；
+- renderer capacity 按表格行、图表系列、流程节点、文本长度或 UI 区域等实际单位判断；
+- Gallery payload 必须逐 slot 落在 recipe 范围内；
+- Composition / Custom 的每个 slot 必须与对应 block 和 renderer capacity 匹配。
 
-每页只能有一个 `importance: primary` 的 semantic block，也只能有一个 `visual_role: primary` 的渲染 slot。支持组件可以多个，但必须服务于同一 takeaway，例如：
+容量超限时先换媒介、删非必要 support、重组或拆页。禁止用缩小字体、裁切或隐藏 must 事实伪装通过。
 
-- 主图表 + 两个 KPI + 一条注释；
-- 主流程 + 底部成效带；
-- 主界面截图 + 三个引线标注；
-- 主架构图 + 右侧规格表。
-
-如果两个组件都需要独立解释，它们应拆成两页。仅为“更丰富”而增加的装饰组件应删除。
-
-## 5. 页面容量回退
-
-主题 layout 的 capacity 是门禁，不是写入 Render Plan 的状态字段。若 `semantic_unit_count` 低于下限则合并相邻内容或换低容量 layout；超过上限则拆页、删非必须支持件或换高容量 layout；候选不支持所需关系、原语或区域时进入 `custom` 并声明页内布局契约。
-
-禁止用缩小字体、溢出裁切或隐去 must 事实来伪装 `fit`。
-
-## 6. Assertion Title 写法
+## 5. Assertion Title 与页面文案
 
 标题承担观点，图形承担证明：
 
 - 弱：“六阶段流程”
 - 强：“六个阶段首尾相接，发布不是终点而是下一轮输入”
 
-标题和图形不应重复朗读同一段文字。图形要补充顺序、差异、规模、因果、层级或空间关系中的至少一种。
+标题和图形不应重复朗读同一段文字。图形至少补充顺序、差异、规模、因果、层级或空间关系之一。
 
-## 7. 选择说明与页面文案分层
-
-版式“什么时候用”与这页“实际说什么”是两套文案，禁止混写：
-
-- `layout-manifest.json` 的 `roles`、`relations`、`capacity`、`selection_notes` 是 AI 选版式的元数据；可以在画册外层转成自然语言用途或标签，但不得进入 PPT 画面。
-- 页面内的 assertion title、正文与 takeaway / caption 只表达该页内容。caption 应能由本页证据推出，并与 deck plan 的 `takeaway` 同义；不能描述“用了几栏、如何对位、何时复用、主角是谁”这类制作方法。
-- `.doc.tl` 是 PPT 自身的主题/章节角注，不是画册标签；应写业务主题、内容阶段或当前章节，禁止写 `GALLERY`、`LAYOUT`、`MOCK` 与版式名称。
-- 画册样张也按真实 PPT 对待：外层说明版式用途，iframe 内只展示一个完整、内容自洽的示例。复制样张时必须替换示例结论，不能把画册说明带进成品。
-
-删除测试：把图形拿走后，如果 caption 仍只是在点评布局，而不是陈述页面结论，这条 caption 就不合格。
+recipe 的用途、候选判断、复用说明和组件来源都是制作元数据，不得进入页面正文。页角只写业务主题或章节；禁止写 Gallery、recipe、mock 或组件名称。

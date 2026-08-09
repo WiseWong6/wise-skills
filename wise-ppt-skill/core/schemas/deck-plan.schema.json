@@ -1,13 +1,15 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://wise-ppt.local/schemas/deck-plan.schema.json",
-  "title": "Wise PPT Semantic Deck Plan",
+  "title": "Wise PPT Semantic Deck Plan v2",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "contract_version",
     "content_file",
     "thesis",
     "narrative_type",
+    "planning_basis",
     "page_budget",
     "confirmation",
     "sections",
@@ -15,6 +17,9 @@
     "coverage_decisions"
   ],
   "properties": {
+    "contract_version": {
+      "const": 2
+    },
     "content_file": {
       "type": "string",
       "minLength": 1
@@ -35,6 +40,9 @@
         "funnel",
         "custom"
       ]
+    },
+    "planning_basis": {
+      "$ref": "#/$defs/planning_basis"
     },
     "page_budget": {
       "$ref": "#/$defs/page_budget"
@@ -68,6 +76,18 @@
       "type": "string",
       "pattern": "^(item|atom)[.]"
     },
+    "item_ref": {
+      "type": "string",
+      "pattern": "^item[.]"
+    },
+    "source_ref": {
+      "type": "string",
+      "pattern": "^src[.]"
+    },
+    "constraint_ref": {
+      "type": "string",
+      "pattern": "^constraint[.]"
+    },
     "spatial_primitive": {
       "enum": [
         "focus-field",
@@ -84,34 +104,133 @@
         "evidence-annotation"
       ]
     },
+    "planning_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "scenario",
+        "scenario_origin",
+        "user_constraint_refs",
+        "research_source_refs",
+        "assumptions",
+        "reason"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "user-constrained",
+            "derived",
+            "scenario-recommended"
+          ]
+        },
+        "scenario": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scenario_origin": {
+          "enum": [
+            "user",
+            "inferred",
+            "researched"
+          ]
+        },
+        "user_constraint_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constraint_ref"
+          },
+          "uniqueItems": true
+        },
+        "research_source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source_ref"
+          },
+          "uniqueItems": true
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "user-constrained"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "user_constraint_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scenario_origin": {
+                "const": "inferred"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "assumptions": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scenario_origin": {
+                "const": "researched"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "research_source_refs": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
     "page_budget": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "min",
-        "max",
         "target",
-        "drivers",
+        "basis",
         "reason"
       ],
       "properties": {
-        "min": {
-          "type": "integer",
-          "minimum": 1
-        },
-        "max": {
-          "type": "integer",
-          "minimum": 1
-        },
         "target": {
           "type": "integer",
           "minimum": 1
         },
-        "drivers": {
+        "basis": {
           "type": "array",
           "minItems": 1,
           "items": {
-            "$ref": "#/$defs/page_budget_driver"
+            "$ref": "#/$defs/page_budget_basis"
           }
         },
         "reason": {
@@ -120,30 +239,119 @@
         }
       }
     },
-    "page_budget_driver": {
+    "page_budget_basis": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/content_structure_basis"
+        },
+        {
+          "$ref": "#/$defs/user_constraint_basis"
+        },
+        {
+          "$ref": "#/$defs/duration_basis"
+        },
+        {
+          "$ref": "#/$defs/scenario_research_basis"
+        }
+      ]
+    },
+    "content_structure_basis": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "type",
-        "count",
+        "content_refs",
         "reason"
       ],
       "properties": {
         "type": {
-          "enum": [
-            "independent_claim",
-            "evidence_chain",
-            "audience_question",
-            "narrative_turn",
-            "density_split",
-            "required_transition",
-            "time_limit",
-            "page_limit"
-          ]
+          "const": "content_structure"
         },
-        "count": {
-          "type": "integer",
-          "minimum": 1
+        "content_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/content_ref"
+          },
+          "uniqueItems": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "user_constraint_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "constraint_refs",
+        "reason"
+      ],
+      "properties": {
+        "type": {
+          "const": "user_constraint"
+        },
+        "constraint_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/constraint_ref"
+          },
+          "uniqueItems": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "duration_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "constraint_refs",
+        "reason"
+      ],
+      "properties": {
+        "type": {
+          "const": "duration"
+        },
+        "constraint_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/constraint_ref"
+          },
+          "uniqueItems": true
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "scenario_research_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "source_refs",
+        "reason"
+      ],
+      "properties": {
+        "type": {
+          "const": "scenario_research"
+        },
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/source_ref"
+          },
+          "uniqueItems": true
         },
         "reason": {
           "type": "string",
@@ -157,8 +365,8 @@
       "required": [
         "mode",
         "decision",
-        "triggers",
-        "questions"
+        "assessments",
+        "user_questions"
       ],
       "properties": {
         "mode": {
@@ -170,27 +378,189 @@
             "needs_confirmation"
           ]
         },
-        "triggers": {
+        "assessments": {
           "type": "array",
           "items": {
-            "enum": [
-              "missing_objective_or_audience",
-              "source_conflict",
-              "must_content_overflow",
-              "must_infer_or_placeholder_or_remove",
-              "raw_prose_16_plus"
-            ]
-          },
-          "uniqueItems": true
+            "$ref": "#/$defs/confirmation_assessment"
+          }
         },
-        "questions": {
+        "user_questions": {
           "type": "array",
+          "maxItems": 3,
           "items": {
             "type": "string",
             "minLength": 1
           }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "needs_confirmation"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "assessments": {
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "resolution"
+                  ],
+                  "properties": {
+                    "resolution": {
+                      "const": "needs_user_choice"
+                    }
+                  }
+                },
+                "minContains": 1
+              },
+              "user_questions": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "decision": {
+                "const": "proceed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "assessments": {
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "resolution"
+                  ],
+                  "properties": {
+                    "resolution": {
+                      "const": "needs_user_choice"
+                    }
+                  }
+                },
+                "minContains": 0,
+                "maxContains": 0
+              },
+              "user_questions": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "confirmation_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trigger",
+        "affected_refs",
+        "impact",
+        "resolution",
+        "reason"
+      ],
+      "properties": {
+        "trigger": {
+          "enum": [
+            "ambiguous_context",
+            "source_conflict",
+            "must_content_unresolved",
+            "user_constraint_overflow",
+            "reconstruction_fact_risk"
+          ]
+        },
+        "affected_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^(src|item|atom|asset|constraint)[.]"
+          },
+          "uniqueItems": true
+        },
+        "impact": {
+          "enum": [
+            "none",
+            "conclusion",
+            "page_order",
+            "emphasis",
+            "action"
+          ]
+        },
+        "resolution": {
+          "enum": [
+            "proceed",
+            "present_both",
+            "needs_user_choice"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": "needs_user_choice"
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "properties": {
+                  "impact": {
+                    "enum": [
+                      "conclusion",
+                      "page_order",
+                      "emphasis",
+                      "action"
+                    ]
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "trigger": {
+                    "enum": [
+                      "must_content_unresolved",
+                      "user_constraint_overflow",
+                      "reconstruction_fact_risk"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "const": "present_both"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "trigger": {
+                "const": "source_conflict"
+              }
+            }
+          }
+        }
+      ]
     },
     "section": {
       "type": "object",
@@ -235,44 +605,12 @@
       ],
       "properties": {
         "primary": {
-          "enum": [
-            "focus",
-            "sequence",
-            "comparison",
-            "hierarchy",
-            "network",
-            "flow",
-            "cycle",
-            "matrix",
-            "spatial",
-            "convergence",
-            "funnel",
-            "evidence",
-            "decomposition",
-            "mapping",
-            "nesting"
-          ]
+          "$ref": "#/$defs/relation_type"
         },
         "secondary": {
           "type": "array",
           "items": {
-            "enum": [
-              "focus",
-              "sequence",
-              "comparison",
-              "hierarchy",
-              "network",
-              "flow",
-              "cycle",
-              "matrix",
-              "spatial",
-              "convergence",
-              "funnel",
-              "evidence",
-              "decomposition",
-              "mapping",
-              "nesting"
-            ]
+            "$ref": "#/$defs/relation_type"
           },
           "uniqueItems": true,
           "maxItems": 2
@@ -282,6 +620,25 @@
           "minLength": 1
         }
       }
+    },
+    "relation_type": {
+      "enum": [
+        "focus",
+        "sequence",
+        "comparison",
+        "hierarchy",
+        "network",
+        "flow",
+        "cycle",
+        "matrix",
+        "spatial",
+        "convergence",
+        "funnel",
+        "evidence",
+        "decomposition",
+        "mapping",
+        "nesting"
+      ]
     },
     "block": {
       "type": "object",
@@ -348,8 +705,6 @@
         "evidence_refs",
         "relation_shape",
         "spatial_primitive",
-        "semantic_unit_count",
-        "density_intent",
         "blocks"
       ],
       "properties": {
@@ -412,24 +767,25 @@
         "spatial_primitive": {
           "$ref": "#/$defs/spatial_primitive"
         },
-        "semantic_unit_count": {
-          "type": "integer",
-          "minimum": 1,
-          "description": "本页实际需要表达的最小独立语义单元数；这是容量判断的唯一权威值。"
-        },
-        "density_intent": {
-          "enum": [
-            "breathing",
-            "balanced",
-            "dense"
-          ]
-        },
         "blocks": {
           "type": "array",
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/block"
-          }
+          },
+          "contains": {
+            "type": "object",
+            "required": [
+              "importance"
+            ],
+            "properties": {
+              "importance": {
+                "const": "primary"
+              }
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
         }
       }
     },
