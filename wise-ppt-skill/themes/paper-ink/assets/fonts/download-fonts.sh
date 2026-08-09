@@ -16,7 +16,7 @@
 #   - 霞鹜文楷 Regular     lxgw/LxgwWenKai                 (SIL OFL 1.1)
 #
 # 说明：思源官方仓库提供的是 CN 命名（SubsetOTF/CN/），与字形一致；
-#       本 skill 统一采用官方 CN 命名（shared.css 的 @font-face 同步引用）。
+#       本 skill 统一采用官方 CN 命名（design-tokens.css 的 @font-face 同步引用）。
 # ============================================================
 set -u
 

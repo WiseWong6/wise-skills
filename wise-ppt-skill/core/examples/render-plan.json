@@ -1,45 +1,36 @@
 {
+  "contract_version": 2,
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "core-example",
+  "typography_mode": "mixed",
   "output_file": "index.html",
   "pages": [
     {
       "page_id": "page.opening",
       "layout_decision": {
         "source": "gallery",
-        "reuse_mode": "copy",
-        "layout_id": "core-example.focus.statement",
+        "recipe_id": "core-example.focus.statement",
         "candidate_evaluations": [
           {
-            "layout_id": "core-example.focus.statement",
-            "verdict": "fit",
+            "recipe_id": "core-example.focus.statement",
+            "verdict": "exact_fit",
             "reason": "单一主张、焦点关系、阅读顺序和容量均完整满足。"
           }
-        ]
-      },
-      "rationale": "页面只有一个反直觉判断，关系、容量和文字主角槽位均与已验证样例完全匹配。",
-      "slots": [
-        {
-          "slot_id": "hero",
-          "block_id": "block.opening-claim",
-          "visual_role": "primary",
-          "component_decision": {
-            "action": "keep",
-            "reason": "原 Typography 组件能完整承载单一判断。"
-          },
-          "renderer": {
-            "provider": "typography",
-            "component": "assertion-title",
-            "variant": "single-statement",
-            "content_refs": [
-              "item.deck-thesis",
-              "atom.loop-outcome"
-            ],
-            "theme_adapter": "core-example.type-emphasis"
-          }
+        ],
+        "payload": {
+          "bindings": [
+            {
+              "slot_id": "headline",
+              "content_refs": [
+                "item.deck-thesis",
+                "atom.loop-outcome"
+              ]
+            }
+          ]
         }
-      ],
+      },
+      "rationale": "页面只有一个反直觉判断，完整 Gallery recipe 可按整页 payload 直接绑定。",
       "emphasis": {
         "mode": "none",
         "reason": "本页保持默认单色，不声明语义强调焦点。"
@@ -48,30 +39,26 @@
     {
       "page_id": "page.six-stage-loop",
       "layout_decision": {
-        "source": "gallery",
-        "reuse_mode": "adapt",
-        "layout_id": "core-example.flow.looped-sequence",
+        "source": "composition",
+        "recipe_id": "core-example.flow.looped-sequence",
         "candidate_evaluations": [
           {
-            "layout_id": "core-example.flow.looped-sequence",
-            "verdict": "fit",
-            "reason": "六阶段顺序、回流关系、双槽区域和高密容量全部满足。"
+            "recipe_id": "core-example.flow.looped-sequence",
+            "verdict": "structure_fit",
+            "reason": "六阶段顺序、回流关系、双槽区域和阅读顺序均满足。"
           }
         ]
       },
-      "rationale": "六项信息有明确先后并需要回流箭头，保留序列骨架并替换主路径 renderer，比六宫格更准确。",
+      "rationale": "六项信息有明确先后并需要回流箭头，使用 recipe 的结构合同重新组合 renderer。",
       "slots": [
         {
           "slot_id": "main-path",
           "block_id": "block.stage-path",
           "visual_role": "primary",
-          "component_decision": {
-            "action": "replace",
-            "reason": "保留区域结构，改用 SVG 精确表达六阶段回流。"
-          },
           "renderer": {
-            "provider": "svg",
-            "component": "looped-sequence-path",
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "looped-sequence-path",
             "variant": "six-stage",
             "content_refs": [
               "item.launch-path",
@@ -82,31 +69,34 @@
               "atom.stage.launch",
               "atom.stage.learn"
             ],
-            "data_ref": "item.launch-path.atomic_values",
-            "encode": {
-              "order": "array-order",
-              "node_label": "value",
-              "return_edge": "atom.loop-outcome"
+            "data_binding": {
+              "data_ref": {
+                "content_id": "item.launch-path",
+                "json_pointer": "/atomic_values"
+              },
+              "dataset_id": "dataset.launch-stages",
+              "encode": {
+                "order": "array-order",
+                "node_label": "value",
+                "return_edge": "atom.loop-outcome"
+              }
             },
-            "theme_adapter": "core-example.line-system"
+            "theme_adapter_id": "core-example.line-system"
           }
         },
         {
           "slot_id": "return-note",
           "block_id": "block.loop-note",
           "visual_role": "support",
-          "component_decision": {
-            "action": "keep",
-            "reason": "原注释组件与支持信息的角色和容量完全匹配。"
-          },
           "renderer": {
-            "provider": "typography",
-            "component": "edge-annotation",
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "edge-annotation",
             "variant": null,
             "content_refs": [
               "atom.loop-outcome"
             ],
-            "theme_adapter": "core-example.annotation"
+            "theme_adapter_id": "core-example.annotation"
           }
         }
       ],
@@ -119,19 +109,11 @@
       "page_id": "page.close",
       "layout_decision": {
         "source": "custom",
-        "reuse_mode": "custom",
-        "layout_id": "custom.core-example.close",
         "candidate_evaluations": [],
         "custom_contract": {
           "reading_order": [
             "closing-statement"
           ],
-          "capacity": {
-            "semantic_units": {
-              "min": 1,
-              "max": 2
-            }
-          },
           "regions": [
             {
               "slot_id": "closing-statement",
@@ -143,25 +125,26 @@
           ]
         }
       },
-      "rationale": "Gallery 没有满足当前收束要求的候选，按页内契约自由构建单一焦点区域。",
+      "typography_decision": {
+        "mode": "all-serif",
+        "reason": "收束页只有一句行动判断，使用全衬线强化结论感。"
+      },
+      "rationale": "Gallery 与 Composition 都没有满足当前收束要求的 recipe，按页内合同构建单一焦点区域。",
       "slots": [
         {
           "slot_id": "closing-statement",
           "block_id": "block.close-claim",
           "visual_role": "primary",
-          "component_decision": {
-            "action": "select",
-            "reason": "根据收束语义重新选择原生 Typography 表达。"
-          },
           "renderer": {
-            "provider": "typography",
-            "component": "closing-assertion",
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "closing-assertion",
             "variant": null,
             "content_refs": [
               "item.deck-thesis",
               "atom.loop-outcome"
             ],
-            "theme_adapter": "core-example.type-emphasis"
+            "theme_adapter_id": "core-example.type-emphasis"
           }
         }
       ],

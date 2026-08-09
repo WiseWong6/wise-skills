@@ -1,0 +1,6852 @@
+{
+  "contract_version": 2,
+  "capability_id": "layout-gallery",
+  "name": "Wise PPT Layout Gallery",
+  "description": "跨主题可查询的布局配方目录；paper-ink 样张提供当前已验证实现。",
+  "recipe_count": 63,
+  "recipes": [
+    {
+      "recipe_id": "paper-ink.evidence.specimen-card",
+      "display_code": "A1",
+      "name": "标本卡",
+      "family": "证据",
+      "description": "把对话、单据或界面证据重构为带批注的结构化示意",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "focus",
+        "evidence"
+      ],
+      "primitives": [
+        "specimen-pin",
+        "annotation-leader"
+      ],
+      "reading_order": [
+        "evidence",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "evidence"
+        ],
+        "core_primitives": [
+          "evidence-annotation",
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:62a8c43f6626278e38ea919e4c74d5b1381677d2d4de242db1d95c7ff335ed34",
+      "slots": [
+        {
+          "slot_id": "evidence",
+          "purpose": "结构化证据",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "image",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.specimen-card.evidence"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.specimen-card.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.specimen-card.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a1.html"
+      },
+      "selection_notes": "把对话、单据或界面证据重构为带批注的结构化示意。当页面角色属于prove、关系形状为focus/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.scenario-illustration",
+      "display_code": "A2",
+      "name": "场景画",
+      "family": "证据",
+      "description": "把抽象问题演成一个具体场景的横向叙事插画",
+      "roles": [
+        "hook",
+        "prove"
+      ],
+      "relations": [
+        "sequence",
+        "spatial",
+        "evidence"
+      ],
+      "primitives": [
+        "scene-canvas",
+        "narrative-axis"
+      ],
+      "reading_order": [
+        "scene",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "scene"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:d2b8defd4b9f5ab470d3b8b3ab17913ca042bdaf46084e7b118e3497eda4fb17",
+      "slots": [
+        {
+          "slot_id": "scene",
+          "purpose": "主叙事场景",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 5,
+          "allowed_renderer_kinds": [
+            "image",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.scenario-illustration.scene"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.scenario-illustration.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.scenario-illustration.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a2.html"
+      },
+      "selection_notes": "把抽象问题演成一个具体场景的横向叙事插画。当页面角色属于hook/prove、关系形状为sequence/spatial/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.document-excerpt",
+      "display_code": "A3",
+      "name": "文献摘引页",
+      "family": "证据",
+      "description": "引用政策或权威报告为论点开路，以来源标注和结构化引文呈现",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "focus",
+        "evidence"
+      ],
+      "primitives": [
+        "asymmetric-split",
+        "document-frame"
+      ],
+      "reading_order": [
+        "excerpt",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "excerpt"
+        ],
+        "core_primitives": [
+          "evidence-annotation"
+        ]
+      },
+      "structure_fingerprint": "sha256:f530ef3e7247ed90974923caf0aea2bce5925784843f530c4933d4b2ad632c7c",
+      "slots": [
+        {
+          "slot_id": "excerpt",
+          "purpose": "文献摘引",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "image",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.document-excerpt.excerpt"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.document-excerpt.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.document-excerpt.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a3.html"
+      },
+      "selection_notes": "引用政策或权威报告为论点开路，以来源标注和结构化引文呈现。当页面角色属于prove、关系形状为focus/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.strategy-evidence-wall",
+      "display_code": "A4",
+      "name": "左策略右证据墙",
+      "family": "证据",
+      "description": "左边讲打法，右边用重构后的结构化证据网格证明已做到",
+      "roles": [
+        "prove",
+        "synthesize"
+      ],
+      "relations": [
+        "comparison",
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "asymmetric-split",
+        "evidence-grid"
+      ],
+      "reading_order": [
+        "evidence-wall",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "evidence-wall"
+        ],
+        "core_primitives": [
+          "bilateral-split",
+          "evidence-annotation"
+        ]
+      },
+      "structure_fingerprint": "sha256:5c7319f42eb401391a2919d444d74a13774d4c916b8cce4fc3efb05983ccc983",
+      "slots": [
+        {
+          "slot_id": "evidence-wall",
+          "purpose": "证据墙",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.strategy-evidence-wall.evidence-wall"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.strategy-evidence-wall.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.strategy-evidence-wall.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a4.html"
+      },
+      "selection_notes": "左边讲打法，右边用重构后的结构化证据网格证明已做到。当页面角色属于prove/synthesize、关系形状为comparison/matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.policy-columns",
+      "display_code": "A5",
+      "name": "条文陈列页",
+      "family": "证据",
+      "description": "制度/规范/条款的全文出示（例外页型，≤1 页）",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "equal-columns",
+        "numbered-list"
+      ],
+      "reading_order": [
+        "clauses",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "clauses"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:a29eaf9faf704271cb8e3cf153b22e631f718ef48adbba49dd3fcbbb53cb4738",
+      "slots": [
+        {
+          "slot_id": "clauses",
+          "purpose": "条文栏",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.policy-columns.clauses"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.policy-columns.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.policy-columns.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a5.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a5.html"
+      },
+      "selection_notes": "制度/规范/条款的全文出示（例外页型，≤1 页）。当页面角色属于prove、关系形状为matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.credential-wall",
+      "display_code": "A6",
+      "name": "资质证书墙",
+      "family": "证据",
+      "description": "把专利、认证或奖项信息重构为可追溯的背书矩阵",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "evidence-grid",
+        "hero-badge"
+      ],
+      "reading_order": [
+        "credentials",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "credentials"
+        ],
+        "core_primitives": [
+          "peer-array",
+          "evidence-annotation"
+        ]
+      },
+      "structure_fingerprint": "sha256:ee94623cb5803907520604e3f0dda2c955cd58a39e9f8b63cb383a1d2265cc25",
+      "slots": [
+        {
+          "slot_id": "credentials",
+          "purpose": "证书集合",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.credential-wall.credentials"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.credential-wall.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.credential-wall.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a6.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a6.html"
+      },
+      "selection_notes": "把专利、认证或奖项信息重构为可追溯的背书矩阵。当页面角色属于prove、关系形状为matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.logo-cloud",
+      "display_code": "A7",
+      "name": "Logo云墙",
+      "family": "证据",
+      "description": "客户/伙伴背书，以数量制造信任感",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "logo-field",
+        "count-band"
+      ],
+      "reading_order": [
+        "logos",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "logos"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:121ab045a4947b32ca7165aa44384bdc6adb06c46decf60dd9c4e87c893adb69",
+      "slots": [
+        {
+          "slot_id": "logos",
+          "purpose": "标识集合",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.logo-cloud.logos"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.logo-cloud.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.logo-cloud.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a7.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a7.html"
+      },
+      "selection_notes": "客户/伙伴背书，以数量制造信任感。当页面角色属于prove、关系形状为matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.admin-ui",
+      "display_code": "A8",
+      "name": "后台任务追踪台",
+      "family": "证据",
+      "description": "展示产品后台（列表/筛选/下钻），证明真实存在",
+      "roles": [
+        "prove",
+        "explain"
+      ],
+      "relations": [
+        "hierarchy",
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "ui-frame",
+        "table-region",
+        "annotation-leader"
+      ],
+      "reading_order": [
+        "product-ui",
+        "chart",
+        "annotation",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 5,
+        "required_slot_ids": [
+          "product-ui"
+        ],
+        "core_primitives": [
+          "evidence-annotation",
+          "layered-stack",
+          "matrix-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:6490ee0a8c4373966968feefc3916ccd90292778f2553372557768f3232abaa7",
+      "slots": [
+        {
+          "slot_id": "product-ui",
+          "purpose": "产品界面",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.admin-ui.product-ui"
+          }
+        },
+        {
+          "slot_id": "chart",
+          "purpose": "界面内嵌数据图",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg",
+            "canvas"
+          ],
+            "allowed_component_sources": [
+              "native",
+              "echarts"
+            ],
+            "default_renderer": {
+              "renderer_kind": "native-html",
+              "component_source": "native",
+              "component_id": "native.paper-ink.evidence.admin-ui.chart"
+            }
+        },
+        {
+          "slot_id": "annotation",
+          "purpose": "锚定到界面或图表的解释标注",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 3,
+          "allowed_renderer_kinds": [
+            "typography",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.admin-ui.annotation"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.admin-ui.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.admin-ui.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a8.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a8.html"
+      },
+      "selection_notes": "展示产品后台（列表/筛选/下钻），证明真实存在。当页面角色属于prove/explain、关系形状为hierarchy/matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.evidence.mobile-screen-gallery",
+      "display_code": "A9",
+      "name": "手机多屏画廊",
+      "family": "证据",
+      "description": "移动端连续操作流或多个功能面",
+      "roles": [
+        "prove",
+        "sequence"
+      ],
+      "relations": [
+        "sequence",
+        "evidence"
+      ],
+      "primitives": [
+        "screen-row",
+        "sequence-axis"
+      ],
+      "reading_order": [
+        "screens",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "screens"
+        ],
+        "core_primitives": [
+          "linear-sequence",
+          "evidence-annotation"
+        ]
+      },
+      "structure_fingerprint": "sha256:a09975681e01302a7a993270cc230a71ba35d4cacc392ec404f2d48f79708376",
+      "slots": [
+        {
+          "slot_id": "screens",
+          "purpose": "连续屏幕",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.mobile-screen-gallery.screens"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.mobile-screen-gallery.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.evidence.mobile-screen-gallery.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-a9.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-a9.html"
+      },
+      "selection_notes": "移动端连续操作流或多个功能面。当页面角色属于prove/sequence、关系形状为sequence/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要直接插入截图或原始素材；先重构为可追溯的结构化证据",
+        "不要让证据来源或状态不可追溯"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.temporal.timeline",
+      "display_code": "B1",
+      "name": "水平时间轴",
+      "family": "时序",
+      "description": "历史沿革、版本演进、里程碑",
+      "roles": [
+        "sequence"
+      ],
+      "relations": [
+        "sequence"
+      ],
+      "primitives": [
+        "sequence-axis",
+        "milestone-node"
+      ],
+      "reading_order": [
+        "milestones",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "milestones"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:f103e2d0476f26efc6bb9c05a7a740eab73faec5b06521b5dbca390ee4a6e8b9",
+      "slots": [
+        {
+          "slot_id": "milestones",
+          "purpose": "里程碑",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 7,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.timeline.milestones"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.timeline.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.timeline.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-b1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-b1.html"
+      },
+      "selection_notes": "历史沿革、版本演进、里程碑。当页面角色属于sequence、关系形状为sequence时可作为候选。",
+      "anti_patterns": [
+        "不要把无先后关系的并列项硬排成时间线",
+        "不要为凑版式虚构阶段"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.temporal.gantt-waterfall",
+      "display_code": "B2",
+      "name": "甘特瀑布",
+      "family": "时序",
+      "description": "耗时分布、瓶颈定位、断点标注",
+      "roles": [
+        "sequence",
+        "prove"
+      ],
+      "relations": [
+        "sequence",
+        "comparison"
+      ],
+      "primitives": [
+        "time-grid",
+        "duration-bar",
+        "break-marker"
+      ],
+      "reading_order": [
+        "durations",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "durations"
+        ],
+        "core_primitives": [
+          "linear-sequence",
+          "matrix-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:c361cb2115ba50725baf2f21ae99201d3b3fed6dc6af6b78cb19f149dc3cd189",
+      "slots": [
+        {
+          "slot_id": "durations",
+          "purpose": "时长条",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.gantt-waterfall.durations"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.gantt-waterfall.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.gantt-waterfall.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-b2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-b2.html"
+      },
+      "selection_notes": "耗时分布、瓶颈定位、断点标注。当页面角色属于sequence/prove、关系形状为sequence/comparison时可作为候选。",
+      "anti_patterns": [
+        "不要把无先后关系的并列项硬排成时间线",
+        "不要为凑版式虚构阶段"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.temporal.swimlane-roadmap",
+      "display_code": "B3",
+      "name": "多泳道路线图",
+      "family": "时序",
+      "description": "多年/多季度规划，按工作流分泳道展开",
+      "roles": [
+        "sequence",
+        "act"
+      ],
+      "relations": [
+        "sequence",
+        "matrix"
+      ],
+      "primitives": [
+        "time-grid",
+        "swimlane"
+      ],
+      "reading_order": [
+        "roadmap",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "roadmap"
+        ],
+        "core_primitives": [
+          "matrix-field",
+          "parallel-tracks",
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:f38a7d4c4c9fefe05b7b46226af893395d0ffde612a1d52e8f82ea5e8b790079",
+      "slots": [
+        {
+          "slot_id": "roadmap",
+          "purpose": "路线图",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.swimlane-roadmap.roadmap"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.swimlane-roadmap.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.swimlane-roadmap.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-b3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-b3.html"
+      },
+      "selection_notes": "多年/多季度规划，按工作流分泳道展开。当页面角色属于sequence/act、关系形状为sequence/matrix时可作为候选。",
+      "anti_patterns": [
+        "不要把无先后关系的并列项硬排成时间线",
+        "不要为凑版式虚构阶段"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.temporal.timeline-evidence-gallery",
+      "display_code": "B4",
+      "name": "时间轴垂挂画廊",
+      "family": "时序",
+      "description": "项目历程——时间轴给骨架，节点下垂挂证据卡",
+      "roles": [
+        "sequence",
+        "prove"
+      ],
+      "relations": [
+        "sequence",
+        "evidence"
+      ],
+      "primitives": [
+        "sequence-axis",
+        "hanging-evidence"
+      ],
+      "reading_order": [
+        "milestone-evidence",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "milestone-evidence"
+        ],
+        "core_primitives": [
+          "linear-sequence",
+          "evidence-annotation"
+        ]
+      },
+      "structure_fingerprint": "sha256:5f5917e34b6d8ec3123bcfec7e33275ba5c597f00956e9a37e11e66f14334585",
+      "slots": [
+        {
+          "slot_id": "milestone-evidence",
+          "purpose": "节点证据",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "image",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.timeline-evidence-gallery.milestone-evidence"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.timeline-evidence-gallery.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.timeline-evidence-gallery.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-b4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-b4.html"
+      },
+      "selection_notes": "项目历程——时间轴给骨架，节点下垂挂证据卡。当页面角色属于sequence/prove、关系形状为sequence/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要把无先后关系的并列项硬排成时间线",
+        "不要为凑版式虚构阶段"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.temporal.step-rise",
+      "display_code": "B5",
+      "name": "阶梯爬升路径",
+      "family": "时序",
+      "description": "发展历程、分阶段规划——逐级向上的动势",
+      "roles": [
+        "sequence"
+      ],
+      "relations": [
+        "sequence",
+        "hierarchy"
+      ],
+      "primitives": [
+        "ascending-steps",
+        "direction-arrow"
+      ],
+      "reading_order": [
+        "stages",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "stages"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:ffb6557e81dd5fd5924ace1acf259ce0cf0ca55e705ebbb81d9e7e276298deca",
+      "slots": [
+        {
+          "slot_id": "stages",
+          "purpose": "爬升阶段",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.step-rise.stages"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.step-rise.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.step-rise.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-b5.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-b5.html"
+      },
+      "selection_notes": "发展历程、分阶段规划——逐级向上的动势。当页面角色属于sequence、关系形状为sequence/hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要把无先后关系的并列项硬排成时间线",
+        "不要为凑版式虚构阶段"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.temporal.winding-road",
+      "display_code": "B6",
+      "name": "蜿蜒道路时间轴",
+      "family": "时序",
+      "description": "长跨度演进叙事——S 形道路\"一路走来\"",
+      "roles": [
+        "sequence"
+      ],
+      "relations": [
+        "sequence",
+        "spatial"
+      ],
+      "primitives": [
+        "winding-path",
+        "alternating-annotation"
+      ],
+      "reading_order": [
+        "road-stages",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "road-stages"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:b65699354a63e537eb4ba2ea7e49beb90c450e29c27254aa5def61cd8edd34d6",
+      "slots": [
+        {
+          "slot_id": "road-stages",
+          "purpose": "道路节点",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 7,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.winding-road.road-stages"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.winding-road.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.temporal.winding-road.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-b6.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-b6.html"
+      },
+      "selection_notes": "长跨度演进叙事——S 形道路\"一路走来\"。当页面角色属于sequence、关系形状为sequence/spatial时可作为候选。",
+      "anti_patterns": [
+        "不要把无先后关系的并列项硬排成时间线",
+        "不要为凑版式虚构阶段"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.visual-kpi-split",
+      "display_code": "C1",
+      "name": "左图右2×2数据格",
+      "family": "数据",
+      "description": "左半给场景/产品图，右半四个大数字成效",
+      "roles": [
+        "prove",
+        "synthesize"
+      ],
+      "relations": [
+        "comparison",
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "asymmetric-split",
+        "kpi-matrix"
+      ],
+      "reading_order": [
+        "visual",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "visual"
+        ],
+        "core_primitives": [
+          "bilateral-split"
+        ]
+      },
+      "structure_fingerprint": "sha256:e4e87c627691ce3262e7ba6254ad3c478e58feaee522b7d6b51f4c3c59515957",
+      "slots": [
+        {
+          "slot_id": "visual",
+          "purpose": "主图或场景",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 7,
+          "allowed_renderer_kinds": [
+            "image",
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.visual-kpi-split.visual"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.visual-kpi-split.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.visual-kpi-split.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c1.html"
+      },
+      "selection_notes": "左半给场景/产品图，右半四个大数字成效。当页面角色属于prove/synthesize、关系形状为comparison/matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.chart-wall",
+      "display_code": "C2",
+      "name": "图表联排墙",
+      "family": "数据",
+      "description": "一页讲一组同主题数据，图表本身是主角",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "chart-grid",
+        "figure-caption"
+      ],
+      "reading_order": [
+        "charts",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "charts"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:c57bec60d55598b3632d2745b935e9592f9dcdb8d5ea37390fe5feff8191dfe5",
+      "slots": [
+        {
+          "slot_id": "charts",
+          "purpose": "图表集合",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.chart-wall.charts"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.chart-wall.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.chart-wall.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c2.html"
+      },
+      "selection_notes": "一页讲一组同主题数据，图表本身是主角。当页面角色属于prove、关系形状为matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.profile-card-array",
+      "display_code": "C3",
+      "name": "顶图卡列阵",
+      "family": "数据",
+      "description": "团队介绍、代表案例——每列一个角色卡",
+      "roles": [
+        "orient",
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "profile-columns",
+        "image-region"
+      ],
+      "reading_order": [
+        "profiles",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "profiles"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:6fea2c40ec96792a574f6ef12fe64fcde902c6f2717172ee2bef286fd1dd508c",
+      "slots": [
+        {
+          "slot_id": "profiles",
+          "purpose": "角色卡",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.profile-card-array.profiles"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.profile-card-array.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.profile-card-array.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c3.html"
+      },
+      "selection_notes": "团队介绍、代表案例——每列一个角色卡。当页面角色属于orient/prove、关系形状为matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.geo-bubble-map",
+      "display_code": "C4",
+      "name": "地理气泡地图",
+      "family": "数据",
+      "description": "市场分布、区域覆盖、服务网络",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "spatial",
+        "evidence"
+      ],
+      "primitives": [
+        "map-region",
+        "proportional-bubble",
+        "kpi-band"
+      ],
+      "reading_order": [
+        "map",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "map"
+        ],
+        "core_primitives": [
+          "evidence-annotation"
+        ]
+      },
+      "structure_fingerprint": "sha256:ef3424d6717ea210ea3d2ccee531ad1d3d3a6ad98841a848eb58e72749401fae",
+      "slots": [
+        {
+          "slot_id": "map",
+          "purpose": "地理分布",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.geo-bubble-map.map"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.geo-bubble-map.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.geo-bubble-map.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c4.html"
+      },
+      "selection_notes": "市场分布、区域覆盖、服务网络。当页面角色属于prove、关系形状为spatial/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.radial-progress-array",
+      "display_code": "C5",
+      "name": "环形进度环列阵",
+      "family": "数据",
+      "description": "资源分配/构成比例——总额+一排圆环各占一份",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "hero-number",
+        "radial-array"
+      ],
+      "reading_order": [
+        "progress-rings",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "progress-rings"
+        ],
+        "core_primitives": [
+          "peer-array",
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:1fa3f512f73dc819aa51198f69aac505f6143c4ae2557850e3187b0fc5c5f0bd",
+      "slots": [
+        {
+          "slot_id": "progress-rings",
+          "purpose": "比例环",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 6,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.radial-progress-array.progress-rings"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.radial-progress-array.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.radial-progress-array.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c5.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c5.html"
+      },
+      "selection_notes": "资源分配/构成比例——总额+一排圆环各占一份。当页面角色属于prove、关系形状为matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.kpi-band",
+      "display_code": "C6",
+      "name": "KPI大数字横带",
+      "family": "数据",
+      "description": "3–4 个超大数字独立成页，一锤定音",
+      "roles": [
+        "prove",
+        "synthesize"
+      ],
+      "relations": [
+        "focus",
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "kpi-band",
+        "hero-number"
+      ],
+      "reading_order": [
+        "kpis",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "kpis"
+        ],
+        "core_primitives": [
+          "peer-array",
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:10be43740d84b94645a82c3e88bfbd5a208c63d4a5a97989049acb5ef40d8f03",
+      "slots": [
+        {
+          "slot_id": "kpis",
+          "purpose": "关键指标",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 5,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.kpi-band.kpis"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.kpi-band.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.kpi-band.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c6.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c6.html"
+      },
+      "selection_notes": "3–4 个超大数字独立成页，一锤定音。当页面角色属于prove/synthesize、关系形状为focus/matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.data.ranked-specimen-bars",
+      "display_code": "C7",
+      "name": "样本排行柱图",
+      "family": "数据",
+      "description": "榜单/排行——柱高表数值，样本本身也要被看见",
+      "roles": [
+        "prove"
+      ],
+      "relations": [
+        "comparison",
+        "evidence"
+      ],
+      "primitives": [
+        "ranked-bars",
+        "specimen-thumbnail"
+      ],
+      "reading_order": [
+        "ranking",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "ranking"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:d037381c6c9d17181e0e840d5aa236695c57c718d8623a3d527e727705f059f6",
+      "slots": [
+        {
+          "slot_id": "ranking",
+          "purpose": "排行数据",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.ranked-specimen-bars.ranking"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.ranked-specimen-bars.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.data.ranked-specimen-bars.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-c7.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-c7.html"
+      },
+      "selection_notes": "榜单/排行——柱高表数值，样本本身也要被看见。当页面角色属于prove、关系形状为comparison/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用没有数据编码意义的图表",
+        "不要让图表装饰压过关键结论"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.cover",
+      "display_code": "D1",
+      "name": "封面",
+      "family": "骨架",
+      "description": "需要独立封面时使用的呼吸型落版",
+      "roles": [
+        "hook"
+      ],
+      "relations": [
+        "focus"
+      ],
+      "primitives": [
+        "asymmetric-type",
+        "hero-mark"
+      ],
+      "reading_order": [
+        "cover-lockup",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "cover-lockup"
+        ],
+        "core_primitives": [
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:f1ba5405d92570bfd62da1fa3f50e13c127bd9cc43efbc4ef500c877b530c984",
+      "slots": [
+        {
+          "slot_id": "cover-lockup",
+          "purpose": "封面落版",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "typography",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.cover.cover-lockup"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.cover.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.cover.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d1.html"
+      },
+      "selection_notes": "当任务需要独立封面，且页面角色属于hook、关系形状为focus时可作为候选。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.particle-outro",
+      "display_code": "D2",
+      "name": "粒子大字尾卡",
+      "family": "骨架",
+      "description": "收尾落版/下集预告（可选形态，非默认）",
+      "roles": [
+        "close"
+      ],
+      "relations": [
+        "focus"
+      ],
+      "primitives": [
+        "particle-field",
+        "hero-type"
+      ],
+      "reading_order": [
+        "outro-lockup",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "outro-lockup"
+        ],
+        "core_primitives": [
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:5a1ff7b4bd958d8003220b91643baa66f968ed0eef652bbc6519332a5233ce6c",
+      "slots": [
+        {
+          "slot_id": "outro-lockup",
+          "purpose": "粒子尾卡",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "typography",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.particle-outro.outro-lockup"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.particle-outro.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.particle-outro.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d2.html"
+      },
+      "selection_notes": "收尾落版/下集预告（可选形态，非默认）。当页面角色属于close、关系形状为focus时可作为候选。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.minimal-outro",
+      "display_code": "D3",
+      "name": "极简Outro",
+      "family": "骨架",
+      "description": "需要独立收尾时使用的一句 CTA 或致谢",
+      "roles": [
+        "close"
+      ],
+      "relations": [
+        "focus"
+      ],
+      "primitives": [
+        "centered-type"
+      ],
+      "reading_order": [
+        "outro-lockup",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "outro-lockup"
+        ],
+        "core_primitives": [
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:5a1ff7b4bd958d8003220b91643baa66f968ed0eef652bbc6519332a5233ce6c",
+      "slots": [
+        {
+          "slot_id": "outro-lockup",
+          "purpose": "极简收尾",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "typography",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.minimal-outro.outro-lockup"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.minimal-outro.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.minimal-outro.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d3.html"
+      },
+      "selection_notes": "当任务需要独立收尾，且页面角色属于close、关系形状为focus时可作为候选。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.agenda",
+      "display_code": "D4",
+      "name": "目录导航页",
+      "family": "骨架",
+      "description": "长 deck 可选的目录、导航或章节索引",
+      "roles": [
+        "orient"
+      ],
+      "relations": [
+        "hierarchy"
+      ],
+      "primitives": [
+        "agenda-list",
+        "section-index"
+      ],
+      "reading_order": [
+        "agenda",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "agenda"
+        ],
+        "core_primitives": [
+          "linear-sequence",
+          "layered-stack"
+        ]
+      },
+      "structure_fingerprint": "sha256:8a99ca27a56d5813e7c7c9063b079b830731f30a0351f70c0ccbaa7736f32e94",
+      "slots": [
+        {
+          "slot_id": "agenda",
+          "purpose": "目录章节",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.agenda.agenda"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.agenda.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.agenda.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d4.html"
+      },
+      "selection_notes": "当长 deck 需要目录、导航或章节索引，且页面角色属于orient、关系形状为hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.section-divider",
+      "display_code": "D5",
+      "name": "章节隔页",
+      "family": "骨架",
+      "description": "章节转场呼吸页——让视线休息、宣告新章节",
+      "roles": [
+        "orient"
+      ],
+      "relations": [
+        "focus"
+      ],
+      "primitives": [
+        "centered-type",
+        "section-index"
+      ],
+      "reading_order": [
+        "section-lockup",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "section-lockup"
+        ],
+        "core_primitives": [
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:f143cb3474a358d46c0e913ecc8f54bc9ec259e138f7f95f0f2897344d4b73e0",
+      "slots": [
+        {
+          "slot_id": "section-lockup",
+          "purpose": "章节落版",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "typography",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.section-divider.section-lockup"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.section-divider.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.section-divider.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d5.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d5.html"
+      },
+      "selection_notes": "章节转场呼吸页——让视线休息、宣告新章节。当页面角色属于orient、关系形状为focus时可作为候选。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.contact",
+      "display_code": "D6",
+      "name": "联络尾页",
+      "family": "骨架",
+      "description": "联络尾页",
+      "roles": [
+        "act",
+        "close"
+      ],
+      "relations": [
+        "hierarchy"
+      ],
+      "primitives": [
+        "contact-columns",
+        "qr-code"
+      ],
+      "reading_order": [
+        "contact",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "contact"
+        ],
+        "core_primitives": [
+          "layered-stack",
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:25b27b2c5ad56b3acc7ea7a604a2d53e0218a335e39472d16df05b0909053227",
+      "slots": [
+        {
+          "slot_id": "contact",
+          "purpose": "联络信息",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 6,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.contact.contact"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.contact.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.contact.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d6.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d6.html"
+      },
+      "selection_notes": "联络尾页。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.scaffold.chapter-rail",
+      "display_code": "D7",
+      "name": "竖排章节轨",
+      "family": "骨架",
+      "description": "页级铬件——长 deck 的\"我在哪一章\"定位感",
+      "roles": [
+        "orient"
+      ],
+      "relations": [
+        "hierarchy"
+      ],
+      "primitives": [
+        "chapter-rail",
+        "content-offset"
+      ],
+      "reading_order": [
+        "chapter-rail",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "chapter-rail"
+        ],
+        "core_primitives": [
+          "layered-stack",
+          "bilateral-split"
+        ]
+      },
+      "structure_fingerprint": "sha256:1216c4bd442a5c6ce6478fc1313d6bad0a16265d16314c287d52489be75a3d32",
+      "slots": [
+        {
+          "slot_id": "chapter-rail",
+          "purpose": "章节轨",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 3,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.chapter-rail.chapter-rail"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.chapter-rail.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.scaffold.chapter-rail.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-d7.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-d7.html"
+      },
+      "selection_notes": "页级铬件——长 deck 的\"我在哪一章\"定位感。当页面角色属于orient、关系形状为hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要在呼吸页加入第二信息层",
+        "不要用骨架页承载正文堆叠"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.comparison.dual-panel",
+      "display_code": "E1",
+      "name": "对比双面板",
+      "family": "对比",
+      "description": "两种模式/两个世界的强对比（旧 vs 新）",
+      "roles": [
+        "compare"
+      ],
+      "relations": [
+        "comparison"
+      ],
+      "primitives": [
+        "dual-panel",
+        "contrast-axis"
+      ],
+      "reading_order": [
+        "comparison",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "comparison"
+        ],
+        "core_primitives": [
+          "bilateral-split"
+        ]
+      },
+      "structure_fingerprint": "sha256:1fcd81a921227b6785b9cda456dc925e0fd78791efe11027159eaba50f38d4d4",
+      "slots": [
+        {
+          "slot_id": "comparison",
+          "purpose": "强对比双面板",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 6,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.dual-panel.comparison"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.dual-panel.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.dual-panel.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-e1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-e1.html"
+      },
+      "selection_notes": "两种模式/两个世界的强对比（旧 vs 新）。当页面角色属于compare、关系形状为comparison时可作为候选。",
+      "anti_patterns": [
+        "不要比较不可对位的维度",
+        "不要用颜色替代结构上的差异"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.comparison.watershed-columns",
+      "display_code": "E2",
+      "name": "分水岭双栏",
+      "family": "对比",
+      "description": "同类两概念的字段级克制对照",
+      "roles": [
+        "compare"
+      ],
+      "relations": [
+        "comparison"
+      ],
+      "primitives": [
+        "watershed-axis",
+        "field-columns"
+      ],
+      "reading_order": [
+        "comparison-fields",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "comparison-fields"
+        ],
+        "core_primitives": [
+          "bilateral-split"
+        ]
+      },
+      "structure_fingerprint": "sha256:1f7ee0a4ea59cb8f2db7b3a36a41a65846c1e85c285297ce529021746bf971a6",
+      "slots": [
+        {
+          "slot_id": "comparison-fields",
+          "purpose": "字段对比",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.watershed-columns.comparison-fields"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.watershed-columns.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.watershed-columns.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-e2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-e2.html"
+      },
+      "selection_notes": "同类两概念的字段级克制对照。当页面角色属于compare、关系形状为comparison时可作为候选。",
+      "anti_patterns": [
+        "不要比较不可对位的维度",
+        "不要用颜色替代结构上的差异"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.comparison.paired-bands",
+      "display_code": "E3",
+      "name": "双带列阵",
+      "family": "对比",
+      "description": "N 因对 N 策的逐条对答（为什么做→怎么做）",
+      "roles": [
+        "compare"
+      ],
+      "relations": [
+        "comparison",
+        "mapping"
+      ],
+      "primitives": [
+        "parallel-bands",
+        "mapping-link"
+      ],
+      "reading_order": [
+        "paired-items",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "paired-items"
+        ],
+        "core_primitives": [
+          "parallel-tracks"
+        ]
+      },
+      "structure_fingerprint": "sha256:d4913c516b4d6205e4f6327769df1b73af06340df23350757ab6aa9bd6a4838b",
+      "slots": [
+        {
+          "slot_id": "paired-items",
+          "purpose": "逐条对位",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.paired-bands.paired-items"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.paired-bands.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.paired-bands.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-e3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-e3.html"
+      },
+      "selection_notes": "N 因对 N 策的逐条对答（为什么做→怎么做）。当页面角色属于compare、关系形状为comparison/mapping时可作为候选。",
+      "anti_patterns": [
+        "不要比较不可对位的维度",
+        "不要用颜色替代结构上的差异"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.comparison.before-after-matrix",
+      "display_code": "E4",
+      "name": "前后对比行矩阵",
+      "family": "对比",
+      "description": "改造前后对照，并给出一行总账指标",
+      "roles": [
+        "compare",
+        "prove"
+      ],
+      "relations": [
+        "comparison",
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "before-after-rows",
+        "kpi-band"
+      ],
+      "reading_order": [
+        "before-after",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "before-after"
+        ],
+        "core_primitives": [
+          "parallel-tracks",
+          "matrix-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:7789f1f4cef2cc945fcb0e3b8d8c2045542df5b191cb28b332f466612f303e0a",
+      "slots": [
+        {
+          "slot_id": "before-after",
+          "purpose": "前后态矩阵",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.before-after-matrix.before-after"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.before-after-matrix.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.before-after-matrix.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-e4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-e4.html"
+      },
+      "selection_notes": "改造前后对照，并给出一行总账指标。当页面角色属于compare/prove、关系形状为comparison/matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要比较不可对位的维度",
+        "不要用颜色替代结构上的差异"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.comparison.dual-pyramid-map",
+      "display_code": "E5",
+      "name": "双金字塔对照映射",
+      "family": "对比",
+      "description": "两套层级体系的对照与映射",
+      "roles": [
+        "compare"
+      ],
+      "relations": [
+        "comparison",
+        "mapping",
+        "hierarchy"
+      ],
+      "primitives": [
+        "dual-pyramid",
+        "mapping-link"
+      ],
+      "reading_order": [
+        "hierarchy-map",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "hierarchy-map"
+        ],
+        "core_primitives": [
+          "bilateral-split",
+          "layered-stack",
+          "parallel-tracks"
+        ]
+      },
+      "structure_fingerprint": "sha256:b19926991928254cf82bd1802194e47d3f6e05895a5e441430bcd954256a00fb",
+      "slots": [
+        {
+          "slot_id": "hierarchy-map",
+          "purpose": "层级映射",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.dual-pyramid-map.hierarchy-map"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.dual-pyramid-map.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.dual-pyramid-map.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-e5.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-e5.html"
+      },
+      "selection_notes": "两套层级体系的对照与映射。当页面角色属于compare、关系形状为comparison/mapping/hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要比较不可对位的维度",
+        "不要用颜色替代结构上的差异"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.comparison.before-after-process-bands",
+      "display_code": "E6",
+      "name": "前后双带演进页",
+      "family": "对比",
+      "description": "适合把同一对象的前后状态上下对照，并用处理链说明变化如何发生",
+      "roles": [
+        "compare",
+        "sequence"
+      ],
+      "relations": [
+        "comparison",
+        "sequence"
+      ],
+      "primitives": [
+        "before-after-bands",
+        "process-strip"
+      ],
+      "reading_order": [
+        "before-after-flow",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "before-after-flow"
+        ],
+        "core_primitives": [
+          "parallel-tracks"
+        ]
+      },
+      "structure_fingerprint": "sha256:275c0b736cdffe0d6ea9751e3ea6d9b08d9ac51e81270fedcd3bfab2c63d5554",
+      "slots": [
+        {
+          "slot_id": "before-after-flow",
+          "purpose": "前后流程带",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.before-after-process-bands.before-after-flow"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.before-after-process-bands.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.comparison.before-after-process-bands.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-e6.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-e6.html"
+      },
+      "selection_notes": "Before 散件带 vs After 流水线带的状态跃迁，底部金句收束。当页面角色属于compare/sequence、关系形状为comparison/sequence时可作为候选。",
+      "anti_patterns": [
+        "不要比较不可对位的维度",
+        "不要用颜色替代结构上的差异"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.decomposition.quadrant",
+      "display_code": "F1",
+      "name": "四象限矩阵",
+      "family": "拆解",
+      "description": "定义页——一个核心概念由 N 个组成部分构成",
+      "roles": [
+        "explain"
+      ],
+      "relations": [
+        "decomposition",
+        "matrix"
+      ],
+      "primitives": [
+        "quadrant-grid",
+        "center-label"
+      ],
+      "reading_order": [
+        "quadrants",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "quadrants"
+        ],
+        "core_primitives": [
+          "matrix-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:65ebaef88d98f77fad5a3789f966a9ae0b9fa4242e1a33a21e5b5ea765e97276",
+      "slots": [
+        {
+          "slot_id": "quadrants",
+          "purpose": "象限内容",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 6,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.quadrant.quadrants"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.quadrant.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.quadrant.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-f1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-f1.html"
+      },
+      "selection_notes": "定义页——一个核心概念由 N 个组成部分构成。当页面角色属于explain、关系形状为decomposition/matrix时可作为候选。",
+      "anti_patterns": [
+        "不要把无中心概念的清单伪装成拆解",
+        "不要把所有单元画成同构装饰卡"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.decomposition.structure-spec-split",
+      "display_code": "F2",
+      "name": "环节树+规格单",
+      "family": "拆解",
+      "description": "左讲结构（树/链），右讲字段（每节点记什么）",
+      "roles": [
+        "explain",
+        "prove"
+      ],
+      "relations": [
+        "decomposition",
+        "hierarchy"
+      ],
+      "primitives": [
+        "asymmetric-split",
+        "structure-tree",
+        "spec-table"
+      ],
+      "reading_order": [
+        "structure",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "structure"
+        ],
+        "core_primitives": [
+          "layered-stack",
+          "bilateral-split"
+        ]
+      },
+      "structure_fingerprint": "sha256:c94e97bc4a16ac4d4329b88c169ec0593662d8d89b0663f622f070740e34c2e5",
+      "slots": [
+        {
+          "slot_id": "structure",
+          "purpose": "结构树",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.structure-spec-split.structure"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.structure-spec-split.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.structure-spec-split.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-f2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-f2.html"
+      },
+      "selection_notes": "左讲结构（树/链），右讲字段（每节点记什么）。当页面角色属于explain/prove、关系形状为decomposition/hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要把无中心概念的清单伪装成拆解",
+        "不要把所有单元画成同构装饰卡"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.decomposition.column-list",
+      "display_code": "F3",
+      "name": "分栏清单柱",
+      "family": "拆解",
+      "description": "并列陈列 3–5 个分类下的离散要点",
+      "roles": [
+        "explain"
+      ],
+      "relations": [
+        "decomposition",
+        "matrix"
+      ],
+      "primitives": [
+        "equal-columns",
+        "hierarchical-list"
+      ],
+      "reading_order": [
+        "columns",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "columns"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:4f9459e0c7aeeddaf04af2e7eab1170ec9a061015d445bddeccb047f28f3260d",
+      "slots": [
+        {
+          "slot_id": "columns",
+          "purpose": "分类清单",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.column-list.columns"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.column-list.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.column-list.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-f3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-f3.html"
+      },
+      "selection_notes": "并列陈列 3–5 个分类下的离散要点。当页面角色属于explain、关系形状为decomposition/matrix时可作为候选。",
+      "anti_patterns": [
+        "不要把无中心概念的清单伪装成拆解",
+        "不要把所有单元画成同构装饰卡"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.decomposition.icon-grid",
+      "display_code": "F4",
+      "name": "图标六宫格",
+      "family": "拆解",
+      "description": "3–6 个并列概念的最简陈列（兜底页型）",
+      "roles": [
+        "orient",
+        "explain"
+      ],
+      "relations": [
+        "decomposition",
+        "matrix"
+      ],
+      "primitives": [
+        "icon-grid",
+        "label-stack"
+      ],
+      "reading_order": [
+        "concepts",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "concepts"
+        ],
+        "core_primitives": [
+          "peer-array"
+        ]
+      },
+      "structure_fingerprint": "sha256:1e282351eca0ba392075e297c80b5172d691761f409a91b8a0c065875e9ac28f",
+      "slots": [
+        {
+          "slot_id": "concepts",
+          "purpose": "并列概念",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.icon-grid.concepts"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.icon-grid.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.decomposition.icon-grid.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-f4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-f4.html"
+      },
+      "selection_notes": "3–6 个并列概念的最简陈列（兜底页型）。当页面角色属于orient/explain、关系形状为decomposition/matrix时可作为候选。",
+      "anti_patterns": [
+        "不要把无中心概念的清单伪装成拆解",
+        "不要把所有单元画成同构装饰卡"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.radial.three-way",
+      "display_code": "G1",
+      "name": "三向放射",
+      "family": "放射",
+      "description": "一个节点的输入/输出/参数三向展开（爆炸图）",
+      "roles": [
+        "explain"
+      ],
+      "relations": [
+        "decomposition",
+        "spatial"
+      ],
+      "primitives": [
+        "radial-spokes",
+        "center-node"
+      ],
+      "reading_order": [
+        "dimensions",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "dimensions"
+        ],
+        "core_primitives": [
+          "radial-burst"
+        ]
+      },
+      "structure_fingerprint": "sha256:3d53b2fa2c4d0ce8e9c09c4d1553707492d81dd9bf8efae02ed30d9133ff628f",
+      "slots": [
+        {
+          "slot_id": "dimensions",
+          "purpose": "三向维度",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 5,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.three-way.dimensions"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.three-way.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.three-way.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-g1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-g1.html"
+      },
+      "selection_notes": "一个节点的输入/输出/参数三向展开（爆炸图）。当页面角色属于explain、关系形状为decomposition/spatial时可作为候选。",
+      "anti_patterns": [
+        "不要在没有中心对象时使用放射",
+        "不要让引线交叉或失去锚点"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.radial.annotated-hero",
+      "display_code": "G2",
+      "name": "立绘环绕引线标注",
+      "family": "放射",
+      "description": "单一对象全方位注解——中央立绘+四周肘形引线",
+      "roles": [
+        "explain",
+        "prove"
+      ],
+      "relations": [
+        "focus",
+        "spatial",
+        "evidence"
+      ],
+      "primitives": [
+        "hero-object",
+        "elbow-leader"
+      ],
+      "reading_order": [
+        "hero",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "hero"
+        ],
+        "core_primitives": [
+          "evidence-annotation",
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:6aa5157f2fa27e2adb15b7da1c7573fa8951a5c6d2934d0e82d050fb5291e1fb",
+      "slots": [
+        {
+          "slot_id": "hero",
+          "purpose": "中央对象",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "image",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.annotated-hero.hero"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.annotated-hero.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.annotated-hero.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-g2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-g2.html"
+      },
+      "selection_notes": "单一对象全方位注解——中央立绘+四周肘形引线。当页面角色属于explain/prove、关系形状为focus/spatial/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要在没有中心对象时使用放射",
+        "不要让引线交叉或失去锚点"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.radial.hub-satellites",
+      "display_code": "G4",
+      "name": "中心枢纽+环绕卫星",
+      "family": "放射",
+      "description": "一个核心被 N 个维度环绕支撑的能力体系",
+      "roles": [
+        "explain",
+        "synthesize"
+      ],
+      "relations": [
+        "decomposition",
+        "spatial",
+        "network"
+      ],
+      "primitives": [
+        "orbit-ring",
+        "satellite-node",
+        "annotation-columns"
+      ],
+      "reading_order": [
+        "capabilities",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "capabilities"
+        ],
+        "core_primitives": [
+          "radial-burst"
+        ]
+      },
+      "structure_fingerprint": "sha256:632161c713a50cf07faf2edc20196b6cd484f812a8f5baebd539afda60964548",
+      "slots": [
+        {
+          "slot_id": "capabilities",
+          "purpose": "环绕能力",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.hub-satellites.capabilities"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.hub-satellites.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.radial.hub-satellites.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-g4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-g4.html"
+      },
+      "selection_notes": "一个核心被 N 个维度环绕支撑的能力体系。当页面角色属于explain/synthesize、关系形状为decomposition/spatial/network时可作为候选。",
+      "anti_patterns": [
+        "不要在没有中心对象时使用放射",
+        "不要让引线交叉或失去锚点"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.nested.defense-rings",
+      "display_code": "H1",
+      "name": "同心防线",
+      "family": "嵌套",
+      "description": "防御层级 / 包裹关系（guardrail、校验圈层）",
+      "roles": [
+        "explain"
+      ],
+      "relations": [
+        "hierarchy",
+        "nesting"
+      ],
+      "primitives": [
+        "concentric-rings",
+        "radial-label"
+      ],
+      "reading_order": [
+        "layers",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "layers"
+        ],
+        "core_primitives": [
+          "nested-regions"
+        ]
+      },
+      "structure_fingerprint": "sha256:ba7231cf7e2a093c3902dd14e4ad952db172d51892618a65f93f13b874854ddb",
+      "slots": [
+        {
+          "slot_id": "layers",
+          "purpose": "防线圈层",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 6,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.defense-rings.layers"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.defense-rings.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.defense-rings.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-h1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-h1.html"
+      },
+      "selection_notes": "防御层级 / 包裹关系（guardrail、校验圈层）。当页面角色属于explain、关系形状为hierarchy/nesting时可作为候选。",
+      "anti_patterns": [
+        "不要把先后步骤误画成层级",
+        "不要让层级标签脱离所属边界"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.nested.zoom-frames",
+      "display_code": "H2",
+      "name": "嵌套变焦框",
+      "family": "嵌套",
+      "description": "同一对象的观察粒度逐层拉远（单轮⊂会话⊂过程⊂结果）",
+      "roles": [
+        "explain"
+      ],
+      "relations": [
+        "hierarchy",
+        "nesting"
+      ],
+      "primitives": [
+        "nested-frames",
+        "zoom-link"
+      ],
+      "reading_order": [
+        "zoom-levels",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "zoom-levels"
+        ],
+        "core_primitives": [
+          "nested-regions"
+        ]
+      },
+      "structure_fingerprint": "sha256:3951ddd1df8c6c968164c5cdb44d686f981e2c1544ce99879428184a1823d25b",
+      "slots": [
+        {
+          "slot_id": "zoom-levels",
+          "purpose": "观察层级",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 6,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.zoom-frames.zoom-levels"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.zoom-frames.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.zoom-frames.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-h2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-h2.html"
+      },
+      "selection_notes": "同一对象的观察粒度逐层拉远（单轮⊂会话⊂过程⊂结果）。当页面角色属于explain、关系形状为hierarchy/nesting时可作为候选。",
+      "anti_patterns": [
+        "不要把先后步骤误画成层级",
+        "不要让层级标签脱离所属边界"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.nested.architecture-stack",
+      "display_code": "H3",
+      "name": "分层架构堆栈",
+      "family": "嵌套",
+      "description": "技术/业务架构总览——平台分几层、每层有什么",
+      "roles": [
+        "explain",
+        "synthesize"
+      ],
+      "relations": [
+        "hierarchy"
+      ],
+      "primitives": [
+        "layer-stack",
+        "capability-cell"
+      ],
+      "reading_order": [
+        "architecture",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "architecture"
+        ],
+        "core_primitives": [
+          "layered-stack"
+        ]
+      },
+      "structure_fingerprint": "sha256:a70cb87367882ee704e738e8befd2f6c335968ef23659cf5c74dbad3094a5172",
+      "slots": [
+        {
+          "slot_id": "architecture",
+          "purpose": "架构分层",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.architecture-stack.architecture"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.architecture-stack.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.architecture-stack.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-h3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-h3.html"
+      },
+      "selection_notes": "技术/业务架构总览——平台分几层、每层有什么。当页面角色属于explain/synthesize、关系形状为hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要把先后步骤误画成层级",
+        "不要让层级标签脱离所属边界"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.nested.foundation-stack",
+      "display_code": "H4",
+      "name": "底座托举三层",
+      "family": "嵌套",
+      "description": "底层平台支撑中层能力、中层支撑上层产品",
+      "roles": [
+        "explain",
+        "synthesize"
+      ],
+      "relations": [
+        "hierarchy"
+      ],
+      "primitives": [
+        "foundation-band",
+        "layer-stack"
+      ],
+      "reading_order": [
+        "support-layers",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "support-layers"
+        ],
+        "core_primitives": [
+          "layered-stack"
+        ]
+      },
+      "structure_fingerprint": "sha256:d13135bca6246c79be816848ec007d8e03a31ecd27a8ccec90d6373fae404020",
+      "slots": [
+        {
+          "slot_id": "support-layers",
+          "purpose": "托举层级",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.foundation-stack.support-layers"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.foundation-stack.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.nested.foundation-stack.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-h4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-h4.html"
+      },
+      "selection_notes": "底层平台支撑中层能力、中层支撑上层产品。当页面角色属于explain/synthesize、关系形状为hierarchy时可作为候选。",
+      "anti_patterns": [
+        "不要把先后步骤误画成层级",
+        "不要让层级标签脱离所属边界"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.flow.pipeline",
+      "display_code": "I1",
+      "name": "横向流水线",
+      "family": "流程",
+      "description": "解释过程机制：输入→黑盒→输出 / 3–4 步步骤链",
+      "roles": [
+        "explain",
+        "sequence"
+      ],
+      "relations": [
+        "flow",
+        "sequence"
+      ],
+      "primitives": [
+        "pipeline",
+        "open-arrow"
+      ],
+      "reading_order": [
+        "steps",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "steps"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:312a7f56402a0e8d8745fba32c823e997c7d05b209fb94d79868cbed23ee8cbf",
+      "slots": [
+        {
+          "slot_id": "steps",
+          "purpose": "流程步骤",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 7,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "native-html",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.pipeline.steps"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.pipeline.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.pipeline.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-i1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-i1.html"
+      },
+      "selection_notes": "解释过程机制：输入→黑盒→输出 / 3–4 步步骤链。当页面角色属于explain/sequence、关系形状为flow/sequence时可作为候选。",
+      "anti_patterns": [
+        "不要把无因果或顺序的内容连箭头",
+        "不要用同构框队列代替过程机制"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.flow.known-unknown-chain",
+      "display_code": "I2",
+      "name": "虚实步骤串",
+      "family": "流程",
+      "description": "中间发生了什么你看不见——两端已知、中间未知",
+      "roles": [
+        "explain",
+        "sequence"
+      ],
+      "relations": [
+        "flow",
+        "sequence"
+      ],
+      "primitives": [
+        "known-endpoints",
+        "unknown-gap"
+      ],
+      "reading_order": [
+        "visible-steps",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "visible-steps"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:861ab8901cb5d1833d52c3ba2ffb01f7f84562d8f34cbf951b78550eb57933ba",
+      "slots": [
+        {
+          "slot_id": "visible-steps",
+          "purpose": "可见步骤",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 7,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.known-unknown-chain.visible-steps"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.known-unknown-chain.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.known-unknown-chain.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-i2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-i2.html"
+      },
+      "selection_notes": "中间发生了什么你看不见——两端已知、中间未知。当页面角色属于explain/sequence、关系形状为flow/sequence时可作为候选。",
+      "anti_patterns": [
+        "不要把无因果或顺序的内容连箭头",
+        "不要用同构框队列代替过程机制"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.flow.dual-track",
+      "display_code": "I3",
+      "name": "双轨转化路径对比",
+      "family": "流程",
+      "description": "两条流程线逐站对比，差异徽章只挂关键站",
+      "roles": [
+        "compare",
+        "sequence"
+      ],
+      "relations": [
+        "flow",
+        "sequence",
+        "comparison"
+      ],
+      "primitives": [
+        "parallel-tracks",
+        "difference-badge"
+      ],
+      "reading_order": [
+        "tracks",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "tracks"
+        ],
+        "core_primitives": [
+          "parallel-tracks"
+        ]
+      },
+      "structure_fingerprint": "sha256:7ee6ec44531bab8fbf2a21156a719f8a48f49d8c6293196704fe503cefaf4395",
+      "slots": [
+        {
+          "slot_id": "tracks",
+          "purpose": "双轨步骤",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.dual-track.tracks"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.dual-track.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.dual-track.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-i3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-i3.html"
+      },
+      "selection_notes": "两条流程线逐站对比，差异徽章只挂关键站。当页面角色属于compare/sequence、关系形状为flow/sequence/comparison时可作为候选。",
+      "anti_patterns": [
+        "不要把无因果或顺序的内容连箭头",
+        "不要用同构框队列代替过程机制"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.flow.branching-solutions",
+      "display_code": "I4",
+      "name": "双面板分支解法流",
+      "family": "流程",
+      "description": "两并列解法面板：图标链含分支、判定菱形分叉、墨底 CTA 收口",
+      "roles": [
+        "compare",
+        "decide"
+      ],
+      "relations": [
+        "flow",
+        "comparison"
+      ],
+      "primitives": [
+        "dual-panel",
+        "decision-branch",
+        "cta-band"
+      ],
+      "reading_order": [
+        "solutions",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "solutions"
+        ],
+        "core_primitives": [
+          "bilateral-split",
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:12ea5d1561cc2a194328e43ba3f5ef82527a03394335149b9b1c3b025fe24227",
+      "slots": [
+        {
+          "slot_id": "solutions",
+          "purpose": "分支解法",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.branching-solutions.solutions"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.branching-solutions.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.flow.branching-solutions.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-i4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-i4.html"
+      },
+      "selection_notes": "两并列解法面板：图标链含分支、判定菱形分叉、墨底 CTA 收口。当页面角色属于compare/decide、关系形状为flow/comparison时可作为候选。",
+      "anti_patterns": [
+        "不要把无因果或顺序的内容连箭头",
+        "不要用同构框队列代替过程机制"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.cycle.ring",
+      "display_code": "J1",
+      "name": "循环圆环",
+      "family": "循环",
+      "description": "闭环流程（定位→调优→评测→治理、持续回归）",
+      "roles": [
+        "explain",
+        "sequence"
+      ],
+      "relations": [
+        "cycle",
+        "flow"
+      ],
+      "primitives": [
+        "cycle-ring",
+        "step-node"
+      ],
+      "reading_order": [
+        "cycle-steps",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "cycle-steps"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:57d3b881225417c7ccc26ffc36171d07e0034c1323a3be2b8d08c0b194578b2e",
+      "slots": [
+        {
+          "slot_id": "cycle-steps",
+          "purpose": "循环步骤",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.ring.cycle-steps"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.ring.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.ring.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-j1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-j1.html"
+      },
+      "selection_notes": "闭环流程（定位→调优→评测→治理、持续回归）。当页面角色属于explain/sequence、关系形状为cycle/flow时可作为候选。",
+      "anti_patterns": [
+        "不要在没有反馈语义时闭环",
+        "不要留下无标签的返回线"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.cycle.serpentine-loop",
+      "display_code": "J2",
+      "name": "蛇形回环",
+      "family": "循环",
+      "description": "6–8 步长流程，含上线/迭代/回归回环语义",
+      "roles": [
+        "explain",
+        "sequence"
+      ],
+      "relations": [
+        "cycle",
+        "sequence"
+      ],
+      "primitives": [
+        "serpentine-path",
+        "return-loop"
+      ],
+      "reading_order": [
+        "loop-steps",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "loop-steps"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:c31290394aad792df4a2ac96c93a3be0b8695aad2b9d410b75bfbada185bd2dc",
+      "slots": [
+        {
+          "slot_id": "loop-steps",
+          "purpose": "长流程步骤",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.serpentine-loop.loop-steps"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.serpentine-loop.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.serpentine-loop.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-j2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-j2.html"
+      },
+      "selection_notes": "6–8 步长流程，含上线/迭代/回归回环语义。当页面角色属于explain/sequence、关系形状为cycle/sequence时可作为候选。",
+      "anti_patterns": [
+        "不要在没有反馈语义时闭环",
+        "不要留下无标签的返回线"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.cycle.journey-curve",
+      "display_code": "J3",
+      "name": "旅程曲线",
+      "family": "循环",
+      "description": "用户旅程、体验地图——阶段推进+感受起伏",
+      "roles": [
+        "sequence",
+        "prove"
+      ],
+      "relations": [
+        "sequence",
+        "cycle",
+        "evidence"
+      ],
+      "primitives": [
+        "journey-curve",
+        "stage-band",
+        "return-loop"
+      ],
+      "reading_order": [
+        "journey",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "journey"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:57c659213d17b21f0afc8714d3b657cb2138ca99ba20e34962e43ed8c95eb815",
+      "slots": [
+        {
+          "slot_id": "journey",
+          "purpose": "旅程节点",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.journey-curve.journey"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.journey-curve.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.cycle.journey-curve.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-j3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-j3.html"
+      },
+      "selection_notes": "用户旅程、体验地图——阶段推进+感受起伏。当页面角色属于sequence/prove、关系形状为sequence/cycle/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要在没有反馈语义时闭环",
+        "不要留下无标签的返回线"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.matrix.stage-dimension",
+      "display_code": "K1",
+      "name": "链阵复合",
+      "family": "矩阵",
+      "description": "N 阶段 × M 维度的战略/业务框架（每 deck ≤2 页）",
+      "roles": [
+        "synthesize"
+      ],
+      "relations": [
+        "matrix",
+        "sequence"
+      ],
+      "primitives": [
+        "stage-chain",
+        "dimension-matrix",
+        "summary-band"
+      ],
+      "reading_order": [
+        "framework",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "framework"
+        ],
+        "core_primitives": [
+          "matrix-field",
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:4c5867059d61220cdd8643678633ba107972b93569fc67a1c8608b4be38855b1",
+      "slots": [
+        {
+          "slot_id": "framework",
+          "purpose": "阶段维度框架",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.stage-dimension.framework"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.stage-dimension.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.stage-dimension.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-k1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-k1.html"
+      },
+      "selection_notes": "N 阶段 × M 维度的战略/业务框架（每 deck ≤2 页）。当页面角色属于synthesize、关系形状为matrix/sequence时可作为候选。",
+      "anti_patterns": [
+        "不要用矩阵掩盖维度不正交",
+        "不要把不同粒度内容强塞同一格"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.matrix.problem-solution-outcome",
+      "display_code": "K2",
+      "name": "痛点→解法→成效三栏",
+      "family": "矩阵",
+      "description": "将问题、做法与结果按栏对位，建立从现状到成效的闭环",
+      "roles": [
+        "synthesize",
+        "prove"
+      ],
+      "relations": [
+        "flow",
+        "matrix",
+        "evidence"
+      ],
+      "primitives": [
+        "three-column-flow",
+        "kpi-band"
+      ],
+      "reading_order": [
+        "story-loop",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "story-loop"
+        ],
+        "core_primitives": [
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:f99d565ebca47cde8a006606bf8282ac0977589c3efdbd28b517d6bff21211cd",
+      "slots": [
+        {
+          "slot_id": "story-loop",
+          "purpose": "痛点解法成效",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.problem-solution-outcome.story-loop"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.problem-solution-outcome.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.problem-solution-outcome.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-k2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-k2.html"
+      },
+      "selection_notes": "销售/汇报叙事最小闭环：问题→做法→结果。当页面角色属于synthesize/prove、关系形状为flow/matrix/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用矩阵掩盖维度不正交",
+        "不要把不同粒度内容强塞同一格"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.matrix.problem-solution-composite",
+      "display_code": "K3",
+      "name": "左痛右解复合页",
+      "family": "矩阵",
+      "description": "左栏问题清单 → 右栏流水线+平台带+KPI 带，一页讲清为什么做/怎么做/做到多少",
+      "roles": [
+        "synthesize",
+        "prove"
+      ],
+      "relations": [
+        "flow",
+        "comparison",
+        "evidence"
+      ],
+      "primitives": [
+        "asymmetric-split",
+        "pipeline",
+        "platform-band",
+        "kpi-band"
+      ],
+      "reading_order": [
+        "problem-solution",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "problem-solution"
+        ],
+        "core_primitives": [
+          "bilateral-split",
+          "linear-sequence"
+        ]
+      },
+      "structure_fingerprint": "sha256:d53afe6cda5a1a847e2f378832ec111be948cc2a5f39a22d49dd976c5036cb3c",
+      "slots": [
+        {
+          "slot_id": "problem-solution",
+          "purpose": "左痛右解",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.problem-solution-composite.problem-solution"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.problem-solution-composite.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.problem-solution-composite.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-k3.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-k3.html"
+      },
+      "selection_notes": "左栏问题清单 → 右栏流水线+平台带+KPI 带，一页讲清为什么做/怎么做/做到多少。当页面角色属于synthesize/prove、关系形状为flow/comparison/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用矩阵掩盖维度不正交",
+        "不要把不同粒度内容强塞同一格"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.matrix.scenario-row-band",
+      "display_code": "K4",
+      "name": "三栏行带矩阵",
+      "family": "矩阵",
+      "description": "三场景 × 现状/解法/落地三行带，行带内装文本/竖链/迷你图异构内容",
+      "roles": [
+        "synthesize",
+        "prove"
+      ],
+      "relations": [
+        "matrix",
+        "comparison",
+        "evidence"
+      ],
+      "primitives": [
+        "column-grid",
+        "heterogeneous-row-band"
+      ],
+      "reading_order": [
+        "scenario-matrix",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "scenario-matrix"
+        ],
+        "core_primitives": [
+          "matrix-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:25b5a87fe1cb8b7ca8fac6b69691e872b082d7668fc704d4015295f8097303d3",
+      "slots": [
+        {
+          "slot_id": "scenario-matrix",
+          "purpose": "场景行带",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "table",
+            "native-html",
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.scenario-row-band.scenario-matrix"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.scenario-row-band.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.matrix.scenario-row-band.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-k4.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-k4.html"
+      },
+      "selection_notes": "三场景 × 现状/解法/落地三行带，行带内装文本/竖链/迷你图异构内容。当页面角色属于synthesize/prove、关系形状为matrix/comparison/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要用矩阵掩盖维度不正交",
+        "不要把不同粒度内容强塞同一格"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.mapping.weighted-arcs",
+      "display_code": "L1",
+      "name": "权重弧线图",
+      "family": "映射",
+      "description": "表达节点间连接强度 / 注意力 / 引用关系",
+      "roles": [
+        "explain",
+        "prove"
+      ],
+      "relations": [
+        "network",
+        "mapping",
+        "evidence"
+      ],
+      "primitives": [
+        "weighted-arc",
+        "node-baseline"
+      ],
+      "reading_order": [
+        "weighted-links",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "weighted-links"
+        ],
+        "core_primitives": [
+          "network-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:5fc4999b2b4c448f11d49b379a98f6a6486299367a80027dd82ff7323128efc8",
+      "slots": [
+        {
+          "slot_id": "weighted-links",
+          "purpose": "权重连接",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.mapping.weighted-arcs.weighted-links"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.mapping.weighted-arcs.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.mapping.weighted-arcs.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-l1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-l1.html"
+      },
+      "selection_notes": "表达节点间连接强度 / 注意力 / 引用关系。当页面角色属于explain/prove、关系形状为network/mapping/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要制造无证据的连线",
+        "不要让边权和节点含义不可读"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.mapping.constellation-network",
+      "display_code": "L2",
+      "name": "星座映射网",
+      "family": "映射",
+      "description": "多对多映射、证据组合、引用网络",
+      "roles": [
+        "explain",
+        "prove"
+      ],
+      "relations": [
+        "network",
+        "mapping",
+        "evidence"
+      ],
+      "primitives": [
+        "constellation-network",
+        "evidence-node"
+      ],
+      "reading_order": [
+        "mapping-network",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "mapping-network"
+        ],
+        "core_primitives": [
+          "network-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:f3e1bd2919e8ccf448b33e7e57c0c6afc95c288e7c13fa79bf9444d90bd6b711",
+      "slots": [
+        {
+          "slot_id": "mapping-network",
+          "purpose": "映射网络",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.mapping.constellation-network.mapping-network"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 4,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.mapping.constellation-network.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.mapping.constellation-network.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-l2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-l2.html"
+      },
+      "selection_notes": "多对多映射、证据组合、引用网络。当页面角色属于explain/prove、关系形状为network/mapping/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要制造无证据的连线",
+        "不要让边权和节点含义不可读"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.emotion.particle-hero",
+      "display_code": "M1",
+      "name": "粒子主角",
+      "family": "情绪",
+      "description": "概念隐喻页（黑匣子=未知），情绪转折",
+      "roles": [
+        "hook",
+        "orient"
+      ],
+      "relations": [
+        "focus"
+      ],
+      "primitives": [
+        "particle-field",
+        "hero-symbol"
+      ],
+      "reading_order": [
+        "metaphor",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "metaphor"
+        ],
+        "core_primitives": [
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:13e21f47e8954b08f4ef345d6a56bbd2c26de3563ece81cc75234e781c6a691c",
+      "slots": [
+        {
+          "slot_id": "metaphor",
+          "purpose": "粒子隐喻",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.emotion.particle-hero.metaphor"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.emotion.particle-hero.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.emotion.particle-hero.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-m1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-m1.html"
+      },
+      "selection_notes": "概念隐喻页（黑匣子=未知），情绪转折。当页面角色属于hook/orient、关系形状为focus时可作为候选。",
+      "anti_patterns": [
+        "不要同时出现第二主角",
+        "不要用情绪页逃避信息表达"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.emotion.quote",
+      "display_code": "M2",
+      "name": "金句页",
+      "family": "情绪",
+      "description": "全 deck ≤3 处的情绪高点，一句话收场或转场",
+      "roles": [
+        "hook",
+        "close"
+      ],
+      "relations": [
+        "focus"
+      ],
+      "primitives": [
+        "centered-type",
+        "quote-mark"
+      ],
+      "reading_order": [
+        "quote",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "quote"
+        ],
+        "core_primitives": [
+          "focus-field"
+        ]
+      },
+      "structure_fingerprint": "sha256:763b9a629683196c1dce90a4ca6b4c94af8617a7f7a969d48cc0c7a67ac5c4e5",
+      "slots": [
+        {
+          "slot_id": "quote",
+          "purpose": "金句",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 2,
+          "allowed_renderer_kinds": [
+            "typography",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.emotion.quote.quote"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.emotion.quote.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.emotion.quote.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-m2.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-m2.html"
+      },
+      "selection_notes": "全 deck ≤3 处的情绪高点，一句话收场或转场。当页面角色属于hook/close、关系形状为focus时可作为候选。",
+      "anti_patterns": [
+        "不要同时出现第二主角",
+        "不要用情绪页逃避信息表达"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.convergence.multi-source",
+      "display_code": "N1",
+      "name": "汇聚流",
+      "family": "合并",
+      "description": "多源输入合并为一个产物（Prompt 组装、数据汇总）",
+      "roles": [
+        "explain",
+        "synthesize"
+      ],
+      "relations": [
+        "convergence",
+        "flow"
+      ],
+      "primitives": [
+        "convergence-stream",
+        "output-object"
+      ],
+      "reading_order": [
+        "sources",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "sources"
+        ],
+        "core_primitives": [
+          "converging-path"
+        ]
+      },
+      "structure_fingerprint": "sha256:bf6b51f811e5b59f4aee4afbb02ac7fd64ed25c1d77c72ac06efedf929d99ed8",
+      "slots": [
+        {
+          "slot_id": "sources",
+          "purpose": "多源输入",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.convergence.multi-source.sources"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.convergence.multi-source.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.convergence.multi-source.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-n1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-n1.html"
+      },
+      "selection_notes": "多源输入合并为一个产物（Prompt 组装、数据汇总）。当页面角色属于explain/synthesize、关系形状为convergence/flow时可作为候选。",
+      "anti_patterns": [
+        "不要把并列陈列误称汇聚",
+        "不要让输入在合并前失去来源"
+      ]
+    },
+    {
+      "recipe_id": "paper-ink.funnel.conversion",
+      "display_code": "O1",
+      "name": "漏斗",
+      "family": "漏斗",
+      "description": "数量级递减的过程（召回→重排→输出、筛选）",
+      "roles": [
+        "explain",
+        "prove"
+      ],
+      "relations": [
+        "funnel",
+        "flow",
+        "evidence"
+      ],
+      "primitives": [
+        "funnel-shape",
+        "stage-label",
+        "result-focus"
+      ],
+      "reading_order": [
+        "funnel-stages",
+        "support",
+        "takeaway"
+      ],
+      "structure_contract": {
+        "region_count": 3,
+        "required_slot_ids": [
+          "funnel-stages"
+        ],
+        "core_primitives": [
+          "converging-path"
+        ]
+      },
+      "structure_fingerprint": "sha256:ef44cae7692aa6dd7a06602f2f97fabd97350b1a829d7eef9fe1a1c984013d0b",
+      "slots": [
+        {
+          "slot_id": "funnel-stages",
+          "purpose": "漏斗阶段",
+          "required": true,
+          "visual_role": "primary",
+          "min_items": 1,
+          "max_items": 8,
+          "allowed_renderer_kinds": [
+            "native-html",
+            "svg",
+            "canvas"
+          ],
+          "allowed_component_sources": [
+            "native",
+            "echarts",
+            "ppt-component-atlas"
+          ],
+          "default_renderer": {
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "native.paper-ink.funnel.conversion.funnel-stages"
+          }
+        },
+        {
+          "slot_id": "support",
+          "purpose": "辅助证据、标签或解释",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography",
+            "table",
+            "image",
+            "native-html",
+            "svg"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.funnel.conversion.support"
+          }
+        },
+        {
+          "slot_id": "takeaway",
+          "purpose": "页面一句话结论",
+          "required": false,
+          "visual_role": "support",
+          "min_items": 0,
+          "max_items": 1,
+          "allowed_renderer_kinds": [
+            "typography"
+          ],
+          "allowed_component_sources": [
+            "native"
+          ],
+          "default_renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "native.paper-ink.funnel.conversion.takeaway"
+          }
+        }
+      ],
+      "examples": {
+        "general": "gallery/paper-ink/general/frames/layout-o1.html",
+        "ai": "gallery/paper-ink/ai/frames/layout-o1.html"
+      },
+      "selection_notes": "数量级递减的过程（召回→重排→输出、筛选）。当页面角色属于explain/prove、关系形状为funnel/flow/evidence时可作为候选。",
+      "anti_patterns": [
+        "不要把普通台阶图误作漏斗",
+        "不要省略各级数量或筛选条件"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-runtime="wise-ppt-specimen" data-typography-mode="mixed" data-page-id="gallery-ai-d6" data-page-role="act" data-theme="paper-ink" data-layout="paper-ink.scaffold.contact" data-layout-source="gallery">
+<head>
+<meta charset="UTF-8">
+<title>layout-d6 · 联络尾页 · @歪斯Wise</title>
+<!--
+  纸墨线稿样张 · C7 联络尾页
+  @歪斯Wise「AI 工程化实战」分享 · 联络收尾
+  版式纪律（layouts C7）：左地图线稿 + 三行联系文字，右名片双线卡；约 6:4；二维码只做矩阵暗示
+-->
+<link rel="stylesheet" href="../../../../themes/paper-ink/assets/design-tokens.css">
+<link rel="stylesheet" href="../../../../themes/paper-ink/assets/slide-components.css">
+<link rel="stylesheet" href="../../../shell.css">
+<style>
+  svg.scene { position: absolute; inset: 0; z-index: 1; }
+  .doc.tl, .folio { color: rgba(25,25,23,.45); }
+  .caption {
+    position: absolute; left: 0; right: 0; bottom: 118px;
+    text-align: center;
+    font-family: var(--sans); font-weight: 400;
+    font-size: var(--type-caption); letter-spacing: .04em;
+    color: #191917;
+    z-index: 5;
+  }
+</style>
+</head>
+<body class="slide">
+<div class="stage" data-block-id="gallery-primary" data-renderer-kind="svg" data-component-source="native" data-component-id="native.paper-ink.scaffold.contact.contact" data-content-ref="example.d6">
+  <div class="doc tl">AI 合作 — 下一步<br>联络方式</div>
+  <div class="folio">D6 / 63 — BY @歪斯Wise</div>
+
+  <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
+    <g id="draw"></g>
+  </svg>
+
+  <div class="caption">联络尾页用地图与名片完成商务收口。</div>
+</div>
+
+<script src="../../../../runtime/stage-fit.js"></script>
+<script src="../../../../themes/paper-ink/assets/particles.js"></script>
+<script>
+var NS = 'http://www.w3.org/2000/svg';
+var INK = '#191917';
+var INK80 = 'rgba(25,25,23,.8)';
+var G = document.getElementById('draw');
+function el(tag, attrs) {
+  var e = document.createElementNS(NS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  G.appendChild(e); return e;
+}
+function txt(x, y, str, attrs) {
+  var t = el('text', Object.assign({x:x, y:y}, attrs||{}));
+  t.textContent = str; return t;
+}
+var MONO = 'Courier Prime', SANS = 'Han Sans';
+
+/* ================= 左块：地图线稿 x150–920, y220–640 ================= */
+/* 构造虚线边框（测绘图纸感） */
+el('rect', {x:150, y:220, width:770, height:420, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3, 'stroke-dasharray':'2 6'});
+/* 四角套准十字 */
+[[150,220],[920,220],[150,640],[920,640]].forEach(function(p){
+  el('line', {x1:p[0]-8, y1:p[1], x2:p[0]+8, y2:p[1], stroke:INK, 'stroke-width':.7, opacity:.35});
+  el('line', {x1:p[0], y1:p[1]-8, x2:p[0], y2:p[1]+8, stroke:INK, 'stroke-width':.7, opacity:.35});
+});
+
+/* 河：右下斜穿的贝塞尔双细线 */
+el('path', {d:'M 700 220 C 760 320, 700 420, 800 500 C 850 540, 880 600, 870 640', fill:'none', stroke:INK, 'stroke-width':.9, opacity:.5});
+el('path', {d:'M 726 220 C 786 320, 726 420, 826 500 C 876 540, 906 600, 896 640', fill:'none', stroke:INK, 'stroke-width':.9, opacity:.5});
+txt(846, 336, 'WENLAN RIVER', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(74 846 336)'});
+
+/* 横向路网（主干道 1.2px，次道 .7px） */
+el('path', {d:'M 150 310 C 360 296, 640 324, 920 306', fill:'none', stroke:INK80, 'stroke-width':1.2});
+el('path', {d:'M 150 452 C 400 444, 660 460, 920 448', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.6});
+el('path', {d:'M 150 570 C 380 580, 660 562, 920 574', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.6});
+/* 纵向路网 */
+el('path', {d:'M 330 220 C 324 360, 336 500, 328 640', fill:'none', stroke:INK, 'stroke-width':.7, opacity:.6});
+el('path', {d:'M 560 220 C 566 340, 554 520, 562 640', fill:'none', stroke:INK80, 'stroke-width':1.2});
+
+/* 街区名 */
+txt(196, 290, 'HUITU AVE', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+txt(576, 252, 'YUNGU RD', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)', transform:'rotate(88 576 252)'});
+
+/* 园区块：双线框 + hatch 角 */
+el('rect', {x:380, y:346, width:150, height:92, fill:'rgba(255,255,255,.22)', stroke:INK, 'stroke-width':.9, opacity:.85});
+el('rect', {x:385, y:351, width:140, height:82, fill:'none', stroke:INK, 'stroke-width':.5, opacity:.3});
+txt(455, 396, 'WISE', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
+txt(455, 416, 'STUDIO', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':3, 'text-anchor':'middle', fill:INK, opacity:.7});
+
+/* 定位钉：双圈 + 钉尖 */
+el('circle', {cx:560, cy:452, r:10, fill:'none', stroke:INK, 'stroke-width':1.2});
+el('circle', {cx:560, cy:452, r:14, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.4});
+el('circle', {cx:560, cy:452, r:3, fill:INK});
+el('path', {d:'M 560 466 L 560 500', stroke:INK, 'stroke-width':.8, opacity:.5});
+el('path', {d:'M 560 500 L 596 500', stroke:INK, 'stroke-width':.8, opacity:.5});
+txt(604, 505, 'HQ · STUDIO 3F', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, fill:INK, opacity:.75});
+
+/* 比例尺 */
+el('line', {x1:180, y1:616, x2:280, y2:616, stroke:INK, 'stroke-width':1, opacity:.6});
+el('line', {x1:180, y1:610, x2:180, y2:622, stroke:INK, 'stroke-width':1, opacity:.6});
+el('line', {x1:280, y1:610, x2:280, y2:622, stroke:INK, 'stroke-width':1, opacity:.6});
+txt(292, 620, '500 M', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+
+/* ================= 左块下方：三行联系文字 ================= */
+var contact = [
+  ['内容合作', '私信小红书或关注公众号 · 工作日 9:00 – 18:00'],
+  ['小红书', '@歪斯Wise · 私信或评论'],
+  ['官网', 'wisewong.com · 长期更新 AI 工程化笔记']
+];
+contact.forEach(function(c, i){
+  var y = 726 + i * 52;
+  el('circle', {cx:158, cy:y-6, r:3, fill:'none', stroke:INK, 'stroke-width':.9, opacity:.7});
+  el('circle', {cx:158, cy:y-6, r:1, fill:INK});
+  txt(178, y, c[0], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:INK});
+  txt(292, y, c[1], {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.75)'});
+});
+
+/* ================= 右块：名片双线卡 x1100–1720, y200–860 ================= */
+var KX = 1100, KY = 200, KW = 620, KH = 660;
+el('rect', {x:KX, y:KY, width:KW, height:KH, fill:'rgba(255,255,255,.22)', stroke:INK80, 'stroke-width':1.3});
+el('rect', {x:KX+5, y:KY+5, width:KW-10, height:KH-10, fill:'none', stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 卡头 */
+txt(KX+44, KY+64, 'WISE STUDIO — AI PRODUCT', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
+el('line', {x1:KX+44, y1:KY+84, x2:KX+200, y2:KY+84, stroke:INK, 'stroke-width':.8, opacity:.5});
+
+/* 姓名 + 职务 */
+txt(KX+44, KY+156, '歪斯 Wise', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-emphasis)', fill:INK});
+txt(KX+46, KY+196, '@歪斯WISE · AI PRODUCT LEAD', {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':2, fill:'rgba(25,25,23,.6)'});
+el('line', {x1:KX+44, y1:KY+232, x2:KX+KW-44, y2:KY+232, stroke:INK, 'stroke-width':.8, opacity:.4});
+
+/* 电话 / 邮箱 / 网址行 */
+var lines = [
+  ['小红书',   '@歪斯Wise'],
+  ['公众号',   '@歪斯Wise'],
+  ['WEB',   'wisewong.com'],
+  ['ADDR',  'SHENZHEN']
+];
+lines.forEach(function(L, i){
+  var y = KY + 292 + i * 62;
+  txt(KX+44, y, L[0], {'font-family':MONO, 'font-size':'var(--type-meta)', 'letter-spacing':3, fill:'rgba(25,25,23,.5)'});
+  txt(KX+150, y, L[1], {'font-family':MONO, 'font-size':'var(--type-body-small)', 'letter-spacing':1, fill:INK});
+  if (i < lines.length-1)
+    el('line', {x1:KX+44, y1:y+22, x2:KX+KW-44, y2:y+22, stroke:INK, 'stroke-width':.6, opacity:.18});
+});
+
+/* 真实可扫二维码（公众号名片），线稿墨色方块渲染 */
+var QR_SIZE = 37;
+var QR_DATA = [
+  "1111111010010110100001001001001111111",
+  "1000001001011011000001110010001000001",
+  "1011101010101101100100111111001011101",
+  "1011101011010110010111101010101011101",
+  "1011101001110000110101100111001011101",
+  "1000001010111000000101100001101000001",
+  "1111111010101010101010101010101111111",
+  "0000000011011101100100111001000000000",
+  "1101001101011011001100001110111101101",
+  "1010000111111101001010110111010110110",
+  "1010011100010010010010000110101001000",
+  "0011110010000100000110111000100111100",
+  "1011101001010100011101000100101101000",
+  "1100100101101001001110101111011111101",
+  "0101111001001101000100001001000110111",
+  "1001100111001101000110010001011001110",
+  "1100011000110100000111101000110111001",
+  "1101010000100100111111010100000101101",
+  "0100011011110100010111100010111100000",
+  "0010110000101111010001001110100111010",
+  "0000011101110001101001011111110110001",
+  "0100000000000101101010101111110001000",
+  "1101001001101111100010011001101000011",
+  "0111000110100001010111110100110010111",
+  "0011011100011110100100101100011100111",
+  "1011110001111100101001111010111010011",
+  "0111111011000100001111111001011010110",
+  "1000100010010101111010001100000100100",
+  "1100111000011100101011100110111111000",
+  "0000000000011010010100011010100011011",
+  "1111111010101100001000111010101011110",
+  "1000001000100101001110100101100010010",
+  "1011101000101111000010011111111111111",
+  "1011101010111100111011010110000011011",
+  "1011101001111010101000011110111001011",
+  "1000001011001111111100001110111000001",
+  "1111111010001101111010001100111101001"
+];
+var QCS = 4.6, QX = KX + KW - QR_SIZE*QCS - 54, QY = KY + KH - QR_SIZE*QCS - 54;
+/* 白底垫（确保扫描对比度） */
+el('rect', {x:QX-16, y:QY-16, width:QR_SIZE*QCS+32, height:QR_SIZE*QCS+32, fill:'rgb(255,255,255)', stroke:INK, 'stroke-width':.7, opacity:.95});  /* QR 白底垫：扫描对比度刚需 */
+for (var ri = 0; ri < QR_SIZE; ri++) {
+  for (var rj = 0; rj < QR_SIZE; rj++) {
+    if (QR_DATA[ri][rj] === '1')
+      el('rect', {x:QX + rj*QCS, y:QY + ri*QCS, width:QCS, height:QCS, fill:INK});
+  }
+}
+txt(QX-16, QY + QR_SIZE*QCS + 38, 'SCAN · 公众号 @歪斯Wise', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2, fill:'rgba(25,25,23,.45)'});
+
+/* 卡内左下：一行中文小注 */
+txt(KX+44, KY+KH-96, '内容合作请私信小红书或关注公众号。', {'font-family':SANS, 'font-weight':300, 'font-size':'var(--type-body-small)', fill:'rgba(25,25,23,.7)'});
+txt(KX+44, KY+KH-62, 'DM FOR COLLABORATION', {'font-family':MONO, 'font-size':'var(--type-micro-secondary)', 'letter-spacing':2.5, fill:'rgba(25,25,23,.45)'});
+
+stageFit();
+</script>
+</body>
+</html>

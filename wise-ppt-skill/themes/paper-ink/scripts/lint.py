@@ -12,7 +12,7 @@
     L4 中文长句落 mono：txt(...) 调用中 font-family MONO 且含 8 个以上 CJK 字符
     L5 三件套：.doc tl 角注、.folio、.caption（尾卡页 caption 仅 WARN）
     L6 不做“同尺寸矩形即违规”的静态猜测；Grid/证据墙/矩阵由 manifest 关系与浏览器目检判断
-    L7 Gallery 样页未调用 stageFit()，或 deck 未声明统一 runtime
+    L7 runtime/缩放所有权：三种 runtime 必须声明且正式 deck 禁止 stageFit/slide-stage inline transform
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
     L10 字阶：页面只能引用共享 --type-* token；CSS/SVG/Canvas/ECharts 禁止裸字号
@@ -37,7 +37,7 @@ CJK = re.compile(r'[一-鿿　-〿＀-￯]')
 TYPE_ROLES = {
     'display-mark', 'particle-sample', 'display', 'hero', 'title', 'metric',
     'heading', 'emphasis', 'caption', 'subheading', 'body', 'body-small',
-    'label', 'meta', 'micro',
+    'micro-secondary', 'label', 'meta',
 }
 EMOJI_GLYPH = re.compile(r'[\U0001F000-\U0001FAFF\u2300-\u23FF\u2600-\u27BF\uFE0F]')
 TEXT_SYMBOLS = {'←', '↑', '→', '↓', '↔', '✓', '✗', '✕'}
@@ -49,7 +49,7 @@ def lint_file(path):
     # L1 彩色 hex
     for m in re.finditer(r'#[0-9a-fA-F]{6}\b', src):
         hx = m.group(0).lower()
-        # 强调色只能由 shared.css 定义；Gallery 与成品页都读 token，不复制字面量。
+        # 强调色只能由 design-tokens.css 定义；Gallery 与成品页都读 token，不复制字面量。
         if hx not in INK_OK:
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L1 彩色 hex {hx} (line {line})')
@@ -144,11 +144,32 @@ def lint_file(path):
         fails.append('L5 无 .caption')
 
     # L6：不从几何重复推断语义错误。同尺寸 rect 可能是合法的矩阵、证据墙、
-    # 表格或同行比较；关系正确性由 render plan、manifest capacity 与截图目检负责。
+    # 表格或同行比较；关系正确性由 render plan、layout contract 与人工目检负责。
 
-    # L7 stageFit（或等价的本地 fit()：min(vw/1920, vh/1080) 缩放）
-    if 'stageFit(' not in src and 'innerWidth/1920' not in src and 'data-runtime="wise-ppt"' not in src:
-        fails.append('L7 未调用 stageFit() 或等价缩放')
+    # L7 三种 runtime 各有唯一缩放目标。正式 deck 只允许 runtime/stage-fit.js
+    # 缩放 #deck-stage，页面片段不得保留 Gallery 的 stageFit() 或根舞台 inline transform。
+    runtime_match = re.search(r'data-runtime="([^"]+)"', src)
+    runtime = runtime_match.group(1) if runtime_match else ''
+    allowed_runtimes = {'wise-ppt-deck', 'wise-ppt-gallery', 'wise-ppt-specimen'}
+    if runtime not in allowed_runtimes:
+        fails.append(f'L7 data-runtime 必须是 {sorted(allowed_runtimes)}')
+    if runtime == 'wise-ppt-deck':
+        if re.search(r'\bstageFit\s*\(', src):
+            fails.append('L7 正式 deck 禁止调用 stageFit()；只能由 deck runtime 缩放 #deck-stage')
+        for match in re.finditer(r'<(?:section|div|main)\b[^>]*class="[^"]*\b(?:slide|stage)\b[^"]*"[^>]*>', src, re.I):
+            tag = match.group(0)
+            style = re.search(r'\bstyle="([^"]*)"', tag, re.I)
+            if style and re.search(r'\btransform\s*:', style.group(1), re.I):
+                line = src[:match.start()].count('\n') + 1
+                fails.append(f'L7 正式 slide/stage 禁止 inline transform (line {line})')
+        if re.search(r"querySelector\(\s*['\"]\.stage['\"]\s*\).*?style\.transform", src, re.S):
+            fails.append('L7 正式 deck 禁止脚本直接缩放 .stage')
+    elif runtime == 'wise-ppt-gallery':
+        if 'WisePPTStageFit.fitGallery' not in src or 'id="stagebox"' not in src:
+            fails.append('L7 Gallery 必须只通过 WisePPTStageFit.fitGallery() 缩放 #stagebox')
+    elif runtime == 'wise-ppt-specimen':
+        if 'runtime/stage-fit.js' not in src or not re.search(r'\bstageFit\s*\(', src):
+            fails.append('L7 独立样张必须加载唯一 runtime/stage-fit.js 并调用 stageFit()')
 
     # L8 纯白填充
     for m in re.finditer(r"fill\s*[:=]\s*['\"]#(fff|ffffff)['\"]", src, re.I):
@@ -215,6 +236,16 @@ def lint_file(path):
         if role not in TYPE_ROLES:
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L10 未声明字阶 --type-{role} (line {line})')
+    for m in re.finditer(r"(?:WisePPT[.]typeSize|paperInkTypeSize)\(\s*['\"]([a-z-]+)['\"]\s*\)", src):
+        role = m.group(1)
+        if role not in TYPE_ROLES:
+            line = src[:m.start()].count('\n') + 1
+            fails.append(f'L10 未声明字阶 helper {role!r} (line {line})')
+    for m in re.finditer(r'([^{}]+)\{[^{}]*var\(--type-micro-secondary\)[^{}]*\}', src, re.S):
+        selector = re.sub(r'\s+', ' ', m.group(1)).strip().lower()
+        if re.search(r'\b(?:body|caption|lead|verdict|title|heading|paragraph|copy)\b', selector):
+            line = src[:m.start()].count('\n') + 1
+            fails.append(f'L10 micro-secondary 只能用于元信息或次要表格说明 (line {line})')
 
     # L11 选择说明与页面文案分层。元数据只服务选版式，不得混入成品页角或结论。
     def visible_text(markup):
@@ -248,7 +279,7 @@ def lint_file(path):
         if glyph in TEXT_SYMBOLS:
             continue
         line = src[:match.start()].count('\n') + 1
-        fails.append(f'L12 Emoji {glyph!r}（请改用 Font Awesome 或自绘 SVG）(line {line})')
+        fails.append(f'L12 Emoji {glyph!r}（请改用本地图标 registry 或自绘 SVG）(line {line})')
 
     return fails, warns
 

@@ -1,78 +1,77 @@
 {
+  "contract_version": 2,
   "output_file": "index.html",
   "content_file": "content.json",
   "deck_plan_file": "deck-plan.json",
   "theme_id": "paper-ink",
+  "typography_mode": "mixed",
   "pages": [
     {
       "page_id": "page.example-flow-kpi",
       "layout_decision": {
-        "source": "gallery",
-        "reuse_mode": "adapt",
-        "layout_id": "paper-ink.flow.pipeline",
+        "source": "composition",
+        "recipe_id": "paper-ink.flow.pipeline",
         "candidate_evaluations": [
           {
-            "layout_id": "paper-ink.flow.pipeline",
-            "verdict": "fit",
-            "reason": "角色、流程关系、线性原语、容量与槽位顺序均符合本页需求。"
+            "recipe_id": "paper-ink.flow.pipeline",
+            "verdict": "structure_fit",
+            "reason": "流程关系、线性原语与槽位顺序符合，组件内容需要重新组合。"
           }
         ]
       },
-      "rationale": "四步输入输出是线性流，保留三段结构并替换结果组件，三个语义单元在版式容量内。",
+      "rationale": "四步输入输出是线性流，使用 recipe 的结构合同组合流程、结果与结论三个组件。",
       "slots": [
         {
           "slot_id": "steps",
           "block_id": "block.pipeline",
           "visual_role": "primary",
-          "component_decision": {
-            "action": "replace",
-            "reason": "以真实四步流程 SVG 替换样例中的通用主视觉。"
-          },
           "renderer": {
-            "provider": "svg",
-            "component": "pipeline",
+            "renderer_kind": "svg",
+            "component_source": "native",
+            "component_id": "pipeline",
             "content_refs": [
               "item.delivery-process"
             ],
-            "data_ref": "item.delivery-process",
-            "encode": {
-              "order": "steps"
+            "data_binding": {
+              "data_ref": {
+                "content_id": "item.delivery-process",
+                "json_pointer": "/structured_data/steps"
+              },
+              "dataset_id": "dataset.delivery-steps",
+              "encode": {
+                "order": "array-order",
+                "label": "value"
+              }
             },
-            "theme_adapter": "paper-ink.svg"
+            "theme_adapter_id": "paper-ink.svg"
           }
         },
         {
           "slot_id": "support",
           "block_id": "block.outcome-kpis",
           "visual_role": "support",
-          "component_decision": {
-            "action": "keep",
-            "reason": "KPI 支撑槽位与样例结构及语义完全一致。"
-          },
           "renderer": {
-            "provider": "typography",
-            "component": "kpi-band",
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "kpi-band",
             "content_refs": [
               "item.delivery-outcomes"
             ],
-            "theme_adapter": "paper-ink.typography"
+            "theme_adapter_id": "paper-ink.typography"
           }
         },
         {
           "slot_id": "takeaway",
           "block_id": "block.flow-takeaway",
           "visual_role": "support",
-          "component_decision": {
-            "action": "keep",
-            "reason": "结论槽位与样例结构及语义完全一致。"
-          },
           "renderer": {
-            "provider": "typography",
-            "component": "takeaway",
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "takeaway",
             "content_refs": [
               "item.flow-takeaway"
             ],
-            "theme_adapter": "paper-ink.typography"
+            "theme_adapter_id": "paper-ink.typography"
           }
         }
       ],
@@ -84,85 +83,101 @@
     {
       "page_id": "page.example-dense-ui",
       "layout_decision": {
-        "source": "gallery",
-        "reuse_mode": "adapt",
-        "layout_id": "paper-ink.evidence.admin-ui",
+        "source": "composition",
+        "recipe_id": "paper-ink.evidence.admin-ui",
         "candidate_evaluations": [
           {
-            "layout_id": "paper-ink.evidence.admin-ui",
-            "verdict": "fit",
-            "reason": "角色、证据关系、空间原语、容量与槽位顺序均符合本页需求。"
+            "recipe_id": "paper-ink.evidence.admin-ui",
+            "verdict": "structure_fit",
+            "reason": "证据关系、空间原语与槽位顺序符合，界面和趋势组件需要重新组合。"
           }
         ]
       },
-      "rationale": "保留界面、图表、批注与结论的规范顺序，并替换前三个组件以承载真实证据。",
+      "typography_decision": {
+        "mode": "all-sans",
+        "reason": "界面证据页以 UI 与操作状态为主，全无衬线更贴合信息角色。"
+      },
+      "rationale": "沿用界面、图表、批注与结论的结构合同，分别绑定可验证的证据组件。",
       "slots": [
         {
           "slot_id": "product-ui",
           "block_id": "block.product-ui",
           "visual_role": "primary",
-          "component_decision": {
-            "action": "replace",
-            "reason": "以真实后台界面替换样例中的通用主证据面。"
-          },
           "renderer": {
-            "provider": "native-html",
-            "component": "admin-dashboard",
+            "renderer_kind": "native-html",
+            "component_source": "native",
+            "component_id": "admin-dashboard",
             "content_refs": [
               "item.product-ui-state"
             ],
-            "theme_adapter": "paper-ink.native-html"
+            "theme_adapter_id": "paper-ink.native-html"
           }
         },
         {
           "slot_id": "chart",
           "block_id": "block.embedded-chart",
           "visual_role": "support",
-          "component_decision": {
-            "action": "replace",
-            "reason": "以真实延迟趋势替换样例中的通用图表。"
-          },
           "renderer": {
-            "provider": "native-html",
-            "component": "canvas-line-chart",
+            "renderer_kind": "canvas",
+            "component_source": "native",
+            "component_id": "canvas-line-chart",
             "content_refs": [
               "item.product-latency-series"
             ],
-            "theme_adapter": "paper-ink.native-html"
+            "data_binding": {
+              "data_ref": {
+                "content_id": "item.product-latency-series",
+                "json_pointer": "/structured_data/points"
+              },
+              "dataset_id": "dataset.product-latency",
+              "encode": {
+                "x": 0,
+                "y": 1
+              }
+            },
+            "theme_adapter_id": "paper-ink.canvas"
           }
         },
         {
           "slot_id": "annotation",
           "block_id": "block.anomaly-note",
           "visual_role": "support",
-          "component_decision": {
-            "action": "replace",
-            "reason": "以异常落点批注替换样例中的通用标注。"
-          },
           "renderer": {
-            "provider": "typography",
-            "component": "anomaly-note",
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "anomaly-note",
             "content_refs": [
               "item.product-anomaly-note"
             ],
-            "theme_adapter": "paper-ink.typography"
+            "theme_adapter_id": "paper-ink.typography"
+          }
+        },
+        {
+          "slot_id": "support",
+          "block_id": "block.recovery-status",
+          "visual_role": "support",
+          "renderer": {
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "recovery-status",
+            "content_refs": [
+              "item.product-ui-state"
+            ],
+            "theme_adapter_id": "paper-ink.typography"
           }
         },
         {
           "slot_id": "takeaway",
           "block_id": "block.ui-takeaway",
           "visual_role": "support",
-          "component_decision": {
-            "action": "keep",
-            "reason": "结论槽位与样例结构及语义完全一致。"
-          },
           "renderer": {
-            "provider": "typography",
-            "component": "takeaway",
+            "renderer_kind": "typography",
+            "component_source": "native",
+            "component_id": "takeaway",
             "content_refs": [
               "item.ui-takeaway"
             ],
-            "theme_adapter": "paper-ink.typography"
+            "theme_adapter_id": "paper-ink.typography"
           }
         }
       ],

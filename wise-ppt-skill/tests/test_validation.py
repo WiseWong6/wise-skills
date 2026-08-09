@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
-import re
 import shutil
-import subprocess
 import sys
 import tempfile
 import unittest
@@ -14,20 +13,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO_ROOT / "scripts"
-FIXTURES = Path(__file__).resolve().parent / "fixtures"
 sys.path.insert(0, str(SCRIPTS))
 os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
 sys.dont_write_bytecode = True
 
 from _ppt_contracts import (  # noqa: E402
-    CORE_PRIMITIVES,
     JsonSchemaValidator,
-    load_json,
-    resolve_theme,
-    validate_all,
+    _recipe_fingerprint,
     validate_content_target,
-    validate_core_purity,
-    validate_coverage_target,
+    validate_delivery_target,
     validate_gallery,
     validate_plan_target,
     validate_render_plan_target,
@@ -40,254 +34,134 @@ def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
-class FixtureRepo:
-    """A second, minimal theme proving that Core is not paper-ink-specific."""
+def sha(value: bytes) -> str:
+    return hashlib.sha256(value).hexdigest()
 
-    THEME_ID = "minimal-neutral"
-    GALLERY_VARIANTS = ("baseline", "domain")
 
-    def __init__(self, base: Path):
-        self.root = base / "skill"
-        self.deck = base / "deck"
-        self.root.mkdir(parents=True)
-        self.deck.mkdir(parents=True)
-        shutil.copytree(REPO_ROOT / "core" / "schemas", self.root / "core" / "schemas")
-        self._write_theme()
-        self._write_component_catalog()
-        self.content = self._content_document()
-        self.plan = self._plan_document()
-        self.render = self._render_document()
-        self.flush()
-
-    @property
-    def layout_manifest_path(self) -> Path:
-        return self.root / "themes" / self.THEME_ID / "layout-manifest.json"
-
-    @property
-    def html_path(self) -> Path:
-        return self.deck / "index.html"
-
-    def _write_theme(self) -> None:
-        write_json(
-            self.root / "themes" / "registry.json",
-            {
-                "default_theme_id": self.THEME_ID,
-                "themes": [
+class DeckFixture:
+    def __init__(self, directory: Path):
+        self.directory = directory
+        directory.mkdir(parents=True, exist_ok=True)
+        self.content = {
+            "contract_version": 2,
+            "brief": {
+                "title": "留存复盘",
+                "objective": "说明本轮改版的留存结果",
+                "audience": "产品团队",
+                "scenario": "内部复盘会",
+                "language": "zh-CN",
+                "user_constraints": [
                     {
-                        "theme_id": self.THEME_ID,
-                        "name": "Minimal",
-                        "path": f"themes/{self.THEME_ID}/theme.json",
-                        "enabled": True,
+                        "constraint_id": "constraint.one-page",
+                        "type": "page_limit",
+                        "exact_pages": 1,
+                        "source_refs": ["src.user"],
                     }
                 ],
-            },
-        )
-        write_json(
-            self.root / "themes" / self.THEME_ID / "theme.json",
-            {
-                "theme_id": self.THEME_ID,
-                "name": "Minimal",
-                "layout_manifest": f"themes/{self.THEME_ID}/layout-manifest.json",
-                "atlas_catalog": f"themes/{self.THEME_ID}/atlas-catalog.json",
-                "providers": ["typography", "svg", "echarts", "atlas", "native-html"],
-                "runtimes": {"echarts": {"major": 5}},
-                "galleries": {
-                    variant: f"themes/{self.THEME_ID}/gallery/{variant}/index.html"
-                    for variant in self.GALLERY_VARIANTS
-                },
-            },
-        )
-        layouts = []
-        for index in range(1, 3):
-            stem = f"layout-{index:03d}.html"
-            example_stems = {
-                "baseline": stem,
-                "domain": f"domain-{stem}",
-            }
-            layout_id = "demo.argument.sequence" if index == 1 else f"demo.layout.{index:03d}"
-            layouts.append(
-                {
-                    "layout_id": layout_id,
-                    "display_code": f"L{index:03d}",
-                    "name": f"Layout {index:03d}",
-                    "family": "demo",
-                    "description": "Manifest-only deterministic fixture",
-                    "roles": ["explain"],
-                    "relations": ["sequence"],
-                    "core_primitives": ["linear-sequence"],
-                    "primitives": ["linear-sequence"],
-                    "densities": ["balanced"],
-                    "capacity": {
-                        "semantic_units": {"min": 2, "max": 4},
-                        "primary_items": {"min": 2, "max": 4},
-                        "overflow_policy": "split-page",
-                    },
-                    "slots": [
-                        {
-                            "slot_id": "main",
-                            "purpose": "main",
-                            "required": True,
-                            "min_items": 2,
-                            "max_items": 4,
-                            "allowed_providers": ["svg", "echarts", "atlas"],
-                        },
-                        {
-                            "slot_id": "takeaway",
-                            "purpose": "takeaway",
-                            "required": True,
-                            "min_items": 1,
-                            "max_items": 1,
-                            "allowed_providers": ["typography"],
-                        },
-                    ],
-                    "renderers": ["svg", "echarts", "atlas", "typography"],
-                    "examples": {
-                        variant: f"themes/{self.THEME_ID}/gallery/{variant}/frames/{example_stems[variant]}"
-                        for variant in self.GALLERY_VARIANTS
-                    },
-                    "selection_notes": "sequence + explain + balanced；仅提供候选事实，不做语义打分。",
-                    "anti_patterns": ["do not copy blindly"],
-                }
-            )
-            for variant in self.GALLERY_VARIANTS:
-                frame = (
-                    self.root
-                    / "themes"
-                    / self.THEME_ID
-                    / "gallery"
-                    / variant
-                    / "frames"
-                    / example_stems[variant]
-                )
-                frame.parent.mkdir(parents=True, exist_ok=True)
-                frame.write_text(f"<!doctype html><title>{variant}-{index}</title>\n", encoding="utf-8")
-        for variant in self.GALLERY_VARIANTS:
-            index_path = self.root / "themes" / self.THEME_ID / "gallery" / variant / "index.html"
-            index_path.write_text("<!doctype html><title>gallery</title>\n", encoding="utf-8")
-        write_json(
-            self.layout_manifest_path,
-            {
-                "theme_id": self.THEME_ID,
-                "layout_count": 2,
-                "gallery_variants": list(self.GALLERY_VARIANTS),
-                "core_primitive_ids": sorted(CORE_PRIMITIVES),
-                "density_levels": ["balanced"],
-                "provider_ids": ["typography", "svg", "echarts", "atlas"],
-                "layouts": layouts,
-            },
-        )
-
-    def _write_component_catalog(self) -> None:
-        write_json(
-            self.root / "themes" / self.THEME_ID / "atlas-catalog.json",
-            {
-                "components": [{
-                "component_id": "atlas.process-flow.vertical",
-                "name": "纵向流程",
-                "description": "结构组件候选",
-                "roles": ["explain"],
-                "relations": ["sequence"],
-                "densities": ["balanced"],
-                "providers": ["atlas"],
-                "selection_notes": "只描述 manifest 支持范围。",
-                }],
-            },
-        )
-
-    @staticmethod
-    def _content_document() -> dict:
-        return {
-            "brief": {
-                "title": "Retention",
-                "objective": "Explain the result",
-                "audience": "Product team",
-                "scenario": "Review",
-                "language": "zh-CN",
-                "page_limits": {"min": 1, "max": 3, "requested": 1},
-                "must_include": ["retention"],
-                "must_avoid": [],
                 "gaps": [],
             },
             "sources": [
                 {
-                    "id": "src.brief",
-                    "kind": "raw_text",
-                    "title": "User brief",
+                    "id": "src.user",
+                    "kind": "user_statement",
+                    "title": "用户说明",
                     "locator": "inline:user",
                     "synthetic": False,
                 }
             ],
+            "assets": [],
             "content_items": [
                 {
                     "id": "item.metric",
-                    "kind": "metric",
-                    "statement": "Retention reached 55",
+                    "epistemic_role": "fact",
+                    "content_form": "metric",
+                    "statement": "本轮留存达到 55%",
                     "priority": "must",
                     "status": "sourced",
-                    "status_note": "Provided by user",
-                    "source_refs": ["src.brief"],
+                    "status_note": "用户明确提供",
+                    "source_refs": ["src.user"],
                     "atomic_values": [
-                        {"id": "atom.rate", "label": "Retention", "value": 55, "unit": "%"}
+                        {"id": "atom.rate", "label": "留存率", "value": 55, "unit": "%"}
                     ],
+                    "structured_data": {
+                        "rows": [
+                            {"label": "改版前", "value": 42},
+                            {"label": "改版后", "value": 55},
+                        ]
+                    },
                     "relations": [],
                 }
             ],
         }
-
-    @staticmethod
-    def _plan_document() -> dict:
-        return {
+        self.plan = {
+            "contract_version": 2,
             "content_file": "content.json",
-            "thesis": "The release improved retention",
+            "thesis": "本轮改版提升了留存",
             "narrative_type": "argument-evidence",
-            "page_budget": {
-                "min": 1,
-                "max": 3,
-                "target": 1,
-                "reason": "One atomic claim",
-                "drivers": [
-                    {"type": "independent_claim", "count": 1, "reason": "One standalone result"}
-                ],
+            "planning_basis": {
+                "mode": "user-constrained",
+                "scenario": "内部复盘会",
+                "scenario_origin": "user",
+                "user_constraint_refs": ["constraint.one-page"],
+                "research_source_refs": [],
+                "assumptions": [],
+                "reason": "用户明确要求一页，单个结果也适合一页讲清。",
             },
-            "confirmation": {"mode": "adaptive", "decision": "proceed", "triggers": [], "questions": []},
+            "page_budget": {
+                "target": 1,
+                "basis": [
+                    {
+                        "type": "user_constraint",
+                        "constraint_refs": ["constraint.one-page"],
+                        "reason": "用户明确要求一页。",
+                    },
+                    {
+                        "type": "content_structure",
+                        "content_refs": ["item.metric", "atom.rate"],
+                        "reason": "只有一个独立结果。",
+                    },
+                ],
+                "reason": "一页足以建立判断并给出数字证据。",
+            },
+            "confirmation": {
+                "mode": "adaptive",
+                "decision": "proceed",
+                "assessments": [],
+                "user_questions": [],
+            },
             "sections": [
                 {
-                    "section_id": "section.main",
-                    "title": "Result",
-                    "purpose": "Explain the result",
-                    "page_refs": ["page.one"],
+                    "section_id": "section.result",
+                    "title": "结果",
+                    "purpose": "说明留存结果",
+                    "page_refs": ["page.result"],
                 }
             ],
             "pages": [
                 {
-                    "page_id": "page.one",
+                    "page_id": "page.result",
                     "order": 1,
-                    "section_id": "section.main",
-                    "role": "explain",
-                    "assertion_title": "Retention reached 55%",
-                    "audience_question": "What changed?",
-                    "takeaway": "The release moved the metric",
+                    "section_id": "section.result",
+                    "role": "prove",
+                    "assertion_title": "本轮留存达到 55%",
+                    "audience_question": "改版带来了什么结果？",
+                    "takeaway": "留存从 42% 提升到 55%。",
                     "content_refs": ["item.metric", "atom.rate"],
-                    "evidence_refs": [],
-                    "relation_shape": {"primary": "sequence", "secondary": [], "reason": "Show cause then result"},
-                    "spatial_primitive": "linear-sequence",
-                    "semantic_unit_count": 2,
-                    "density_intent": "balanced",
+                    "evidence_refs": ["item.metric", "atom.rate"],
+                    "relation_shape": {
+                        "primary": "focus",
+                        "secondary": ["evidence"],
+                        "reason": "一个结果和一个关键数字构成焦点证据。",
+                    },
+                    "spatial_primitive": "focus-field",
                     "blocks": [
                         {
                             "block_id": "block.main",
-                            "purpose": "Show metric progression",
+                            "purpose": "显示核心结果",
                             "importance": "primary",
-                            "semantic_form": "diagram",
+                            "semantic_form": "metrics",
                             "content_refs": ["item.metric", "atom.rate"],
-                        },
-                        {
-                            "block_id": "block.takeaway",
-                            "purpose": "State conclusion",
-                            "importance": "support",
-                            "semantic_form": "headline",
-                            "content_refs": ["item.metric"],
-                        },
+                        }
                     ],
                 }
             ],
@@ -295,1039 +169,1565 @@ class FixtureRepo:
                 {
                     "content_ref": "item.metric",
                     "disposition": "include",
-                    "page_refs": ["page.one"],
-                    "reason": "Core claim",
+                    "page_refs": ["page.result"],
+                    "reason": "核心事实。",
                 },
                 {
                     "content_ref": "atom.rate",
                     "disposition": "include",
-                    "page_refs": ["page.one"],
-                    "reason": "Exact value",
+                    "page_refs": ["page.result"],
+                    "reason": "必须显示的数字。",
                 },
             ],
         }
-
-    @staticmethod
-    def _render_document() -> dict:
-        return {
+        self.render = {
+            "contract_version": 2,
             "content_file": "content.json",
             "deck_plan_file": "deck-plan.json",
-            "theme_id": FixtureRepo.THEME_ID,
+            "theme_id": "paper-ink",
+            "typography_mode": "mixed",
             "output_file": "index.html",
             "pages": [
                 {
-                    "page_id": "page.one",
+                    "page_id": "page.result",
                     "layout_decision": {
-                        "source": "gallery",
-                        "reuse_mode": "adapt",
-                        "layout_id": "demo.argument.sequence",
+                        "source": "custom",
                         "candidate_evaluations": [
                             {
-                                "layout_id": "demo.argument.sequence",
-                                "verdict": "fit",
-                                "reason": "关系、阅读顺序、区域和容量均满足当前页面需求。",
+                                "recipe_id": "paper-ink.data.kpi-band",
+                                "verdict": "reject",
+                                "reason": "本页需要自定义单焦点结构，完整横带会制造多余区域。",
                             }
                         ],
+                        "custom_contract": {
+                            "reading_order": ["main"],
+                            "regions": [
+                                {
+                                    "slot_id": "main",
+                                    "block_id": "block.main",
+                                    "visual_role": "primary",
+                                    "min_items": 1,
+                                    "max_items": 2,
+                                }
+                            ],
+                        },
                     },
-                    "rationale": "内容是两个连续语义单元，用线性主区加结论槽位表达因果。",
+                    "rationale": "单个结果只需要一个明确焦点，不需要额外结构。",
                     "emphasis": {
                         "mode": "none",
-                        "reason": "本页保持默认单色，不声明语义强调焦点。",
+                        "reason": "页面已经只有一个焦点，不需要额外强调。",
                     },
                     "slots": [
                         {
                             "slot_id": "main",
                             "block_id": "block.main",
                             "visual_role": "primary",
-                            "component_decision": {
-                                "action": "replace",
-                                "reason": "用语义 SVG 替换样张中的通用主组件。",
-                            },
                             "renderer": {
-                                "provider": "svg",
-                                "component": "sequence-path",
+                                "renderer_kind": "typography",
+                                "component_source": "native",
+                                "component_id": "hero-metric",
                                 "content_refs": ["item.metric", "atom.rate"],
-                                "theme_adapter": f"{FixtureRepo.THEME_ID}.svg",
+                                "theme_adapter_id": "paper-ink.typography",
                             },
-                        },
-                        {
-                            "slot_id": "takeaway",
-                            "block_id": "block.takeaway",
-                            "visual_role": "support",
-                            "component_decision": {
-                                "action": "keep",
-                                "reason": "结论文字槽位与样张组件完全匹配。",
-                            },
-                            "renderer": {
-                                "provider": "typography",
-                                "component": "takeaway",
-                                "content_refs": ["item.metric"],
-                                "theme_adapter": f"{FixtureRepo.THEME_ID}.typography",
-                            },
-                        },
+                        }
                     ],
                 }
             ],
         }
+        self.flush()
 
-    def flush(self) -> None:
-        write_json(self.deck / "content.json", self.content)
-        write_json(self.deck / "deck-plan.json", self.plan)
-        write_json(self.deck / "render-plan.json", self.render)
-        self.html_path.parent.mkdir(parents=True, exist_ok=True)
-        self.html_path.write_text(
-            """<!doctype html>
-<html data-runtime="wise-ppt" data-deck-ready="true"><body>
-<section class="slide" data-page-id="page.one" data-page-role="explain" data-theme="minimal-neutral"
-      data-layout-source="gallery" data-layout="demo.argument.sequence"
-      data-density="balanced" data-reuse-mode="adapt"
-      data-page-title="Retention reached 55%" data-page-summary="The release moved the metric"
-      data-section-id="section.main" data-section-title="Result" data-emphasis-mode="none">
-  <svg data-block-id="block.main" data-provider="svg" data-component="sequence-path"
-       data-content-ref="item.metric atom.rate"><text>Retention 55%</text></svg>
-  <section data-block-id="block.takeaway" data-provider="typography" data-component="takeaway"
-           data-content-ref="item.metric">The release moved the metric</section>
-</section>
-</body></html>
-""",
+    def html(self, component: str | None = None, *, root: str = "wise-ppt-deck") -> str:
+        component = component or (
+            '<div data-block-id="block.main" data-renderer-kind="typography" '
+            'data-component-source="native" data-component-id="hero-metric" '
+            'data-theme-adapter-id="paper-ink.typography" '
+            'data-content-ref="item.metric atom.rate">55%</div>'
+        )
+        return (
+            "<!doctype html>"
+            f'<html data-runtime="{root}" data-typography-mode="mixed"><body>'
+            '<section class="slide" data-page-id="page.result" '
+            'data-layout-source="custom">'
+            f"{component}</section></body></html>"
+        )
+
+    def flush(self, *, html: bool = True) -> None:
+        write_json(self.directory / "content.json", self.content)
+        write_json(self.directory / "deck-plan.json", self.plan)
+        write_json(self.directory / "render-plan.json", self.render)
+        if html:
+            (self.directory / "index.html").write_text(self.html(), encoding="utf-8")
+
+    def gallery_render(self) -> None:
+        self.render["pages"][0] = {
+            "page_id": "page.result",
+            "layout_decision": {
+                "source": "gallery",
+                "recipe_id": "paper-ink.data.kpi-band",
+                "candidate_evaluations": [
+                    {
+                        "recipe_id": "paper-ink.data.kpi-band",
+                        "verdict": "exact_fit",
+                        "reason": "关键数字、焦点关系、槽位容量与阅读顺序全部匹配。",
+                    }
+                ],
+                "payload": {
+                    "bindings": [
+                        {
+                            "slot_id": "kpis",
+                            "content_refs": ["item.metric", "atom.rate"],
+                        },
+                        {
+                            "slot_id": "support",
+                            "content_refs": ["item.metric"],
+                        },
+                        {
+                            "slot_id": "takeaway",
+                            "content_refs": ["item.metric"],
+                        },
+                    ]
+                },
+            },
+            "rationale": "现成 KPI 横带完整满足页面表达，直接绑定内容。",
+            "emphasis": {
+                "mode": "none",
+                "reason": "横带已经把关键数字放在唯一焦点。",
+            },
+        }
+        component = (
+            '<svg data-slot-id="kpis" data-renderer-kind="svg" '
+            'data-component-source="native" '
+            'data-component-id="native.paper-ink.data.kpi-band.kpis" '
+            'data-content-ref="item.metric atom.rate"><text>55%</text></svg>'
+            '<p data-slot-id="support" data-renderer-kind="typography" '
+            'data-component-source="native" '
+            'data-component-id="native.paper-ink.data.kpi-band.support" '
+            'data-content-ref="item.metric">留存从 42% 提升</p>'
+            '<p data-slot-id="takeaway" data-renderer-kind="typography" '
+            'data-component-source="native" '
+            'data-component-id="native.paper-ink.data.kpi-band.takeaway" '
+            'data-content-ref="item.metric">本轮改版提升了留存</p>'
+        )
+        self.flush(html=False)
+        (self.directory / "index.html").write_text(
+            "<!doctype html>"
+            '<html data-runtime="wise-ppt-deck" data-typography-mode="mixed"><body>'
+            '<section class="slide" data-page-id="page.result" '
+            'data-layout-source="gallery" data-recipe-id="paper-ink.data.kpi-band">'
+            f"{component}</section></body></html>",
             encoding="utf-8",
         )
 
+    def composition_render(self) -> None:
+        self.plan["pages"][0]["blocks"].extend(
+            [
+                {
+                    "block_id": "block.support",
+                    "purpose": "补充结果背景",
+                    "importance": "support",
+                    "semantic_form": "prose",
+                    "content_refs": ["item.metric"],
+                },
+                {
+                    "block_id": "block.takeaway",
+                    "purpose": "收束页面结论",
+                    "importance": "support",
+                    "semantic_form": "prose",
+                    "content_refs": ["item.metric"],
+                },
+            ]
+        )
+        self.render["pages"][0] = {
+            "page_id": "page.result",
+            "layout_decision": {
+                "source": "composition",
+                "recipe_id": "paper-ink.data.kpi-band",
+                "candidate_evaluations": [
+                    {
+                        "recipe_id": "paper-ink.data.kpi-band",
+                        "verdict": "structure_fit",
+                        "reason": "三段区域和阅读顺序匹配，但主数据组件需要替换。",
+                    }
+                ],
+            },
+            "rationale": "保留横带结构，替换主数据组件以满足字段映射。",
+            "emphasis": {
+                "mode": "none",
+                "reason": "结构本身已形成单一焦点。",
+            },
+            "slots": [
+                {
+                    "slot_id": "kpis",
+                    "block_id": "block.main",
+                    "visual_role": "primary",
+                    "renderer": {
+                        "renderer_kind": "canvas",
+                        "component_source": "native",
+                        "component_id": "custom-kpi-canvas",
+                        "content_refs": ["item.metric", "atom.rate"],
+                        "theme_adapter_id": "paper-ink.canvas",
+                    },
+                },
+                {
+                    "slot_id": "support",
+                    "block_id": "block.support",
+                    "visual_role": "support",
+                    "renderer": {
+                        "renderer_kind": "typography",
+                        "component_source": "native",
+                        "component_id": "native.paper-ink.data.kpi-band.support",
+                        "content_refs": ["item.metric"],
+                        "theme_adapter_id": "paper-ink.typography",
+                    },
+                },
+                {
+                    "slot_id": "takeaway",
+                    "block_id": "block.takeaway",
+                    "visual_role": "support",
+                    "renderer": {
+                        "renderer_kind": "typography",
+                        "component_source": "native",
+                        "component_id": "native.paper-ink.data.kpi-band.takeaway",
+                        "content_refs": ["item.metric"],
+                        "theme_adapter_id": "paper-ink.typography",
+                    },
+                },
+            ],
+        }
+        self.flush()
 
-class JsonSchemaSubsetTests(unittest.TestCase):
-    def test_valid_and_invalid_schema_fixtures(self) -> None:
-        schema = FIXTURES / "schema" / "simple.schema.json"
-        validator = JsonSchemaValidator(schema)
-        valid = validator.validate(load_json(FIXTURES / "schema" / "valid.json"))
-        invalid = validator.validate(load_json(FIXTURES / "schema" / "invalid.json"))
-        self.assertTrue(valid.ok, [issue.format() for issue in valid.issues])
-        self.assertFalse(invalid.ok)
-        codes = {issue.code for issue in invalid.errors}
-        self.assertIn("schema.required", codes)
-        self.assertIn("schema.pattern", codes)
-        self.assertIn("schema.maximum", codes)
-        self.assertIn("schema.uniqueItems", codes)
-        self.assertIn("schema.additionalProperties", codes)
 
-
-class ContractValidationTests(unittest.TestCase):
+class V2ValidationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.fixture = FixtureRepo(Path(self.temporary.name))
+        self.fixture = DeckFixture(Path(self.temporary.name) / "deck")
 
-    def assert_has_code(self, result, code: str) -> None:
-        self.assertIn(code, {issue.code for issue in result.errors}, [issue.format() for issue in result.issues])
+    def codes(self, result) -> set[str]:
+        return {issue.code for issue in result.errors}
 
-    def test_valid_all_pipeline_and_cli(self) -> None:
-        result = validate_all(self.fixture.deck, self.fixture.root)
-        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-        completed = subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPTS / "validate.py"),
-                "all",
-                str(self.fixture.deck),
-                "--root",
-                str(self.fixture.root),
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
+    def assert_ok(self, result) -> None:
+        self.assertTrue(result.ok, "\n".join(issue.format() for issue in result.issues))
+
+    def assert_code(self, result, code: str) -> None:
+        self.assertIn(code, self.codes(result), "\n".join(issue.format() for issue in result.issues))
+
+    def test_schema_validator_accepts_v2_content(self) -> None:
+        validator = JsonSchemaValidator(REPO_ROOT / "core/schemas/content.schema.json")
+        self.assert_ok(validator.validate(self.fixture.content))
+
+    def test_valid_custom_pipeline(self) -> None:
+        self.assert_ok(validate_content_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_render_plan_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_render_target(self.fixture.directory, REPO_ROOT))
+
+    def test_old_contract_version_fails_explicitly(self) -> None:
+        self.fixture.content["contract_version"] = 1
+        self.fixture.flush()
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT), "contract.version"
         )
-        self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-        self.assertIn("PASS all", completed.stdout)
 
-    def test_synthetic_sources_require_placeholder_status(self) -> None:
-        source = self.fixture.content["sources"][0]
-        item = self.fixture.content["content_items"][0]
-        source["synthetic"] = True
-        item["status_note"] = "合成测试数据。"
+    def test_missing_contract_version_fails_explicitly(self) -> None:
+        del self.fixture.plan["contract_version"]
         self.fixture.flush()
-        invalid = validate_content_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(invalid, "content.synthetic_status")
+        self.assert_code(validate_plan_target(self.fixture.directory, REPO_ROOT), "contract.version")
 
-        item["status"] = "placeholder"
-        self.fixture.flush()
-        valid = validate_content_target(self.fixture.deck, self.fixture.root)
-        self.assertTrue(valid.ok, [issue.format() for issue in valid.issues])
-
-    def test_core_content_and_plan_examples_match_the_contract(self) -> None:
-        examples = REPO_ROOT / "core" / "examples"
-        content = validate_content_target(examples / "content.json", REPO_ROOT)
-        plan = validate_plan_target(examples / "deck-plan.json", REPO_ROOT)
-        self.assertTrue(content.ok, [issue.format() for issue in content.issues])
-        self.assertTrue(plan.ok, [issue.format() for issue in plan.issues])
-
-    def test_render_plan_preflight_does_not_require_html(self) -> None:
-        self.fixture.html_path.unlink()
-        preflight = validate_render_plan_target(self.fixture.deck, self.fixture.root)
-        self.assertTrue(preflight.ok, [issue.format() for issue in preflight.issues])
-        self.assert_has_code(validate_render_target(self.fixture.deck, self.fixture.root), "render.html_missing")
-
-    def test_emphasis_contract_has_one_authority_and_exact_carriers(self) -> None:
-        page = self.fixture.render["pages"][0]
-        page["emphasis"] = {
-            "mode": "semantic-focus",
-            "content_ref": "item.metric",
-            "member_roles": ["value", "label"],
-            "reason": "用同一指标的数值与标签构成唯一语义焦点。",
+    def test_no_page_or_duration_constraint_uses_scenario_recommendation(self) -> None:
+        self.fixture.content["brief"]["user_constraints"] = []
+        self.fixture.plan["planning_basis"] = {
+            "mode": "scenario-recommended",
+            "scenario": "内部复盘会",
+            "scenario_origin": "inferred",
+            "user_constraint_refs": [],
+            "research_source_refs": [],
+            "assumptions": ["观众需要先看结果再讨论原因"],
+            "reason": "根据内部复盘场景和单一结果量，推荐一页讲清。",
         }
-        self.fixture.flush()
-        invalid = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(invalid, "render.html_page_data")
-
-        source = self.fixture.html_path.read_text(encoding="utf-8")
-        source = source.replace(
-            'data-emphasis-mode="none"',
-            'data-emphasis-mode="semantic-focus" data-emphasis-ref="item.metric" '
-            'data-emphasis-roles="value label"',
-        )
-        source = source.replace(
-            'data-content-ref="item.metric atom.rate"',
-            'data-content-ref="item.metric atom.rate" data-emphasis-role="value label"',
-        )
-        self.fixture.html_path.write_text(source, encoding="utf-8")
-        valid = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assertTrue(valid.ok, [issue.format() for issue in valid.issues])
-
-        self.fixture.html_path.write_text(
-            source.replace('data-emphasis-role="value label"', 'data-emphasis-role="value outline"'),
-            encoding="utf-8",
-        )
-        self.assert_has_code(
-            validate_render_target(self.fixture.deck, self.fixture.root),
-            "render.html_emphasis_carrier",
-        )
-
-    def test_atomic_coverage_requires_value_and_unit(self) -> None:
-        source = self.fixture.html_path.read_text(encoding="utf-8").replace("%", " percent")
-        self.fixture.html_path.write_text(source, encoding="utf-8")
-        result = validate_coverage_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "coverage.atomic_unit_missing")
-
-    def test_content_schema_failure_and_missing_schema_are_clear(self) -> None:
-        self.fixture.content["content_items"][0]["priority"] = "urgent"
-        self.fixture.flush()
-        invalid = validate_content_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(invalid, "schema.enum")
-        (self.fixture.root / "core" / "schemas" / "content.schema.json").unlink()
-        missing = validate_content_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(missing, "config.schema")
-
-    def test_default_theme_and_unknown_theme(self) -> None:
-        self.assertEqual(resolve_theme(self.fixture.root).theme_id, FixtureRepo.THEME_ID)
-        self.fixture.render["theme_id"] = "missing-theme"
-        self.fixture.flush()
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.unknown_theme")
-
-    def test_plan_rejects_ghost_deck(self) -> None:
-        page = self.fixture.plan["pages"][0]
-        page["content_refs"] = []
-        page["blocks"] = []
-        self.fixture.plan["coverage_decisions"] = []
-        self.fixture.flush()
-        result = validate_plan_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "plan.ghost_deck")
-        self.assert_has_code(result, "plan.ghost_page")
-
-    def test_must_item_and_atom_coverage(self) -> None:
-        page = self.fixture.plan["pages"][0]
-        page["content_refs"].remove("atom.rate")
-        page["blocks"][0]["content_refs"].remove("atom.rate")
-        self.fixture.plan["coverage_decisions"] = [self.fixture.plan["coverage_decisions"][0]]
-        self.fixture.render["pages"][0]["slots"][0]["renderer"]["content_refs"].remove("atom.rate")
-        self.fixture.flush()
-        result = validate_coverage_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "coverage.must_missing_plan")
-        self.assert_has_code(result, "coverage.must_missing_block")
-        self.assert_has_code(result, "coverage.must_decision")
-        self.assert_has_code(result, "coverage.must_missing_render")
-
-    def test_render_rejects_copy_only_rationale(self) -> None:
-        page = self.fixture.render["pages"][0]
-        page["layout_decision"]["reuse_mode"] = "copy"
-        for slot in page["slots"]:
-            slot["component_decision"]["action"] = "keep"
-        page["rationale"] = "直接照抄模板，不做任何内容关系判断。"
-        html = self.fixture.html_path.read_text(encoding="utf-8").replace(
-            'data-reuse-mode="adapt"', 'data-reuse-mode="copy"'
-        )
-        self.fixture.flush()
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.rationale")
-
-    def test_copy_requires_keep_and_adapt_requires_replace(self) -> None:
-        page = self.fixture.render["pages"][0]
-        page["layout_decision"]["reuse_mode"] = "copy"
-        self.fixture.flush()
-        html = self.fixture.html_path.read_text(encoding="utf-8").replace(
-            'data-reuse-mode="adapt"', 'data-reuse-mode="copy"'
-        )
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        copy_result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(copy_result, "render.component_decision")
-
-        page["layout_decision"]["reuse_mode"] = "adapt"
-        for slot in page["slots"]:
-            slot["component_decision"]["action"] = "keep"
-        self.fixture.flush()
-        adapt_result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(adapt_result, "render.component_decision")
-
-    def test_render_rejects_unsupported_provider_and_overflow(self) -> None:
-        page = self.fixture.render["pages"][0]
-        renderer = page["slots"][0]["renderer"]
-        renderer["provider"] = "table"
-        html = self.fixture.html_path.read_text(encoding="utf-8").replace(
-            'data-provider="svg"', 'data-provider="table"'
-        )
-        manifest = load_json(self.fixture.layout_manifest_path)
-        manifest["layouts"][0]["capacity"]["semantic_units"]["max"] = 1
-        manifest["layouts"][0]["slots"][0]["max_items"] = 1
-        write_json(self.fixture.layout_manifest_path, manifest)
-        self.fixture.flush()
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.unsupported_provider")
-        self.assert_has_code(result, "render.slot_overflow")
-        self.assert_has_code(result, "render.capacity_overflow")
-
-    def test_render_derives_core_primitive_from_deck_plan(self) -> None:
-        self.fixture.plan["pages"][0]["spatial_primitive"] = "focus-field"
-        self.fixture.flush()
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.unsupported_core_primitive")
-
-    def test_custom_layout_does_not_require_gallery_registration(self) -> None:
-        page = self.fixture.render["pages"][0]
-        page["layout_decision"] = {
-            "source": "custom",
-            "reuse_mode": "custom",
-            "layout_id": "custom.page.one",
-            "candidate_evaluations": [
-                {
-                    "layout_id": "demo.argument.sequence",
-                    "verdict": "reject",
-                    "reason": "现有版式不能承载此页需要的独立自定义区域结构。",
-                }
-            ],
-            "custom_contract": {
-                "reading_order": ["main", "takeaway"],
-                "capacity": {
-                    "semantic_units": {"min": 2, "max": 4},
-                    "primary_items": {"min": 2, "max": 4},
-                },
-                "regions": [
-                    {
-                        "slot_id": "main",
-                        "block_id": "block.main",
-                        "visual_role": "primary",
-                        "min_items": 2,
-                        "max_items": 4,
-                    },
-                    {
-                        "slot_id": "takeaway",
-                        "block_id": "block.takeaway",
-                        "visual_role": "support",
-                        "min_items": 1,
-                        "max_items": 1,
-                    },
-                ],
-            },
-        }
-        for slot in page["slots"]:
-            slot["component_decision"]["action"] = "select"
-        (self.fixture.root / "themes" / self.fixture.THEME_ID / "atlas-catalog.json").unlink()
-        self.fixture.flush()
-        html = self.fixture.html_path.read_text(encoding="utf-8")
-        html = html.replace('data-layout-source="gallery"', 'data-layout-source="custom"')
-        html = html.replace('data-layout="demo.argument.sequence"', 'data-layout="custom.page.one"')
-        html = html.replace('data-reuse-mode="adapt"', 'data-reuse-mode="custom"')
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-        self.assertNotIn("render.unsupported_layout", {issue.code for issue in result.errors})
-
-    def test_render_contract_fixtures_cover_copy_adapt_and_custom(self) -> None:
-        fixture_root = FIXTURES / "render-decisions"
-        for case in ("gallery-copy", "gallery-adapt", "custom"):
-            with self.subTest(case=case):
-                page = load_json(fixture_root / case / "page.json")
-                self.fixture.render["pages"] = [page]
-                self.fixture.flush()
-                decision = page["layout_decision"]
-                html = self.fixture.html_path.read_text(encoding="utf-8")
-                html = html.replace(
-                    'data-layout-source="gallery"',
-                    f'data-layout-source="{decision["source"]}"',
-                )
-                html = html.replace(
-                    'data-layout="demo.argument.sequence"',
-                    f'data-layout="{decision["layout_id"]}"',
-                )
-                html = html.replace(
-                    'data-reuse-mode="adapt"',
-                    f'data-reuse-mode="{decision["reuse_mode"]}"',
-                )
-                self.fixture.html_path.write_text(html, encoding="utf-8")
-                result = validate_render_target(self.fixture.deck, self.fixture.root)
-                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-
-    def test_gallery_structure_changes_require_custom(self) -> None:
-        baseline = copy.deepcopy(self.fixture.render["pages"][0])
-
-        cases = {}
-        reordered = copy.deepcopy(baseline)
-        reordered["slots"].reverse()
-        cases["reordered-slot"] = reordered
-
-        added = copy.deepcopy(baseline)
-        extra = copy.deepcopy(added["slots"][1])
-        extra["slot_id"] = "extra"
-        added["slots"].append(extra)
-        cases["added-slot"] = added
-
-        embedded_contract = copy.deepcopy(baseline)
-        embedded_contract["layout_decision"]["custom_contract"] = {
-            "reading_order": ["main", "takeaway"],
-            "capacity": {"semantic_units": {"min": 2, "max": 4}},
-            "regions": [],
-        }
-        cases["embedded-custom-contract"] = embedded_contract
-
-        for case, page in cases.items():
-            with self.subTest(case=case):
-                self.fixture.render["pages"] = [page]
-                self.fixture.flush()
-                result = validate_render_target(self.fixture.deck, self.fixture.root)
-                self.assert_has_code(result, "render.gallery_structure_changed")
-
-    def test_echarts_series_is_not_limited_by_local_catalog(self) -> None:
-        page = self.fixture.render["pages"][0]
-        renderer = page["slots"][0]["renderer"]
-        renderer.update(
+        self.fixture.plan["page_budget"]["basis"] = [
             {
-                "provider": "echarts",
-                "component": "radar",
-                "data_ref": "item.metric",
-                "encode": {"indicator": "metric", "value": "atom.rate"},
+                "type": "content_structure",
+                "content_refs": ["item.metric", "atom.rate"],
+                "reason": "只有一个独立结论。",
             }
-        )
-        (self.fixture.root / "themes" / self.fixture.THEME_ID / "atlas-catalog.json").unlink()
-        self.fixture.flush()
-        html = self.fixture.html_path.read_text(encoding="utf-8")
-        html = html.replace(
-            'data-page-id="page.one"',
-            'data-page-id="page.one" data-render-pending="true"',
-            1,
-        )
-        html = html.replace('data-provider="svg"', 'data-provider="echarts"')
-        html = html.replace('data-component="sequence-path"', 'data-component="radar"')
-        html = html.replace(
-            "</section>\n</body>",
-            "  <script>WisePPT.createEChart(document.currentScript.closest('.slide'), '[data-block-id]', {});</script>\n</section>\n</body>",
-            1,
-        )
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-
-        renderer.pop("data_ref")
-        renderer["encode"] = {}
-        self.fixture.flush()
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        invalid = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(invalid, "render.echarts_data_ref")
-        self.assert_has_code(invalid, "render.echarts_encode")
-
-    def test_unknown_atlas_component_is_rejected_only_when_atlas_is_used(self) -> None:
-        page = self.fixture.render["pages"][0]
-        renderer = page["slots"][0]["renderer"]
-        renderer.update({"provider": "atlas", "component": "不存在的组件"})
-        self.fixture.flush()
-        html = self.fixture.html_path.read_text(encoding="utf-8")
-        html = html.replace('data-provider="svg"', 'data-provider="atlas"')
-        html = html.replace('data-component="sequence-path"', 'data-component="不存在的组件"')
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.unknown_component")
-
-    def test_render_plan_requires_canonical_index_entry(self) -> None:
-        render = copy.deepcopy(self.fixture.render)
-        render["output_file"] = "deck.html"
-        result = JsonSchemaValidator(
-            REPO_ROOT / "core" / "schemas" / "render-plan.schema.json"
-        ).validate(render, "render-plan.json")
-        self.assert_has_code(result, "schema.const")
-
-    def test_render_plan_rejects_page_outputs(self) -> None:
-        schema = JsonSchemaValidator(REPO_ROOT / "core" / "schemas" / "render-plan.schema.json")
-        page_output = copy.deepcopy(self.fixture.render)
-        page_output["pages"][0]["output_file"] = "frames/page.one.html"
-        result = schema.validate(page_output, "render-plan.json")
-        self.assert_has_code(result, "schema.additionalProperties")
-
-    def test_theme_lint_rejects_removed_accent_flag(self) -> None:
-        completed = subprocess.run(
-            [
-                sys.executable,
-                str(REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"),
-                str(REPO_ROOT / "themes" / "paper-ink" / "gallery" / "general"),
-                "--accent",
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        self.assertEqual(completed.returncode, 2)
-        self.assertIn("unrecognized arguments: --accent", completed.stderr)
-
-    def test_theme_lint_rejects_hardcoded_accent_in_deck_html(self) -> None:
-        source = (FIXTURES / "deck-contract" / "index.html").read_text(encoding="utf-8")
-        target = Path(self.temporary.name) / "hardcoded-accent.html"
-        target.write_text(source.replace("</style>", ".bad-accent{color:#C0392B}</style>", 1), encoding="utf-8")
-        completed = subprocess.run(
-            [
-                sys.executable,
-                str(REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"),
-                str(target),
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        self.assertEqual(completed.returncode, 1)
-        self.assertIn("L1 彩色 hex #c0392b", completed.stdout)
-
-    def test_theme_galleries_read_accent_from_shared_tokens(self) -> None:
-        lint = REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"
-        gallery_root = REPO_ROOT / "themes" / "paper-ink" / "gallery"
-        for variant in ("general", "ai"):
-            with self.subTest(variant=variant):
-                completed = subprocess.run(
-                    [sys.executable, str(lint), str(gallery_root / variant), "--strict"],
-                    check=False,
-                    capture_output=True,
-                    text=True,
-                )
-                self.assertEqual(completed.returncode, 0, completed.stdout + completed.stderr)
-
-    def test_export_pdf_runs_the_render_plan_gate_before_browser_work(self) -> None:
-        self.fixture.render["output_file"] = "deck.html"
-        self.fixture.flush()
-        completed = subprocess.run(
-            ["bash", str(REPO_ROOT / "runtime" / "export-pdf.sh"), str(self.fixture.deck)],
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        self.assertNotEqual(completed.returncode, 0)
-        self.assertIn("schema.const", completed.stdout + completed.stderr)
-        self.assertFalse((self.fixture.deck / f"{self.fixture.deck.name}.pdf").exists())
-
-    def test_render_checks_canonical_page_and_component_data_attributes(self) -> None:
-        html = self.fixture.html_path.read_text(encoding="utf-8")
-        html = html.replace('data-theme="minimal-neutral"', 'data-theme-id="minimal-neutral"')
-        html = html.replace('data-component="takeaway"', 'data-component-id="takeaway"')
-        self.fixture.html_path.write_text(html, encoding="utf-8")
-        result = validate_render_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "render.html_page_data")
-        self.assert_has_code(result, "render.html_component_data")
-
-    def test_gallery_uses_declared_count_and_variant_names(self) -> None:
-        valid = validate_gallery(self.fixture.root, FixtureRepo.THEME_ID)
-        self.assertTrue(valid.ok, [issue.format() for issue in valid.issues])
-        missing = (
-            self.fixture.root
-            / "themes"
-            / FixtureRepo.THEME_ID
-            / "gallery"
-            / "domain"
-            / "frames"
-            / "domain-layout-002.html"
-        )
-        missing.unlink()
-        invalid = validate_gallery(self.fixture.root, FixtureRepo.THEME_ID)
-        self.assert_has_code(invalid, "gallery.variant_count")
-        self.assert_has_code(invalid, "gallery.example_missing")
-
-    def test_paper_ink_gallery_matches_its_declared_contract(self) -> None:
-        manifest = load_json(REPO_ROOT / "themes" / "paper-ink" / "layout-manifest.json")
-        theme = load_json(REPO_ROOT / "themes" / "paper-ink" / "theme.json")
-        self.assertEqual(manifest["layout_count"], 63)
-        self.assertEqual(len(manifest["layouts"]), 63)
-        self.assertEqual(set(theme["galleries"]), {"general", "ai"})
-        result = validate_gallery(REPO_ROOT, "paper-ink")
-        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-
-        # 画册栏只展示面向人的用途；AI 筛选谓词保留在 manifest，不能泄漏到 UI。
-        for variant in ("general", "ai"):
-            gallery_index = (
-                REPO_ROOT / "themes" / "paper-ink" / "gallery" / variant / "index.html"
-            ).read_text(encoding="utf-8")
-            self.assertNotIn("当页面角色属于", gallery_index)
-            self.assertIn('src="../../assets/gallery-frame-loader.js"', gallery_index)
-            self.assertIn("createGalleryFrameLoader(stagebox)", gallery_index)
-            self.assertNotIn("document.getElementById('fr').src", gallery_index)
-
-        contact = next(
-            layout for layout in manifest["layouts"] if layout["display_code"] == "D6"
-        )
-        self.assertIn("qr-code", contact["primitives"])
-        self.assertNotIn("qr-placeholder", contact["primitives"])
-
-    def test_paper_ink_lint_enforces_slide_copy_boundary(self) -> None:
-        lint = REPO_ROOT / "themes" / "paper-ink" / "scripts" / "lint.py"
-
-        def page(layout: str, doc: str, caption: str | None) -> str:
-            caption_html = "" if caption is None else f'<div class="caption">{caption}</div>'
-            return f"""<!doctype html>
-<html data-layout="{layout}">
-<style>body {{ background: #dfe0d9; }}</style>
-<body>
-  <div class="doc tl">{doc}</div>
-  <div class="folio">01</div>
-  {caption_html}
-  <script>stageFit();</script>
-</body>
-</html>
-"""
-
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            cases = {
-                "valid.html": (
-                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "检索与重排把候选片段收敛为可用上下文。"),
-                    0,
-                    None,
-                ),
-                "meta-caption.html": (
-                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "时间轴把六个节点钉在一根主轴上。"),
-                    1,
-                    "L11 caption",
-                ),
-                "meta-doc.html": (
-                    page("paper-ink.explain.demo", "AI LAYOUT GALLERY — B1", "六次能力跃迁共同组成演进路径。"),
-                    1,
-                    "L11 doc tl",
-                ),
-                "missing-caption.html": (
-                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", None),
-                    1,
-                    "L5 无 .caption",
-                ),
-                "long-caption.html": (
-                    page("paper-ink.explain.demo", "AI ENGINEERING — FLOW", "这是一条明显超过五十二个字符限制的页面结论，因为它不断补充无关信息并且继续扩写，最终失去快速扫描所需要的紧凑结构与单一判断。"),
-                    1,
-                    "L11 caption 过长",
-                ),
-                "cover.html": (
-                    page("paper-ink.scaffold.cover", "AI ENGINEERING — COVER", None),
-                    0,
-                    None,
-                ),
-            }
-            for name, (source, expected_code, expected_text) in cases.items():
-                with self.subTest(name=name):
-                    target = root / name
-                    target.write_text(source, encoding="utf-8")
-                    completed = subprocess.run(
-                        [sys.executable, str(lint), str(target)],
-                        check=False,
-                        capture_output=True,
-                        text=True,
-                    )
-                    self.assertEqual(completed.returncode, expected_code, completed.stdout + completed.stderr)
-                    if expected_text:
-                        self.assertIn(expected_text, completed.stdout)
-
-    def test_gallery_validates_core_primitive_registry(self) -> None:
-        manifest = load_json(self.fixture.layout_manifest_path)
-        manifest["core_primitive_ids"].remove("radial-burst")
-        manifest["layouts"][0]["core_primitives"] = ["not-a-core-primitive"]
-        write_json(self.fixture.layout_manifest_path, manifest)
-        result = validate_gallery(self.fixture.root, FixtureRepo.THEME_ID)
-        self.assert_has_code(result, "gallery.core_primitive_ids")
-        self.assert_has_code(result, "gallery.unknown_core_primitive")
-
-    def test_gallery_rejects_empty_and_non_object_layouts(self) -> None:
-        manifest = load_json(self.fixture.layout_manifest_path)
-        manifest["layouts"].append("not-an-object")
-        manifest["layout_count"] = 3
-        write_json(self.fixture.layout_manifest_path, manifest)
-        malformed = validate_gallery(self.fixture.root, FixtureRepo.THEME_ID)
-        self.assert_has_code(malformed, "config.gallery")
-
-        manifest["layouts"] = []
-        manifest["layout_count"] = 0
-        write_json(self.fixture.layout_manifest_path, manifest)
-        empty = validate_gallery(self.fixture.root, FixtureRepo.THEME_ID)
-        self.assert_has_code(empty, "gallery.layout_count")
-        self.assert_has_code(empty, "gallery.empty")
-
-    def test_theme_contract_rejects_unknown_alias_fields(self) -> None:
-        manifest = load_json(self.fixture.layout_manifest_path)
-        manifest["layouts"][0]["id"] = "unknown-layout-alias"
-        write_json(self.fixture.layout_manifest_path, manifest)
-        self.assert_has_code(
-            validate_gallery(self.fixture.root, FixtureRepo.THEME_ID),
-            "config.gallery",
-        )
-
-    def test_content_relation_target_must_exist_and_not_self_reference(self) -> None:
-        item = self.fixture.content["content_items"][0]
-        item["relations"] = [
-            {"type": "supports", "target_ref": "item.metric", "reason": "Self loop"},
-            {"type": "depends_on", "target_ref": "item.missing", "reason": "Missing target"},
-            {"type": "supports", "target_ref": [], "reason": "Wrong JSON type"},
         ]
         self.fixture.flush()
-        result = validate_content_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "content.self_relation")
-        self.assert_has_code(result, "content.unknown_relation_target")
-        self.assert_has_code(result, "content.invalid_relation_target")
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
 
-    def test_duplicate_assertion_and_takeaway_are_rejected(self) -> None:
-        duplicate = copy.deepcopy(self.fixture.plan["pages"][0])
-        duplicate["page_id"] = "page.two"
-        duplicate["order"] = 2
-        duplicate["assertion_title"] += "。"
-        duplicate["takeaway"] += "!"
-        duplicate["blocks"][0]["block_id"] = "block.two.main"
-        duplicate["blocks"][1]["block_id"] = "block.two.takeaway"
-        self.fixture.plan["pages"].append(duplicate)
-        self.fixture.plan["sections"][0]["page_refs"].append("page.two")
-        self.fixture.plan["page_budget"]["target"] = 2
+    def test_user_constrained_mode_without_page_or_duration_is_rejected(self) -> None:
+        self.fixture.content["brief"]["user_constraints"] = []
+        self.fixture.plan["planning_basis"]["user_constraint_refs"] = []
+        self.fixture.plan["page_budget"]["basis"] = self.fixture.plan["page_budget"]["basis"][1:]
         self.fixture.flush()
-        result = validate_plan_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "plan.duplicate_assertion")
-        self.assert_has_code(result, "plan.duplicate_takeaway")
-
-    def test_blank_ghost_deck_text_is_rejected(self) -> None:
-        page = self.fixture.plan["pages"][0]
-        page["assertion_title"] = "   "
-        page["takeaway"] = "\u3000"
-        self.fixture.flush()
-        result = validate_plan_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "plan.blank_assertion")
-        self.assert_has_code(result, "plan.blank_takeaway")
-
-    def test_page_budget_requires_a_countable_driver(self) -> None:
-        self.fixture.plan["page_budget"]["drivers"] = []
-        self.fixture.flush()
-        result = validate_plan_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "schema.minItems")
-
-    def test_all_adaptive_confirmation_triggers_are_derived(self) -> None:
-        baseline_content = copy.deepcopy(self.fixture.content)
-        baseline_plan = copy.deepcopy(self.fixture.plan)
-
-        def reset() -> None:
-            self.fixture.content = copy.deepcopy(baseline_content)
-            self.fixture.plan = copy.deepcopy(baseline_plan)
-
-        cases = []
-
-        reset()
-        self.fixture.content["brief"]["objective"] = "   "
-        cases.append(
-            (
-                "missing_objective_or_audience",
-                copy.deepcopy(self.fixture.content),
-                copy.deepcopy(self.fixture.plan),
-            )
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT), "plan.basis_mode"
         )
 
-        reset()
-        self.fixture.content["content_items"].append(
+    def test_derived_mode_cannot_replace_scenario_recommendation(self) -> None:
+        self.fixture.content["brief"]["user_constraints"] = []
+        self.fixture.plan["planning_basis"].update(
             {
-                "id": "item.other",
-                "kind": "metric",
-                "statement": "A conflicting source says 40",
-                "priority": "should",
-                "status": "sourced",
-                "status_note": "Provided by user",
-                "source_refs": ["src.brief"],
-                "atomic_values": [],
-                "relations": [],
+                "mode": "derived",
+                "scenario_origin": "inferred",
+                "user_constraint_refs": [],
+                "assumptions": ["观众需要先看结果再讨论原因"],
             }
         )
-        self.fixture.content["content_items"][0]["relations"] = [
-            {"type": "contradicts", "target_ref": "item.other", "reason": "Sources disagree"}
+        self.fixture.plan["page_budget"]["basis"] = self.fixture.plan["page_budget"][
+            "basis"
+        ][1:]
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT), "plan.basis_mode"
+        )
+
+    def test_constraint_range_conflict(self) -> None:
+        constraint = self.fixture.content["brief"]["user_constraints"][0]
+        constraint.pop("exact_pages")
+        constraint.update({"min_pages": 4, "max_pages": 2})
+        self.fixture.flush()
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT),
+            "content.constraint_range",
+        )
+
+    def test_every_page_has_exactly_one_primary_block(self) -> None:
+        self.fixture.plan["pages"][0]["blocks"].append(
+            {
+                "block_id": "block.second",
+                "purpose": "第二焦点",
+                "importance": "primary",
+                "semantic_form": "headline",
+                "content_refs": ["item.metric"],
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(validate_plan_target(self.fixture.directory, REPO_ROOT), "plan.primary_block")
+
+    def test_coverage_requires_atomic_value_decision(self) -> None:
+        self.fixture.plan["coverage_decisions"].pop()
+        self.fixture.flush()
+        self.assert_code(validate_plan_target(self.fixture.directory, REPO_ROOT), "coverage.missing")
+
+    def test_should_atom_does_not_need_a_separate_coverage_decision(self) -> None:
+        self.fixture.content["content_items"][0]["priority"] = "should"
+        self.fixture.plan["coverage_decisions"] = [
+            self.fixture.plan["coverage_decisions"][0]
         ]
-        cases.append(("source_conflict", copy.deepcopy(self.fixture.content), copy.deepcopy(self.fixture.plan)))
+        self.fixture.flush()
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
 
-        reset()
-        self.fixture.plan["page_budget"]["drivers"].append(
-            {"type": "page_limit", "count": 4, "reason": "Must claims need four pages"}
+    def test_must_content_cannot_be_omitted(self) -> None:
+        self.fixture.plan["coverage_decisions"][0].update(
+            {"disposition": "omit", "page_refs": []}
         )
-        cases.append(("must_content_overflow", copy.deepcopy(self.fixture.content), copy.deepcopy(self.fixture.plan)))
+        self.fixture.flush()
+        self.assert_code(validate_plan_target(self.fixture.directory, REPO_ROOT), "coverage.must")
 
-        reset()
-        self.fixture.content["content_items"][0]["status"] = "placeholder"
-        self.fixture.content["content_items"][0]["status_note"] = "Waiting for verified value"
-        cases.append(
-            (
-                "must_infer_or_placeholder_or_remove",
-                copy.deepcopy(self.fixture.content),
-                copy.deepcopy(self.fixture.plan),
-            )
+    def test_unresolved_must_content_forces_plain_question(self) -> None:
+        self.fixture.content["content_items"][0].update(
+            {"status": "placeholder", "status_note": "还不知道准确数字"}
         )
-
-        reset()
-        self.fixture.content["brief"]["page_limits"]["requested"] = None
-        self.fixture.plan["page_budget"]["max"] = 16
-        self.fixture.plan["page_budget"]["target"] = 16
-        cases.append(("raw_prose_16_plus", copy.deepcopy(self.fixture.content), copy.deepcopy(self.fixture.plan)))
-
-        for trigger, content, plan in cases:
-            with self.subTest(trigger=trigger):
-                self.fixture.content = content
-                self.fixture.plan = plan
-                self.fixture.flush()
-                result = validate_plan_target(self.fixture.deck, self.fixture.root)
-                self.assertTrue(
-                    any(issue.code == "plan.confirmation_trigger" and trigger in issue.message for issue in result.errors),
-                    [issue.format() for issue in result.issues],
-                )
-
-    def test_adaptive_confirmation_rejects_spurious_pause(self) -> None:
         self.fixture.plan["confirmation"] = {
             "mode": "adaptive",
             "decision": "needs_confirmation",
-            "triggers": ["source_conflict"],
-            "questions": ["Which source should win?"],
+            "assessments": [
+                {
+                    "trigger": "must_content_unresolved",
+                    "affected_refs": ["item.metric"],
+                    "impact": "conclusion",
+                    "resolution": "needs_user_choice",
+                    "reason": "关键数字尚未确认，会改变页面结论。",
+                }
+            ],
+            "user_questions": ["目前还没有准确留存率，这会改变结论。请告诉我该用哪个数字？"],
         }
         self.fixture.flush()
-        result = validate_plan_target(self.fixture.deck, self.fixture.root)
-        self.assert_has_code(result, "plan.confirmation_spurious_trigger")
-        self.assert_has_code(result, "plan.confirmation_decision")
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.gate_confirmation",
+        )
 
-    def test_core_rejects_theme_tokens_and_display_shortcodes(self) -> None:
-        clean = validate_core_purity(self.fixture.root)
-        self.assertTrue(clean.ok, [issue.format() for issue in clean.issues])
-        leak = self.fixture.root / "core" / "references" / "leak.md"
-        leak.parent.mkdir(parents=True, exist_ok=True)
-        leak.write_text("paper-ink uses #191917 and sample B12\n", encoding="utf-8")
-        invalid = validate_core_purity(self.fixture.root)
-        self.assert_has_code(invalid, "core.theme_token")
-        self.assert_has_code(invalid, "core.gallery_shortcode")
+    def test_unresolved_must_without_pause_is_rejected(self) -> None:
+        self.fixture.content["content_items"][0].update(
+            {"status": "placeholder", "status_note": "还不知道准确数字"}
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.must_unresolved",
+        )
 
-    def test_catalog_filters_manifest_metadata_without_semantic_scoring(self) -> None:
-        layout_cmd = [
-            sys.executable,
-            str(SCRIPTS / "catalog.py"),
-            "layouts",
-            "--root",
-            str(self.fixture.root),
-            "--role",
-            "explain",
-            "--relation",
-            "sequence",
-            "--density",
-            "balanced",
-            "--provider",
-            "svg",
-            "--primitive",
-            "linear-sequence",
-            "--name",
-            "Layout 001",
-            "--compact",
+    def test_inferred_must_without_user_decision_is_rejected(self) -> None:
+        self.fixture.content["content_items"][0].update(
+            {"status": "inferred", "status_note": "根据上下文估算，用户尚未确认"}
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.must_unresolved",
+        )
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.gate_confirmation",
+        )
+
+    def test_every_source_conflict_needs_an_assessment(self) -> None:
+        opposing = copy.deepcopy(self.fixture.content["content_items"][0])
+        opposing.update(
+            {
+                "id": "item.metric-alt",
+                "statement": "另一口径为 51%",
+                "priority": "should",
+                "atomic_values": [],
+                "relations": [
+                    {
+                        "type": "contradicts",
+                        "target_ref": "item.metric",
+                        "reason": "统计窗口不同。",
+                    }
+                ],
+            }
+        )
+        self.fixture.content["content_items"].append(opposing)
+        self.fixture.plan["coverage_decisions"].append(
+            {
+                "content_ref": "item.metric-alt",
+                "disposition": "defer",
+                "page_refs": [],
+                "reason": "保留冲突口径，等待评估。",
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.source_conflict",
+        )
+
+        self.fixture.plan["confirmation"]["assessments"] = [
+            {
+                "trigger": "source_conflict",
+                "affected_refs": ["item.metric", "item.metric-alt"],
+                "impact": "none",
+                "resolution": "present_both",
+                "reason": "两种口径可以并列说明且不改变结论。",
+            }
         ]
-        layout_run = subprocess.run(layout_cmd, check=False, capture_output=True, text=True)
-        self.assertEqual(layout_run.returncode, 0, layout_run.stderr)
-        layout_payload = json.loads(layout_run.stdout)
-        self.assertEqual(layout_payload["count"], 1)
-        self.assertEqual(layout_payload["items"][0]["id"], "demo.argument.sequence")
-        self.assertEqual(layout_payload["items"][0]["core_primitives"], ["linear-sequence"])
-        self.assertEqual(layout_payload["semantic_decision"], "not-performed")
+        self.fixture.flush()
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
 
-        component_run = subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPTS / "catalog.py"),
-                "components",
-                "--root",
-                str(self.fixture.root),
-                "--role",
-                "explain",
-                "--relation",
-                "sequence",
-                "--density",
-                "balanced",
-                "--provider",
-                "atlas",
-                "--name",
-                "纵向",
-                "--compact",
-            ],
-            check=False,
-            capture_output=True,
-            text=True,
+    def test_confirmation_affected_refs_must_exist(self) -> None:
+        self.fixture.plan["confirmation"]["assessments"] = [
+            {
+                "trigger": "ambiguous_context",
+                "affected_refs": ["item.missing"],
+                "impact": "none",
+                "resolution": "proceed",
+                "reason": "缺口不影响当前结论。",
+            }
+        ]
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.affected_ref",
         )
-        self.assertEqual(component_run.returncode, 0, component_run.stderr)
-        component_payload = json.loads(component_run.stdout)
-        self.assertEqual(component_payload["count"], 1)
-        self.assertEqual(component_payload["items"][0]["id"], "atlas.process-flow.vertical")
 
-        echarts_run = subprocess.run(
-            [
-                sys.executable,
-                str(SCRIPTS / "catalog.py"),
-                "components",
-                "--root",
-                str(self.fixture.root),
-                "--provider",
-                "echarts",
-                "--task",
-                "trend",
-                "--compact",
+    def test_question_rejects_internal_jargon(self) -> None:
+        self.fixture.plan["confirmation"] = {
+            "mode": "adaptive",
+            "decision": "needs_confirmation",
+            "assessments": [
+                {
+                    "trigger": "ambiguous_context",
+                    "affected_refs": ["item.metric"],
+                    "impact": "emphasis",
+                    "resolution": "needs_user_choice",
+                    "reason": "两种用途会改变重点。",
+                }
             ],
-            check=False,
-            capture_output=True,
-            text=True,
+            "user_questions": ["renderer 字段应该选哪个？"],
+        }
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.question_jargon",
         )
-        self.assertEqual(echarts_run.returncode, 2, echarts_run.stdout + echarts_run.stderr)
-        self.assertIn("ECharts 请查官方文档", echarts_run.stderr)
+
+    def test_question_rejects_vague_user_language(self) -> None:
+        for question in ("选哪个？", "你决定一下？", "要继续吗？"):
+            with self.subTest(question=question):
+                self.fixture.plan["confirmation"] = {
+                    "mode": "adaptive",
+                    "decision": "needs_confirmation",
+                    "assessments": [
+                        {
+                            "trigger": "ambiguous_context",
+                            "affected_refs": ["item.metric"],
+                            "impact": "emphasis",
+                            "resolution": "needs_user_choice",
+                            "reason": "两种用途会改变重点。",
+                        }
+                    ],
+                    "user_questions": [question],
+                }
+                self.fixture.flush()
+                self.assert_code(
+                    validate_plan_target(self.fixture.directory, REPO_ROOT),
+                    "confirmation.question_context",
+                )
+
+    def test_question_explains_situation_impact_and_choice(self) -> None:
+        self.fixture.plan["confirmation"] = {
+            "mode": "adaptive",
+            "decision": "needs_confirmation",
+            "assessments": [
+                {
+                    "trigger": "ambiguous_context",
+                    "affected_refs": ["item.metric"],
+                    "impact": "emphasis",
+                    "resolution": "needs_user_choice",
+                    "reason": "两种用途会改变重点。",
+                }
+            ],
+            "user_questions": [
+                "管理层和执行团队关注的重点不同。你希望这份演示主要给哪一类人看？"
+            ],
+        }
+        self.fixture.flush()
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
+
+    def test_question_count_is_at_most_three(self) -> None:
+        self.fixture.plan["confirmation"] = {
+            "mode": "adaptive",
+            "decision": "needs_confirmation",
+            "assessments": [
+                {
+                    "trigger": "ambiguous_context",
+                    "affected_refs": ["item.metric"],
+                    "impact": "emphasis",
+                    "resolution": "needs_user_choice",
+                    "reason": "不同场景会改变重点。",
+                }
+            ],
+            "user_questions": ["选 A？", "选 B？", "选 C？", "选 D？"],
+        }
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.question_count",
+        )
+
+    def test_nonimpacting_conflict_does_not_pause(self) -> None:
+        self.fixture.plan["confirmation"] = {
+            "mode": "adaptive",
+            "decision": "needs_confirmation",
+            "assessments": [
+                {
+                    "trigger": "source_conflict",
+                    "affected_refs": ["item.metric"],
+                    "impact": "none",
+                    "resolution": "needs_user_choice",
+                    "reason": "两种口径可以并列且不影响结论。",
+                }
+            ],
+            "user_questions": ["要展示哪一种口径？"],
+        }
+        self.fixture.flush()
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.unnecessary_pause",
+        )
+
+    def test_gallery_exact_fit_is_valid_and_has_no_composition(self) -> None:
+        self.fixture.gallery_render()
+        self.assert_ok(validate_render_plan_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_render_target(self.fixture.directory, REPO_ROOT))
+
+    def test_exact_fit_must_terminate_in_gallery(self) -> None:
+        decision = self.fixture.render["pages"][0]["layout_decision"]
+        decision["candidate_evaluations"][0]["verdict"] = "exact_fit"
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.gallery_termination",
+        )
+
+    def test_gallery_payload_requires_manifest_slot(self) -> None:
+        self.fixture.gallery_render()
+        self.fixture.render["pages"][0]["layout_decision"]["payload"]["bindings"][0][
+            "slot_id"
+        ] = "unknown"
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.payload_slot",
+        )
+
+    def test_gallery_payload_requires_every_recipe_slot(self) -> None:
+        self.fixture.gallery_render()
+        self.fixture.render["pages"][0]["layout_decision"]["payload"]["bindings"].pop()
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.payload_slot",
+        )
+
+    def test_gallery_exact_fit_must_match_recipe_semantics(self) -> None:
+        mutations = (
+            ("role", "hook", "render.recipe_role"),
+            ("relation", "sequence", "render.recipe_relation"),
+            ("primitive", "linear-sequence", "render.recipe_primitive"),
+        )
+        for field, value, expected_code in mutations:
+            with self.subTest(field=field):
+                self.fixture.gallery_render()
+                page = self.fixture.plan["pages"][0]
+                if field == "role":
+                    page["role"] = value
+                elif field == "relation":
+                    page["relation_shape"]["primary"] = value
+                else:
+                    page["spatial_primitive"] = value
+                self.fixture.flush()
+                self.assert_code(
+                    validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+                    expected_code,
+                )
+
+    def test_structure_fit_must_match_recipe_semantics(self) -> None:
+        self.fixture.composition_render()
+        self.fixture.plan["pages"][0]["relation_shape"]["primary"] = "sequence"
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.recipe_relation",
+        )
+
+    def test_gallery_payload_keeps_recipe_reading_order(self) -> None:
+        self.fixture.gallery_render()
+        bindings = self.fixture.render["pages"][0]["layout_decision"]["payload"][
+            "bindings"
+        ]
+        bindings[1], bindings[2] = bindings[2], bindings[1]
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.payload_order",
+        )
+
+    def test_gallery_exact_fit_has_no_structure_fit_candidate(self) -> None:
+        self.fixture.gallery_render()
+        self.fixture.render["pages"][0]["layout_decision"]["candidate_evaluations"].append(
+            {
+                "recipe_id": "paper-ink.evidence.specimen-card",
+                "verdict": "structure_fit",
+                "reason": "另一结构只有局部匹配，不应在完整命中后继续组合。",
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.gallery_termination",
+        )
+
+    def test_composition_keeps_all_gallery_slots(self) -> None:
+        self.fixture.composition_render()
+        self.assert_ok(validate_render_plan_target(self.fixture.directory, REPO_ROOT))
+        self.fixture.render["pages"][0]["slots"].pop()
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.composition_slots",
+        )
+
+    def test_composition_rejects_unchanged_default_components(self) -> None:
+        self.fixture.composition_render()
+        first = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        first.update(
+            {
+                "renderer_kind": "svg",
+                "component_source": "native",
+                "component_id": "native.paper-ink.data.kpi-band.kpis",
+                "theme_adapter_id": "paper-ink.svg",
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.composition_redundant",
+        )
+
+    def test_composition_maps_each_block_once(self) -> None:
+        self.fixture.composition_render()
+        self.fixture.render["pages"][0]["slots"][1]["block_id"] = "block.main"
+        self.fixture.flush()
+        result = validate_render_plan_target(self.fixture.directory, REPO_ROOT)
+        self.assert_code(result, "render.block_duplicate")
+        self.assert_code(result, "render.block_coverage")
+
+    def test_composition_keeps_recipe_reading_order(self) -> None:
+        self.fixture.composition_render()
+        slots = self.fixture.render["pages"][0]["slots"]
+        slots[1], slots[2] = slots[2], slots[1]
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.composition_order",
+        )
+
+    def test_semantic_emphasis_must_point_to_rendered_content(self) -> None:
+        self.fixture.render["pages"][0]["emphasis"] = {
+            "mode": "semantic-focus",
+            "content_ref": "item.missing",
+            "member_roles": ["status"],
+            "reason": "测试未知强调内容。",
+        }
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.emphasis_ref",
+        )
+
+    def test_custom_requires_all_candidates_rejected(self) -> None:
+        self.fixture.render["pages"][0]["layout_decision"]["candidate_evaluations"][0][
+            "verdict"
+        ] = "structure_fit"
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.custom_reject",
+        )
+
+    def test_unregistered_renderer_source_pair_fails(self) -> None:
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "typography",
+                "component_source": "echarts",
+                "theme_adapter_id": "paper-ink.echarts",
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.capability_pair",
+        )
+
+    def test_echarts_dataset_and_encode_are_checked(self) -> None:
+        self.fixture.composition_render()
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "canvas",
+                "component_source": "echarts",
+                "component_id": "echarts.kpi-trend",
+                "theme_adapter_id": "paper-ink.echarts",
+                "data_binding": {
+                    "data_ref": {
+                        "content_id": "item.metric",
+                        "json_pointer": "/structured_data/rows",
+                    },
+                    "dataset_id": "dataset.retention",
+                    "encode": {"x": "label", "y": "value"},
+                },
+            }
+        )
+        self.fixture.flush()
+        self.assert_ok(validate_render_plan_target(self.fixture.directory, REPO_ROOT))
+        renderer["data_binding"]["encode"]["y"] = "missing"
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT), "render.encode"
+        )
+
+    def test_echarts_json_pointer_must_exist(self) -> None:
+        self.fixture.composition_render()
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "canvas",
+                "component_source": "echarts",
+                "component_id": "echarts.kpi-trend",
+                "theme_adapter_id": "paper-ink.echarts",
+                "data_binding": {
+                    "data_ref": {
+                        "content_id": "item.metric",
+                        "json_pointer": "/structured_data/missing",
+                    },
+                    "dataset_id": "dataset.retention",
+                    "encode": {"x": "label", "y": "value"},
+                },
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT), "render.data_ref"
+        )
+
+    def test_data_binding_content_is_listed_on_the_renderer(self) -> None:
+        self.fixture.composition_render()
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer["data_binding"] = {
+            "data_ref": {
+                "content_id": "item.metric",
+                "json_pointer": "/structured_data/rows",
+            },
+            "dataset_id": "dataset.retention",
+            "encode": {"x": "label", "y": "value"},
+        }
+        renderer["content_refs"] = ["atom.rate"]
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT), "render.data_ref"
+        )
+
+    def test_atlas_component_id_is_verified(self) -> None:
+        catalog = self.fixture.directory / "atlas.json"
+        write_json(catalog, {"components": [{"component_id": "atlas.valid"}]})
+        previous = os.environ.get("PPT_COMPONENT_ATLAS_CATALOG")
+        os.environ["PPT_COMPONENT_ATLAS_CATALOG"] = str(catalog)
+        self.addCleanup(
+            lambda: os.environ.__setitem__("PPT_COMPONENT_ATLAS_CATALOG", previous)
+            if previous is not None
+            else os.environ.pop("PPT_COMPONENT_ATLAS_CATALOG", None)
+        )
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "svg",
+                "component_source": "ppt-component-atlas",
+                "component_id": "atlas.missing",
+                "theme_adapter_id": "paper-ink.svg",
+            }
+        )
+        self.fixture.flush()
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.atlas_component",
+        )
+        renderer["component_id"] = "atlas.valid"
+        self.fixture.flush()
+        self.assert_ok(validate_render_plan_target(self.fixture.directory, REPO_ROOT))
+
+    def add_reconstructed_image(self) -> None:
+        source_bytes = b"source screenshot bytes"
+        output_bytes = b"<svg xmlns='http://www.w3.org/2000/svg'><text>rebuilt</text></svg>"
+        (self.fixture.directory / "source.png").write_bytes(source_bytes)
+        asset_dir = self.fixture.directory / "assets"
+        asset_dir.mkdir(exist_ok=True)
+        (asset_dir / "rebuilt.svg").write_bytes(output_bytes)
+        self.fixture.content["assets"] = [
+            {
+                "asset_id": "asset.source",
+                "role": "source",
+                "media_type": "image/png",
+                "locator": "source.png",
+                "sha256": sha(source_bytes),
+                "source_refs": ["src.user"],
+                "reconstruction_required": True,
+            },
+            {
+                "asset_id": "asset.rebuilt",
+                "role": "reconstructed",
+                "creation_mode": "reconstruct",
+                "media_type": "image/svg+xml",
+                "locator": "assets/rebuilt.svg",
+                "sha256": sha(output_bytes),
+                "source_refs": ["src.user"],
+                "derived_from": ["asset.source"],
+                "reconstruction_method": "redraw",
+                "reconstruction_reason": "按主题线稿规范重绘原始截图。",
+                "fact_change_risk": "none",
+                "usage": "解释原始界面证据",
+                "disclosure": "重构示意",
+            },
+        ]
+        self.fixture.content["content_items"][0]["asset_refs"] = [
+            "asset.source",
+            "asset.rebuilt",
+        ]
+        self.fixture.content["content_items"][0]["epistemic_role"] = "evidence"
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "image",
+                "component_source": "native",
+                "component_id": "reconstructed-evidence",
+                "theme_adapter_id": "paper-ink.image",
+                "material_treatment": {
+                    "mode": "reconstruct",
+                    "source_asset_refs": ["asset.source"],
+                    "strategy": "redraw",
+                    "output_asset_ref": "asset.rebuilt",
+                    "reason": "按纸墨主题重绘，不直接插入原始截图。",
+                },
+            }
+        )
+        component = (
+            '<img src="assets/rebuilt.svg" data-asset-ref="asset.rebuilt" '
+            'data-material-mode="reconstruction" data-disclosure="重构示意" '
+            'data-block-id="block.main" data-renderer-kind="image" '
+            'data-component-source="native" data-component-id="reconstructed-evidence" '
+            'data-theme-adapter-id="paper-ink.image" '
+            'data-content-ref="item.metric atom.rate">55%'
+        )
+        self.fixture.flush(html=False)
+        (self.fixture.directory / "index.html").write_text(
+            self.fixture.html(component), encoding="utf-8"
+        )
+
+    def test_reconstructed_image_with_provenance_is_valid(self) -> None:
+        self.add_reconstructed_image()
+        self.assert_ok(validate_content_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_render_target(self.fixture.directory, REPO_ROOT))
+
+    def test_reconstructed_image_cannot_share_source_fingerprint(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["assets"][1]["sha256"] = self.fixture.content["assets"][0]["sha256"]
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT),
+            "asset.same_fingerprint",
+        )
+
+    def test_asset_sha_must_match_the_local_file(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["assets"][0]["sha256"] = "0" * 64
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT),
+            "asset.fingerprint",
+        )
+
+    def test_raw_image_cannot_enter_final_html(self) -> None:
+        self.add_reconstructed_image()
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8")
+            .replace("assets/rebuilt.svg", "source.png")
+            .replace("asset.rebuilt", "asset.source"),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "asset.html_unregistered",
+        )
+
+    def test_reconstructed_image_requires_disclosure(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["assets"][1].pop("disclosure")
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT), "asset.disclosure"
+        )
+
+    def test_explanatory_reconstruction_does_not_require_disclosure(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["content_items"][0]["epistemic_role"] = "fact"
+        self.fixture.content["assets"][1].pop("disclosure")
+        self.fixture.flush(html=False)
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            self.fixture.html(
+                '<img src="assets/rebuilt.svg" data-asset-ref="asset.rebuilt" '
+                'data-material-mode="reconstruction" data-block-id="block.main" '
+                'data-renderer-kind="image" data-component-source="native" '
+                'data-component-id="reconstructed-evidence" '
+                'data-theme-adapter-id="paper-ink.image" '
+                'data-content-ref="item.metric atom.rate">55%'
+            ),
+            encoding="utf-8",
+        )
+        self.assert_ok(validate_content_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_render_target(self.fixture.directory, REPO_ROOT))
+
+    def test_reconstruct_requires_fact_change_risk(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["assets"][1].pop("fact_change_risk")
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT), "asset.fact_change_risk"
+        )
+
+    def test_possible_fact_change_requires_plain_confirmation_and_stops_render(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["assets"][1]["fact_change_risk"] = "possible"
+        self.fixture.plan["confirmation"] = {
+            "mode": "adaptive",
+            "decision": "needs_confirmation",
+            "assessments": [
+                {
+                    "trigger": "reconstruction_fact_risk",
+                    "affected_refs": ["asset.rebuilt"],
+                    "impact": "conclusion",
+                    "resolution": "needs_user_choice",
+                    "reason": "重新绘制可能改变截图中的关键界面事实。",
+                }
+            ],
+            "user_questions": [
+                "这张截图重新绘制后可能改变关键细节，会影响结论。你希望我只保留能确认的内容，还是等你补充资料？"
+            ],
+        }
+        self.fixture.flush(html=False)
+        self.assert_ok(validate_plan_target(self.fixture.directory, REPO_ROOT))
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.gate_confirmation",
+        )
+
+    def test_possible_fact_change_cannot_silently_proceed(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["assets"][1]["fact_change_risk"] = "possible"
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_plan_target(self.fixture.directory, REPO_ROOT),
+            "confirmation.reconstruction_fact_risk",
+        )
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "render.gate_confirmation",
+        )
+
+    def test_image_output_must_belong_to_rendered_content(self) -> None:
+        self.add_reconstructed_image()
+        self.fixture.content["content_items"][0]["asset_refs"] = ["asset.source"]
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "asset.content_link",
+        )
+
+    def test_css_background_cannot_insert_source_image(self) -> None:
+        self.add_reconstructed_image()
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "</section>",
+                '<div style="background-image:url(source.png)">原图</div></section>',
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_svg_image_cannot_insert_source_image(self) -> None:
+        self.add_reconstructed_image()
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "</section>", '<svg><image href="source.png"/></svg></section>'
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_svg_xlink_image_cannot_insert_source_image(self) -> None:
+        self.add_reconstructed_image()
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "</section>",
+                '<svg xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="source.png"/></svg></section>',
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_picture_srcset_cannot_insert_source_image(self) -> None:
+        self.add_reconstructed_image()
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "</section>",
+                '<picture><source srcset="source.png 1x, assets/rebuilt.svg 2x"></picture></section>',
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_local_css_cannot_insert_source_image(self) -> None:
+        self.add_reconstructed_image()
+        css_path = self.fixture.directory / "escape.css"
+        css_path.write_text(".slide { background-image: url('source.png'); }", encoding="utf-8")
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "<body>", '<head><link rel="stylesheet" href="escape.css"></head><body>'
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_linked_parent_css_cannot_hide_source_image(self) -> None:
+        self.add_reconstructed_image()
+        css_path = self.fixture.directory.parent / "escape.css"
+        css_path.write_text(
+            f".slide {{ background-image: url('{self.fixture.directory.name}/source.png'); }}",
+            encoding="utf-8",
+        )
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "<body>", '<head><link rel="stylesheet" href="../escape.css"></head><body>'
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_style_block_cannot_insert_source_image(self) -> None:
+        self.add_reconstructed_image()
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "<body>", "<head><style>.slide{background:url(source.png)}</style></head><body>"
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT), "asset.raw_media"
+        )
+
+    def test_unregistered_local_css_image_is_rejected(self) -> None:
+        self.add_reconstructed_image()
+        rogue = self.fixture.directory / "assets" / "rogue.png"
+        rogue.write_bytes(b"\x89PNG\r\n\x1a\nnot registered")
+        css_path = self.fixture.directory / "escape.css"
+        css_path.write_text(".slide { background: url('assets/rogue.png'); }", encoding="utf-8")
+        html_path = self.fixture.directory / "index.html"
+        html_path.write_text(
+            html_path.read_text(encoding="utf-8").replace(
+                "<body>", '<head><link rel="stylesheet" href="escape.css"></head><body>'
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "asset.html_unregistered",
+        )
+
+    def add_generated_image(self) -> None:
+        output_bytes = b"<svg xmlns='http://www.w3.org/2000/svg'><text>generated</text></svg>"
+        asset_dir = self.fixture.directory / "assets"
+        asset_dir.mkdir(exist_ok=True)
+        (asset_dir / "generated.svg").write_bytes(output_bytes)
+        self.fixture.content["assets"] = [
+            {
+                "asset_id": "asset.generated",
+                "role": "reconstructed",
+                "creation_mode": "generate",
+                "media_type": "image/svg+xml",
+                "locator": "assets/generated.svg",
+                "sha256": sha(output_bytes),
+                "source_refs": ["src.user"],
+                "generator": "codex-gpt-image-2",
+                "generation_reason": "为抽象留存概念生成主题一致的说明图。",
+                "usage": "概念说明插图",
+            }
+        ]
+        self.fixture.content["content_items"][0]["asset_refs"] = ["asset.generated"]
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "image",
+                "component_source": "codex-host",
+                "component_id": "generated-concept",
+                "theme_adapter_id": "paper-ink.image",
+                "material_treatment": {
+                    "mode": "generate",
+                    "output_asset_ref": "asset.generated",
+                    "reason": "使用 Codex 宿主内置图片能力生成概念说明图。",
+                },
+            }
+        )
+        component = (
+            '<img src="assets/generated.svg" data-asset-ref="asset.generated" '
+            'data-material-mode="generation" data-block-id="block.main" '
+            'data-renderer-kind="image" data-component-source="codex-host" '
+            'data-component-id="generated-concept" '
+            'data-theme-adapter-id="paper-ink.image" '
+            'data-content-ref="item.metric atom.rate">55%'
+        )
+        self.fixture.flush(html=False)
+        (self.fixture.directory / "index.html").write_text(
+            self.fixture.html(component), encoding="utf-8"
+        )
+
+    def test_codex_host_generated_concept_image_is_valid(self) -> None:
+        self.add_generated_image()
+        self.assert_ok(validate_content_target(self.fixture.directory, REPO_ROOT))
+        self.assert_ok(validate_render_target(self.fixture.directory, REPO_ROOT))
+
+    def test_generated_image_cannot_carry_evidence(self) -> None:
+        self.add_generated_image()
+        self.fixture.content["content_items"][0]["epistemic_role"] = "evidence"
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_content_target(self.fixture.directory, REPO_ROOT),
+            "asset.generated_evidence",
+        )
+
+    def test_generate_mode_requires_codex_host(self) -> None:
+        self.add_generated_image()
+        self.fixture.render["pages"][0]["slots"][0]["renderer"]["component_source"] = "native"
+        self.fixture.flush(html=False)
+        self.assert_code(
+            validate_render_plan_target(self.fixture.directory, REPO_ROOT),
+            "asset.generate_source",
+        )
+
+    def test_html_rejects_legacy_attributes(self) -> None:
+        path = self.fixture.directory / "index.html"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                'data-layout-source="custom"',
+                'data-layout-source="custom" data-density="dense"',
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(validate_render_target(self.fixture.directory, REPO_ROOT), "html.legacy_attribute")
+
+    def test_html_requires_v2_runtime_marker(self) -> None:
+        path = self.fixture.directory / "index.html"
+        path.write_text(self.fixture.html(root="wise-ppt"), encoding="utf-8")
+        self.assert_code(validate_render_target(self.fixture.directory, REPO_ROOT), "html.runtime_marker")
+
+    def test_html_rejects_external_runtime_resources(self) -> None:
+        path = self.fixture.directory / "index.html"
+        html = path.read_text(encoding="utf-8").replace(
+            "<body>", '<head><script src="https://example.com/app.js"></script></head><body>'
+        )
+        path.write_text(html, encoding="utf-8")
+        self.assert_code(validate_render_target(self.fixture.directory, REPO_ROOT), "html.external_resource")
+
+    def test_html_rejects_missing_local_runtime_resource(self) -> None:
+        path = self.fixture.directory / "index.html"
+        html = path.read_text(encoding="utf-8").replace(
+            "<body>", '<head><script src="assets/missing.js"></script></head><body>'
+        )
+        path.write_text(html, encoding="utf-8")
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "html.local_resource_missing",
+        )
+
+    def test_html_recursively_checks_css_imports_and_urls(self) -> None:
+        assets = self.fixture.directory / "assets"
+        assets.mkdir()
+        (assets / "root.css").write_text(
+            '@import "nested.css";\n', encoding="utf-8"
+        )
+        (assets / "nested.css").write_text(
+            '@font-face{font-family:Test;src:url("missing.woff2")}',
+            encoding="utf-8",
+        )
+        path = self.fixture.directory / "index.html"
+        html = path.read_text(encoding="utf-8").replace(
+            "<body>", '<head><link rel="stylesheet" href="assets/root.css"></head><body>'
+        )
+        path.write_text(html, encoding="utf-8")
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "html.local_resource_missing",
+        )
+
+    def test_echarts_html_dataset_matches_content_data_ref(self) -> None:
+        self.fixture.composition_render()
+        renderer = self.fixture.render["pages"][0]["slots"][0]["renderer"]
+        renderer.update(
+            {
+                "renderer_kind": "canvas",
+                "component_source": "echarts",
+                "component_id": "echarts.kpi-trend",
+                "theme_adapter_id": "paper-ink.echarts",
+                "data_binding": {
+                    "data_ref": {
+                        "content_id": "item.metric",
+                        "json_pointer": "/structured_data/rows",
+                    },
+                    "dataset_id": "dataset.retention",
+                    "encode": {"x": "label", "y": "value"},
+                },
+            }
+        )
+        self.fixture.flush(html=False)
+
+        def write_echarts_html(dataset_id: str, dataset: object) -> None:
+            data = json.dumps(dataset, ensure_ascii=False)
+            (self.fixture.directory / "index.html").write_text(
+                "<!doctype html>"
+                '<html data-runtime="wise-ppt-deck" data-typography-mode="mixed"><body>'
+                '<section class="slide" data-page-id="page.result" '
+                'data-layout-source="composition" data-recipe-id="paper-ink.data.kpi-band">'
+                '<div data-block-id="block.main" data-renderer-kind="canvas" '
+                'data-component-source="echarts" data-component-id="echarts.kpi-trend" '
+                'data-theme-adapter-id="paper-ink.echarts" '
+                'data-content-ref="item.metric atom.rate" '
+                f'data-dataset-id="{dataset_id}">55%</div>'
+                '<p data-block-id="block.support" data-renderer-kind="typography" '
+                'data-component-source="native" '
+                'data-component-id="native.paper-ink.data.kpi-band.support" '
+                'data-theme-adapter-id="paper-ink.typography" '
+                'data-content-ref="item.metric">留存说明</p>'
+                '<p data-block-id="block.takeaway" data-renderer-kind="typography" '
+                'data-component-source="native" '
+                'data-component-id="native.paper-ink.data.kpi-band.takeaway" '
+                'data-theme-adapter-id="paper-ink.typography" '
+                'data-content-ref="item.metric">留存提升</p>'
+                '<script type="application/json" '
+                f'data-wise-ppt-dataset="dataset.retention">{data}</script>'
+                "</section></body></html>",
+                encoding="utf-8",
+            )
+
+        expected = self.fixture.content["content_items"][0]["structured_data"]["rows"]
+        write_echarts_html("dataset.retention", expected)
+        self.assert_ok(validate_render_target(self.fixture.directory, REPO_ROOT))
+
+        write_echarts_html("dataset.wrong", expected)
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "html.echarts_dataset_id",
+        )
+
+        write_echarts_html("dataset.retention", [{"label": "改版后", "value": 999}])
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "html.echarts_dataset_mismatch",
+        )
+
+    def test_html_requires_visible_atomic_value(self) -> None:
+        path = self.fixture.directory / "index.html"
+        path.write_text(path.read_text(encoding="utf-8").replace("55%", "结果"), encoding="utf-8")
+        self.assert_code(
+            validate_render_target(self.fixture.directory, REPO_ROOT),
+            "coverage.atomic_value_missing",
+        )
+
+    def test_html_gallery_must_keep_default_renderer(self) -> None:
+        self.fixture.gallery_render()
+        path = self.fixture.directory / "index.html"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "native.paper-ink.data.kpi-band.kpis", "changed-component"
+            ),
+            encoding="utf-8",
+        )
+        self.assert_code(validate_render_target(self.fixture.directory, REPO_ROOT), "html.gallery_default")
+
+    def test_delivery_requires_pdf(self) -> None:
+        self.assert_code(
+            validate_delivery_target(self.fixture.directory, REPO_ROOT),
+            "delivery.pdf_missing",
+        )
+
+    def test_delivery_pdf_page_count_matches_html(self) -> None:
+        pdf = self.fixture.directory / f"{self.fixture.directory.name}.pdf"
+        pdf.write_bytes(b"%PDF-1.4\n1 0 obj << /Type /Page >> endobj\n%%EOF")
+        self.assert_ok(validate_delivery_target(self.fixture.directory, REPO_ROOT))
 
 
-class DeckContractTests(unittest.TestCase):
+class GalleryContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.deck = Path(self.temporary.name) / "deck-contract"
-        shutil.copytree(FIXTURES / "deck-contract", self.deck)
-        self.html = self.deck / "index.html"
+        self.root = Path(self.temporary.name) / "skill"
+        self._build_root()
 
-    @staticmethod
-    def error_codes(result) -> set[str]:
-        return {issue.code for issue in result.errors}
-
-    def validate(self):
-        return validate_render_target(self.deck, REPO_ROOT)
-
-    def test_render_plan_and_deck_html_are_valid(self) -> None:
-        result = self.validate()
-        self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-
-    def test_svg_provider_requires_real_svg_in_its_block(self) -> None:
-        source = self.html.read_text(encoding="utf-8")
-        source = source.replace('<svg class="pipeline"', '<div class="pipeline"', 1)
-        source = source.replace("</svg>", "</div>", 1)
-        self.html.write_text(source, encoding="utf-8")
-        self.assertIn("render.html_provider_semantics", self.error_codes(self.validate()))
-
-    def test_echarts_provider_requires_runtime_registration(self) -> None:
-        render_path = self.deck / "render-plan.json"
-        render = load_json(render_path)
-        renderer = render["pages"][1]["slots"][1]["renderer"]
-        renderer.update(
+    def _build_root(self) -> None:
+        write_json(
+            self.root / "themes/registry.json",
             {
-                "provider": "echarts",
-                "component": "line",
-                "data_ref": "item.product-latency-series",
-                "encode": {"x": "time", "y": "latency_ms"},
-                "theme_adapter": "paper-ink.echarts",
+                "default_theme_id": "paper-ink",
+                "themes": [
+                    {
+                        "theme_id": "paper-ink",
+                        "name": "Paper Ink",
+                        "path": "themes/paper-ink/theme.json",
+                        "enabled": True,
+                    }
+                ],
+            },
+        )
+        write_json(
+            self.root / "themes/paper-ink/theme.json",
+            {
+                "theme_id": "paper-ink",
+                "galleries": {
+                    "general": "gallery/paper-ink/general/index.html",
+                    "ai": "gallery/paper-ink/ai/index.html",
+                },
+                "adapters": [],
+            },
+        )
+        write_json(
+            self.root / "capabilities/registry.json",
+            {
+                "contract_version": 2,
+                "renderer_kinds": [
+                    {"renderer_kind": "svg", "description": "SVG"}
+                ],
+                "component_sources": [
+                    {
+                        "component_source": "native",
+                        "description": "Native",
+                        "allowed_renderer_kinds": ["svg"],
+                    }
+                ],
+                "capabilities": [
+                    {
+                        "capability_id": "layout-gallery",
+                        "capability_kind": "layout-catalog",
+                        "manifest": "capabilities/layouts/gallery-manifest.json",
+                        "reference": "capabilities/references/layout-gallery.md",
+                    }
+                ],
+            },
+        )
+        recipe = {
+            "recipe_id": "paper-ink.test.one",
+            "display_code": "T1",
+            "name": "测试",
+            "family": "测试",
+            "description": "单槽位测试",
+            "roles": ["prove"],
+            "relations": ["focus"],
+            "primitives": ["hero"],
+            "reading_order": ["main"],
+            "structure_contract": {
+                "region_count": 1,
+                "required_slot_ids": ["main"],
+                "core_primitives": ["focus-field"],
+            },
+            "slots": [
+                {
+                    "slot_id": "main",
+                    "purpose": "主信息",
+                    "required": True,
+                    "visual_role": "primary",
+                    "min_items": 1,
+                    "max_items": 1,
+                    "allowed_renderer_kinds": ["svg"],
+                    "allowed_component_sources": ["native"],
+                    "default_renderer": {
+                        "renderer_kind": "svg",
+                        "component_source": "native",
+                        "component_id": "native.test.one.main",
+                    },
+                }
+            ],
+            "examples": {
+                "general": "gallery/paper-ink/general/frames/layout-t1.html",
+                "ai": "gallery/paper-ink/ai/frames/layout-t1.html",
+            },
+            "selection_notes": "完全匹配时直接使用。",
+            "anti_patterns": ["不要改结构"],
+        }
+        recipe["structure_fingerprint"] = _recipe_fingerprint(recipe)
+        write_json(
+            self.root / "capabilities/layouts/gallery-manifest.json",
+            {
+                "contract_version": 2,
+                "capability_id": "layout-gallery",
+                "name": "Gallery",
+                "description": "Test",
+                "recipe_count": 1,
+                "recipes": [recipe],
+            },
+        )
+        for variant in ("general", "ai"):
+            runtime = self.root / "runtime/stage-fit.js"
+            runtime.parent.mkdir(parents=True, exist_ok=True)
+            runtime.write_text("window.WisePPTStageFit = {};", encoding="utf-8")
+            index = self.root / f"gallery/paper-ink/{variant}/index.html"
+            index.parent.mkdir(parents=True, exist_ok=True)
+            index.write_text(
+                '<!doctype html><html data-runtime="wise-ppt-gallery"><head>'
+                '<script src="../../../runtime/stage-fit.js"></script></head></html>',
+                encoding="utf-8",
+            )
+            frame = self.root / f"gallery/paper-ink/{variant}/frames/layout-t1.html"
+            frame.parent.mkdir(parents=True, exist_ok=True)
+            frame.write_text(
+                '<!doctype html><html data-runtime="wise-ppt-specimen"><head>'
+                '<script src="../../../../runtime/stage-fit.js"></script></head><body>'
+                '<section class="slide"></section></body></html>',
+                encoding="utf-8",
+            )
+
+    def assert_code(self, result, code: str) -> None:
+        self.assertIn(code, {issue.code for issue in result.errors})
+
+    def test_gallery_v2_contract_passes(self) -> None:
+        result = validate_gallery(self.root)
+        self.assertTrue(result.ok, "\n".join(issue.format() for issue in result.issues))
+
+    def test_gallery_fingerprint_is_recomputed(self) -> None:
+        path = self.root / "capabilities/layouts/gallery-manifest.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest["recipes"][0]["reading_order"] = ["changed"]
+        write_json(path, manifest)
+        self.assert_code(validate_gallery(self.root), "gallery.fingerprint")
+
+    def test_gallery_rejects_old_contract_version(self) -> None:
+        path = self.root / "capabilities/layouts/gallery-manifest.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        manifest["contract_version"] = 1
+        write_json(path, manifest)
+        self.assert_code(validate_gallery(self.root), "config.gallery")
+
+    def test_gallery_examples_must_live_in_public_layer(self) -> None:
+        path = self.root / "capabilities/layouts/gallery-manifest.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        old = self.root / "themes/paper-ink/gallery/general/frames/layout-t1.html"
+        old.parent.mkdir(parents=True, exist_ok=True)
+        old.write_text(
+            '<!doctype html><html data-runtime="wise-ppt-specimen"><head>'
+            '<script src="../../../../../runtime/stage-fit.js"></script></head><body>'
+            '<section class="slide"></section></body></html>',
+            encoding="utf-8",
+        )
+        manifest["recipes"][0]["examples"]["general"] = (
+            "themes/paper-ink/gallery/general/frames/layout-t1.html"
+        )
+        write_json(path, manifest)
+        self.assert_code(validate_gallery(self.root), "gallery.example_path")
+
+    def test_gallery_rejects_missing_local_resource(self) -> None:
+        frame = self.root / "gallery/paper-ink/general/frames/layout-t1.html"
+        source = frame.read_text(encoding="utf-8").replace(
+            "</head>", '<link rel="stylesheet" href="missing.css"></head>'
+        )
+        frame.write_text(source, encoding="utf-8")
+        self.assert_code(
+            validate_gallery(self.root),
+            "gallery.local_resource_missing",
+        )
+
+    def test_theme_adapter_pairs_must_be_public_capabilities(self) -> None:
+        path = self.root / "themes/paper-ink/theme.json"
+        theme = json.loads(path.read_text(encoding="utf-8"))
+        theme["adapters"] = [
+            {
+                "adapter_id": "paper-ink.invalid",
+                "renderer_kinds": ["svg"],
+                "component_sources": ["codex-host"],
             }
-        )
-        write_json(render_path, render)
-        source = self.html.read_text(encoding="utf-8")
-        source = source.replace(
-            'data-page-id="page.example-dense-ui"',
-            'data-page-id="page.example-dense-ui" data-render-pending="true"',
-            1,
-        )
-        source = source.replace(
-            'data-provider="native-html" data-component="canvas-line-chart"',
-            'data-provider="echarts" data-component="line"',
-            1,
-        )
-        self.html.write_text(source, encoding="utf-8")
-        self.assertIn("render.html_provider_semantics", self.error_codes(self.validate()))
-
-    def test_render_plan_requires_canonical_index_entry(self) -> None:
-        render_path = self.deck / "render-plan.json"
-        render = load_json(render_path)
-        render["output_file"] = "deck.html"
-        write_json(render_path, render)
-        self.assertIn("schema.const", self.error_codes(self.validate()))
-
-    def test_render_requires_layout_source_metadata_in_html(self) -> None:
-        source = self.html.read_text(encoding="utf-8").replace(
-            ' data-layout-source="gallery"',
-            "",
-            1,
-        )
-        self.html.write_text(source, encoding="utf-8")
-        self.assertIn("render.html_page_data", self.error_codes(self.validate()))
-
-    def test_deck_html_rejects_duplicate_page_id(self) -> None:
-        source = self.html.read_text(encoding="utf-8").replace(
-            'data-page-id="page.example-dense-ui"',
-            'data-page-id="page.example-flow-kpi"',
-            1,
-        )
-        self.html.write_text(source, encoding="utf-8")
-        codes = self.error_codes(self.validate())
-        self.assertIn("render.duplicate_html_page", codes)
-        self.assertIn("render.html_page_missing", codes)
-
-    def test_deck_html_rejects_cross_slide_source_id(self) -> None:
-        source = self.html.read_text(encoding="utf-8").replace(
-            '<div class="stage">',
-            '<div class="stage" id="shared-source">',
-        )
-        self.html.write_text(source, encoding="utf-8")
-        self.assertIn("render.duplicate_source_id", self.error_codes(self.validate()))
-
-    def test_deck_html_rejects_missing_page(self) -> None:
-        source = self.html.read_text(encoding="utf-8")
-        source = re.sub(
-            r'<section class="slide" data-page-id="page[.]example-dense-ui".*?</section>\s*</div></div>',
-            '</div></div>',
-            source,
-            count=1,
-            flags=re.S,
-        )
-        self.html.write_text(source, encoding="utf-8")
-        self.assertIn("render.html_page_missing", self.error_codes(self.validate()))
-
-    def test_deck_html_rejects_content_owned_by_wrong_slide(self) -> None:
-        source = self.html.read_text(encoding="utf-8").replace(
-            'data-content-ref="item.delivery-process"',
-            'data-content-ref="item.product-ui-state"',
-            1,
-        )
-        self.html.write_text(source, encoding="utf-8")
-        self.assertIn("render.html_content_refs", self.error_codes(self.validate()))
-
-    def test_theme_keeps_one_six_page_golden_story(self) -> None:
-        examples = REPO_ROOT / "themes" / "paper-ink" / "examples"
-        expected = {"wise-ppt-story-six-page"}
-        self.assertEqual(
-            {path.name for path in examples.iterdir() if path.is_dir()},
-            expected,
-        )
-        for name in sorted(expected):
-            target = examples / name
-            with self.subTest(example=name):
-                self.assertFalse((target / "frames").exists())
-                html = (target / "index.html").read_text(encoding="utf-8")
-                self.assertNotIn("<iframe", html.casefold())
-                self.assertEqual(html.count('<section class="slide"'), 6)
-                self.assertIn('data-deck-title="Wise PPT · 分镜示例"', html)
-                self.assertNotIn("SCAN · 微信搜一搜 歪斯Wise", html)
-                result = validate_all(target, REPO_ROOT)
-                self.assertTrue(result.ok, [issue.format() for issue in result.issues])
-
-        decision_fixtures = FIXTURES / "render-decisions"
-        self.assertEqual(
-            {path.name for path in decision_fixtures.iterdir() if path.is_dir()},
-            {"gallery-copy", "gallery-adapt", "custom"},
-        )
+        ]
+        write_json(path, theme)
+        self.assert_code(validate_gallery(self.root), "theme.adapter_capability")
 
 
 if __name__ == "__main__":

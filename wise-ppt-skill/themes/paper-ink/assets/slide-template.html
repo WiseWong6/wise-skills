@@ -2,10 +2,9 @@
   data-page-id="page.example"
   data-page-role="explain"
   data-theme="paper-ink"
+  data-typography-mode="mixed"
   data-layout-source="gallery"
-  data-layout="paper-ink.flow.pipeline"
-  data-density="balanced"
-  data-reuse-mode="adapt"
+  data-recipe-id="paper-ink.flow.pipeline"
   data-page-title="页面标题"
   data-page-summary="本页的一句话结论。"
   data-section-id="section.main"
@@ -15,14 +14,16 @@
     <div class="folio">NN / TOTAL — BY AUTHOR</div>
 
     <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080"
-      data-block-id="block.primary" data-provider="svg" data-component="custom-visual"
+      data-block-id="block.primary" data-renderer-kind="svg" data-component-source="native"
+      data-component-id="custom-visual" data-theme-adapter-id="paper-ink.svg"
       data-content-ref="item.placeholder">
       <g data-draw></g>
     </svg>
     <canvas data-canvas width="1920" height="1080"></canvas>
 
-    <div class="caption" data-block-id="block.takeaway" data-provider="typography"
-      data-component="takeaway" data-content-ref="item.placeholder">本页的一句话结论。</div>
+    <div class="caption" data-block-id="block.takeaway" data-renderer-kind="typography"
+      data-component-source="native" data-component-id="takeaway"
+      data-theme-adapter-id="paper-ink.typography" data-content-ref="item.placeholder">本页的一句话结论。</div>
   </div>
   <script>
   (function(){

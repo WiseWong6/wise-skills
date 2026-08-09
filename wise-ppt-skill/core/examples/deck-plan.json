@@ -1,39 +1,45 @@
 {
+  "contract_version": 2,
   "content_file": "content.json",
   "thesis": "发布不是终点，学习会成为下一轮发现的输入。",
   "narrative_type": "chronology",
+  "planning_basis": {
+    "mode": "user-constrained",
+    "scenario": "内部流程说明会",
+    "scenario_origin": "user",
+    "user_constraint_refs": [
+      "constraint.page-count"
+    ],
+    "research_source_refs": [],
+    "assumptions": [],
+    "reason": "用户已明确三页约束，内容结构也能稳定拆成判断、机制与行动三步。"
+  },
   "page_budget": {
-    "min": 3,
-    "max": 3,
     "target": 3,
-    "drivers": [
+    "basis": [
       {
-        "type": "independent_claim",
-        "count": 1,
-        "reason": "先用一页建立发布不是终点的核心判断。"
+        "type": "user_constraint",
+        "constraint_refs": [
+          "constraint.page-count"
+        ],
+        "reason": "用户明确要求三页。"
       },
       {
-        "type": "evidence_chain",
-        "count": 1,
-        "reason": "六阶段顺序与回流必须在一页完整呈现，不能拆成无关系卡片。"
-      },
-      {
-        "type": "narrative_turn",
-        "count": 1,
-        "reason": "最后一页把机制收束为团队行动判断。"
+        "type": "content_structure",
+        "content_refs": [
+          "item.deck-thesis",
+          "item.launch-path"
+        ],
+        "reason": "一个核心判断、一条完整机制链和一个行动收束构成三个不可合并的认知动作。"
       }
     ],
     "reason": "一页建立判断，一页展示六阶段关系，一页收束行动含义。"
   },
   "confirmation": {
     "mode": "adaptive",
-    "decision": "needs_confirmation",
-    "triggers": [
-      "must_infer_or_placeholder_or_remove"
-    ],
-    "questions": [
-      "请提供真实发布流程材料，或明确确认仅将这些合成值用于示例展示。"
-    ]
+    "decision": "proceed",
+    "assessments": [],
+    "user_questions": []
   },
   "sections": [
     {
@@ -83,8 +89,6 @@
         "reason": "开场只建立一个反直觉判断，不应同时展开六个阶段。"
       },
       "spatial_primitive": "focus-field",
-      "semantic_unit_count": 2,
-      "density_intent": "breathing",
       "blocks": [
         {
           "block_id": "block.opening-claim",
@@ -127,8 +131,6 @@
         "reason": "六项信息有确定先后，且最后一项明确回到第一项，因此不能使用无方向的 grid。"
       },
       "spatial_primitive": "linear-sequence",
-      "semantic_unit_count": 8,
-      "density_intent": "dense",
       "blocks": [
         {
           "block_id": "block.stage-path",
@@ -175,8 +177,6 @@
         "reason": "收尾只保留一个行动判断，避免重复流程细节。"
       },
       "spatial_primitive": "focus-field",
-      "semantic_unit_count": 2,
-      "density_intent": "breathing",
       "blocks": [
         {
           "block_id": "block.close-claim",
