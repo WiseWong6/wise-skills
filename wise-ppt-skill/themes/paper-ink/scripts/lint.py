@@ -16,12 +16,15 @@
     L8 禁用填充：纯白 #fff / #ffffff 作为 fill
     L9 深色页面底色：.stage / body 背景亮度 < 50%（skill 拒绝暗色系，全部纸底纯色）
     L10 字阶：页面只能引用共享 --type-* token；CSS/SVG/Canvas/ECharts 禁止裸字号
+    L11 文案边界：页角只写主题/章节，caption 只写页面结论，不泄漏选版式元数据
+    L12 图标语义：禁止用 Emoji 充当图标或装饰；保留方向、勾叉等纯文本符号
 
 退出码：有 FAIL 则 1（--strict 时 WARN 也为 1），否则 0。
 注意：静态检查有边界——循环里用变量画的 rect/线无法计数，机检全过 ≠ 目检通过，
      仍须按 visual-checklist 在真实浏览器中人工验收。
 """
 import argparse
+import html
 import os
 import re
 import sys
@@ -36,6 +39,8 @@ TYPE_ROLES = {
     'heading', 'emphasis', 'caption', 'subheading', 'body', 'body-small',
     'label', 'meta', 'micro',
 }
+EMOJI_GLYPH = re.compile(r'[\U0001F000-\U0001FAFF\u2300-\u23FF\u2600-\u27BF\uFE0F]')
+TEXT_SYMBOLS = {'←', '↑', '→', '↓', '↔', '✓', '✗', '✕'}
 
 def lint_file(path):
     fails, warns = [], []
@@ -124,9 +129,19 @@ def lint_file(path):
     if 'class="folio"' not in src:
         fails.append('L5 缺 .folio 页脚')
     page_role = re.search(r'data-page-role="([^"]+)"', src)
-    caption_optional = page_role and page_role.group(1) in {'hook', 'orient', 'close'}
+    layout = re.search(r'data-layout="([^"]+)"', src)
+    caption_optional_layouts = {
+        'paper-ink.scaffold.cover',
+        'paper-ink.scaffold.particle-outro',
+        'paper-ink.scaffold.minimal-outro',
+        'paper-ink.scaffold.section-divider',
+    }
+    caption_optional = bool(
+        (page_role and page_role.group(1) in {'hook', 'orient', 'close'}) or
+        (layout and layout.group(1) in caption_optional_layouts)
+    )
     if not caption_optional and not re.search(r'class="[^"]*\bcaption\b', src):
-        warns.append('L5 无 .caption')
+        fails.append('L5 无 .caption')
 
     # L6：不从几何重复推断语义错误。同尺寸 rect 可能是合法的矩阵、证据墙、
     # 表格或同行比较；关系正确性由 render plan、manifest capacity 与截图目检负责。
@@ -184,7 +199,12 @@ def lint_file(path):
             seen_raw_lines.add(line)
             fails.append(f'L10 裸字号（必须引用 --type-* token）(line {line})')
     for m in re.finditer(r'["\']font-size["\']\s*:\s*([^,}\n]+)', src):
-        if 'var(--type-' in m.group(1):
+        value = m.group(1)
+        if (
+            'var(--type-' in value
+            or re.fullmatch(r"\s*WisePPT[.]typeSize\(\s*['\"][a-z-]+['\"]\s*\)\s*", value)
+            or re.fullmatch(r"\s*paperInkTypeSize\(\s*['\"][a-z-]+['\"]\s*\)\s*", value)
+        ):
             continue
         line = src[:m.start()].count('\n') + 1
         if line not in seen_raw_lines:
@@ -195,6 +215,40 @@ def lint_file(path):
         if role not in TYPE_ROLES:
             line = src[:m.start()].count('\n') + 1
             fails.append(f'L10 未声明字阶 --type-{role} (line {line})')
+
+    # L11 选择说明与页面文案分层。元数据只服务选版式，不得混入成品页角或结论。
+    def visible_text(markup):
+        return html.unescape(re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', markup))).strip()
+
+    caption_match = re.search(r'<[^>]+class="[^"]*\bcaption\b[^"]*"[^>]*>(.*?)</[^>]+>', src, re.S)
+    if caption_match:
+        caption = visible_text(caption_match.group(1))
+        caption_meta = re.compile(
+            r'当页面角色|优先复用|版式|布局|画册|样张|全\s*deck|几栏|几格|图题|主角|'
+            r'兜底版式|兜底页型|用来|用于|一页讲清|严格对位|列阵|宫格|横带让|时间轴把|'
+            r'环形进度环|分栏清单柱|同心防线用|嵌套变焦框表达|横向流水线解释|'
+            r'循环圆环表达|蛇形回环装下|汇聚流把|漏斗只讲|^[A-O]\d+\s',
+            re.I,
+        )
+        if caption_meta.search(caption):
+            fails.append('L11 caption 混入版式选择或制作说明')
+        if len(caption) > 52:
+            fails.append(f'L11 caption 过长（{len(caption)} 字，允许 ≤52）')
+
+    doc_match = re.search(r'<[^>]+class="[^"]*\bdoc\b[^"]*\btl\b[^"]*"[^>]*>(.*?)</[^>]+>', src, re.S)
+    if doc_match:
+        doc = visible_text(doc_match.group(1))
+        if re.search(r'PAPER-INK\s+GALLERY|AI\s+LAYOUT\s+GALLERY|\bLAYOUT\b|\bMOCK\b', doc, re.I):
+            fails.append('L11 doc tl 混入 gallery/layout/mock 元数据')
+
+    # L12 禁止把彩色/平台相关 Emoji 当成图标。有限的纯文本方向和勾叉符号
+    # 用于流程、状态或数学语义，不依赖 emoji presentation，允许保留。
+    for match in EMOJI_GLYPH.finditer(src):
+        glyph = match.group(0)
+        if glyph in TEXT_SYMBOLS:
+            continue
+        line = src[:match.start()].count('\n') + 1
+        fails.append(f'L12 Emoji {glyph!r}（请改用 Font Awesome 或自绘 SVG）(line {line})')
 
     return fails, warns
 

@@ -18,6 +18,7 @@ bash runtime/check-deck.sh <deck-dir> --mode accent
 - `data-page-id`、`data-page-role`、`data-theme`、`data-layout-source`、`data-layout`、`data-density`、`data-reuse-mode`、`data-emphasis-mode` 齐全，并与 Deck Plan、主题、layout decision 及 Render Plan emphasis 的派生值一致。
 - 所有组件有 `data-block-id`、`data-provider`、`data-component`、`data-content-ref`。
 - 纸底、墨色、字体、线宽符合 `design-tokens.md`；无未声明的彩色、渐变、重阴影和大面积深色底。
+- 页面没有用 Emoji 代替图标或装饰；通用图标来自 Font Awesome，缺失图标才使用符合主题线宽的自绘 SVG。
 - 全 deck 字号只引用共享 `--type-*` 字阶；相同语义层级字号一致，CSS/SVG/Canvas/ECharts 都没有页面级裸字号或 shorthand 绕过。
 - 一页只有一个主要视觉角色；支持组件没有抢走结论。
 - 事实、数字、表格、图表和截图都能追到 `content.json`；推断或占位没有伪装成来源事实。

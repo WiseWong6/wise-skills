@@ -119,8 +119,13 @@
     transform-origin: top left;
   }
   #stagebox iframe {
+    position: absolute; inset: 0;
     width: 1920px; height: 1080px; border: 0; display: block;
     background: var(--paper);
+    visibility: hidden;
+  }
+  #stagebox iframe.is-visible {
+    visibility: visible;
   }
   /* 样张外框细线 */
   #frame-line {
@@ -169,7 +174,7 @@
     <span class="acc-btn" id="acc-btn">强调色</span>
   </div>
   <div id="viewport">
-    <div id="stagebox"><iframe id="fr" src="about:blank"></iframe></div>
+    <div id="stagebox"></div>
     <div id="frame-line"></div>
     <div class="nav" id="prev">←</div>
     <div class="nav" id="next">→</div>
@@ -180,6 +185,7 @@
   </div>
 </div>
 
+<script src="../../assets/gallery-frame-loader.js"></script>
 <script>
 /* ============ 画册目录（由 scripts/generate-gallery.py 生成）
    族序 = 字母序 A→O：每族恰好一个字母前缀，A 在最顶 ============ */
@@ -190,7 +196,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A1",
     "name": "标本卡",
     "file": "layout-a1.html",
-    "use": "展示证据原件——对话/单据/界面片段，配批注圈错。当页面角色属于prove、关系形状为focus/evidence且容量落在 1–4 个语义单元时优先复用。"
+    "use": "展示证据原件——对话/单据/界面片段，配批注圈错"
   },
   {
     "id": "paper-ink.evidence.scenario-illustration",
@@ -198,7 +204,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A2",
     "name": "场景画",
     "file": "layout-a2.html",
-    "use": "把抽象问题演成一个具体场景的横向叙事插画。当页面角色属于hook/prove、关系形状为sequence/spatial/evidence且容量落在 1–5 个语义单元时优先复用。"
+    "use": "把抽象问题演成一个具体场景的横向叙事插画"
   },
   {
     "id": "paper-ink.evidence.document-excerpt",
@@ -206,7 +212,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A3",
     "name": "文献摘引页",
     "file": "layout-a3.html",
-    "use": "引用政策/权威报告为论点开路，摘要+原文标本。当页面角色属于prove、关系形状为focus/evidence且容量落在 1–4 个语义单元时优先复用。"
+    "use": "引用政策/权威报告为论点开路，摘要+原文标本"
   },
   {
     "id": "paper-ink.evidence.strategy-evidence-wall",
@@ -214,7 +220,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A4",
     "name": "左策略右证据墙",
     "file": "layout-a4.html",
-    "use": "左边讲打法，右边用截图/实例网格证明已做到。当页面角色属于prove/synthesize、关系形状为comparison/matrix/evidence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "左边讲打法，右边用截图/实例网格证明已做到"
   },
   {
     "id": "paper-ink.evidence.policy-columns",
@@ -222,7 +228,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A5",
     "name": "条文陈列页",
     "file": "layout-a5.html",
-    "use": "制度/规范/条款的全文出示（例外页型，≤1 页）。当页面角色属于prove、关系形状为matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "制度/规范/条款的全文出示（例外页型，≤1 页）"
   },
   {
     "id": "paper-ink.evidence.credential-wall",
@@ -230,7 +236,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A6",
     "name": "资质证书墙",
     "file": "layout-a6.html",
-    "use": "背书页——专利/认证/奖项原件缩略密排。当页面角色属于prove、关系形状为matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "背书页——专利/认证/奖项原件缩略密排"
   },
   {
     "id": "paper-ink.evidence.logo-cloud",
@@ -238,15 +244,15 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A7",
     "name": "Logo云墙",
     "file": "layout-a7.html",
-    "use": "客户/伙伴背书，以数量制造信任感。当页面角色属于prove、关系形状为matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "客户/伙伴背书，以数量制造信任感"
   },
   {
     "id": "paper-ink.evidence.admin-ui",
     "fam": "证据",
     "code": "A8",
-    "name": "后台界面mock",
+    "name": "后台任务追踪台",
     "file": "layout-a8.html",
-    "use": "展示产品后台（列表/筛选/下钻），证明真实存在。当页面角色属于prove/explain、关系形状为hierarchy/matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "展示产品后台（列表/筛选/下钻），证明真实存在"
   },
   {
     "id": "paper-ink.evidence.mobile-screen-gallery",
@@ -254,7 +260,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "A9",
     "name": "手机多屏画廊",
     "file": "layout-a9.html",
-    "use": "移动端连续操作流或多个功能面。当页面角色属于prove/sequence、关系形状为sequence/evidence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "移动端连续操作流或多个功能面"
   },
   {
     "id": "paper-ink.temporal.timeline",
@@ -262,7 +268,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "B1",
     "name": "水平时间轴",
     "file": "layout-b1.html",
-    "use": "历史沿革、版本演进、里程碑。当页面角色属于sequence、关系形状为sequence且容量落在 1–7 个语义单元时优先复用。"
+    "use": "历史沿革、版本演进、里程碑"
   },
   {
     "id": "paper-ink.temporal.gantt-waterfall",
@@ -270,7 +276,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "B2",
     "name": "甘特瀑布",
     "file": "layout-b2.html",
-    "use": "耗时分布、瓶颈定位、断点标注。当页面角色属于sequence/prove、关系形状为sequence/comparison且容量落在 2–8 个语义单元时优先复用。"
+    "use": "耗时分布、瓶颈定位、断点标注"
   },
   {
     "id": "paper-ink.temporal.swimlane-roadmap",
@@ -278,7 +284,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "B3",
     "name": "多泳道路线图",
     "file": "layout-b3.html",
-    "use": "多年/多季度规划，按工作流分泳道展开。当页面角色属于sequence/act、关系形状为sequence/matrix且容量落在 2–12 个语义单元时优先复用。"
+    "use": "多年/多季度规划，按工作流分泳道展开"
   },
   {
     "id": "paper-ink.temporal.timeline-evidence-gallery",
@@ -286,7 +292,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "B4",
     "name": "时间轴垂挂画廊",
     "file": "layout-b4.html",
-    "use": "项目历程——时间轴给骨架，节点下垂挂证据卡。当页面角色属于sequence/prove、关系形状为sequence/evidence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "项目历程——时间轴给骨架，节点下垂挂证据卡"
   },
   {
     "id": "paper-ink.temporal.step-rise",
@@ -294,7 +300,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "B5",
     "name": "阶梯爬升路径",
     "file": "layout-b5.html",
-    "use": "发展历程、分阶段规划——逐级向上的动势。当页面角色属于sequence、关系形状为sequence/hierarchy且容量落在 1–8 个语义单元时优先复用。"
+    "use": "发展历程、分阶段规划——逐级向上的动势"
   },
   {
     "id": "paper-ink.temporal.winding-road",
@@ -302,7 +308,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "B6",
     "name": "蜿蜒道路时间轴",
     "file": "layout-b6.html",
-    "use": "长跨度演进叙事——S 形道路\"一路走来\"。当页面角色属于sequence、关系形状为sequence/spatial且容量落在 2–7 个语义单元时优先复用。"
+    "use": "长跨度演进叙事——S 形道路\"一路走来\""
   },
   {
     "id": "paper-ink.data.visual-kpi-split",
@@ -310,7 +316,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C1",
     "name": "左图右2×2数据格",
     "file": "layout-c1.html",
-    "use": "左半给场景/产品图，右半四个大数字成效。当页面角色属于prove/synthesize、关系形状为comparison/matrix/evidence且容量落在 2–7 个语义单元时优先复用。"
+    "use": "左半给场景/产品图，右半四个大数字成效"
   },
   {
     "id": "paper-ink.data.chart-wall",
@@ -318,7 +324,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C2",
     "name": "图表联排墙",
     "file": "layout-c2.html",
-    "use": "一页讲一组同主题数据，图表本身是主角。当页面角色属于prove、关系形状为matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "一页讲一组同主题数据，图表本身是主角"
   },
   {
     "id": "paper-ink.data.profile-card-array",
@@ -326,7 +332,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C3",
     "name": "顶图卡列阵",
     "file": "layout-c3.html",
-    "use": "团队介绍、代表案例——每列一个角色卡。当页面角色属于orient/prove、关系形状为matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "团队介绍、代表案例——每列一个角色卡"
   },
   {
     "id": "paper-ink.data.geo-bubble-map",
@@ -334,7 +340,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C4",
     "name": "地理气泡地图",
     "file": "layout-c4.html",
-    "use": "市场分布、区域覆盖、服务网络。当页面角色属于prove、关系形状为spatial/evidence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "市场分布、区域覆盖、服务网络"
   },
   {
     "id": "paper-ink.data.radial-progress-array",
@@ -342,7 +348,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C5",
     "name": "环形进度环列阵",
     "file": "layout-c5.html",
-    "use": "资源分配/构成比例——总额+一排圆环各占一份。当页面角色属于prove、关系形状为matrix/evidence且容量落在 1–6 个语义单元时优先复用。"
+    "use": "资源分配/构成比例——总额+一排圆环各占一份"
   },
   {
     "id": "paper-ink.data.kpi-band",
@@ -350,7 +356,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C6",
     "name": "KPI大数字横带",
     "file": "layout-c6.html",
-    "use": "3–4 个超大数字独立成页，一锤定音。当页面角色属于prove/synthesize、关系形状为focus/matrix/evidence且容量落在 1–5 个语义单元时优先复用。"
+    "use": "3–4 个超大数字独立成页，一锤定音"
   },
   {
     "id": "paper-ink.data.ranked-specimen-bars",
@@ -358,7 +364,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "C7",
     "name": "样本排行柱图",
     "file": "layout-c7.html",
-    "use": "榜单/排行——柱高表数值，样本本身也要被看见。当页面角色属于prove、关系形状为comparison/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "榜单/排行——柱高表数值，样本本身也要被看见"
   },
   {
     "id": "paper-ink.scaffold.cover",
@@ -366,7 +372,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D1",
     "name": "封面",
     "file": "layout-d1.html",
-    "use": "当任务需要独立封面，且页面角色属于hook、关系形状为focus、容量落在 1–2 个语义单元时优先复用。"
+    "use": "需要独立封面时使用的呼吸型落版"
   },
   {
     "id": "paper-ink.scaffold.particle-outro",
@@ -374,7 +380,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D2",
     "name": "粒子大字尾卡",
     "file": "layout-d2.html",
-    "use": "收尾落版/下集预告（可选形态，非默认）。当页面角色属于close、关系形状为focus且容量落在 1–2 个语义单元时优先复用。"
+    "use": "收尾落版/下集预告（可选形态，非默认）"
   },
   {
     "id": "paper-ink.scaffold.minimal-outro",
@@ -382,7 +388,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D3",
     "name": "极简Outro",
     "file": "layout-d3.html",
-    "use": "当任务需要独立收尾，且页面角色属于close、关系形状为focus、容量落在 1–2 个语义单元时优先复用。"
+    "use": "需要独立收尾时使用的一句 CTA 或致谢"
   },
   {
     "id": "paper-ink.scaffold.agenda",
@@ -390,7 +396,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D4",
     "name": "目录导航页",
     "file": "layout-d4.html",
-    "use": "当长 deck 需要目录、导航或章节索引，且页面角色属于orient、关系形状为hierarchy、容量落在 2–8 个语义单元时优先复用。"
+    "use": "长 deck 可选的目录、导航或章节索引"
   },
   {
     "id": "paper-ink.scaffold.section-divider",
@@ -398,7 +404,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D5",
     "name": "章节隔页",
     "file": "layout-d5.html",
-    "use": "章节转场呼吸页——让视线休息、宣告新章节。当页面角色属于orient、关系形状为focus且容量落在 1–2 个语义单元时优先复用。"
+    "use": "章节转场呼吸页——让视线休息、宣告新章节"
   },
   {
     "id": "paper-ink.scaffold.contact",
@@ -406,7 +412,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D6",
     "name": "联络尾页",
     "file": "layout-d6.html",
-    "use": "商务 deck 收尾——联系方式与地址。当页面角色属于act/close、关系形状为hierarchy且容量落在 2–6 个语义单元时优先复用。"
+    "use": "联络尾页"
   },
   {
     "id": "paper-ink.scaffold.chapter-rail",
@@ -414,7 +420,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "D7",
     "name": "竖排章节轨",
     "file": "layout-d7.html",
-    "use": "页级铬件——长 deck 的\"我在哪一章\"定位感。当页面角色属于orient、关系形状为hierarchy且容量落在 2–3 个语义单元时优先复用。"
+    "use": "页级铬件——长 deck 的\"我在哪一章\"定位感"
   },
   {
     "id": "paper-ink.comparison.dual-panel",
@@ -422,7 +428,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "E1",
     "name": "对比双面板",
     "file": "layout-e1.html",
-    "use": "两种模式/两个世界的强对比（旧 vs 新）。当页面角色属于compare、关系形状为comparison且容量落在 2–6 个语义单元时优先复用。"
+    "use": "两种模式/两个世界的强对比（旧 vs 新）"
   },
   {
     "id": "paper-ink.comparison.watershed-columns",
@@ -430,7 +436,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "E2",
     "name": "分水岭双栏",
     "file": "layout-e2.html",
-    "use": "同类两概念的字段级克制对照。当页面角色属于compare、关系形状为comparison且容量落在 2–8 个语义单元时优先复用。"
+    "use": "同类两概念的字段级克制对照"
   },
   {
     "id": "paper-ink.comparison.paired-bands",
@@ -438,7 +444,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "E3",
     "name": "双带列阵",
     "file": "layout-e3.html",
-    "use": "N 因对 N 策的逐条对答（为什么做→怎么做）。当页面角色属于compare、关系形状为comparison/mapping且容量落在 2–12 个语义单元时优先复用。"
+    "use": "N 因对 N 策的逐条对答（为什么做→怎么做）"
   },
   {
     "id": "paper-ink.comparison.before-after-matrix",
@@ -446,7 +452,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "E4",
     "name": "前后对比行矩阵",
     "file": "layout-e4.html",
-    "use": "改造前后对照，并给出一行总账指标。当页面角色属于compare/prove、关系形状为comparison/matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "改造前后对照，并给出一行总账指标"
   },
   {
     "id": "paper-ink.comparison.dual-pyramid-map",
@@ -454,7 +460,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "E5",
     "name": "双金字塔对照映射",
     "file": "layout-e5.html",
-    "use": "两套层级体系的对照与映射。当页面角色属于compare、关系形状为comparison/mapping/hierarchy且容量落在 2–10 个语义单元时优先复用。"
+    "use": "两套层级体系的对照与映射"
   },
   {
     "id": "paper-ink.comparison.before-after-process-bands",
@@ -462,7 +468,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "E6",
     "name": "前后双带演进页",
     "file": "layout-e6.html",
-    "use": "Before 散件带 vs After 流水线带的状态跃迁，底部金句收束。当页面角色属于compare/sequence、关系形状为comparison/sequence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "适合把同一对象的前后状态上下对照，并用处理链说明变化如何发生"
   },
   {
     "id": "paper-ink.decomposition.quadrant",
@@ -470,7 +476,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "F1",
     "name": "四象限矩阵",
     "file": "layout-f1.html",
-    "use": "定义页——一个核心概念由 N 个组成部分构成。当页面角色属于explain、关系形状为decomposition/matrix且容量落在 2–6 个语义单元时优先复用。"
+    "use": "定义页——一个核心概念由 N 个组成部分构成"
   },
   {
     "id": "paper-ink.decomposition.structure-spec-split",
@@ -478,7 +484,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "F2",
     "name": "环节树+规格单",
     "file": "layout-f2.html",
-    "use": "左讲结构（树/链），右讲字段（每节点记什么）。当页面角色属于explain/prove、关系形状为decomposition/hierarchy且容量落在 2–12 个语义单元时优先复用。"
+    "use": "左讲结构（树/链），右讲字段（每节点记什么）"
   },
   {
     "id": "paper-ink.decomposition.column-list",
@@ -486,7 +492,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "F3",
     "name": "分栏清单柱",
     "file": "layout-f3.html",
-    "use": "并列陈列 3–5 个分类下的离散要点。当页面角色属于explain、关系形状为decomposition/matrix且容量落在 2–12 个语义单元时优先复用。"
+    "use": "并列陈列 3–5 个分类下的离散要点"
   },
   {
     "id": "paper-ink.decomposition.icon-grid",
@@ -494,7 +500,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "F4",
     "name": "图标六宫格",
     "file": "layout-f4.html",
-    "use": "3–6 个并列概念的最简陈列（兜底页型）。当页面角色属于orient/explain、关系形状为decomposition/matrix且容量落在 2–8 个语义单元时优先复用。"
+    "use": "3–6 个并列概念的最简陈列（兜底页型）"
   },
   {
     "id": "paper-ink.radial.three-way",
@@ -502,7 +508,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "G1",
     "name": "三向放射",
     "file": "layout-g1.html",
-    "use": "一个节点的输入/输出/参数三向展开（爆炸图）。当页面角色属于explain、关系形状为decomposition/spatial且容量落在 1–5 个语义单元时优先复用。"
+    "use": "一个节点的输入/输出/参数三向展开（爆炸图）"
   },
   {
     "id": "paper-ink.radial.annotated-hero",
@@ -510,7 +516,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "G2",
     "name": "立绘环绕引线标注",
     "file": "layout-g2.html",
-    "use": "单一对象全方位注解——中央立绘+四周肘形引线。当页面角色属于explain/prove、关系形状为focus/spatial/evidence且容量落在 1–10 个语义单元时优先复用。"
+    "use": "单一对象全方位注解——中央立绘+四周肘形引线"
   },
   {
     "id": "paper-ink.radial.hub-satellites",
@@ -518,7 +524,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "G4",
     "name": "中心枢纽+环绕卫星",
     "file": "layout-g4.html",
-    "use": "一个核心被 N 个维度环绕支撑的能力体系。当页面角色属于explain/synthesize、关系形状为decomposition/spatial/network且容量落在 1–10 个语义单元时优先复用。"
+    "use": "一个核心被 N 个维度环绕支撑的能力体系"
   },
   {
     "id": "paper-ink.nested.defense-rings",
@@ -526,7 +532,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "H1",
     "name": "同心防线",
     "file": "layout-h1.html",
-    "use": "防御层级 / 包裹关系（guardrail、校验圈层）。当页面角色属于explain、关系形状为hierarchy/nesting且容量落在 1–6 个语义单元时优先复用。"
+    "use": "防御层级 / 包裹关系（guardrail、校验圈层）"
   },
   {
     "id": "paper-ink.nested.zoom-frames",
@@ -534,7 +540,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "H2",
     "name": "嵌套变焦框",
     "file": "layout-h2.html",
-    "use": "同一对象的观察粒度逐层拉远（单轮⊂会话⊂过程⊂结果）。当页面角色属于explain、关系形状为hierarchy/nesting且容量落在 1–6 个语义单元时优先复用。"
+    "use": "同一对象的观察粒度逐层拉远（单轮⊂会话⊂过程⊂结果）"
   },
   {
     "id": "paper-ink.nested.architecture-stack",
@@ -542,7 +548,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "H3",
     "name": "分层架构堆栈",
     "file": "layout-h3.html",
-    "use": "技术/业务架构总览——平台分几层、每层有什么。当页面角色属于explain/synthesize、关系形状为hierarchy且容量落在 2–12 个语义单元时优先复用。"
+    "use": "技术/业务架构总览——平台分几层、每层有什么"
   },
   {
     "id": "paper-ink.nested.foundation-stack",
@@ -550,7 +556,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "H4",
     "name": "底座托举三层",
     "file": "layout-h4.html",
-    "use": "底层平台支撑中层能力、中层支撑上层产品。当页面角色属于explain/synthesize、关系形状为hierarchy且容量落在 2–10 个语义单元时优先复用。"
+    "use": "底层平台支撑中层能力、中层支撑上层产品"
   },
   {
     "id": "paper-ink.flow.pipeline",
@@ -558,7 +564,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "I1",
     "name": "横向流水线",
     "file": "layout-i1.html",
-    "use": "解释过程机制：输入→黑盒→输出 / 3–4 步步骤链。当页面角色属于explain/sequence、关系形状为flow/sequence且容量落在 1–7 个语义单元时优先复用。"
+    "use": "解释过程机制：输入→黑盒→输出 / 3–4 步步骤链"
   },
   {
     "id": "paper-ink.flow.known-unknown-chain",
@@ -566,7 +572,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "I2",
     "name": "虚实步骤串",
     "file": "layout-i2.html",
-    "use": "中间发生了什么你看不见——两端已知、中间未知。当页面角色属于explain/sequence、关系形状为flow/sequence且容量落在 1–7 个语义单元时优先复用。"
+    "use": "中间发生了什么你看不见——两端已知、中间未知"
   },
   {
     "id": "paper-ink.flow.dual-track",
@@ -574,7 +580,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "I3",
     "name": "双轨转化路径对比",
     "file": "layout-i3.html",
-    "use": "两条流程线逐站对比，差异徽章只挂关键站。当页面角色属于compare/sequence、关系形状为flow/sequence/comparison且容量落在 2–12 个语义单元时优先复用。"
+    "use": "两条流程线逐站对比，差异徽章只挂关键站"
   },
   {
     "id": "paper-ink.flow.branching-solutions",
@@ -582,7 +588,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "I4",
     "name": "双面板分支解法流",
     "file": "layout-i4.html",
-    "use": "两并列解法面板：图标链含分支、判定菱形分叉、墨底 CTA 收口。当页面角色属于compare/decide、关系形状为flow/comparison且容量落在 2–12 个语义单元时优先复用。"
+    "use": "两并列解法面板：图标链含分支、判定菱形分叉、墨底 CTA 收口"
   },
   {
     "id": "paper-ink.cycle.ring",
@@ -590,7 +596,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "J1",
     "name": "循环圆环",
     "file": "layout-j1.html",
-    "use": "闭环流程（定位→调优→评测→治理、持续回归）。当页面角色属于explain/sequence、关系形状为cycle/flow且容量落在 1–8 个语义单元时优先复用。"
+    "use": "闭环流程（定位→调优→评测→治理、持续回归）"
   },
   {
     "id": "paper-ink.cycle.serpentine-loop",
@@ -598,7 +604,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "J2",
     "name": "蛇形回环",
     "file": "layout-j2.html",
-    "use": "6–8 步长流程，含上线/迭代/回归回环语义。当页面角色属于explain/sequence、关系形状为cycle/sequence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "6–8 步长流程，含上线/迭代/回归回环语义"
   },
   {
     "id": "paper-ink.cycle.journey-curve",
@@ -606,7 +612,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "J3",
     "name": "旅程曲线",
     "file": "layout-j3.html",
-    "use": "用户旅程、体验地图——阶段推进+感受起伏。当页面角色属于sequence/prove、关系形状为sequence/cycle/evidence且容量落在 1–10 个语义单元时优先复用。"
+    "use": "用户旅程、体验地图——阶段推进+感受起伏"
   },
   {
     "id": "paper-ink.matrix.stage-dimension",
@@ -614,7 +620,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "K1",
     "name": "链阵复合",
     "file": "layout-k1.html",
-    "use": "N 阶段 × M 维度的战略/业务框架（每 deck ≤2 页）。当页面角色属于synthesize、关系形状为matrix/sequence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "N 阶段 × M 维度的战略/业务框架（每 deck ≤2 页）"
   },
   {
     "id": "paper-ink.matrix.problem-solution-outcome",
@@ -622,7 +628,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "K2",
     "name": "痛点→解法→成效三栏",
     "file": "layout-k2.html",
-    "use": "销售/汇报叙事最小闭环：问题→做法→结果。当页面角色属于synthesize/prove、关系形状为flow/matrix/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "将问题、做法与结果按栏对位，建立从现状到成效的闭环"
   },
   {
     "id": "paper-ink.matrix.problem-solution-composite",
@@ -630,7 +636,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "K3",
     "name": "左痛右解复合页",
     "file": "layout-k3.html",
-    "use": "左栏问题清单 → 右栏流水线+平台带+KPI 带，一页讲清为什么做/怎么做/做到多少。当页面角色属于synthesize/prove、关系形状为flow/comparison/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "左栏问题清单 → 右栏流水线+平台带+KPI 带，一页讲清为什么做/怎么做/做到多少"
   },
   {
     "id": "paper-ink.matrix.scenario-row-band",
@@ -638,7 +644,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "K4",
     "name": "三栏行带矩阵",
     "file": "layout-k4.html",
-    "use": "三场景 × 现状/解法/落地三行带，行带内装文本/竖链/迷你图异构内容。当页面角色属于synthesize/prove、关系形状为matrix/comparison/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "三场景 × 现状/解法/落地三行带，行带内装文本/竖链/迷你图异构内容"
   },
   {
     "id": "paper-ink.mapping.weighted-arcs",
@@ -646,7 +652,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "L1",
     "name": "权重弧线图",
     "file": "layout-l1.html",
-    "use": "表达节点间连接强度 / 注意力 / 引用关系。当页面角色属于explain/prove、关系形状为network/mapping/evidence且容量落在 2–10 个语义单元时优先复用。"
+    "use": "表达节点间连接强度 / 注意力 / 引用关系"
   },
   {
     "id": "paper-ink.mapping.constellation-network",
@@ -654,7 +660,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "L2",
     "name": "星座映射网",
     "file": "layout-l2.html",
-    "use": "多对多映射、证据组合、引用网络。当页面角色属于explain/prove、关系形状为network/mapping/evidence且容量落在 2–12 个语义单元时优先复用。"
+    "use": "多对多映射、证据组合、引用网络"
   },
   {
     "id": "paper-ink.emotion.particle-hero",
@@ -662,7 +668,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "M1",
     "name": "粒子主角",
     "file": "layout-m1.html",
-    "use": "概念隐喻页（黑匣子=未知），情绪转折。当页面角色属于hook/orient、关系形状为focus且容量落在 1–2 个语义单元时优先复用。"
+    "use": "概念隐喻页（黑匣子=未知），情绪转折"
   },
   {
     "id": "paper-ink.emotion.quote",
@@ -670,7 +676,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "M2",
     "name": "金句页",
     "file": "layout-m2.html",
-    "use": "全 deck ≤3 处的情绪高点，一句话收场或转场。当页面角色属于hook/close、关系形状为focus且容量落在 1–2 个语义单元时优先复用。"
+    "use": "全 deck ≤3 处的情绪高点，一句话收场或转场"
   },
   {
     "id": "paper-ink.convergence.multi-source",
@@ -678,7 +684,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "N1",
     "name": "汇聚流",
     "file": "layout-n1.html",
-    "use": "多源输入合并为一个产物（Prompt 组装、数据汇总）。当页面角色属于explain/synthesize、关系形状为convergence/flow且容量落在 1–8 个语义单元时优先复用。"
+    "use": "多源输入合并为一个产物（Prompt 组装、数据汇总）"
   },
   {
     "id": "paper-ink.funnel.conversion",
@@ -686,7 +692,7 @@ var LAYOUTS = /*__LAYOUTS__*/[
     "code": "O1",
     "name": "漏斗",
     "file": "layout-o1.html",
-    "use": "数量级递减的过程（召回→重排→输出、筛选）。当页面角色属于explain/prove、关系形状为funnel/flow/evidence且容量落在 1–8 个语义单元时优先复用。"
+    "use": "数量级递减的过程（召回→重排→输出、筛选）"
   }
 ]; /*__LAYOUTS_END__*/
 
@@ -715,6 +721,7 @@ LAYOUTS.forEach(function (l, i) {
 var viewport = document.getElementById('viewport');
 var stagebox = document.getElementById('stagebox');
 var frameLine = document.getElementById('frame-line');
+var frameLoader = createGalleryFrameLoader(stagebox);
 function fit() {
   var vw = viewport.clientWidth - 140, vh = viewport.clientHeight - 60;
   var s = Math.min(vw / 1920, vh / 1080);
@@ -749,7 +756,7 @@ function codeToIndex(code) {
 function go(i, opts) {
   cur = (i + LAYOUTS.length) % LAYOUTS.length;
   var l = LAYOUTS[cur];
-  document.getElementById('fr').src = 'frames/' + l.file + (accentOn ? '?accent=1' : '');
+  frameLoader.load('frames/' + l.file + (accentOn ? '?accent=1' : ''));
   document.getElementById('b-code').textContent = l.code;
   document.getElementById('b-name').textContent = l.name;
   document.getElementById('b-use').textContent = l.use || '';

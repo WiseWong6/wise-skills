@@ -128,7 +128,7 @@ def _is_internal_contract_path(relative: Path) -> bool:
     parts = relative.parts
     if len(parts) >= 2 and parts[:2] == ("core", "examples"):
         return True
-    if len(parts) >= 3 and parts[0] == "themes" and parts[2] == "gallery":
+    if len(parts) >= 3 and parts[0] == "themes" and parts[2] in {"examples", "gallery"}:
         return True
     return bool(parts and parts[0] == "tests")
 
