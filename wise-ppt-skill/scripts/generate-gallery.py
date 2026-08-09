@@ -66,7 +66,9 @@ def gallery_rows(layouts: list[dict], corpus: str) -> list[dict]:
                 "code": layout["display_code"],
                 "name": layout["name"],
                 "file": Path(example).name,
-                "use": layout["selection_notes"],
+                # 画册栏面向浏览者，只展示自然语言用途；roles / relations /
+                # capacity / selection_notes 留在 manifest，供 AI 确定性筛选。
+                "use": layout["description"],
             }
         )
     return rows

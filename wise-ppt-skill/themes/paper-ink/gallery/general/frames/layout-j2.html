@@ -18,7 +18,7 @@
 </head>
 <body>
 <div class="stage" data-block-id="gallery-primary" data-provider="svg" data-component="layout-specimen" data-content-ref="example.j2">
-  <div class="doc tl">PAPER-INK GALLERY — J2<br>SERPENTINE LOOP</div>
+  <div class="doc tl">HENGJI DISPATCH — J2<br>TRACE TO RELEASE LOOP</div>
   <div class="folio">J2 / 63 — BY WISEWONG</div>
 
   <svg class="scene" width="1920" height="1080" viewBox="0 0 1920 1080">
@@ -30,7 +30,7 @@
     <g id="draw"></g>
   </svg>
 
-  <div class="caption">蛇形回环装下六步以上的长流程——节点必须是带字段的仪器化步骤，两端回环弧挂语义标签。</div>
+  <div class="caption">每次策略变更都要经过遥测、回放、调参、仿真、灰度和指标监控后才能全量发布。</div>
 </div>
 
 <script src="../../../assets/particles.js"></script>
@@ -55,6 +55,9 @@ var MONO = 'Courier Prime', SANS = 'Han Sans';
 /* ---------- FIG 图题 ---------- */
 txt(200, 176, 'FIG. J2 — SERPENTINE LOOP', {'font-family':MONO, 'font-size':'var(--type-label)', 'letter-spacing':3, fill:INK45});
 el('line', {x1:200, y1:192, x2:540, y2:192, stroke:INK, 'stroke-width':.6, opacity:.3});
+
+/* 回环主体保持内部结构不变，整体落到 FIG 与结论之间的视觉中心。 */
+G = el('g', {transform:'translate(0 32)'});
 
 /* ---------- 蛇形回环：衡玑调度平台 · 策略迭代八步 ----------
    上排 01→04 左到右；右端大弧弯下（上线闸口）；下排 05→08 右到左；左端回环弧挂迭代标签 */
