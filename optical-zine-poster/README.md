@@ -6,7 +6,6 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/WiseWong6/optical-zine-poster/stargazers"><img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=for-the-badge&logo=github&label=Star" alt="GitHub Stars"></a>
   <a href="https://github.com/WiseWong6/optical-zine-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/optical-zine-poster?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/WiseWong6/wise-skills"><img src="https://img.shields.io/badge/More-Wise%20Skills-173F5F?style=for-the-badge" alt="Wise Skills"></a>
 </p>
@@ -167,23 +166,6 @@ $optical-zine-poster
 用 S11 生成完整全图，输出到 /absolute/path/to/posters/。
 ```
 
-## 工作流
-
-```mermaid
-flowchart LR
-    A["原始源图"] --> B{"用户指定 Sxx?"}
-    B -- "是" --> C["使用指定风格"]
-    B -- "否" --> D["分析结构、透视、材质、氛围与留白"]
-    D --> C
-    C --> E["模式骨架 + 单一风格模块"]
-    E --> F["Codex 内置 image_gen 单次生成"]
-    F --> G["精确 3:4 校验"]
-    G --> H["交付图片 + Prompt sidecar"]
-    H --> I{"继续探索?"}
-    I -- "同风格对照版" --> J["从原始源图生成 Split 1:1"]
-    I -- "其他风格" --> K["浏览 S01-S11 后重新生成 Full"]
-```
-
 ## 请求模式
 
 ### Full Design（默认）
@@ -282,7 +264,13 @@ optical-zine-poster/
 
 ## Star 与反馈
 
-如果这个 Skill 帮你做出了有意思的海报，欢迎点一个 [GitHub Star](https://github.com/WiseWong6/optical-zine-poster)。Star 会帮助更多人发现它，也会让我知道哪些视觉工具值得继续迭代。
+<p align="center">
+  <a href="https://star-history.com/#WiseWong6/optical-zine-poster&Date">
+    <img src="https://api.star-history.com/svg?repos=WiseWong6/optical-zine-poster&type=Date" alt="Optical Zine Poster Star History">
+  </a>
+</p>
+
+图表由 Star History 自动更新；点击后打开外部统计页。如果这个 Skill 帮你做出了有意思的海报，欢迎在 GitHub 页面右上角点亮 Star。
 
 你也可以通过 Issue 分享：
 
@@ -296,16 +284,13 @@ optical-zine-poster/
 全网同名 **@歪斯Wise**，持续分享 AI 创作、Agent 工作流、视觉设计与效率工具。
 
 <p>
-  <a href="https://github.com/WiseWong6">GitHub</a> ·
   <a href="https://x.com/killthewhys">X / Twitter</a> ·
   <a href="https://www.xiaohongshu.com/user/profile/61f3ea4f000000001000db73">小红书</a> ·
   <a href="https://github.com/WiseWong6/wise-skills">Wise Skills</a>
 </p>
 
-<details>
-  <summary>微信公众号</summary>
-  <p><img src="assets/social/wechat-qrcode.jpg" width="180" alt="歪斯Wise 微信公众号二维码"></p>
-</details>
+<p><strong>微信公众号</strong></p>
+<p><img src="assets/social/wechat-qrcode.jpg" width="180" alt="歪斯Wise 微信公众号二维码"></p>
 
 ## License
 
