@@ -64,28 +64,27 @@ Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它读取�
 
 ## 11 套风格程序
 
-使用同一座宝塔作为统一测试主体，方便直接比较 11 套风格的视觉差异。点击图片可查看原尺寸成图。
+使用同一张东京铁塔原图作为统一测试主体，方便直接比较 11 套风格的视觉差异。点击图片可查看原尺寸成图。
 
 <table>
   <tr>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S01-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S01-C-pagoda-full.png" alt="S01 Blue Exposure Laboratory 宝塔示例" width="100%"></a><br><strong>S01 · Blue Exposure Laboratory</strong><br><sub>建筑、街景、层叠立面、蓝晒曝光层次 · 中</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S02-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S02-C-pagoda-full.png" alt="S02 Optical Field Array 宝塔示例" width="100%"></a><br><strong>S02 · Optical Field Array</strong><br><sub>强透视、重复线条、道路、缆线、结构节奏 · 中高</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S03-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S03-C-pagoda-full.png" alt="S03 EdgeLoom Effect Sampler 宝塔示例" width="100%"></a><br><strong>S03 · EdgeLoom Effect Sampler</strong><br><sub>异质细节、实验编辑感、多种局部纹理 · 高</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S01-A-blue-exposure-laboratory-full.png"><img src="assets/style-references/tokyo-tower-full/R-S01-A-blue-exposure-laboratory-full.png" alt="S01 Blue Exposure Laboratory 东京铁塔示例" width="100%"></a><br><strong>S01 · Blue Exposure Laboratory</strong><br><sub>建筑、街景、层叠立面、蓝晒曝光层次 · 中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S02-A-optical-field-array-full.png"><img src="assets/style-references/tokyo-tower-full/R-S02-A-optical-field-array-full.png" alt="S02 Optical Field Array 东京铁塔示例" width="100%"></a><br><strong>S02 · Optical Field Array</strong><br><sub>强透视、重复线条、道路、缆线、结构节奏 · 中高</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S03-A-edgeloom-effect-sampler-full.png"><img src="assets/style-references/tokyo-tower-full/R-S03-A-edgeloom-effect-sampler-full.png" alt="S03 EdgeLoom Effect Sampler 东京铁塔示例" width="100%"></a><br><strong>S03 · EdgeLoom Effect Sampler</strong><br><sub>异质细节、实验编辑感、多种局部纹理 · 高</sub></td>
   </tr>
   <tr>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S04-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S04-C-pagoda-full.png" alt="S04 Quiet Effect Cabinet 宝塔示例" width="100%"></a><br><strong>S04 · Quiet Effect Cabinet</strong><br><sub>安静单体、精细材质、大量留白 · 低</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S05-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S05-C-pagoda-full.png" alt="S05 Ink Grid Interference 宝塔示例" width="100%"></a><br><strong>S05 · Ink Grid Interference</strong><br><sub>人工几何、网格、立面、技术制图 · 中</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S06-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S06-C-pagoda-full.png" alt="S06 Cyanotype Optical Plates 宝塔示例" width="100%"></a><br><strong>S06 · Cyanotype Optical Plates</strong><br><sub>分层建筑、不对称蓝晒版、透明叠印 · 中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S04-A-quiet-effect-cabinet-full.png"><img src="assets/style-references/tokyo-tower-full/R-S04-A-quiet-effect-cabinet-full.png" alt="S04 Quiet Effect Cabinet 东京铁塔示例" width="100%"></a><br><strong>S04 · Quiet Effect Cabinet</strong><br><sub>安静单体、精细材质、大量留白 · 低</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S05-A-ink-grid-interference-full.png"><img src="assets/style-references/tokyo-tower-full/R-S05-A-ink-grid-interference-full.png" alt="S05 Ink Grid Interference 东京铁塔示例" width="100%"></a><br><strong>S05 · Ink Grid Interference</strong><br><sub>人工几何、网格、立面、技术制图 · 中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S06-A-cyanotype-optical-plates-full.png"><img src="assets/style-references/tokyo-tower-full/R-S06-A-cyanotype-optical-plates-full.png" alt="S06 Cyanotype Optical Plates 东京铁塔示例" width="100%"></a><br><strong>S06 · Cyanotype Optical Plates</strong><br><sub>分层建筑、不对称蓝晒版、透明叠印 · 中</sub></td>
   </tr>
   <tr>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S07-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S07-C-pagoda-full.png" alt="S07 Registration Weather 宝塔示例" width="100%"></a><br><strong>S07 · Registration Weather</strong><br><sub>雾、雨、云、天空、变化光线 · 低中</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S08-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S08-C-pagoda-full.png" alt="S08 Material Tectonics 宝塔示例" width="100%"></a><br><strong>S08 · Material Tectonics</strong><br><sub>多材料、结构层次、复杂表面；通用默认 · 中高</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S09-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S09-C-pagoda-full.png" alt="S09 Monochrome Data Garden 宝塔示例" width="100%"></a><br><strong>S09 · Monochrome Data Garden</strong><br><sub>植物、风、粒子、有机生长、柔性运动 · 中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S07-A-registration-weather-full.png"><img src="assets/style-references/tokyo-tower-full/R-S07-A-registration-weather-full.png" alt="S07 Registration Weather 东京铁塔示例" width="100%"></a><br><strong>S07 · Registration Weather</strong><br><sub>雾、雨、云、天空、变化光线 · 低中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S08-A-material-tectonics-full.png"><img src="assets/style-references/tokyo-tower-full/R-S08-A-material-tectonics-full.png" alt="S08 Material Tectonics 东京铁塔示例" width="100%"></a><br><strong>S08 · Material Tectonics</strong><br><sub>多材料、结构层次、复杂表面；通用默认 · 中高</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S09-A-monochrome-data-garden-full.png"><img src="assets/style-references/tokyo-tower-full/R-S09-A-monochrome-data-garden-full.png" alt="S09 Monochrome Data Garden 东京铁塔示例" width="100%"></a><br><strong>S09 · Monochrome Data Garden</strong><br><sub>植物、风、粒子、有机生长、柔性运动 · 中</sub></td>
   </tr>
   <tr>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S10-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S10-C-pagoda-full.png" alt="S10 Selected Synthesis 宝塔示例" width="100%"></a><br><strong>S10 · Selected Synthesis</strong><br><sub>有机曲线与建筑直线并置 · 中高</sub></td>
-    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S11-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S11-C-pagoda-full.png" alt="S11 Cyanotype Ma Registry 宝塔示例" width="100%"></a><br><strong>S11 · Cyanotype Ma Registry</strong><br><sub>居中或对称单体、安静边缘、空间留白 · 低</sub></td>
-    <td width="33%" valign="middle" align="center"><strong>浏览更多参考</strong><br><br><a href="references/style-catalog.html">打开完整风格图册 →</a><br><br><sub>查看 Full、Split 1:1 与不同主体的完整参考图。</sub></td>
+    <td width="50%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S10-A-selected-synthesis-full.png"><img src="assets/style-references/tokyo-tower-full/R-S10-A-selected-synthesis-full.png" alt="S10 Selected Synthesis 东京铁塔示例" width="100%"></a><br><strong>S10 · Selected Synthesis</strong><br><sub>有机曲线与建筑直线并置 · 中高</sub></td>
+    <td width="50%" valign="top"><a href="assets/style-references/tokyo-tower-full/R-S11-A-cyanotype-ma-registry-full.png"><img src="assets/style-references/tokyo-tower-full/R-S11-A-cyanotype-ma-registry-full.png" alt="S11 Cyanotype Ma Registry 东京铁塔示例" width="100%"></a><br><strong>S11 · Cyanotype Ma Registry</strong><br><sub>居中或对称单体、安静边缘、空间留白 · 低</sub></td>
   </tr>
 </table>
 
