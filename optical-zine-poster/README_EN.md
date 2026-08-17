@@ -228,12 +228,10 @@ Acceptance rules:
 ## Star and Feedback
 
 <p align="center">
-  <a href="https://star-history.com/#WiseWong6/optical-zine-poster&Date">
-    <img src="https://api.star-history.com/svg?repos=WiseWong6/optical-zine-poster&type=Date" alt="Optical Zine Poster Star History">
-  </a>
+  <img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=for-the-badge&logo=github&label=GitHub%20Stars&cacheSeconds=3600" alt="Optical Zine Poster GitHub Stars">
 </p>
 
-The chart is updated automatically by Star History and opens its external statistics page when clicked. If this Skill helps you create something interesting, please consider starring it from the top-right corner of the GitHub repository page.
+The star count is updated automatically by Shields.io from public GitHub repository statistics and requires no GitHub Access Token. If this Skill helps you create something interesting, please consider starring it from the top-right corner of the GitHub repository page.
 
 You can also use Issues to share:
 
