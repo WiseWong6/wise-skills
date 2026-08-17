@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optical Zine Poster"
+  short_description: "根据图片语义自动选择光学杂志风格并生成完整 3:4 海报"
+  default_prompt: "使用 $optical-zine-poster 将我提供的图片生成完整 3:4 光学杂志海报。"
