@@ -1,7 +1,7 @@
 # Optical Zine Poster
 
 <p align="center">
-  <strong>把一张源图，变成一张完整的 3:4 Minimal Optical Zine 海报。</strong><br>
+  <strong>把一张原图，变成光学实验版画海报。</strong><br>
   语义选风格 · 单次生成完整设计 · 11 套视觉程序 · 可选上下 1:1 对照版
 </p>
 
@@ -127,7 +127,7 @@ ln -s /path/to/optical-zine-poster \
   ~/.codex/skills/optical-zine-poster
 ```
 
-当前 Skill 也收录在 [Wise Skills](https://github.com/WiseWong6/wise-skills) 合集，适合统一浏览和管理我的其他 Codex Skills。
+当前 Skill 也收录在 [Wise Skills](https://github.com/WiseWong6/wise-skills) 合集，适合统一浏览我的其他 Codex Skills。
 
 ## 快速开始
 
@@ -208,52 +208,6 @@ outputs/optical-zine-poster/
 - 主体可识别，环境连贯；
 - 不接受 Logo、水印、UI 网格、Mockup、无关拼贴和乱码；
 - 比例失败时，从原始源图以同一风格定向重试一次；再次失败则保留证据并明确报告未通过。
-
-## 本地验证
-
-```bash
-# Skill 官方结构校验
-python3 ~/.codex/skills/skill-creator/scripts/quick_validate.py .
-
-# 风格编号、参考图、图册链接与提示词模块校验
-python3 scripts/validate_skill_assets.py
-
-# 输出校验
-python3 scripts/validate_output.py /absolute/path/to/poster.png --mode full
-python3 scripts/validate_output.py /absolute/path/to/poster.png --mode split
-```
-
-东京塔案例同时提供 Full 与 Split 的合格样本，详细验证边界见 [`references/validation-case.md`](references/validation-case.md)。
-
-## 仓库结构
-
-```text
-optical-zine-poster/
-├── SKILL.md                         # Agent 运行入口与完整工作流
-├── README.md                        # 面向用户的项目说明
-├── agents/
-│   └── openai.yaml                  # UI 展示信息与默认调用提示
-├── references/
-│   ├── prompt-full-design.md        # Full 模式骨架
-│   ├── prompt-split-1x1.md          # Split 模式骨架
-│   ├── style-selection.md           # 语义选风格规则
-│   ├── style-programs.md            # S01-S11 效果程序
-│   ├── style-catalog.html           # 可离线打开的风格图册
-│   └── validation-case.md           # 东京塔验证说明
-├── assets/
-│   ├── style-references/            # R-Sxx-A 浏览参考图
-│   ├── examples/                    # E01 验证案例
-│   └── social/                      # 社交媒体二维码
-└── scripts/
-    ├── validate_skill_assets.py     # 资产与编号校验
-    └── validate_output.py           # 3:4 与模式校验
-```
-
-三套编号互不混用：
-
-- 风格：`S01–S11`
-- 参考图：`R-S01-A–R-S11-A`
-- 验证案例：`E01-SOURCE`、`E01-FULL-S08`、`E01-SPLIT-S08`
 
 ## 已知边界
 
