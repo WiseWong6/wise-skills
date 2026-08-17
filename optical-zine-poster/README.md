@@ -5,11 +5,6 @@
 </p>
 
 <p align="center">
-  <strong>把一张原图，变成光学实验版画海报。</strong><br>
-  语义选风格 · 单次生成完整设计 · 11 套视觉程序 · 可选上下 1:1 对照版
-</p>
-
-<p align="center">
   <a href="https://github.com/WiseWong6/optical-zine-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/optical-zine-poster?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/WiseWong6/wise-skills"><img src="https://img.shields.io/badge/More-Wise%20Skills-173F5F?style=for-the-badge" alt="Wise Skills"></a>
 </p>
@@ -21,7 +16,9 @@
   <a href="references/style-catalog.html">本地风格图册</a>
 </p>
 
-Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它读取源图中的主体结构、透视、材质、氛围、动静关系与留白需求，从 11 套视觉程序中选择最合适的风格，生成一张完整的 3:4 视觉海报。
+Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它可以把一张原图，变成光学实验版画海报。
+
+它会读取源图中的主体结构、透视、材质、氛围、动静关系与留白需求，从 11 套视觉程序中选择最合适的风格，生成一张完整的 3:4 视觉海报。
 
 ## 效果预览
 
