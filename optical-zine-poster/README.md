@@ -225,21 +225,6 @@ outputs/optical-zine-poster/
 - 风格参考图是选择文档，不是模型输入；将其作为第二张输入会破坏 Skill 的可追溯边界；
 - `R-S08-B` 是 2:3 的次级审美参考，只能出现在明确标记的非交付区域，不是合格输出样本。
 
-## Star 与反馈
-
-<p align="center">
-  <img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=for-the-badge&logo=github&label=GitHub%20Stars&cacheSeconds=3600" alt="Optical Zine Poster GitHub Stars">
-</p>
-
-Star 数由 Shields.io 根据 GitHub 仓库公开统计自动更新，无需配置 GitHub Access Token。如果这个 Skill 帮你做出了有意思的海报，欢迎在 GitHub 页面右上角点亮 Star。
-
-你也可以通过 Issue 分享：
-
-- 你的源图与最终成品；
-- 自动选风格是否符合预期；
-- 希望增加的风格语义或输出模式；
-- 可复现的比例、构图或提示词问题。
-
 ## 关于作者
 
 全网同名 **@歪斯Wise**，持续分享 AI 创作、Agent 工作流、视觉设计与效率工具。
