@@ -21,9 +21,7 @@
   <a href="references/style-catalog.html">本地风格图册</a>
 </p>
 
-Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它读取源图中的主体结构、透视、材质、氛围、动静关系与留白需求，从 11 套视觉程序中选择最合适的一套，并直接生成一张完整的 3:4 视觉海报。
-
-默认不是“上图下设计”的对照稿，也不是先做母版再叠效果。第一次调用会把原图作为唯一图像输入，一次生成完整全图；完成后再询问你是否需要同风格的上下 1:1 对照版，或浏览并尝试其他风格。
+Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它读取源图中的主体结构、透视、材质、氛围、动静关系与留白需求，从 11 套视觉程序中选择最合适的风格，生成一张完整的 3:4 视觉海报。
 
 ## 效果预览
 
@@ -66,21 +64,30 @@ Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它读取�
 
 ## 11 套风格程序
 
-| ID | 风格 | 最适合的源图语义 | 强度 |
-| --- | --- | --- | --- |
-| `S01` | Blue Exposure Laboratory | 建筑、街景、层叠立面、蓝晒曝光层次 | 中 |
-| `S02` | Optical Field Array | 强透视、重复线条、道路、缆线、结构节奏 | 中高 |
-| `S03` | EdgeLoom Effect Sampler | 异质细节、实验编辑感、多种局部纹理 | 高 |
-| `S04` | Quiet Effect Cabinet | 安静单体、精细材质、大量留白 | 低 |
-| `S05` | Ink Grid Interference | 人工几何、网格、立面、技术制图 | 中 |
-| `S06` | Cyanotype Optical Plates | 分层建筑、不对称蓝晒版、透明叠印 | 中 |
-| `S07` | Registration Weather | 雾、雨、云、天空、变化光线 | 低中 |
-| `S08` | Material Tectonics | 多材料、结构层次、复杂表面；通用默认 | 中高 |
-| `S09` | Monochrome Data Garden | 植物、风、粒子、有机生长、柔性运动 | 中 |
-| `S10` | Selected Synthesis | 有机曲线与建筑直线并置 | 中高 |
-| `S11` | Cyanotype Ma Registry | 居中或对称单体、安静边缘、空间留白 | 低 |
+使用同一座宝塔作为统一测试主体，方便直接比较 11 套风格的视觉差异。点击图片可查看原尺寸成图。
 
-需要看图选择时，下载仓库后直接打开 [`references/style-catalog.html`](references/style-catalog.html)。图册中的卡片包含编号、名称、适用语义、视觉强度和参考图；分屏参考图默认聚焦下半设计区，也能打开完整原图。
+<table>
+  <tr>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S01-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S01-C-pagoda-full.png" alt="S01 Blue Exposure Laboratory 宝塔示例" width="100%"></a><br><strong>S01 · Blue Exposure Laboratory</strong><br><sub>建筑、街景、层叠立面、蓝晒曝光层次 · 中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S02-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S02-C-pagoda-full.png" alt="S02 Optical Field Array 宝塔示例" width="100%"></a><br><strong>S02 · Optical Field Array</strong><br><sub>强透视、重复线条、道路、缆线、结构节奏 · 中高</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S03-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S03-C-pagoda-full.png" alt="S03 EdgeLoom Effect Sampler 宝塔示例" width="100%"></a><br><strong>S03 · EdgeLoom Effect Sampler</strong><br><sub>异质细节、实验编辑感、多种局部纹理 · 高</sub></td>
+  </tr>
+  <tr>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S04-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S04-C-pagoda-full.png" alt="S04 Quiet Effect Cabinet 宝塔示例" width="100%"></a><br><strong>S04 · Quiet Effect Cabinet</strong><br><sub>安静单体、精细材质、大量留白 · 低</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S05-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S05-C-pagoda-full.png" alt="S05 Ink Grid Interference 宝塔示例" width="100%"></a><br><strong>S05 · Ink Grid Interference</strong><br><sub>人工几何、网格、立面、技术制图 · 中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S06-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S06-C-pagoda-full.png" alt="S06 Cyanotype Optical Plates 宝塔示例" width="100%"></a><br><strong>S06 · Cyanotype Optical Plates</strong><br><sub>分层建筑、不对称蓝晒版、透明叠印 · 中</sub></td>
+  </tr>
+  <tr>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S07-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S07-C-pagoda-full.png" alt="S07 Registration Weather 宝塔示例" width="100%"></a><br><strong>S07 · Registration Weather</strong><br><sub>雾、雨、云、天空、变化光线 · 低中</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S08-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S08-C-pagoda-full.png" alt="S08 Material Tectonics 宝塔示例" width="100%"></a><br><strong>S08 · Material Tectonics</strong><br><sub>多材料、结构层次、复杂表面；通用默认 · 中高</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S09-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S09-C-pagoda-full.png" alt="S09 Monochrome Data Garden 宝塔示例" width="100%"></a><br><strong>S09 · Monochrome Data Garden</strong><br><sub>植物、风、粒子、有机生长、柔性运动 · 中</sub></td>
+  </tr>
+  <tr>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S10-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S10-C-pagoda-full.png" alt="S10 Selected Synthesis 宝塔示例" width="100%"></a><br><strong>S10 · Selected Synthesis</strong><br><sub>有机曲线与建筑直线并置 · 中高</sub></td>
+    <td width="33%" valign="top"><a href="assets/style-references/pagoda-full/R-S11-C-pagoda-full.png"><img src="assets/style-references/pagoda-full/R-S11-C-pagoda-full.png" alt="S11 Cyanotype Ma Registry 宝塔示例" width="100%"></a><br><strong>S11 · Cyanotype Ma Registry</strong><br><sub>居中或对称单体、安静边缘、空间留白 · 低</sub></td>
+    <td width="33%" valign="middle" align="center"><strong>浏览更多参考</strong><br><br><a href="references/style-catalog.html">打开完整风格图册 →</a><br><br><sub>查看 Full、Split 1:1 与不同主体的完整参考图。</sub></td>
+  </tr>
+</table>
 
 ## 语义选择逻辑
 
@@ -217,6 +224,7 @@ outputs/optical-zine-poster/
 
 - 生成模型可能无法稳定绘制精确可读的小字，因此视觉系统不依赖长段文字成立；
 - `validate_output.py` 能精确检查比例与基础图像条件，但 Split 中线位置仍需要轻量人工确认；
+- Split 1:1 目前无法由生成模型严格保证，实际上下比例会受原图尺寸影响；
 - 风格参考图是选择文档，不是模型输入；将其作为第二张输入会破坏 Skill 的可追溯边界；
 - `R-S08-B` 是 2:3 的次级审美参考，只能出现在明确标记的非交付区域，不是合格输出样本。
 
