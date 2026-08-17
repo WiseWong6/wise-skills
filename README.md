@@ -3,8 +3,8 @@
 AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude Code](https://claude.ai/code)、[OpenAI Codex CLI](https://github.com/openai/codex) 等 AI 编程工具。
 
 <p>
-  <a href="https://github.com/WiseWong6/wise-skills/stargazers"><img src="https://img.shields.io/github/stars/WiseWong6/wise-skills?style=flat-square&logo=github&label=Wise%20Skills" alt="Wise Skills Stars"></a>
-  <a href="https://github.com/WiseWong6/optical-zine-poster/stargazers"><img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=flat-square&logo=github&label=Optical%20Zine%20Poster" alt="Optical Zine Poster Stars"></a>
+  <img src="https://img.shields.io/github/stars/WiseWong6/wise-skills?style=flat-square&logo=github&label=Wise%20Skills" alt="Wise Skills Stars">
+  <a href="https://star-history.com/#WiseWong6/optical-zine-poster&Date"><img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=flat-square&logo=github&label=Optical%20Zine%20Poster" alt="Optical Zine Poster Stars"></a>
 </p>
 
 ---
