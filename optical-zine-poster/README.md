@@ -1,6 +1,10 @@
 # Optical Zine Poster
 
 <p align="center">
+  <strong>简体中文</strong> · <a href="README_EN.md">English</a>
+</p>
+
+<p align="center">
   <strong>把一张原图，变成光学实验版画海报。</strong><br>
   语义选风格 · 单次生成完整设计 · 11 套视觉程序 · 可选上下 1:1 对照版
 </p>
