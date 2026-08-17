@@ -5,11 +5,6 @@
 </p>
 
 <p align="center">
-  <strong>Turn one source image into an optical experimental print poster.</strong><br>
-  Semantic style selection · One-pass full design · 11 visual programs · Optional 1:1 split comparison
-</p>
-
-<p align="center">
   <a href="https://github.com/WiseWong6/optical-zine-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/optical-zine-poster?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/WiseWong6/wise-skills"><img src="https://img.shields.io/badge/More-Wise%20Skills-173F5F?style=for-the-badge" alt="Wise Skills"></a>
 </p>
@@ -21,7 +16,9 @@
   <a href="references/style-catalog.html">Local Style Catalog</a>
 </p>
 
-Optical Zine Poster is an image-generation Skill built for Codex. It reads the subject structure, perspective, materials, atmosphere, motion, and negative-space needs of a source image, selects the most suitable style from 11 visual programs, and generates a complete 3:4 poster.
+Optical Zine Poster is an image-generation Skill built for Codex. It can turn one source image into an optical experimental print poster.
+
+It reads the source image's subject structure, perspective, materials, atmosphere, motion, and negative-space needs, selects the most suitable style from 11 visual programs, and generates a complete 3:4 poster.
 
 ## Preview
 
