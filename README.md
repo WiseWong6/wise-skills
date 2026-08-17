@@ -2,6 +2,11 @@
 
 AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude Code](https://claude.ai/code)、[OpenAI Codex CLI](https://github.com/openai/codex) 等 AI 编程工具。
 
+<p>
+  <a href="https://github.com/WiseWong6/wise-skills/stargazers"><img src="https://img.shields.io/github/stars/WiseWong6/wise-skills?style=flat-square&logo=github&label=Wise%20Skills" alt="Wise Skills Stars"></a>
+  <a href="https://github.com/WiseWong6/optical-zine-poster/stargazers"><img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=flat-square&logo=github&label=Optical%20Zine%20Poster" alt="Optical Zine Poster Stars"></a>
+</p>
+
 ---
 
 ## 前置要求
@@ -71,6 +76,28 @@ python3 scripts/generate_html.py ./my_images output --mode full
 # 只生成 HTML
 python3 scripts/generate_html.py ./my_images --no-pdf
 ```
+
+---
+
+### 🟦 optical-zine-poster
+
+**一张源图生成完整 3:4 Minimal Optical Zine 海报**
+
+根据主体结构、透视、材质、氛围、动静关系与留白需求，从 `S01–S11` 自动选择一个视觉程序；默认直接生成完整全图，完成后可继续生成同风格的上下 1:1 对照版，或浏览其他风格。
+
+- **11 套语义风格**：蓝晒、摩尔纹、套印、材料构造、气象错版与克制留白
+- **完整全图优先**：第一次调用不做分屏，不恢复两阶段母版流程
+- **参考图隔离**：风格图册只供浏览，永不作为生成输入
+- **严格验收**：精确 3:4、单一效果程序、版本递增、提示词 sidecar
+- **Codex 原生生图**：只使用宿主内置 `image_gen.imagegen`，无需第三方图片 API Key
+
+```text
+$optical-zine-poster
+把这张图做成完整 3:4 光学杂志海报；风格由你根据原图语义选择。
+```
+
+查看完整双模式示例、11 风格目录、安装与验证说明：
+[Optical Zine Poster 独立仓库](https://github.com/WiseWong6/optical-zine-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/optical-zine-poster/stargazers)。
 
 ---
 
@@ -196,6 +223,7 @@ python scripts/generate_image.py \
 ```
 /image-to-pages /path/to/images 帮我做成打印页面
 /image-gen 生成一张星际穿越主题的图片
+$optical-zine-poster 把这张图做成完整 3:4 光学杂志海报
 /prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
 /optimize-system-performance 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
