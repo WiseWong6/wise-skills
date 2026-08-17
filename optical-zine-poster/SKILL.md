@@ -9,16 +9,17 @@ Generate each final poster from the original source image in one image-generatio
 
 ## Required tool policy
 
-- Use only the Codex host built-in `image_gen.imagegen` tool.
-- Never invoke, install, or fall back to a third-party image skill, Ark, Doubao, Gemini, a local model, CLI, or API workflow.
-- If the built-in tool is unavailable or fails, stop and report the blocking reason.
+- Detect the host environment before generation and use only an image-generation capability built into that host.
+- In Codex, use only the Codex host built-in `image_gen.imagegen` tool. Never invoke, install, or fall back to a third-party image skill, Ark, Doubao, Gemini, a local model, CLI, or API workflow.
+- Outside Codex, use the current model or platform's own built-in image-generation capability when it is available, such as GPT's native image generation in ChatGPT or Doubao's native image generation in Doubao. Do not call another provider's API, CLI, local model, or third-party image skill as a fallback.
+- If the current host has no built-in image-generation capability, or that capability fails, stop and report the blocking reason.
 - Treat style reference images as browse-only. Never pass them to image generation.
 
 ## MPO source normalization
 
 - `.mpo` is an accepted source container. MPO is normalized before generation; it is not a new poster output mode.
 - Inspect frames with `python3 scripts/extract_mpo.py <source.mpo> --list`.
-- Unless the user chooses another frame, extract frame `0`, the primary JPEG, and use that normalized JPEG as the only image input to `image_gen.imagegen`.
+- Unless the user chooses another frame, extract frame `0`, the primary JPEG, and use that normalized JPEG as the only image input to the selected host-native image generator.
 - Do not merge stereo frames or invent depth semantics. If the user asks for left/right or multi-view treatment, clarify the selected frame before generation.
 - This local extraction step only unwraps the source container. It does not generate, alter, crop or stylize image content.
 
@@ -28,7 +29,7 @@ Generate each final poster from the original source image in one image-generatio
 2. If the user names `S01`–`S11`, honor it. Otherwise read [style-selection.md](references/style-selection.md), analyze the source semantics, and select exactly one style.
 3. Read [prompt-full-design.md](references/prompt-full-design.md) and the selected block in [style-programs.md](references/style-programs.md).
 4. Replace `{{EFFECT_PROGRAM}}` with exactly one complete style block. Do not leave placeholders or merge multiple styles.
-5. Call built-in `image_gen.imagegen` once with the original source as the only image input. State that the source is a semantic and structural source, not a style reference.
+5. Call the selected host-native image generator once with the original source as the only image input. In Codex, this means `image_gen.imagegen`. State that the source is a semantic and structural source, not a style reference.
 6. Save the selected image under the caller's current workspace at `outputs/optical-zine-poster/<source>-full-Sxx-vN.png`, unless the user supplied another destination. Never overwrite an existing file.
 7. Save the exact final prompt beside it as `<source>-full-Sxx-vN.prompt.md`.
 8. Run `python3 scripts/validate_output.py <image> --mode full`. If it fails, retry once from the original source with the same style and a stronger native 3:4 instruction. Never stretch or crop to hide a ratio failure. If the retry fails, report it as unaccepted.
@@ -44,7 +45,7 @@ After delivery, ask whether the user wants:
 
 1. Reuse the original source image, not the previously generated full poster.
 2. Reuse the selected style unless the user requests another `Sxx`.
-3. Read [prompt-split-1x1.md](references/prompt-split-1x1.md), insert exactly one style block, and make one fresh built-in image generation call.
+3. Read [prompt-split-1x1.md](references/prompt-split-1x1.md), insert exactly one style block, and make one fresh call with the selected host-native image generator.
 4. Save as `<source>-split-Sxx-vN.png` with a matching `.prompt.md` sidecar.
 5. Run `python3 scripts/validate_output.py <image> --mode split`. Check that the only horizontal boundary is visually at the midpoint and that the lower half follows the carrier contract—3–6 active regions, no more than two clusters, no isolated small rectangle, a continuous subject corridor and at least 40% quiet paper. Do not claim pixel-level boundary verification from dimensions alone.
 
