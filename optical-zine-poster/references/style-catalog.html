@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Optical Zine Poster · Style Catalog</title>
+  <style>
+    :root { color-scheme: light; --paper:#ece9df; --ink:#17232d; --blue:#315b7d; --line:#c9c5b9; --coral:#d56b52; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif; }
+    main { width:min(1480px,calc(100% - 40px)); margin:0 auto; padding:48px 0 72px; }
+    header { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:24px; align-items:end; padding-bottom:24px; border-bottom:1px solid var(--line); }
+    h1 { margin:0; font-size:clamp(34px,5vw,72px); line-height:.92; letter-spacing:-.045em; font-weight:650; }
+    header p { max-width:520px; margin:0; line-height:1.6; color:#50606c; }
+    .rule { margin:18px 0 32px; color:#5f6a71; font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px; }
+    article { background:#f6f3ea; border:1px solid var(--line); min-width:0; }
+    .media { display:block; aspect-ratio:4/3; overflow:hidden; background:#ddd8cc; border-bottom:1px solid var(--line); }
+    .media img { display:block; width:100%; height:100%; object-fit:cover; object-position:center bottom; transition:transform .25s ease; }
+    .media.full img { object-fit:contain; object-position:center; }
+    .media:hover img { transform:scale(1.015); }
+    .copy { padding:18px; }
+    .top { display:flex; justify-content:space-between; gap:16px; align-items:baseline; }
+    h2 { margin:0; font-size:19px; letter-spacing:-.015em; }
+    .level { color:var(--coral); font:600 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace; text-transform:uppercase; white-space:nowrap; }
+    .name { margin:6px 0 12px; color:var(--blue); font:600 12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; text-transform:uppercase; }
+    .fit { margin:0; min-height:48px; color:#4d5962; font-size:14px; line-height:1.55; }
+    .ref { margin-top:14px; padding-top:12px; border-top:1px solid #d8d3c7; color:#6c7479; font:11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .note { margin-top:32px; padding:18px 20px; border:1px solid var(--line); background:#f6f3ea; line-height:1.6; color:#56616a; }
+    @media (max-width:720px) { main{width:min(100% - 24px,1480px);padding-top:28px} header{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>OPTICAL<br>ZINE STYLES</h1>
+    <p>默认由 AI 根据原图语义选择一个风格并生成完整全图。点击卡片可打开完整参考图；分屏样图在卡片中只聚焦下半设计区。参考图仅供浏览，不参与生图输入。</p>
+  </header>
+  <p class="rule">选择后告诉 AI 风格编号 S01–S11。其他风格默认仍生成完整全图；需要上下 1:1 时请明确说明。</p>
+  <section class="grid">
+    <article><a class="media" href="../assets/style-references/R-S01-A-blue-exposure-laboratory-split.png"><img src="../assets/style-references/R-S01-A-blue-exposure-laboratory-split.png" alt="S01 Blue Exposure Laboratory"></a><div class="copy"><div class="top"><h2>S01</h2><span class="level">中等</span></div><p class="name">Blue Exposure Laboratory</p><p class="fit">建筑、街道、层叠立面，以及强调蓝晒曝光和明暗深度的场景。</p><p class="ref">R-S01-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S02-A-optical-field-array-split.png"><img src="../assets/style-references/R-S02-A-optical-field-array-split.png" alt="S02 Optical Field Array"></a><div class="copy"><div class="top"><h2>S02</h2><span class="level">中高</span></div><p class="name">Optical Field Array</p><p class="fit">强透视、重复线条、道路、曲线、线缆与明确结构节奏。</p><p class="ref">R-S02-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S03-A-edgeloom-effect-sampler-split.png"><img src="../assets/style-references/R-S03-A-edgeloom-effect-sampler-split.png" alt="S03 EdgeLoom Effect Sampler"></a><div class="copy"><div class="top"><h2>S03</h2><span class="level">高</span></div><p class="name">EdgeLoom Effect Sampler</p><p class="fit">细节异质、实验编辑感强，需要多种局部印刷质感的图像。</p><p class="ref">R-S03-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S04-A-quiet-effect-cabinet-split.png"><img src="../assets/style-references/R-S04-A-quiet-effect-cabinet-split.png" alt="S04 Quiet Effect Cabinet"></a><div class="copy"><div class="top"><h2>S04</h2><span class="level">低</span></div><p class="name">Quiet Effect Cabinet</p><p class="fit">简单或孤立主体、材料研究、留白充足且希望更安静克制。</p><p class="ref">R-S04-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S05-A-ink-grid-interference-split.png"><img src="../assets/style-references/R-S05-A-ink-grid-interference-split.png" alt="S05 Ink Grid Interference"></a><div class="copy"><div class="top"><h2>S05</h2><span class="level">中等</span></div><p class="name">Ink Grid Interference</p><p class="fit">清晰人造几何、网格、建筑立面和一个主导干涉区。</p><p class="ref">R-S05-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S06-A-cyanotype-optical-plates-split.png"><img src="../assets/style-references/R-S06-A-cyanotype-optical-plates-split.png" alt="S06 Cyanotype Optical Plates"></a><div class="copy"><div class="top"><h2>S06</h2><span class="level">中等</span></div><p class="name">Cyanotype Optical Plates</p><p class="fit">层叠建筑、非对称蓝晒板、透明叠压与蓝色调深度。</p><p class="ref">R-S06-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S07-A-registration-weather-split.png"><img src="../assets/style-references/R-S07-A-registration-weather-split.png" alt="S07 Registration Weather"></a><div class="copy"><div class="top"><h2>S07</h2><span class="level">中低</span></div><p class="name">Registration Weather</p><p class="fit">雾、雨、云、薄霾、变化光线或氛围本身是主要内容。</p><p class="ref">R-S07-A · split study</p></div></article>
+    <article><a class="media full" href="../assets/style-references/R-S08-A-material-tectonics-full.png"><img src="../assets/style-references/R-S08-A-material-tectonics-full.png" alt="S08 Material Tectonics"></a><div class="copy"><div class="top"><h2>S08</h2><span class="level">中高</span></div><p class="name">Material Tectonics</p><p class="fit">主体结构明确且存在多种表面、材料或结构层次；通用默认。</p><p class="ref">R-S08-A · full design · exact 3:4</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S09-A-monochrome-data-garden-split.png"><img src="../assets/style-references/R-S09-A-monochrome-data-garden-split.png" alt="S09 Monochrome Data Garden"></a><div class="copy"><div class="top"><h2>S09</h2><span class="level">中等</span></div><p class="name">Monochrome Data Garden</p><p class="fit">植物、有机生长、风、粒子、柔和运动和近单色表达。</p><p class="ref">R-S09-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S10-A-selected-synthesis-split.png"><img src="../assets/style-references/R-S10-A-selected-synthesis-split.png" alt="S10 Selected Synthesis"></a><div class="copy"><div class="top"><h2>S10</h2><span class="level">中高</span></div><p class="name">Selected Synthesis</p><p class="fit">画面同时存在有机曲线与明确的直线、建筑或网格结构。</p><p class="ref">R-S10-A · split study</p></div></article>
+    <article><a class="media" href="../assets/style-references/R-S11-A-cyanotype-ma-registry-split.png"><img src="../assets/style-references/R-S11-A-cyanotype-ma-registry-split.png" alt="S11 Cyanotype Ma Registry"></a><div class="copy"><div class="top"><h2>S11</h2><span class="level">低</span></div><p class="name">Cyanotype Ma Registry</p><p class="fit">居中或对称单体、边缘安静、空间留白和克制蓝晒。</p><p class="ref">R-S11-A · split study</p></div></article>
+  </section>
+  <div class="note"><strong>S08 次级参考：</strong><a href="../assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.png">R-S08-B</a> 仅用于审美方向，原图为 1024×1536（2:3），不得作为 3:4 交付验收样本。</div>
+</main>
+</body>
+</html>
