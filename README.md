@@ -81,7 +81,7 @@ python3 scripts/generate_html.py ./my_images --no-pdf
 
 ### 🟦 optical-zine-poster
 
-**一张源图生成完整 3:4 Minimal Optical Zine 海报**
+**把一张原图，变成光学实验版画海报**
 
 根据主体结构、透视、材质、氛围、动静关系与留白需求，从 `S01–S11` 自动选择一个视觉程序；默认直接生成完整全图，完成后可继续生成同风格的上下 1:1 对照版，或浏览其他风格。
 
