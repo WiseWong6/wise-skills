@@ -25,9 +25,23 @@ STYLES = {
 }
 
 
+def webp_size(head: bytes) -> tuple[int, int]:
+    chunk = head[12:16]
+    if chunk == b"VP8X":
+        return int.from_bytes(head[24:27], "little") + 1, int.from_bytes(head[27:30], "little") + 1
+    if chunk == b"VP8 ":
+        return int.from_bytes(head[26:28], "little") & 0x3FFF, int.from_bytes(head[28:30], "little") & 0x3FFF
+    if chunk == b"VP8L":
+        bits = int.from_bytes(head[21:25], "little")
+        return (bits & 0x3FFF) + 1, ((bits >> 14) & 0x3FFF) + 1
+    raise ValueError(f"unsupported WebP chunk: {chunk}")
+
+
 def image_size(path: Path) -> tuple[int, int]:
     with path.open("rb") as stream:
-        head = stream.read(24)
+        head = stream.read(32)
+        if head[:4] == b"RIFF" and head[8:12] == b"WEBP":
+            return webp_size(head)
         if head.startswith(b"\x89PNG\r\n\x1a\n"):
             return struct.unpack(">II", head[16:24])
         if head[:2] != b"\xff\xd8":
@@ -76,8 +90,8 @@ def main() -> int:
         require((style_id, name) in headings, f"heading mismatch for {style_id} {name}", errors)
         require(programs.count(f"EFFECT PROGRAM — {style_id} ") == 1, f"{style_id} must have one effect program", errors)
         references = (
-            ROOT / "assets/style-references/split-1x1" / f"R-{style_id}-A-{slug}-split.png",
-            ROOT / "assets/style-references/tokyo-tower-full" / f"R-{style_id}-A-{slug}-full.png",
+            ROOT / "assets/style-references/split-1x1" / f"R-{style_id}-A-{slug}-split.webp",
+            ROOT / "assets/style-references/tokyo-tower-full" / f"R-{style_id}-A-{slug}-full.webp",
         )
         for image in references:
             require(image.is_file(), f"missing style reference: {image}", errors)
@@ -125,7 +139,7 @@ def main() -> int:
     require('id="split-1x1"' in catalog, "catalog missing split 1:1 section", errors)
     require('id="tokyo-tower-full"' in catalog, "catalog missing Tokyo Tower full section", errors)
 
-    secondary = ROOT / "assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.png"
+    secondary = ROOT / "assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.webp"
     require(secondary.is_file(), "missing S08 aesthetic-only secondary reference", errors)
     if secondary.is_file():
         width, height = image_size(secondary)
@@ -133,8 +147,8 @@ def main() -> int:
         require("aesthetic-only" in secondary.name, "non-delivery secondary reference is not labeled aesthetic-only", errors)
 
     for example_name in (
-        "E01-FULL-S08-material-tectonics.png",
-        "E01-SPLIT-S08-material-tectonics.png",
+        "E01-FULL-S08-material-tectonics.webp",
+        "E01-SPLIT-S08-material-tectonics.webp",
     ):
         example = ROOT / "assets/examples" / example_name
         require(example.is_file(), f"missing E01 output: {example}", errors)

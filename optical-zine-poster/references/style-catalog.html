@@ -22,7 +22,7 @@
   <nav><a href="#split-1x1">1:1 分屏</a><a href="#tokyo-tower-full">东京铁塔 · 全图</a></nav>
   <section class="collection split" id="split-1x1"><div class="collection-head"><div><p class="eyebrow">Collection A · split 1:1</p><h2>上图摄影 / 下图设计</h2></div><p class="intro">用于明确要求上下 1:1 的变体。卡片缩略图聚焦下半设计区，点击后查看完整分屏。</p></div><div class="grid" data-gallery="split"></div></section>
   <section class="collection full" id="tokyo-tower-full"><div class="collection-head"><div><p class="eyebrow">Collection B · Tokyo Tower full design</p><h2>东京铁塔 / 全图设计</h2></div><p class="intro">S01–S11 全部以同一张东京铁塔原图为语义与结构源，并按 3–6 个可见载体、最多两组聚类、主体连续通道与至少 40% 留白的统一约束重新生成。</p></div><div class="grid" data-gallery="full"></div></section>
-  <div class="note"><strong>S08 次级参考：</strong><a href="../assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.png">R-S08-B</a> 仅用于审美方向，原图为 2:3，不得作为 3:4 交付验收样本。</div>
+  <div class="note"><strong>S08 次级参考：</strong><a href="../assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.webp">R-S08-B</a> 仅用于审美方向，原图为 2:3，不得作为 3:4 交付验收样本。</div>
 </main>
 <script>
   const styles = [
@@ -40,7 +40,7 @@
   ];
   function card(style, mode) {
     const split = mode === "split";
-    const path = `../assets/style-references/${split ? "split-1x1" : "tokyo-tower-full"}/R-${style.id}-A-${style.slug}-${split ? "split" : "full"}.png`;
+    const path = `../assets/style-references/${split ? "split-1x1" : "tokyo-tower-full"}/R-${style.id}-A-${style.slug}-${split ? "split" : "full"}.webp`;
     const ref = split ? "split 1:1 study" : "Tokyo Tower · full design · exact 3:4";
     const level = style.level;
     return `<article class="card"><a class="media" href="${path}"><img src="${path}" alt="${style.id} ${style.name} ${ref}"></a><div class="copy"><div class="top"><h3>${style.id}</h3><span class="level">${level}</span></div><p class="name">${style.name}</p><p class="fit">${style.fit}</p><p class="ref">R-${style.id}-A · ${ref}</p></div></article>`;
