@@ -225,21 +225,6 @@ Acceptance rules:
 - Style references document choices; they are not model inputs. Passing one as a second image would break the Skill's traceable input boundary.
 - `R-S08-B` is a secondary 2:3 aesthetic reference. It may only appear in explicitly labeled non-delivery areas and is not a valid output sample.
 
-## Star and Feedback
-
-<p align="center">
-  <img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=for-the-badge&logo=github&label=GitHub%20Stars&cacheSeconds=3600" alt="Optical Zine Poster GitHub Stars">
-</p>
-
-The star count is updated automatically by Shields.io from public GitHub repository statistics and requires no GitHub Access Token. If this Skill helps you create something interesting, please consider starring it from the top-right corner of the GitHub repository page.
-
-You can also use Issues to share:
-
-- your source image and final result;
-- whether automatic style selection matched your expectations;
-- style semantics or output modes you would like to see;
-- reproducible ratio, composition, or prompt problems.
-
 ## About
 
 Find me across social platforms as **@歪斯Wise**, where I share AI creation, agent workflows, visual design, and productivity tools.
