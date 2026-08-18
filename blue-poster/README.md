@@ -1,11 +1,11 @@
-# Optical Zine Poster
+# Blue Poster · 蓝色光波
 
 <p align="center">
   <strong>简体中文</strong> · <a href="README_EN.md">English</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/WiseWong6/optical-zine-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/optical-zine-poster?style=for-the-badge" alt="MIT License"></a>
+  <a href="https://github.com/WiseWong6/blue-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/blue-poster?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/WiseWong6/wise-skills"><img src="https://img.shields.io/badge/More-Wise%20Skills-173F5F?style=for-the-badge" alt="Wise Skills"></a>
 </p>
 
@@ -16,7 +16,7 @@
   <a href="references/style-catalog.html">本地风格图册</a>
 </p>
 
-Optical Zine Poster 是一个为 Codex 封装的图像生成 Skill。它可以把一张原图，变成光学实验版画海报。
+Blue Poster（蓝色光波）是一个为 Codex 封装的图像生成 Skill。它可以把一张原图，变成光学实验版画海报。
 
 它会读取源图中的主体结构、透视、材质、氛围、动静关系与留白需求，从 11 套视觉程序中选择最合适的风格，生成一张完整的 3:4 视觉海报。
 
@@ -128,23 +128,23 @@ python3 scripts/extract_mpo.py /absolute/path/to/source.mpo \
 ### 方式一：直接安装到 Codex Skills
 
 ```bash
-git clone https://github.com/WiseWong6/optical-zine-poster.git \
-  ~/.codex/skills/optical-zine-poster
+git clone https://github.com/WiseWong6/blue-poster.git \
+  ~/.codex/skills/blue-poster
 ```
 
 更新：
 
 ```bash
-git -C ~/.codex/skills/optical-zine-poster pull --ff-only
+git -C ~/.codex/skills/blue-poster pull --ff-only
 ```
 
 ### 方式二：保留开发目录并使用软链
 
 ```bash
-git clone https://github.com/WiseWong6/optical-zine-poster.git \
-  /path/to/optical-zine-poster
-ln -s /path/to/optical-zine-poster \
-  ~/.codex/skills/optical-zine-poster
+git clone https://github.com/WiseWong6/blue-poster.git \
+  /path/to/blue-poster
+ln -s /path/to/blue-poster \
+  ~/.codex/skills/blue-poster
 ```
 
 当前 Skill 也收录在 [Wise Skills](https://github.com/WiseWong6/wise-skills) 合集，适合统一浏览我的其他 Codex Skills。
@@ -154,35 +154,35 @@ ln -s /path/to/optical-zine-poster \
 在 Codex 中附上一张源图，然后调用：
 
 ```text
-$optical-zine-poster
-把这张图做成光学杂志海报。
+$blue-poster
+把这张图做成蓝色光波海报。
 ```
 
 ### 指定风格
 
 ```text
-$optical-zine-poster
+$blue-poster
 使用 S02，把这张道路照片生成完整 3:4 全图。
 ```
 
 ### 请求上下 1:1 对照版
 
 ```text
-$optical-zine-poster
+$blue-poster
 沿用刚才的风格，用原始源图生成上下 1:1 对照版。
 ```
 
 ### 浏览其他风格
 
 ```text
-$optical-zine-poster
+$blue-poster
 我想看看其他风格，请给我风格图册和选择建议。
 ```
 
 ### 指定输出位置
 
 ```text
-$optical-zine-poster
+$blue-poster
 用 S11 生成完整全图，输出到 /absolute/path/to/posters/。
 ```
 
@@ -213,7 +213,7 @@ $optical-zine-poster
 默认写入调用任务工作区：
 
 ```text
-outputs/optical-zine-poster/
+outputs/blue-poster/
 ├── <source>-full-Sxx-v1.png
 ├── <source>-full-Sxx-v1.prompt.md
 ├── <source>-split-Sxx-v1.png          # 可选

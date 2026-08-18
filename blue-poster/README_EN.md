@@ -1,11 +1,11 @@
-# Optical Zine Poster
+# Blue Poster
 
 <p align="center">
   <a href="README.md">简体中文</a> · <strong>English</strong>
 </p>
 
 <p align="center">
-  <a href="https://github.com/WiseWong6/optical-zine-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/optical-zine-poster?style=for-the-badge" alt="MIT License"></a>
+  <a href="https://github.com/WiseWong6/blue-poster/blob/main/LICENSE"><img src="https://img.shields.io/github/license/WiseWong6/blue-poster?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/WiseWong6/wise-skills"><img src="https://img.shields.io/badge/More-Wise%20Skills-173F5F?style=for-the-badge" alt="Wise Skills"></a>
 </p>
 
@@ -16,7 +16,7 @@
   <a href="references/style-catalog.html">Local Style Catalog</a>
 </p>
 
-Optical Zine Poster is an image-generation Skill built for Codex. It can turn one source image into an optical experimental print poster.
+Blue Poster (蓝色光波) is an image-generation Skill built for Codex. It can turn one source image into an optical experimental print poster.
 
 It reads the source image's subject structure, perspective, materials, atmosphere, motion, and negative-space needs, selects the most suitable style from 11 visual programs, and generates a complete 3:4 poster.
 
@@ -128,23 +128,23 @@ This Skill **only uses Codex's host-provided image-generation capability**. If t
 ### Option 1: Install Directly into Codex Skills
 
 ```bash
-git clone https://github.com/WiseWong6/optical-zine-poster.git \
-  ~/.codex/skills/optical-zine-poster
+git clone https://github.com/WiseWong6/blue-poster.git \
+  ~/.codex/skills/blue-poster
 ```
 
 Update:
 
 ```bash
-git -C ~/.codex/skills/optical-zine-poster pull --ff-only
+git -C ~/.codex/skills/blue-poster pull --ff-only
 ```
 
 ### Option 2: Keep a Development Directory and Use a Symlink
 
 ```bash
-git clone https://github.com/WiseWong6/optical-zine-poster.git \
-  /path/to/optical-zine-poster
-ln -s /path/to/optical-zine-poster \
-  ~/.codex/skills/optical-zine-poster
+git clone https://github.com/WiseWong6/blue-poster.git \
+  /path/to/blue-poster
+ln -s /path/to/blue-poster \
+  ~/.codex/skills/blue-poster
 ```
 
 The Skill is also included in [Wise Skills](https://github.com/WiseWong6/wise-skills), where you can browse my other Codex Skills in one place.
@@ -154,35 +154,35 @@ The Skill is also included in [Wise Skills](https://github.com/WiseWong6/wise-sk
 Attach one source image in Codex, then invoke:
 
 ```text
-$optical-zine-poster
-Turn this image into an optical zine poster.
+$blue-poster
+Turn this image into a blue poster.
 ```
 
 ### Choose a Style
 
 ```text
-$optical-zine-poster
+$blue-poster
 Use S02 and turn this road photograph into a complete 3:4 full design.
 ```
 
 ### Request an Upper/Lower 1:1 Comparison
 
 ```text
-$optical-zine-poster
+$blue-poster
 Keep the previous style and use the original source to generate an upper-photo/lower-design 1:1 split.
 ```
 
 ### Browse Other Styles
 
 ```text
-$optical-zine-poster
+$blue-poster
 I want to explore other styles. Show me the style catalog and recommend suitable options.
 ```
 
 ### Choose an Output Location
 
 ```text
-$optical-zine-poster
+$blue-poster
 Use S11 for a complete full design and save it to /absolute/path/to/posters/.
 ```
 
@@ -213,7 +213,7 @@ Use S11 for a complete full design and save it to /absolute/path/to/posters/.
 By default, outputs are written under the calling task's workspace:
 
 ```text
-outputs/optical-zine-poster/
+outputs/blue-poster/
 ├── <source>-full-Sxx-v1.png
 ├── <source>-full-Sxx-v1.prompt.md
 ├── <source>-split-Sxx-v1.png          # optional

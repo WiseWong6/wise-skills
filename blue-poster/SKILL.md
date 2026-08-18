@@ -1,9 +1,9 @@
 ---
-name: optical-zine-poster
-description: Turn one source image into a finished 3:4 Minimal Optical Zine poster with semantic style selection, a default full-design composition, an optional upper-photo/lower-design 1:1 split, and an 11-style local reference catalog. Use when Codex should create an optical zine poster, Layer Study poster, cyanotype or moire architectural print, compare optical print styles, or generate a full-design or split 1:1 variant from a supplied image.
+name: blue-poster
+description: Turn one source image into a finished 3:4 Minimal Blue Poster with semantic style selection, a default full-design composition, an optional upper-photo/lower-design 1:1 split, and an 11-style local reference catalog. Use when Codex should create a blue poster, Layer Study poster, cyanotype or moire architectural print, compare optical print styles, or generate a full-design or split 1:1 variant from a supplied image.
 ---
 
-# Optical Zine Poster
+# Blue Poster
 
 Generate each final poster from the original source image in one image-generation call. Default to a complete full-design poster. Never create a base image and then add effects in a second content-generation stage.
 
@@ -30,7 +30,7 @@ Generate each final poster from the original source image in one image-generatio
 3. Read [prompt-full-design.md](references/prompt-full-design.md) and the selected block in [style-programs.md](references/style-programs.md).
 4. Replace `{{EFFECT_PROGRAM}}` with exactly one complete style block. Do not leave placeholders or merge multiple styles.
 5. Call the selected host-native image generator once with the original source as the only image input. In Codex, this means `image_gen.imagegen`. State that the source is a semantic and structural source, not a style reference.
-6. Save the selected image under the caller's current workspace at `outputs/optical-zine-poster/<source>-full-Sxx-vN.png`, unless the user supplied another destination. Never overwrite an existing file.
+6. Save the selected image under the caller's current workspace at `outputs/blue-poster/<source>-full-Sxx-vN.png`, unless the user supplied another destination. Never overwrite an existing file.
 7. Save the exact final prompt beside it as `<source>-full-Sxx-vN.prompt.md`.
 8. Run `python3 scripts/validate_output.py <image> --mode full`. If it fails, retry once from the original source with the same style and a stronger native 3:4 instruction. Never stretch or crop to hide a ratio failure. If the retry fails, report it as unaccepted.
 9. Perform only a lightweight check on the returned image: the subject remains recognizable, the whole page is designed, no photographic window remains, and the full-mode carrier contract is visible—3–6 active regions, no more than two clusters, no isolated small rectangle, a continuous subject corridor and at least 40% quiet paper. Do not start a browser or create extra screenshots.

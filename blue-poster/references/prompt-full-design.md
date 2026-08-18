@@ -4,7 +4,7 @@ Use this template for the default output. Replace `{{EFFECT_PROGRAM}}` with exac
 
 ```text
 Use case: style-transfer.
-Asset type: one finished collectible Minimal Optical Zine Poster.
+Asset type: one finished collectible Minimal Blue Poster.
 Mode: FULL DESIGN TRANSLATION, ONE PASS. Create the complete Layer Study foundation and the selected optical effect together in this single generation. The entire canvas must look like a designed print study expanded to fill a full 3:4 page.
 
 MANDATORY CANVAS:
