@@ -4,7 +4,7 @@ Use this template only after the user requests the optional comparison poster. R
 
 ```text
 Use case: precise-object-edit.
-Asset type: one finished premium Minimal Optical Zine Poster.
+Asset type: one finished premium Minimal Blue Poster.
 Mode: ONE-PASS SPLIT 1:1. Generate the photographic upper half, the complete Layer Study foundation and the selected optical effect together in this single generation from Image 1. Do not use an intermediate image or a second content-generation stage.
 
 MANDATORY CANVAS:

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate PNG/JPEG dimensions for an Optical Zine Poster output."""
+"""Validate PNG/JPEG dimensions for a Blue Poster output."""
 
 from __future__ import annotations
 

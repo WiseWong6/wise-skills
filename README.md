@@ -4,7 +4,7 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
 
 <p>
   <img src="https://img.shields.io/github/stars/WiseWong6/wise-skills?style=flat-square&logo=github&label=Wise%20Skills" alt="Wise Skills Stars">
-  <a href="https://star-history.com/#WiseWong6/optical-zine-poster&Date"><img src="https://img.shields.io/github/stars/WiseWong6/optical-zine-poster?style=flat-square&logo=github&label=Optical%20Zine%20Poster" alt="Optical Zine Poster Stars"></a>
+  <a href="https://star-history.com/#WiseWong6/blue-poster&Date"><img src="https://img.shields.io/github/stars/WiseWong6/blue-poster?style=flat-square&logo=github&label=Blue%20Poster" alt="Blue Poster Stars"></a>
 </p>
 
 ---
@@ -79,7 +79,7 @@ python3 scripts/generate_html.py ./my_images --no-pdf
 
 ---
 
-### 🟦 optical-zine-poster
+### 🟦 blue-poster（蓝色光波）
 
 **把一张原图，变成光学实验版画海报**
 
@@ -92,12 +92,12 @@ python3 scripts/generate_html.py ./my_images --no-pdf
 - **Codex 原生生图**：只使用宿主内置 `image_gen.imagegen`，无需第三方图片 API Key
 
 ```text
-$optical-zine-poster
-把这张图做成完整 3:4 光学杂志海报；风格由你根据原图语义选择。
+$blue-poster
+把这张图做成完整 3:4 蓝色光波海报；风格由你根据原图语义选择。
 ```
 
 查看完整双模式示例、11 风格目录、安装与验证说明：
-[Optical Zine Poster 独立仓库](https://github.com/WiseWong6/optical-zine-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/optical-zine-poster/stargazers)。
+[Blue Poster 独立仓库](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
 
 ---
 
@@ -223,7 +223,7 @@ python scripts/generate_image.py \
 ```
 /image-to-pages /path/to/images 帮我做成打印页面
 /image-gen 生成一张星际穿越主题的图片
-$optical-zine-poster 把这张图做成完整 3:4 光学杂志海报
+$blue-poster 把这张图做成完整 3:4 蓝色光波海报
 /prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
 /optimize-system-performance 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
