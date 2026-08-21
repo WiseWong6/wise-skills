@@ -314,7 +314,8 @@ pip install google-genai pillow                   # Gemini（可选）
 | 方格纸手绘（handdrawn） | 松果先森 |
 | 极简手绘笔记（minimalist-sketch） | Aki聊AI |
 | 奶油手账（cream-journal） | wise |
-| 扁平风 / 治愈系 / 描边插画 / 社论全景 等 | 网络整理，出处待补 |
+| 社论全景（editorial） | 歸藏 |
+| 扁平风 / 治愈系 / 描边插画 等 | 网络整理，出处待补 |
 
 如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.yaml` 条目）。
 
