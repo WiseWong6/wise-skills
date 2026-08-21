@@ -295,7 +295,7 @@ styles:
   editorial:
     id: "editorial"
     name: "社论全景"
-    credit: "网络整理"
+    credit: "歸藏"
     aspect_ratio: "16:9"
     platforms: ["wechat", "xiaohongshu"]
 
