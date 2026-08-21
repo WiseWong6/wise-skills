@@ -1,9 +1,9 @@
 {
   "name": "image-gen",
-  "description": "通过火山 Ark 的 OpenAI 兼容接口生成图片（Doubao Seedream 等模型），可选保存到本地文件",
-  "version": "1.0.0",
+  "description": "配图全流程 skill：内容→提示词→生图。生图通道自动判定：优先宿主自带生图（Codex/网页版 GPT、Gemini）与 MCP 生图工具，不可用时走火山 Ark（Doubao Seedream）/ Gemini 3 Pro Image API，支持批量、编辑、多图合成、自动插入 Markdown",
+  "version": "1.1.0",
   "entry_skill": "image-gen",
   "author": "wisewong",
-  "tags": ["image", "generation", "ark", "doubao", "openai"],
+  "tags": ["image", "generation", "infographic", "ark", "doubao", "gemini"],
   "requires": ["prompt"]
 }

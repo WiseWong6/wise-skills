@@ -7,7 +7,7 @@ description: 配图全流程 skill：从内容生成提示词（image-prompter �
 
 一个 skill 覆盖「内容 → 提示词 → 生图」全链路：
 - **上半场（配图助手）**：把文章/模块/PPT 大纲转成统一风格、少字高可读的提示词（8 种风格 + 25 种布局 + 5 阶段流程）
-- **下半场（生图工具）**：调火山 Ark (Doubao Seedream) 或 Gemini 3 Pro Image 生成图片，支持批量、编辑、多图合成、自动插入 Markdown
+- **下半场（生图工具）**：按「生图通道判定」优先用宿主自带生图能力（Codex / 网页版 GPT、Gemini 等）或 MCP 生图工具；都不可用才落 API（火山 Ark Doubao Seedream / Gemini 3 Pro Image），支持批量、编辑、多图合成、自动插入 Markdown
 
 ## 触发方式
 
@@ -169,9 +169,24 @@ image_plan:
 
 ## 生图工具（下半场）
 
-提示词就绪后，用 `scripts/generate_image.py` 调 API 生图。
+### 生图通道判定（先于一切生图调用，必走）
 
-### 提供商
+提示词就绪后，先判定当前运行环境，按优先级选生图通道——**能不依赖 API 就不依赖**：
+
+| 优先级 | 环境 | 判定方式 | 生图通道 |
+|---|---|---|---|
+| 1 | Codex / ChatGPT 网页端 / Gemini 网页端 | 宿主本身自带生图能力 | 直接用宿主内置生图：把提示词原样交给宿主执行，**不调用 API、不要求配 Key** |
+| 2 | 其他宿主（Claude Code / ZCode / 通用 CLI 等） | 检查会话可用工具列表里有没有生图类 MCP 工具（工具名含 image-gen / generate_image / seedream / draw / banana 等） | 有就直接用该 MCP 工具生图 |
+| 3 | 以上都不可用 | — | 走本 skill 的 `scripts/generate_image.py`（需 API Key），并按「依赖与环境变量」引导用户配置 |
+
+判定规则：
+
+1. 先看系统信息与可用工具列表，确认宿主类型与生图工具，**再**决定通道；
+2. 命中通道 1/2 时，上半场提示词产出流程完全不变，只是「生图」一步换通道执行（提示词同样要求少字、大字号、可复制）；
+3. 仅当通道 1/2 不存在，或用户明确要求本地批量生成 / 自动插入 Markdown / 图片编辑合成时，落到通道 3；
+4. 通道 3 缺 Key 时，提示用户自行配置 `ARK_API_KEY`（火山 Ark）或 `GEMINI_API_KEY`，给出获取方式即可，**不要替用户编造或硬编码 Key**。
+
+### 提供商（通道 3：API 直连）
 
 - **火山 Ark**（默认）：OpenAI 兼容接口，Doubao Seedream 系列
 - **Gemini 3 Pro Image**：Nano Banana Pro，支持图片编辑和多图合成
@@ -286,6 +301,22 @@ pip install google-genai pillow                   # Gemini（可选）
 
 ---
 
+## 风格出处与致谢（开源声明）
+
+本 skill 的风格库参考、整理自社区创作者的公开分享，仅作提示词语感参考：
+
+| 风格 | 出处 |
+|---|---|
+| 奶油纸手绘（cream-paper） | 云舒的AI实践笔记 |
+| 小红书卡通（xhs-cartoon） | 宝玉 |
+| 方格纸手绘（handdrawn） | 松果先森 |
+| 极简手绘笔记（minimalist-sketch） | Aki聊AI |
+| 扁平风 / 治愈系 / 描边插画 / 社论全景 等 | 网络整理，出处待补 |
+
+如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.yaml` 条目）。
+
+---
+
 ## 文件结构
 
 ```
@@ -320,4 +351,4 @@ examples/
 3. 谁来看（小白/从业者/老板/学生…）
 4. 偏好：更"少字清爽"还是更"信息密度"
 
-交付顺序：图清单（阶段 2）→ **用户确认后展示 8 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 用 `generate_image.py` 生图 → 自动插入文章。
+交付顺序：图清单（阶段 2）→ **用户确认后展示 8 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（宿主内置 / MCP / `generate_image.py`）→ 自动插入文章。
