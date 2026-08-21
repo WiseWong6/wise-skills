@@ -38,3 +38,10 @@ yarn-error.log*
 *.ttf
 *.woff
 *.woff2
+
+# spec-workflow 工具脚手架（本地工作目录）
+.spec-workflow/
+
+# Python 字节码
+__pycache__/
+*.pyc

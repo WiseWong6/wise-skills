@@ -11,6 +11,7 @@ styles:
   infographic:
     id: "infographic"
     name: "扁平风"
+    credit: "网络整理"
     aspect_ratio: "4:3"
     platforms: ["wechat", "xiaohongshu"]
 
@@ -50,6 +51,7 @@ styles:
   handdrawn:
     id: "handdrawn"
     name: "方格纸手绘"
+    credit: "松果先森"
     aspect_ratio: "4:3"
     platforms: ["wechat"]
 
@@ -95,6 +97,7 @@ styles:
   minimalist-sketch:
     id: "minimalist-sketch"
     name: "极简手绘"
+    credit: "Aki聊AI"
     aspect_ratio: "3:4"
     platforms: ["wechat", "xiaohongshu"]
 
@@ -138,6 +141,7 @@ styles:
   healing:
     id: "healing"
     name: "治愈系插画"
+    credit: "网络整理"
     aspect_ratio: "3:4"
     platforms: ["wechat", "xiaohongshu"]
 
@@ -172,6 +176,7 @@ styles:
   sokamono:
     id: "sokamono"
     name: "描边插画"
+    credit: "网络整理（风格名源自插画家 sokamono）"
     aspect_ratio: "3:4"
     platforms: ["xiaohongshu"]
 
@@ -207,6 +212,7 @@ styles:
   xhs-cartoon:
     id: "xhs-cartoon"
     name: "小红书卡通"
+    credit: "宝玉"
     aspect_ratio: "3:4"
     platforms: ["xiaohongshu"]
 
@@ -245,6 +251,7 @@ styles:
   editorial:
     id: "editorial"
     name: "社论全景"
+    credit: "网络整理"
     aspect_ratio: "16:9"
     platforms: ["wechat", "xiaohongshu"]
 
@@ -289,6 +296,7 @@ styles:
   cream-paper:
     id: "cream-paper"
     name: "奶油纸手绘"
+    credit: "云舒的AI实践笔记"
     aspect_ratio: "16:9"
     platforms: ["wechat", "xiaohongshu"]
 
