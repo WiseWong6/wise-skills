@@ -15,7 +15,7 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
   - [Claude Code](https://claude.ai/code) CLI
   - [OpenAI Codex CLI](https://github.com/openai/codex)
   - 其他支持 skill 指令的 AI 编程助手
-- Python 3.8+（image-gen、image-to-pages 需要）
+- Python 3.8+（image-flow、image-to-pages 需要）
 - 相关 API Key（见环境配置）
 
 ---
@@ -101,16 +101,15 @@ $blue-poster
 
 ---
 
-### 🎨 image-gen
+### 🎨 image-flow
 
-**多提供商图片生成工具**
+**配图全流程：内容 → 提示词 → 生图 → 拼版 PDF/HTML**
 
-支持火山 Ark (Doubao Seedream) 和 Gemini 3 Pro Image 两大提供商，具备：
-- 批量生成 + 多线程并行
-- 图片编辑（单图）
-- 多图合成（最多14张）
-- 平台智能识别（公众号/小红书自动适配比例）
-- Markdown 自动插入
+- 场景自动定比例：小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9
+- 9 种风格（奶油手账、极简手绘、社论全景等，出处见 skill 内致谢表）
+- 生图通道自动判定：宿主内置生图（Codex / 网页版 GPT、Gemini）→ MCP 生图工具 → API 兜底（火山 Ark Doubao Seedream / Gemini 3 Pro Image）
+- 批量生成 + 多线程并行、图片编辑、多图合成（最多14张）、Markdown 自动插入
+- 小红书与 PPT 场景生成后可拼成自包含 PDF/HTML（内置 image-to-pages 能力）
 
 **快速开始：**
 
@@ -135,6 +134,7 @@ python scripts/generate_image.py \
 | 公众号 | 封面图 | 21:9 |
 | 公众号 | 正文图 | 16:9 |
 | 小红书 | 全部 | 3:4 |
+| PPT | 全部 | 16:9 |
 
 ---
 
@@ -222,7 +222,7 @@ python scripts/generate_image.py \
 **Claude Code：** 在对话中使用 `/skill-name` 触发：
 ```
 /image-to-pages /path/to/images 帮我做成打印页面
-/image-gen 生成一张星际穿越主题的图片
+/image-flow 生成一张星际穿越主题的图片
 $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 /prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
@@ -235,7 +235,7 @@ $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 
 ## 环境配置
 
-### image-gen API Key 配置
+### image-flow API Key 配置
 
 **火山 Ark（推荐，国内访问稳定）**
 
