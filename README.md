@@ -15,7 +15,7 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
   - [Claude Code](https://claude.ai/code) CLI
   - [OpenAI Codex CLI](https://github.com/openai/codex)
   - 其他支持 skill 指令的 AI 编程助手
-- Python 3.8+（image-flow、image-to-pages 需要）
+- Python 3.8+（wise-image-flow、image-to-pages 需要）
 - 相关 API Key（见环境配置）
 
 ---
@@ -101,7 +101,7 @@ $blue-poster
 
 ---
 
-### 🎨 image-flow
+### 🎨 wise-image-flow
 
 **配图全流程：内容 → 提示词 → 生图 → 拼版 PDF/HTML**
 
@@ -222,7 +222,7 @@ python scripts/generate_image.py \
 **Claude Code：** 在对话中使用 `/skill-name` 触发：
 ```
 /image-to-pages /path/to/images 帮我做成打印页面
-/image-flow 生成一张星际穿越主题的图片
+/wise-image-flow 生成一张星际穿越主题的图片
 $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 /prompt-creator 帮我创建一个代码审查提示词
 /ppt-speech-creator 帮我准备年终总结 PPT
@@ -235,7 +235,7 @@ $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 
 ## 环境配置
 
-### image-flow API Key 配置
+### wise-image-flow API Key 配置
 
 **火山 Ark（推荐，国内访问稳定）**
 
