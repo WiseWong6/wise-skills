@@ -1,9 +1,20 @@
 {
-  "name": "image-gen",
+  "name": "image-flow",
   "description": "配图全流程 skill：内容→提示词→生图→拼版交付。场景自动定比例（小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9）；生图通道自动判定（宿主内置生图/MCP 优先，API 兜底：火山 Ark Doubao Seedream、Gemini 3 Pro Image）；小红书与 PPT 场景生成后可一键拼成自包含 PDF/HTML（内置 image-to-pages 能力）",
   "version": "1.2.0",
-  "entry_skill": "image-gen",
+  "entry_skill": "image-flow",
   "author": "wisewong",
-  "tags": ["image", "generation", "infographic", "ark", "doubao", "gemini", "pdf", "html"],
-  "requires": ["prompt"]
+  "tags": [
+    "image",
+    "generation",
+    "infographic",
+    "ark",
+    "doubao",
+    "gemini",
+    "pdf",
+    "html"
+  ],
+  "requires": [
+    "prompt"
+  ]
 }
