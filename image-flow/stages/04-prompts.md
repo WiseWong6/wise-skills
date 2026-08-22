@@ -26,6 +26,8 @@
      - `minimalist-sketch` → `templates/style-block-minimalist-sketch.md`
      - `xhs-cartoon` → `templates/style-block-xhs-cartoon.md`
      - `editorial` → `templates/style-block-editorial.md`
+     - `cream-journal` → `templates/style-block-cream-journal.md`
+     - `editorial-paper` → `templates/style-block-editorial-paper.md`
    - **风格基准锁定**：每张图都必须以读取的风格块定义作为**唯一允许的基础风格**来生成。
    - **不得换风格**：不要让模型自行切换成其他风格（如扁平矢量海报风/3D/摄影写实等）。
    - 允许你用自己的话描述该风格，但不能删掉关键要素与负面约束（否则风格会被模型先验带偏）。
@@ -44,7 +46,7 @@
 
 ## 模板使用
 
-### 风格块（Style 维度，8种）
+### 风格块（Style 维度，10种）
 
 | Style ID | 风格块文件 | 画幅 |
 |----------|-----------|------|
@@ -56,6 +58,8 @@
 | `sokamono` | `templates/style-block-sokamono.md` | 3:4 |
 | `xhs-cartoon` | `templates/style-block-xhs-cartoon.md` | 3:4 |
 | `editorial` | `templates/style-block-editorial.md` | 16:9 |
+| `cream-journal` | `templates/style-block-cream-journal.md` | 3:4 |
+| `editorial-paper` | `templates/style-block-editorial-paper.md` | 3:4（可按场景横版） |
 
 ### 结构模板（Layout 维度，5种）
 
@@ -139,6 +143,8 @@
 | `sokamono` | ✅ | ✅ | ✅ | ✅✅ | ✅ |
 | `xhs-cartoon` | ✅✅ | ✅ | ✅✅ | ✅ | ✅ |
 | `editorial` | ✅✅ | ✅✅ | ✅ | ✅ | ✅ |
+| `cream-journal` | ✅✅ | ✅ | ✅✅ | ✅ | ✅ |
+| `editorial-paper` | ✅✅ | ✅ | ✅ | ✅✅ | ✅✅ |
 
 ✅✅ = 高度推荐 | ✅ = 兼容 | ⚠️ = 需谨慎 | ❌ = 不推荐
 
@@ -154,3 +160,5 @@
 | `sokamono` | 3:4 竖版 | 描边插画，清新文艺 |
 | `xhs-cartoon` | 3:4 竖版 | 小红书卡通，莫兰迪色 |
 | `editorial` | 16:9 横版 | 社论全景，对比分析 |
+| `cream-journal` | 3:4 竖版 | 奶油手账，高密度知识卡片 |
+| `editorial-paper` | 3:4 默认，可按场景横版 | 社论纸艺，关系与责任流 |

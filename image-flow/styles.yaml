@@ -334,6 +334,45 @@ styles:
       text_budget: "标题 + 对比模块 + 数据网格"
       max_chars_per_block: 8
 
+  editorial-paper:
+    id: "editorial-paper"
+    name: "社论纸艺"
+    credit: "@歪斯Wise"
+    aspect_ratio: "3:4"
+    platforms: ["xiaohongshu", "wechat"]
+
+    description: "暖象牙纸上的手工纸艺拼贴与克制网版颗粒，适合呈现责任关系、工作流与 AI 工作产品。"
+    recommended_for: ["责任关系", "工作流重构", "AI 工作产品", "关系图", "观点表达"]
+
+    signals:
+      keywords: ["责任", "关系", "关闭权", "提醒", "工作流", "协作"]
+      content_type: "analytical"
+      text_density: "medium"
+
+    colors:
+      primary: "warm ivory paper with visible fibers"
+      base: "ink navy and charcoal"
+      accent: "muted olive green, brick orange, pale cornflower blue"
+    elements:
+      - "hand-cut paper collage with visible torn or deckled edges"
+      - "one central human figure or work object as the visual anchor"
+      - "thin black orbit lines connecting 3-5 labeled responsibility nodes"
+      - "restrained halftone and risograph-like grain, not glossy gradients"
+      - "short editorial headline and large, sparse labels"
+
+    prompt_prefix: |
+      社论纸艺信息图，默认 3:4 竖版；若场景要求横版，改用指定画幅并保留中央主体与横向节点轨道
+      暖象牙纸背景，保留纸纤维、切纸边缘与手工拼贴层次
+      墨蓝黑为骨架，低饱和橄榄绿、砖橙、浅矢车菊蓝为强调色
+      一个中心人物或工作对象，3-5 个责任/协作节点沿细黑轨道环绕或延展
+      克制网版印刷颗粒与纸艺阴影，只表现纸张层次；不要塑料光泽、不要 3D 渲染
+      标题像社论版面，文字只保留短标题与短标签，留白明确、关系可一眼读懂
+
+    careful_mode:
+      default_template: "16x9-infographic"
+      text_budget: "标题 + 3-5 个关系节点"
+      max_chars_per_label: 6
+
   # --------------------------------------------------------
   # 通用横版风格（16:9）- 默认风格
   # --------------------------------------------------------
@@ -470,13 +509,16 @@ compatibility:
   healing:           [list, flow, balanced, sparse, comparison]
   sokamono:          [list, flow, balanced, sparse, comparison]
   xhs-cartoon:       [list, flow, balanced, sparse, comparison]
+  cream-journal:     [balanced, list, sparse, flow, comparison]
   editorial:         [comparison, balanced, list, sparse, flow]
+  editorial-paper:   [balanced, flow, sparse, list, comparison]
 
 # 兼容性说明（供 AI 推荐时参考）
 compatibility_notes:
   "healing+comparison": "治愈系不太适合硬对比，建议用前后变化叙事"
   "healing+dense": "治愈系需要呼吸感，避免信息过密"
   "editorial+flow": "社论风格可以用于流程，但更擅长对比分析"
+  "editorial-paper+comparison": "社论纸艺更适合呈现关系与责任流，硬对比时应只保留两组核心对象"
   "xhs-cartoon+sparse": "小红书风格适合封面，但通常信息量更多"
 
 # ============================================================
