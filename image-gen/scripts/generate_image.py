@@ -329,6 +329,10 @@ PLATFORM_FIXED_RATIOS = {
         'cover': '3:4',     # 小红书封面：竖版
         'poster': '3:4',    # 小红书正文：竖版
     },
+    'ppt': {
+        'cover': '16:9',    # PPT：全部 16:9 横版
+        'poster': '16:9',
+    },
 }
 
 # 兼容性别名（向后兼容）
@@ -357,6 +361,8 @@ def detect_platform_from_path(output_path: str = None, out_dir: str = None, prom
             return 'wechat'
         elif 'xiaohongshu' in path_lower or '小红书' in path_lower:
             return 'xiaohongshu'
+        elif 'ppt' in path_lower:
+            return 'ppt'
     return None
 
 
