@@ -1,9 +1,9 @@
 ---
-name: image-gen
-description: 配图全流程 skill：从内容生成提示词（image-prompter 能力）到调用 API 生图（火山 Ark Doubao Seedream / Gemini 3 Pro Image）。把文章/模块/PPT 大纲转成统一风格、少字高可读的 16:9 信息图提示词，再批量生成图片、自动插入 Markdown。支持 8 种风格、25 种布局、平台智能识别比例、多图合成与图片编辑。
+name: image-flow
+description: 配图全流程 skill：从内容生成提示词到多通道生图再到拼版交付。场景自动定比例（小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9），支持 9 种风格、多种布局；生图通道自动判定（宿主内置生图 / MCP / API：火山 Ark Doubao Seedream、Gemini 3 Pro Image）；批量生成、自动插入 Markdown；小红书与 PPT 场景可拼成自包含 PDF/HTML。
 ---
 
-# Image Gen · 配图全流程
+# Image Flow · 配图全流程
 
 一个 skill 覆盖「内容 → 提示词 → 生图」全链路：
 - **上半场（配图助手）**：把文章/模块/PPT 大纲转成统一风格、少字高可读的提示词（8 种风格 + 25 种布局 + 5 阶段流程）
