@@ -51,7 +51,7 @@ styles:
   handdrawn:
     id: "handdrawn"
     name: "方格纸手绘"
-    credit: "松果先森"
+    credit: "@松果先森"
     aspect_ratio: "4:3"
     platforms: ["wechat"]
 
@@ -97,7 +97,7 @@ styles:
   minimalist-sketch:
     id: "minimalist-sketch"
     name: "极简手绘"
-    credit: "Aki聊AI"
+    credit: "@Aki聊AI"
     aspect_ratio: "3:4"
     platforms: ["wechat", "xiaohongshu"]
 
@@ -212,7 +212,7 @@ styles:
   xhs-cartoon:
     id: "xhs-cartoon"
     name: "小红书卡通"
-    credit: "宝玉"
+    credit: "@宝玉"
     aspect_ratio: "3:4"
     platforms: ["xiaohongshu"]
 
@@ -251,7 +251,7 @@ styles:
   cream-journal:
     id: "cream-journal"
     name: "奶油手账"
-    credit: "wise"
+    credit: "@歪斯Wise"
     aspect_ratio: "3:4"
     platforms: ["xiaohongshu", "wechat"]
 
@@ -295,7 +295,7 @@ styles:
   editorial:
     id: "editorial"
     name: "社论全景"
-    credit: "歸藏"
+    credit: "@歸藏"
     aspect_ratio: "16:9"
     platforms: ["wechat", "xiaohongshu"]
 
@@ -340,7 +340,7 @@ styles:
   cream-paper:
     id: "cream-paper"
     name: "奶油纸手绘"
-    credit: "云舒的AI实践笔记"
+    credit: "@云舒的AI实践笔记"
     aspect_ratio: "16:9"
     platforms: ["wechat", "xiaohongshu"]
 
