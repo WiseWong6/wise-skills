@@ -132,7 +132,7 @@ description: 配图全流程 skill：从内容生成提示词（image-prompter �
 - 所有中文清晰可读：大字号、少字短句、避免密集小字
 - 全图字体最多 2 种：标题字体 + 正文字体，层级靠字号、字重与颜色深浅区分，禁止引入第三种字体、禁止手写体与印刷体混排（手账类风格则两种都用手写体）
 - 每张提示词独立代码块输出，便于复制
-- 默认 16:9 横版（除非明确要 3:4 竖版）
+- 比例由场景判定，不单独询问：小红书 3:4；公众号封面 21:9、公众号正文及其他 16:9；纯 PPT 16:9。用户明说 → 直接用；可推断 → 复述确认；未说明 → 阶段 1 询问；仍不明确 → 默认 16:9 并告知可改
 - 默认风格：奶油纸底 + 彩铅水彩手绘（`templates/style-block-cream-paper.md`）
 - 阶段 3 文案确认后，阶段 4 不得改文案，只做封装
 
@@ -243,6 +243,9 @@ python scripts/generate_image.py --provider gemini \
 | 公众号（WeChat） | 封面图 | 21:9 |
 | 公众号（WeChat） | 正文图 | 16:9 |
 | 小红书（Xiaohongshu） | 全部 | 3:4 |
+| PPT | 全部 | 16:9 |
+
+PPT 场景（含 PPT 配图模式）所有页面统一 16:9 横版。
 
 检测路径中的 `wechat`/`公众号`/`xiaohongshu`/`小红书` 关键词。手动覆盖用 `--aspect-ratio "1:1"`。
 
@@ -289,6 +292,30 @@ open_questions: []
 
 `--num-images N` 指定数量，多线程并行（最多 5 并发），文件名 `image_01.jpg`、`image_02.jpg`…
 
+### 生成后拼版交付（PDF/HTML，内置能力，继承自 image-to-pages）
+
+**触发条件**：场景判定为**小红书**（3:4 竖版合集）或 **PPT**（16:9 横版系列），且本次生成 ≥ 2 张；公众号及其他场景不触发。
+
+生成完成后主动询问用户：「需要将这组图拼成可翻阅的 PDF / HTML 吗？」用户同意后，直接运行本 skill 自带脚本：
+
+```bash
+# 文件名有序（image_01.jpg、image_02.jpg…）→ 直接传图片目录
+python3 scripts/generate_html.py <图片目录> [输出名]
+
+# 文件名无序 → 先按内容排好顺序，再用 --files 传有序列表
+python3 scripts/generate_html.py --output <输出名> --files 封面.png 01.png 02.png
+```
+
+场景参数：
+
+| 场景 | 参数 |
+|---|---|
+| 小红书 3:4 | 竖版默认；图片接近 3:4 时自动升级为每张独占一页 |
+| PPT 16:9 | `--orientation landscape`（每页一张，contain 不裁切） |
+
+- 输出与图片同目录：`<名>.html`（图片 base64 自包含，双击即开）+ `<名>.pdf`（需 Chrome/Edge/Arc 渲染，缺失时自动降级为仅 HTML 并提示可手动打印）
+- 常用参数：`--mode auto/full`、`--no-pdf`、`--img-format webp|jpeg`、`--quality 80`、`--max-width 1920`、`--pdf-quality none|screen|ebook|printer`（压缩依赖 Pillow/Ghostscript，缺失时优雅降级为原图/跳过）
+
 ### 依赖与环境变量
 
 ```bash
@@ -315,6 +342,7 @@ pip install google-genai pillow                   # Gemini（可选）
 | 极简手绘笔记（minimalist-sketch） | Aki聊AI |
 | 奶油手账（cream-journal） | wise |
 | 社论全景（editorial） | 歸藏 |
+| 拼版交付能力（scripts/generate_html.py） | 继承自本仓库 image-to-pages skill |
 | 扁平风 / 治愈系 / 描边插画 等 | 网络整理，出处待补 |
 
 如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.yaml` 条目）。
@@ -325,7 +353,8 @@ pip install google-genai pillow                   # Gemini（可选）
 
 ```
 scripts/
-└── generate_image.py        # 生图统一入口（Ark + Gemini）
+├── generate_image.py        # 生图统一入口（Ark + Gemini）
+└── generate_html.py         # 拼版输出 HTML/PDF（继承自 image-to-pages）
 
 stages/                      # 配图助手流程（5 阶段 + PPT 模式）
 ├── 00-ppt-mode.md
@@ -351,8 +380,8 @@ examples/
 
 用户只要给四项就能开始：
 1. 要配图的内容（一段、小节、或整篇）
-2. 用在哪 + 观看距离（PPT 投影远看 / 手机近看 / 海报）
+2. 用在哪个场景（小红书 / 公众号封面 / 公众号正文 / PPT / 海报；比例随场景自动确定）
 3. 谁来看（小白/从业者/老板/学生…）
 4. 偏好：更"少字清爽"还是更"信息密度"
 
-交付顺序：图清单（阶段 2）→ **用户确认后展示 8 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（宿主内置 / MCP / `generate_image.py`）→ 自动插入文章。
+交付顺序：图清单（阶段 2）→ **用户确认后展示 9 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（宿主内置 / MCP / `generate_image.py`）→ 自动插入文章 →（小红书/PPT 场景）询问是否拼版交付 PDF/HTML。
