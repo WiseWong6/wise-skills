@@ -336,13 +336,13 @@ pip install google-genai pillow                   # Gemini（可选）
 
 | 风格 | 出处 |
 |---|---|
-| 奶油纸手绘（cream-paper） | 云舒的AI实践笔记 |
-| 小红书卡通（xhs-cartoon） | 宝玉 |
-| 方格纸手绘（handdrawn） | 松果先森 |
-| 极简手绘笔记（minimalist-sketch） | Aki聊AI |
-| 奶油手账（cream-journal） | wise |
-| 社论全景（editorial） | 歸藏 |
-| 拼版交付能力（scripts/generate_html.py） | 继承自本仓库 image-to-pages skill |
+| 奶油纸手绘（cream-paper） | @云舒的AI实践笔记 |
+| 小红书卡通（xhs-cartoon） | @宝玉 |
+| 方格纸手绘（handdrawn） | @松果先森 |
+| 极简手绘笔记（minimalist-sketch） | @Aki聊AI |
+| 社论全景（editorial） | @歸藏 |
+| 奶油手账（cream-journal） | @歪斯Wise |
+| 拼版交付能力（scripts/generate_html.py） | @歪斯Wise（继承自其 image-to-pages skill） |
 | 扁平风 / 治愈系 / 描边插画 等 | 网络整理，出处待补 |
 
 如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.yaml` 条目）。
