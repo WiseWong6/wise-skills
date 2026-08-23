@@ -1,13 +1,13 @@
 ---
 name: wise-image-flow
-description: 配图全流程 skill：从内容生成提示词到多通道生图再到拼版交付。场景自动定比例（小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9），支持 10 种风格、多种布局；生图通道自动判定（宿主内置生图 / MCP / API：火山 Ark Doubao Seedream、Gemini 3 Pro Image）；批量生成、自动插入 Markdown；小红书与 PPT 场景可拼成自包含 PDF/HTML。
+description: 配图全流程 skill：从内容生成提示词到多通道生图再到拼版交付。场景自动定比例（小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9），支持 10 种风格、多种布局；生图通道自动判定（宿主内置生图 / MCP / API：火山 Ark Doubao Seedream、Gemini 3 Pro Image）；批量生成；小红书与 PPT 场景可拼成自包含 PDF/HTML。
 ---
 
 # Wise Image Flow · 配图全流程
 
 一个 skill 覆盖「内容 → 提示词 → 生图」全链路：
 - **上半场（配图助手）**：把文章/模块/PPT 大纲转成统一风格、少字高可读的提示词（10 种风格 + 25 种布局 + 5 阶段流程）
-- **下半场（生图工具）**：按「生图通道判定」优先用宿主自带生图能力（Codex / 网页版 GPT、Gemini 等）或 MCP 生图工具；都不可用才落 API（火山 Ark Doubao Seedream / Gemini 3 Pro Image），支持批量、编辑、多图合成、自动插入 Markdown
+- **下半场（生图工具）**：按「生图通道判定」优先用宿主自带生图能力（Codex / 网页版 GPT、Gemini 等）或 MCP 生图工具；都不可用才落 API（火山 Ark Doubao Seedream / Gemini 3 Pro Image），支持批量、编辑与多图合成
 
 ## 触发方式
 
@@ -137,37 +137,6 @@ description: 配图全流程 skill：从内容生成提示词到多通道生图�
 - 默认风格：奶油纸底 + 彩铅水彩手绘（`templates/style-block-cream-paper.md`）
 - 阶段 3 文案确认后，阶段 4 不得改文案，只做封装
 
-### 契约式输出（供 article-workflow 消费）
-
-作为 article-workflow 子技能调用时，提示词文件必须带 `image_plan` 元数据：
-
-```yaml
----
-image_prompter:
-  version: "1.0"
-  stages:
-    brief: { status: "done", confirmed_by: "user", timestamp: "..." }
-    plan: { status: "done", ... }
-    style: { status: "done", ... }
-    copy: { status: "done", ... }
-    prompts: { status: "done", ... }
-  style_selected: "minimalist-sketch"
-  image_count: 6
-  copy_spec_confirmed: true
-image_plan:
-  - id: cover
-    role: cover
-    file: cover_21x9.jpg
-    insert_after: title
-  - id: compare
-    role: contrast
-    file: poster_01_16x9.jpg
-    insert_after_heading: "对非标体来说，最怕的不是贵一点，是直接被拒"
----
-```
-
-图位优先级：`insert_after` > `insert_after_heading` > `role` > 顺序 fallback。
-
 ---
 
 ## 生图工具（下半场）
@@ -186,7 +155,7 @@ image_plan:
 
 1. 先看系统信息与可用工具列表，确认宿主类型与生图工具，**再**决定通道；
 2. 命中通道 1/2 时，上半场提示词产出流程完全不变，只是「生图」一步换通道执行（提示词同样要求少字、大字号、可复制）；
-3. 仅当通道 1/2 不存在，或用户明确要求本地批量生成 / 自动插入 Markdown / 图片编辑合成时，落到通道 3；
+3. 仅当通道 1/2 不存在，或用户明确要求本地批量生成 / 图片编辑合成时，落到通道 3；
 4. 通道 3 缺 Key 时，提示用户自行配置 `ARK_API_KEY`（火山 Ark）或 `GEMINI_API_KEY`，给出获取方式即可，**不要替用户编造或硬编码 Key**。
 
 ### 提供商（通道 3：API 直连）
@@ -251,47 +220,19 @@ PPT 场景（含 PPT 配图模式）所有页面统一 16:9 横版。
 检测路径中的 `wechat`/`公众号`/`xiaohongshu`/`小红书` 关键词。手动覆盖用 `--aspect-ratio "1:1"`。
 
 ```bash
-# 配图助手输出的提示词文件 → 批量生图 + 自动插入文章
+# 提示词文件 → 批量生图
 python scripts/generate_image.py \
-  --prompts-file "./wechat/12_prompts.md" \
-  --out-dir "./wechat/13_images/" \
-  --insert-into "./wechat/11_final_final.md"
+  --prompts-file "./prompts.md" \
+  --out-dir "./images/"
 ```
 
 ### 参数速查
 
 **通用**：`--provider`（ark/gemini）、`--prompt`、`--output`、`--aspect-ratio`（1:1/16:9/9:16/4:3/3:4/21:9）
 
-**Ark 专用**：`--model`、`--size`（如 2K）、`--prompts-file`（从 md 读多提示词）、`--out-dir`、`--insert-into`（生成后插入 md）、`--watermark`（默认 false）、`--response-format`（url/b64_json）
+**Ark 专用**：`--model`、`--size`（如 2K）、`--prompts-file`（从 md 读多提示词）、`--out-dir`、`--watermark`（默认 false）、`--response-format`（url/b64_json）
 
 **Gemini 专用**：`--input-image`/`-i`（可多次，最多 14）、`--resolution`/`-r`（1K/2K/4K）
-
-### 自动插入 Markdown
-
-`--insert-into` 指定 md 文件，生成后自动插入：
-1. 第 1 张：插到主标题（`# 标题`）后
-2. 第 2+ 张：插到各章节标题（`## 章节名`）后
-3. 引用格式：`![alt](09_images/image_XX.jpg)`（相对路径）
-
-### Handoff 落盘协议（article-workflow 子技能）
-
-```yaml
-step_id: "09_images"
-inputs:
-  - "wechat/08_prompts.md"
-outputs:
-  - "wechat/09_images/"
-  - "wechat/07_final_final.md"  # 用 --insert-into 时
-  - "wechat/09_handoff.yaml"
-summary: "生成文章配图并插入到 Markdown"
-next_instructions:
-  - "下一步：md-to-wxhtml 转换为 HTML"
-open_questions: []
-```
-
-### 批量生成
-
-`--num-images N` 指定数量，多线程并行（最多 5 并发），文件名 `image_01.jpg`、`image_02.jpg`…
 
 ### 生成后拼版交付（PDF/HTML，内置能力，继承自 image-to-pages）
 
@@ -347,7 +288,7 @@ pip install google-genai pillow                   # Gemini（可选）
 | 拼版交付能力（scripts/generate_html.py） | @歪斯Wise（继承自其 image-to-pages skill） |
 | 扁平风 / 治愈系 / 描边插画 等 | 网络整理，出处待补 |
 
-如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.yaml` 条目）。
+如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.json` 条目）。
 
 ---
 
@@ -367,7 +308,7 @@ stages/                      # 配图助手流程（5 阶段 + PPT 模式）
 └── 05-iterate.md
 
 templates/                   # 风格模板与布局模板
-├── styles.yaml
+├── styles.json
 ├── style-block-*.md         # 10 种风格
 ├── 16x9-*.md                # 16:9 布局模板
 └── checklist.md
@@ -386,4 +327,4 @@ examples/
 3. 谁来看（小白/从业者/老板/学生…）
 4. 偏好：更"少字清爽"还是更"信息密度"
 
-交付顺序：图清单（阶段 2）→ **用户确认后展示 10 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（宿主内置 / MCP / `generate_image.py`）→ 自动插入文章 →（小红书/PPT 场景）询问是否拼版交付 PDF/HTML。
+交付顺序：图清单（阶段 2）→ **用户确认后展示 10 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（宿主内置 / MCP / `generate_image.py`）→（小红书/PPT 场景）询问是否拼版交付 PDF/HTML。

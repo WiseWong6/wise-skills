@@ -108,7 +108,7 @@ $blue-poster
 - 场景自动定比例：小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9
 - 9 种风格（奶油手账、极简手绘、社论全景等，出处见 skill 内致谢表）
 - 生图通道自动判定：宿主内置生图（Codex / 网页版 GPT、Gemini）→ MCP 生图工具 → API 兜底（火山 Ark Doubao Seedream / Gemini 3 Pro Image）
-- 批量生成 + 多线程并行、图片编辑、多图合成（最多14张）、Markdown 自动插入
+- 批量生成 + 多线程并行、图片编辑、多图合成（最多14张）
 - 小红书与 PPT 场景生成后可拼成自包含 PDF/HTML（内置 image-to-pages 能力）
 
 **快速开始：**
