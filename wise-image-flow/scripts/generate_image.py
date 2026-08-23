@@ -10,7 +10,6 @@ import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-import yaml
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -179,132 +178,6 @@ def refactored_prompts_for_image_generation(prompts: list[str]) -> list[str]:
         else:
             refactored.append(prompt)
     return refactored
-
-
-def load_image_plan_from_markdown(markdown_file: str) -> list[dict]:
-    """从 Markdown frontmatter 读取 image_plan 元数据。
-
-    兼容两种写法：
-    1. 顶层 image_plan
-    2. image_prompter.image_plan
-    """
-    try:
-        content = Path(markdown_file).read_text(encoding="utf-8")
-    except Exception as e:
-        print(f"读取 image_plan 失败: {e}")
-        return []
-
-    if not content.startswith("---"):
-        return []
-
-    parts = content.split("---", 2)
-    if len(parts) < 3:
-        return []
-
-    try:
-        frontmatter = yaml.safe_load(parts[1]) or {}
-    except Exception as e:
-        print(f"解析 image_plan frontmatter 失败: {e}")
-        return []
-
-    image_plan = frontmatter.get("image_plan")
-    if not image_plan:
-        image_plan = (frontmatter.get("image_prompter") or {}).get("image_plan")
-
-    if not isinstance(image_plan, list):
-        return []
-
-    normalized = []
-    for idx, item in enumerate(image_plan, 1):
-        if not isinstance(item, dict):
-            continue
-        normalized.append({
-            "index": idx,
-            "role": item.get("role") or ("cover" if idx == 1 else "poster"),
-            "title": item.get("title") or item.get("alt") or item.get("label") or f"配图 {idx}",
-            "insert_after": item.get("insert_after"),
-            "insert_after_heading": item.get("insert_after_heading"),
-        })
-    return normalized
-
-
-def find_insert_line_after_heading(lines: list[str], heading_text: str) -> int | None:
-    """找到指定标题后的插入行。"""
-    heading_text = (heading_text or "").strip().lstrip("#").strip()
-    if not heading_text:
-        return None
-
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if not stripped.startswith("#"):
-            continue
-        current_heading = stripped.lstrip("#").strip()
-        if current_heading == heading_text:
-            j = i + 1
-            while j < len(lines) and not lines[j].strip():
-                j += 1
-            return j
-    return None
-
-
-def find_insert_line_after_text(lines: list[str], needle: str) -> int | None:
-    """找到包含指定文本的行后插入。"""
-    needle = (needle or "").strip()
-    if not needle:
-        return None
-
-    for i, line in enumerate(lines):
-        if needle in line:
-            j = i + 1
-            while j < len(lines) and not lines[j].strip():
-                j += 1
-            return j
-    return None
-
-
-def build_image_slots(img_files: list[Path], image_plan: list[dict]) -> list[dict]:
-    """将生成后的图片文件与 image_plan 绑定。"""
-    cover_file = next((f for f in img_files if f.name.startswith("cover_")), None)
-    poster_files = [f for f in img_files if f.name.startswith("poster_")]
-
-    slots = []
-    poster_idx = 0
-
-    if image_plan:
-        for idx, plan in enumerate(image_plan, 1):
-            role = plan.get("role", "poster")
-            if role == "cover" and cover_file:
-                file_path = cover_file
-            elif poster_idx < len(poster_files):
-                file_path = poster_files[poster_idx]
-                poster_idx += 1
-            elif role == "cover" and cover_file:
-                file_path = cover_file
-            else:
-                continue
-
-            slots.append({
-                "file": file_path,
-                "label": plan.get("title") or ("封面" if role == "cover" else f"配图 {idx}"),
-                "role": role,
-                "insert_after": plan.get("insert_after"),
-                "insert_after_heading": plan.get("insert_after_heading"),
-            })
-
-    # 兜底：把未消耗的图片按旧策略补上
-    used_names = {slot["file"].name for slot in slots}
-    remaining = [f for f in img_files if f.name not in used_names]
-    for extra_idx, file_path in enumerate(remaining, 1):
-        role = "cover" if file_path.name.startswith("cover_") else "poster"
-        slots.append({
-            "file": file_path,
-            "label": "封面" if role == "cover" else f"配图补位 {extra_idx}",
-            "role": role,
-            "insert_after": None,
-            "insert_after_heading": None,
-        })
-
-    return slots
 
 
 FALLBACK_MODEL = "doubao-seedream-4-0-250828"
@@ -536,14 +409,6 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=1,
         help="Number of images to generate (deprecated, use --count)",
-    )
-    parser.add_argument(
-        "--handoff-out",
-        help="Path to write handoff.yaml",
-    )
-    parser.add_argument(
-        "--insert-into",
-        help="Path to markdown file to insert generated images (auto-detects positions)",
     )
     return parser.parse_args()
 
@@ -778,11 +643,7 @@ def main() -> int:
     # 如果提供了prompts-file，解析markdown文件
     cover_prompt = ""
     poster_prompts = []
-    image_plan = []
     if args.prompts_file:
-        image_plan = load_image_plan_from_markdown(args.prompts_file)
-        if image_plan:
-            print(f"从 {args.prompts_file} 读取到 {len(image_plan)} 个 image_plan 图位")
         cover_prompt, poster_prompts = extract_prompts_from_markdown(args.prompts_file)
         if cover_prompt:
             print(f"从 {args.prompts_file} 解析出封面图提示词")
@@ -901,37 +762,6 @@ def main() -> int:
 
         print(f"\n生成完成: 真实 {len(successful)} 张, 占位符 {len(placeholders)} 张, 失败 {len(failed)} 张")
 
-        # 生成 handoff.yaml（如果指定了输出目录）
-        if args.handoff_out and output_dir:
-            try:
-                import yaml
-
-                handoff = {
-                    "step_id": "09_images",
-                    "inputs": ["wechat/08_prompts_handoff.yaml"],
-                    "outputs": ["wechat/09_images/", "wechat/09_handoff.yaml"],
-                    "summary": f"生成文章配图：真实 {len(successful)} 张, 占位符 {len(placeholders)} 张",
-                    "status": "partial_success" if placeholders else ("success" if successful else "failed"),
-                    "image_stats": {
-                        "real": len(successful),
-                        "placeholder": len(placeholders),
-                        "failed": len(failed),
-                    },
-                    "failed_files": [path for idx, path in failed],
-                    "placeholder_files": [path for idx, path in placeholders],
-                    "next_instructions": [
-                        "下一步：md-to-wxhtml 转换为 HTML",
-                    ] + ([f"注意：{len(placeholders)} 张图片使用占位符"] if placeholders else []),
-                    "open_questions": []
-                }
-
-                handoff_path = Path(output_dir) / "../09_handoff.yaml"
-                with open(handoff_path, 'w', encoding='utf-8') as f:
-                    yaml.dump(handoff, f, allow_unicode=True, default_flow_style=False)
-                print(f"✓ handoff.yaml 已生成: {handoff_path}")
-            except Exception as e:
-                print(f"⚠️  handoff.yaml 生成失败: {e}")
-
         # 验证输出文件数量
         try:
             validate_outputs(str(output_dir), total_images)
@@ -944,96 +774,7 @@ def main() -> int:
         if len(failed) > 0:
             return 1
 
-        # 插入图片到 Markdown 文件
-        if args.insert_into and successful:
-            insert_images_to_markdown(args.insert_into, output_dir, len(successful), image_plan=image_plan)
-
         return 0
-
-
-def insert_images_to_markdown(markdown_path: str, images_dir: str, image_count: int, image_plan: list[dict] | None = None) -> bool:
-    """将生成的图片插入到 Markdown 文件。
-
-    优先级：
-    1. image_plan 图位元数据（insert_after / insert_after_heading）
-    2. 旧的顺序插图策略（H1 后 + 各章节后）
-    """
-    md_path = Path(markdown_path)
-    if not md_path.exists():
-        print(f"❌  Markdown 文件不存在: {md_path}", file=sys.stderr)
-        return False
-
-    content = md_path.read_text(encoding="utf-8")
-    lines = content.splitlines()
-
-    try:
-        img_dir = Path(images_dir).relative_to(md_path.parent)
-    except ValueError:
-        # 图片目录不在 markdown 父目录下，使用目录名
-        img_dir = Path(Path(images_dir).name)
-
-    img_files = sorted(Path(images_dir).glob("*.jpg"))
-
-    if not img_files:
-        print(f"⚠️  未找到图片文件在: {images_dir}")
-        return False
-
-    slots = build_image_slots(img_files, image_plan or [])
-    section_headings = [i for i, line in enumerate(lines) if line.startswith("## ")]
-    section_cursor = 0
-    insert_positions = []
-
-    for slot in slots[:image_count]:
-        pos = None
-        if slot.get("insert_after_heading"):
-            pos = find_insert_line_after_heading(lines, slot["insert_after_heading"])
-        if pos is None and slot.get("insert_after"):
-            pos = find_insert_line_after_text(lines, slot["insert_after"])
-
-        if pos is None:
-            if slot.get("role") == "cover":
-                # 封面图片插入到一级标题后
-                for i, line in enumerate(lines):
-                    if line.startswith("# "):
-                        pos = i + 1
-                        while pos < len(lines) and not lines[pos].strip():
-                            pos += 1
-                        break
-            else:
-                if section_cursor < len(section_headings):
-                    heading_line = section_headings[section_cursor]
-                    section_title = lines[heading_line].replace("## ", "").strip()
-                    slot["label"] = slot.get("label") or section_title
-                    pos = heading_line + 1
-                    while pos < len(lines) and not lines[pos].strip():
-                        pos += 1
-                    section_cursor += 1
-
-        if pos is None:
-            pos = len(lines)
-
-        rel_path = img_dir / slot["file"].name
-        img_ref = f"\n![{slot.get('label') or '配图'}]({rel_path})\n"
-        # 检查是否已存在该图片引用（使用 markdown 图片语法检查）
-        img_markdown = f"]({rel_path})"
-        if img_markdown in content:
-            print(f"  ℹ️  图片已存在，跳过: {rel_path}")
-            continue
-        insert_positions.append((pos, img_ref))
-
-    insert_positions.sort(key=lambda x: x[0], reverse=True)
-    for pos, img_ref in insert_positions:
-        lines.insert(pos, img_ref)
-
-    try:
-        md_path.write_text("\n".join(lines), encoding="utf-8")
-        mode = "image_plan" if image_plan else "fallback"
-        print(f"✓ 已插入 {len(insert_positions)} 张图片到 {md_path.name}（模式: {mode}）")
-        return True
-    except IOError as e:
-        print(f"❌  写入 Markdown 文件失败: {e}", file=sys.stderr)
-        return False
-
 
 
 def generate_with_gemini(args: argparse.Namespace) -> int:
