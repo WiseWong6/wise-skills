@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wise Image Flow"
+  short_description: "配图全流程（Codex 生图锁定宿主内置通道，失败即停，不回退 API）"
+  default_prompt: "使用 $wise-image-flow 配图。注意本环境为 Codex：生图一律走宿主内置 image_gen.imagegen，把上半场产出的提示词原样交给宿主执行；该通道不可用或失败时立即停下向用户报告，禁止回退火山 Ark、Gemini API、第三方 MCP 或本地脚本（scripts/generate_image.py 仅限用户明确要求时由用户自行运行）。提示词规划、风格选择、拼版交付（generate_html.py）等其余流程照常。"
