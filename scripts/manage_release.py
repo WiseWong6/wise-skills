@@ -25,13 +25,13 @@ FORBIDDEN_NAMES = {
     ".gitignore",
     ".metadata.json",
     ".openclawmpignore",
-    "LICENSE",
-    "LICENSE.md",
-    "README.md",
-    "README_EN.md",
     "SKILLHUB-RELEASE.md",
     "skill.json",
 }
+RELEASE_ROOT_FILES = (
+    ("docs/release-README.md", "README.md"),
+    ("LICENSE", "LICENSE"),
+)
 
 
 class ReleaseError(RuntimeError):
@@ -123,6 +123,14 @@ def parse_skill_name(skill_file: Path) -> str:
     return name_match.group(1).strip().strip("'\"")
 
 
+def is_ignored_generated_file(path: Path, relative: Path) -> bool:
+    return (
+        "__pycache__" in relative.parts
+        or path.name == ".DS_Store"
+        or path.suffix == ".pyc"
+    )
+
+
 def check_package(skill: Mapping[str, object]) -> List[str]:
     name = str(skill["name"])
     root = resolve_repo_path(str(skill["path"]))
@@ -140,9 +148,21 @@ def check_package(skill: Mapping[str, object]) -> List[str]:
         except (OSError, UnicodeError, ReleaseError) as exc:
             errors.append(str(exc))
 
+    license_file = root / "LICENSE"
+    repository_license = REPO_ROOT / "LICENSE"
+    readme_file = root / "README.md"
+    if not readme_file.is_file():
+        errors.append("{}：缺少 README.md".format(name))
+    if not license_file.is_file():
+        errors.append("{}：缺少 LICENSE".format(name))
+    elif repository_license.is_file() and file_digest(license_file) != file_digest(repository_license):
+        errors.append("{}：LICENSE 与仓库根 LICENSE 不一致".format(name))
+
     files = [path for path in sorted(root.rglob("*")) if path.is_file() or path.is_symlink()]
     for path in files:
         relative = path.relative_to(root)
+        if is_ignored_generated_file(path, relative):
+            continue
         if path.is_symlink():
             errors.append("{}：发行载荷不允许软链 {}".format(name, relative))
             continue
@@ -169,6 +189,10 @@ def check_all(require_external: bool = False) -> List[str]:
         errors.append("skills-release.json 存在重复 name")
     if len(paths) != len(set(paths)):
         errors.append("skills-release.json 存在重复 path")
+    for source_name, destination_name in RELEASE_ROOT_FILES:
+        source = resolve_repo_path(source_name)
+        if not source.is_file():
+            errors.append("发行包根文件缺失：{} -> {}".format(source_name, destination_name))
     for skill in skills:
         errors.extend(check_package(skill))
         if skill.get("source") == "external-mirror":
@@ -246,6 +270,11 @@ def build_release(output: Path) -> None:
 
     release_files: Dict[str, str] = {}
     source_states: Dict[str, Mapping[str, object]] = {}
+    for source_name, destination_name in RELEASE_ROOT_FILES:
+        source = resolve_repo_path(source_name)
+        destination = output / destination_name
+        shutil.copy2(str(source), str(destination))
+        release_files[destination_name] = file_digest(destination)
     for skill in manifest_skills():
         name = str(skill["name"])
         source = resolve_repo_path(str(skill["path"]))

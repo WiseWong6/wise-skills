@@ -48,6 +48,9 @@ NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---(?:\r?\n|\Z)", re.DOTALL)
 TOP_LEVEL_YAML_KEY_RE = re.compile(r"^([A-Za-z0-9_-]+):(?:\s*(.*))?$")
 MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+BACKTICK_PATH_RE = re.compile(
+    r"`([A-Za-z0-9_.\-]+(?:/[A-Za-z0-9_.\-]+)+)`"
+)
 HTML_LINK_RE = re.compile(
     r"\b(?:href|src)\s*=\s*['\"]([^'\"]+)['\"]",
     re.IGNORECASE,
@@ -395,6 +398,17 @@ def build_reference_graph(
                         target = rel_posix(candidate, root)
                         if target in texts:
                             graph[source].append(target)
+            # 反引号内联路径（如 `references/stages/01-brief.md`）只计入可达性，
+            # 不做 broken/outside 报错：行内代码常含版本号、工具名等非路径文本。
+            # 路径按惯例相对 Skill 根目录书写，故同时尝试相对根目录与相对本文档两种解析。
+            for match in BACKTICK_PATH_RE.finditer(line_text):
+                for base in (root, source_path.parent):
+                    candidate = (base / match.group(1)).resolve(strict=False)
+                    if not (is_within(root, candidate) and candidate.is_file()):
+                        continue
+                    target = rel_posix(candidate, root)
+                    if target in texts:
+                        graph[source].append(target)
 
     depths = {"SKILL.md": 0}  # type: Dict[str, int]
     queue = deque(["SKILL.md"])  # type: Deque[str]

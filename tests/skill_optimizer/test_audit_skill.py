@@ -372,6 +372,29 @@ class AuditSkillTests(unittest.TestCase):
             self.assertIn("orphan-doc", codes(result, "warning"))
             self.assertEqual(result["metrics"]["max_reference_depth"], 2)
 
+    def test_backticked_root_relative_paths_are_reachable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "backtick-path-skill"
+            root.mkdir()
+            make_valid_skill(
+                root,
+                "# Backtick Paths\n\n需要时读取 `references/stage.md`。\n",
+            )
+            write(
+                root / "references/stage.md",
+                "# Stage\n\n按布局读取 `references/templates/layout.md`。\n",
+            )
+            write(root / "references/templates/layout.md", "# Layout\n")
+
+            result, exit_code = audit_skill(root)
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("orphan-doc", codes(result, "warning"))
+            self.assertEqual(
+                result["files"]["reachable_references"],
+                ["references/stage.md", "references/templates/layout.md"],
+            )
+
     def test_duplicate_paragraph_and_human_docs_are_separate(self) -> None:
         paragraph = "这是一段足够长的重复规则，用来确认审计器能够发现跨文件的完全重复内容，并提醒维护者只保留一个权威位置。"
         with tempfile.TemporaryDirectory() as temp:

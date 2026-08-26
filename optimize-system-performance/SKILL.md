@@ -93,13 +93,19 @@ Before any dangerous action:
 - Prefer confirmation candidates over automatic cleanup. A higher score means "ask the user", not "kill now".
 - Do not claim optimization unless a cleanup ledger or user action explains the before/after change.
 
-## Bundled Resources
+## Bundled Resources and Read Routing
+
+Read only the reference required by the current stage and platform:
+
+- After detecting the platform and before classifying signals or assigning a safety level, read [Platform Mapping and Safety Levels](references/platform-mapping.md). Apply only the current platform's mapping.
+- Before writing either the initial diagnosis or the before/after comparison, read [Chinese Report Template](references/report-template.zh.md) and use its required report shape and conclusion wording.
+- Read [macOS Deep Forensics](references/deep-forensics-macos.md) only when the user has asked for deeper macOS evidence and, after seeing the tool, risk, permissions, duration, artifacts, and low-permission alternative, has explicitly confirmed that forensic step.
+- Read [Windows Deep Forensics](references/deep-forensics-windows.md) only under the same explicit-confirmation conditions on Windows.
+- Do not load the opposite platform's deep-forensics guide, and do not treat either guide as permission to run a command; the Dangerous Action Gate still applies.
+
+Bundled scripts:
 
 - `scripts/capture_macos_snapshot.sh`: read-only macOS snapshot collector; default process data is executable-only.
 - `scripts/capture_windows_snapshot.ps1`: read-only Windows snapshot collector; default process data is executable-only.
 - `scripts/normalize_snapshot.py`: schema sanity check and normalization helper.
 - `scripts/compare_snapshots.py`: Chinese before-only and before/after report generator.
-- `references/report-template.zh.md`: required report shape.
-- `references/deep-forensics-macos.md`: macOS opt-in deep forensics menu.
-- `references/deep-forensics-windows.md`: Windows opt-in deep forensics menu.
-- `references/platform-mapping.md`: Mac/Windows signal mapping and safety levels.
