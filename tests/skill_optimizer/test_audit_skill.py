@@ -41,6 +41,11 @@ def make_valid_skill(root: Path, body: str = "# Demo\n\n完成一项明确任务
     )
 
 
+def add_release_envelope(root: Path, readme: str = "# Demo Skill\n\n安装与使用说明。\n") -> None:
+    write(root / "README.md", readme)
+    write(root / "LICENSE", "MIT License\n\nCopyright 2026 Demo\n")
+
+
 def codes(result: dict, severity: Optional[str] = None) -> Set[str]:
     return {
         item["code"]
@@ -67,6 +72,12 @@ class AuditSkillTests(unittest.TestCase):
             "用户必须安装",
             "macOS/Windows × Agent × 入口",
             "平台/Agent 未实测",
+            "用户发行包外壳",
+            "不进入模型上下文不等于应该从发行包删除",
+            "原本没有也不等于必须新增",
+            "借发行瘦身改变权威源码",
+            "原本存在的根目录 `README.md`",
+            "原本存在的 `LICENSE`",
         ):
             self.assertIn(requirement, skill)
         self.assertNotIn("Linux", skill)
@@ -77,6 +88,8 @@ class AuditSkillTests(unittest.TestCase):
             "公共根因",
             "影响面",
             "防复发",
+            "README",
+            "License",
         ):
             self.assertIn(requirement, metadata)
 
@@ -97,6 +110,119 @@ class AuditSkillTests(unittest.TestCase):
             self.assertEqual(
                 result["surfaces"]["release_artifact"]["status"], "not-provided"
             )
+
+    def test_release_surface_does_not_require_readme_or_license(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "source" / "private-skill"
+            release = Path(temp) / "release" / "private-skill"
+            source.mkdir(parents=True)
+            release.mkdir(parents=True)
+            make_valid_skill(source)
+            make_valid_skill(release)
+
+            result, exit_code = audit_skill(
+                release,
+                source=source,
+                surface="release",
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("release-readme-removed", codes(result))
+            self.assertNotIn("release-license-removed", codes(result))
+            envelope = result["surfaces"]["release_envelope"]
+            self.assertEqual(envelope["status"], "preserved")
+            self.assertFalse(envelope["readme"]["required"])
+            self.assertFalse(envelope["readme"]["source_present"])
+            self.assertFalse(envelope["license"]["required"])
+            self.assertFalse(envelope["license"]["source_present"])
+            self.assertEqual(result["surfaces"]["release_artifact"]["status"], "provided")
+
+    def test_release_surface_rejects_removing_existing_readme_and_legal_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "source" / "preserved-skill"
+            release = Path(temp) / "release" / "preserved-skill"
+            source.mkdir(parents=True)
+            release.mkdir(parents=True)
+            make_valid_skill(source)
+            make_valid_skill(release)
+            add_release_envelope(source)
+            write(source / "NOTICE", "Third-party notices.\n")
+
+            result, exit_code = audit_skill(
+                release,
+                source=source,
+                surface="release",
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("release-readme-removed", codes(result, "error"))
+            self.assertIn("release-license-removed", codes(result, "error"))
+            self.assertIn("release-legal-notice-removed", codes(result, "error"))
+            envelope = result["surfaces"]["release_envelope"]
+            self.assertEqual(envelope["status"], "regressed")
+            self.assertTrue(envelope["readme"]["source_present"])
+            self.assertTrue(envelope["readme"]["removed"])
+            self.assertTrue(envelope["license"]["source_present"])
+            self.assertTrue(envelope["license"]["removed"])
+
+    def test_complete_release_envelope_passes_without_entering_context(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "complete-release"
+            root.mkdir()
+            make_valid_skill(root)
+            baseline, _ = audit_skill(root)
+            add_release_envelope(root, "# Complete\n\n" + "人类安装说明。" * 80 + "\n")
+            write(root / "NOTICE", "Third-party notices.\n")
+
+            result, exit_code = audit_skill(root, surface="release")
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("release-readme-removed", codes(result))
+            self.assertNotIn("release-license-removed", codes(result))
+            self.assertNotIn("extra-doc", codes(result))
+            self.assertEqual(result["surfaces"]["release_envelope"]["status"], "observed")
+            self.assertEqual(
+                result["metrics"]["declared_context_estimated_tokens"],
+                baseline["metrics"]["declared_context_estimated_tokens"],
+            )
+            self.assertGreater(
+                result["metrics"]["target_text_estimated_tokens"],
+                baseline["metrics"]["target_text_estimated_tokens"],
+            )
+
+    def test_release_readme_relative_links_are_validated(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "broken-release"
+            root.mkdir()
+            make_valid_skill(root)
+            add_release_envelope(
+                root,
+                "# Broken\n\n<a href=\"references/style-catalog.html\">本地风格图册</a>\n",
+            )
+
+            result, exit_code = audit_skill(root, surface="release")
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("link-broken", codes(result, "error"))
+            self.assertNotIn("release-readme-removed", codes(result))
+            self.assertNotIn("release-license-removed", codes(result))
+
+    def test_showcase_examples_are_visible_but_not_called_developer_junk(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "showcase-release"
+            root.mkdir()
+            make_valid_skill(root)
+            add_release_envelope(root)
+            write(root / "assets/examples/demo.webp", b"RIFF-demo")
+
+            result, exit_code = audit_skill(root, surface="release")
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn(
+                "assets/examples/demo.webp",
+                result["surfaces"]["release_envelope"]["showcase_examples"],
+            )
+            self.assertFalse(result["surfaces"]["developer_assets"]["counts"])
 
     def test_developer_assets_are_classified_without_being_called_removable(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -246,7 +372,7 @@ class AuditSkillTests(unittest.TestCase):
             self.assertIn("orphan-doc", codes(result, "warning"))
             self.assertEqual(result["metrics"]["max_reference_depth"], 2)
 
-    def test_duplicate_paragraph_and_extra_doc_are_reported(self) -> None:
+    def test_duplicate_paragraph_and_human_docs_are_separate(self) -> None:
         paragraph = "这是一段足够长的重复规则，用来确认审计器能够发现跨文件的完全重复内容，并提醒维护者只保留一个权威位置。"
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "duplicate-skill"
@@ -259,7 +385,11 @@ class AuditSkillTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertIn("duplicate-paragraph", codes(result, "warning"))
-            self.assertIn("extra-doc", codes(result, "warning"))
+            self.assertNotIn("extra-doc", codes(result))
+            self.assertIn(
+                "README.md",
+                result["surfaces"]["release_envelope"]["human_documents"],
+            )
 
     def test_legacy_words_are_information_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -340,6 +470,21 @@ class AuditSkillTests(unittest.TestCase):
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
             )
+            release = subprocess.run(
+                [
+                    sys.executable,
+                    str(script),
+                    str(root),
+                    "--surface",
+                    "release",
+                    "--format",
+                    "json",
+                ],
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+            )
             missing = subprocess.run(
                 [sys.executable, str(script), str(root / "does-not-exist")],
                 check=False,
@@ -350,6 +495,8 @@ class AuditSkillTests(unittest.TestCase):
 
             self.assertEqual(ok.returncode, 0)
             self.assertEqual(json.loads(ok.stdout)["summary"]["exit_code"], 0)
+            self.assertEqual(release.returncode, 0)
+            self.assertFalse(json.loads(release.stdout)["surfaces"]["release_envelope"]["readme"]["required"])
             self.assertEqual(missing.returncode, 2)
 
 
