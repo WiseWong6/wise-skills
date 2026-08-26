@@ -54,22 +54,42 @@ class ManageReleaseTests(unittest.TestCase):
         for skill in manage_release.manifest_skills():
             self.assertIn("`{}`".format(skill["name"]), readme)
 
-    def test_repository_readme_keeps_repo_only_docs_discoverable(self) -> None:
+    def test_repository_readme_keeps_user_and_repo_docs_discoverable(self) -> None:
         readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
         for relative in (
-            "docs/blue-poster/README.md",
+            "blue-poster/README.md",
             "docs/ppt-speech-creator/examples/annual-review-example.md",
         ):
             self.assertIn(relative, readme)
             self.assertTrue((REPO_ROOT / relative).is_file())
 
         for relative in (
-            "docs/blue-poster/README.md",
-            "docs/blue-poster/README_EN.md",
+            "blue-poster/README.md",
+            "blue-poster/README_EN.md",
         ):
             path = REPO_ROOT / relative
             for link in local_links(path):
                 self.assertTrue((path.parent / link).resolve().exists(), f"{path}: {link}")
+
+    def test_blue_poster_manifest_preserves_original_user_envelope(self) -> None:
+        skill = next(
+            item for item in manage_release.manifest_skills() if item["name"] == "blue-poster"
+        )
+        self.assertEqual(skill["upstream"], "https://github.com/WiseWong6/blue-poster")
+        self.assertEqual(
+            set(skill["preserve"]),
+            {
+                "README.md",
+                "README_EN.md",
+                "assets/examples",
+                "assets/social",
+                "assets/web",
+            },
+        )
+
+        readme = (REPO_ROOT / "blue-poster/README.md").read_text(encoding="utf-8")
+        for heading in ("## 效果预览", "## 11 套风格程序", "## 安装", "## 输出与验收"):
+            self.assertIn(heading, readme)
 
     def test_operational_reference_docs_have_skill_entrypoints(self) -> None:
         expected_links = {
@@ -162,6 +182,33 @@ class ManageReleaseTests(unittest.TestCase):
                 )
 
             self.assertTrue(any("缺少 README.md" in error for error in errors))
+
+    def test_check_package_requires_preserved_user_files(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            write(root / "LICENSE", "repository license\n")
+            skill_root = root / "demo-skill"
+            write(skill_root / "README.md", "# Demo Skill\n")
+            write(
+                skill_root / "SKILL.md",
+                "---\nname: demo-skill\ndescription: Demo release skill.\n---\n",
+            )
+            write(skill_root / "LICENSE", "repository license\n")
+            skill = {
+                "name": "demo-skill",
+                "path": "demo-skill",
+                "preserve": ["README_EN.md", "assets/web"],
+            }
+
+            with mock.patch.object(manage_release, "REPO_ROOT", root):
+                missing_errors = manage_release.check_package(skill)
+                write(skill_root / "README_EN.md", "# Demo Skill\n")
+                write(skill_root / "assets/web/example.txt", "example\n")
+                complete_errors = manage_release.check_package(skill)
+
+            self.assertTrue(any("缺少需保留的用户文件 README_EN.md" in error for error in missing_errors))
+            self.assertTrue(any("缺少需保留的用户文件 assets/web" in error for error in missing_errors))
+            self.assertEqual(complete_errors, [])
 
     def test_build_release_copies_root_metadata_and_skill_license(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

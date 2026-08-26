@@ -158,6 +158,15 @@ def check_package(skill: Mapping[str, object]) -> List[str]:
     elif repository_license.is_file() and file_digest(license_file) != file_digest(repository_license):
         errors.append("{}：LICENSE 与仓库根 LICENSE 不一致".format(name))
 
+    for entry in skill.get("preserve", []):
+        relative = Path(str(entry))
+        if relative.is_absolute() or ".." in relative.parts:
+            errors.append("{}：preserve 路径无效 {}".format(name, entry))
+            continue
+        preserved = root / relative
+        if not preserved.exists():
+            errors.append("{}：缺少需保留的用户文件 {}".format(name, relative))
+
     files = [path for path in sorted(root.rglob("*")) if path.is_file() or path.is_symlink()]
     for path in files:
         relative = path.relative_to(root)
