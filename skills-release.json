@@ -15,7 +15,7 @@
       "path": "wise-image-flow",
       "source": "external-mirror",
       "external_source": "../wise-image-flow",
-      "include": ["SKILL.md", "agents", "assets", "references", "scripts"]
+      "include": ["SKILL.md", "README.md", "LICENSE", "agents", "assets", "references", "scripts"]
     }
   ]
 }

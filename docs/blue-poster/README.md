@@ -13,7 +13,7 @@
   <a href="#快速开始">快速开始</a> ·
   <a href="#11-套风格程序">风格目录</a> ·
   <a href="#输出与验收">输出合同</a> ·
-  <a href="references/style-catalog.html">本地风格图册</a>
+  <a href="../../blue-poster/references/style-catalog.html">本地风格图册</a>
 </p>
 
 Blue Poster（蓝色光波）是一个为 Codex 封装的图像生成 Skill。它可以把一张原图，变成光学实验版画海报。

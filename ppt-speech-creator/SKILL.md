@@ -77,11 +77,15 @@ description: 当用户需要创建PPT内容并生成配套演讲逐字稿时使�
 - 产品发布：痛点 -> 方案 -> 产品 -> 优势 -> 市场 -> 愿景
 - 述职报告：职责 -> 业绩 -> 亮点 -> 不足 -> 规划
 
-模板只负责给出基础顺序，不替代具体页面设计。模板详见：
-- `references/templates/annual-review.md`
-- `references/templates/project-review.md`
-- `references/templates/product-launch.md`
-- `references/templates/述职报告.md`
+识别 PPT 类型后、输出整体大纲前，只读取与当前场景匹配的一份模板：
+
+- 年终总结：读取[年终总结模板](references/templates/annual-review.md)
+- 项目复盘：读取[项目复盘模板](references/templates/project-review.md)
+- 产品发布：读取[产品发布模板](references/templates/product-launch.md)
+- 述职报告：读取[述职报告模板](references/templates/述职报告.md)
+- 其他自定义汇报：不强行套用上述模板，按用户材料重新组织故事线
+
+模板只负责提供基础顺序和场景检查项，不替代具体页面设计，也不要同时加载多份模板后拼接结构。
 
 ### 第三步：定义单页表达任务
 
@@ -120,8 +124,8 @@ description: 当用户需要创建PPT内容并生成配套演讲逐字稿时使�
 - 文案与组件的相对关系
 - 是否需要配图或图表
 
-页面骨架和混合布局规则详见 `references/page-composition.md`。
-如果需要继续交给 HTML 渲染器，先转成 `DocumentSpec v1`，再交给 `references/swiss-editorial-handoff.md` 定义的协议。
+开始设计第一张页面前，读取[页面构成参考](references/page-composition.md)，后续页面沿用其中的骨架、区域职责和拆页规则。
+只有用户明确要求继续交给 Swiss Editorial HTML 渲染器时，才读取[Swiss Editorial Handoff](references/swiss-editorial-handoff.md)，把已确认内容转成 `DocumentSpec v1`；否则不要加载该协议。
 
 ### 第五步：组件选择
 
@@ -133,7 +137,7 @@ description: 当用户需要创建PPT内容并生成配套演讲逐字稿时使�
 - 可组合多个组件
 - 可在必要时扩展新组件，但优先复用现有命名
 
-组件库详见 `references/component-library.md`。
+当前页确认需要组件、但组件类型或组合方式尚未确定时，读取[推荐组件库](references/component-library.md)；纯文字页无需加载。
 
 ### 第六步：配图规划
 
@@ -161,7 +165,7 @@ description: 当用户需要创建PPT内容并生成配套演讲逐字稿时使�
 4. 案例或补充说明
 5. 小结过渡
 
-时长策略默认使用 `references/timing-strategies.md`。
+总时长已经明确、准备分配逐页时长和撰写逐字稿前，读取[演讲时长分配策略](references/timing-strategies.md)。
 
 ## 页面输出协议
 
