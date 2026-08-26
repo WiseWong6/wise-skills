@@ -59,7 +59,7 @@ metadata:
 
 ## 布局系统（自包含速查表）
 
-> 注：完整的 35 种可视化布局 ASCII 模板已随本 skill 内联，无需外部依赖。
+> 注：本表为 25 种布局标记的自包含速查表（标记 + 名称 + 场景 + 选择原则）。5 种通用结构模板（`balanced` / `comparison` / `list` / `flow` / `sparse`）位于 `references/templates/16x9-*.md`，阶段 4 按 Layout ID 动态读取（见 `references/stages/04-prompts.md`）。
 
 | 布局标记 | 名称 | 适用场景 |
 |---------|------|----------|
@@ -127,6 +127,10 @@ metadata:
 4. 图清单+风格都确认，但"图上写什么"没定 → 阶段 3
 5. Copy Spec 确认，要出可复制提示词 → 阶段 4
 6. 用户反馈"字多/不好看" → 阶段 5
+
+### 交付示例
+
+首次为用户跑全流程，或用户想先看"配出来长什么样"时，读取 `references/examples/ai-tools-selection.md`：一篇「AI 工具选择」文章从图清单、文案压缩到提示词输出的完整形态参考。
 
 ---
 
@@ -317,7 +321,7 @@ references/                 # 参考资料
 │   ├── 16x9-*.md           # 16:9 布局模板
 │   └── checklist.md
 ├── examples/
-│   └── ai-tools-selection.md
+│   └── ai-tools-selection.md  # 完整交付示例（首次跑流程/用户想看形态时读）
 └── styles.json             # 风格/布局信号匹配表
 ```
 
