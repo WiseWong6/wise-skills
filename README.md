@@ -101,7 +101,7 @@ $blue-poster
 ```
 
 查看完整双模式示例、11 风格目录、安装与验证说明：
-[Blue Poster 独立仓库](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
+[仓库内 Blue Poster 文档](docs/blue-poster/README.md)；也可访问 [Blue Poster 独立项目页](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
 
 ---
 
@@ -184,6 +184,8 @@ python scripts/generate_image.py \
 - 正常语速 220 字/分钟
 - 自动评估页面复杂度
 - 边界检查：单页 15 秒 - 5 分钟
+
+查看完整示例：[2024 年度工作总结示例](docs/ppt-speech-creator/examples/annual-review-example.md)。
 
 ---
 
