@@ -32,17 +32,26 @@ SKIP_DIRS = {
     "dist",
     "node_modules",
 }
-EXTRA_DOC_NAMES = {
+HUMAN_DOC_NAMES = {
     "CHANGELOG.md",
     "INSTALLATION_GUIDE.md",
     "QUICK_REFERENCE.md",
     "README.md",
+    "README_EN.md",
 }
+LEGAL_ARTIFACT_PREFIXES = ("license", "copying")
+LEGAL_SUPPORT_PREFIXES = ("notice", "attribution", "third_party")
+SHOWCASE_PARTS = ("example", "examples", "sample", "samples", "showcase")
+SURFACE_CHOICES = ("auto", "source", "release", "installed")
 SKIP_ORPHAN_PREFIXES = ("test/", "tests/")
 NAME_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 FRONTMATTER_RE = re.compile(r"\A---\r?\n(.*?)\r?\n---(?:\r?\n|\Z)", re.DOTALL)
 TOP_LEVEL_YAML_KEY_RE = re.compile(r"^([A-Za-z0-9_-]+):(?:\s*(.*))?$")
 MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)]+)\)")
+HTML_LINK_RE = re.compile(
+    r"\b(?:href|src)\s*=\s*['\"]([^'\"]+)['\"]",
+    re.IGNORECASE,
+)
 LEGACY_RE = re.compile(
     r"旧逻辑|旧版|历史版本|兼容(?:旧|历史)?|迁移(?:说明|路径|入口)?|回滚|"
     r"\blegacy\b|\bdeprecated\b|\bfallback\b",
@@ -354,37 +363,38 @@ def build_reference_graph(
                 continue
             if in_fence:
                 continue
-            for match in MARKDOWN_LINK_RE.finditer(line_text):
-                target_text = clean_link_target(match.group(1))
-                if target_text is None:
-                    continue
-                candidate = (source_path.parent / target_text).resolve(strict=False)
-                if not is_within(root, candidate):
-                    add_finding(
-                        findings,
-                        "error",
-                        "link-outside",
-                        "相对链接指向 Skill 目录外部。",
-                        source,
-                        line_number,
-                        target_text,
-                    )
-                    continue
-                if not candidate.exists():
-                    add_finding(
-                        findings,
-                        "error",
-                        "link-broken",
-                        "相对链接目标不存在。",
-                        source,
-                        line_number,
-                        target_text,
-                    )
-                    continue
-                if candidate.is_file():
-                    target = rel_posix(candidate, root)
-                    if target in texts:
-                        graph[source].append(target)
+            for pattern in (MARKDOWN_LINK_RE, HTML_LINK_RE):
+                for match in pattern.finditer(line_text):
+                    target_text = clean_link_target(match.group(1))
+                    if target_text is None:
+                        continue
+                    candidate = (source_path.parent / target_text).resolve(strict=False)
+                    if not is_within(root, candidate):
+                        add_finding(
+                            findings,
+                            "error",
+                            "link-outside",
+                            "相对链接指向 Skill 目录外部。",
+                            source,
+                            line_number,
+                            target_text,
+                        )
+                        continue
+                    if not candidate.exists():
+                        add_finding(
+                            findings,
+                            "error",
+                            "link-broken",
+                            "相对链接目标不存在。",
+                            source,
+                            line_number,
+                            target_text,
+                        )
+                        continue
+                    if candidate.is_file():
+                        target = rel_posix(candidate, root)
+                        if target in texts:
+                            graph[source].append(target)
 
     depths = {"SKILL.md": 0}  # type: Dict[str, int]
     queue = deque(["SKILL.md"])  # type: Deque[str]
@@ -549,25 +559,26 @@ def inspect_openai_yaml(
         )
 
 
+def is_human_or_legal_document(path: str) -> bool:
+    name = Path(path).name
+    lower = name.lower()
+    return (
+        name in HUMAN_DOC_NAMES
+        or lower.startswith(LEGAL_ARTIFACT_PREFIXES)
+        or lower.startswith(LEGAL_SUPPORT_PREFIXES)
+    )
+
+
 def inspect_docs(
     texts: Dict[str, str], depths: Dict[str, int], findings: List[Dict[str, Any]]
 ) -> None:
-    extras = sorted(path for path in texts if Path(path).name in EXTRA_DOC_NAMES)
-    if extras:
-        add_finding(
-            findings,
-            "warning",
-            "extra-doc",
-            "发现通常不应放在运行时 Skill 内的辅助文档：" + "、".join(extras[:10]),
-        )
-
     orphans = []
     for path in sorted(texts):
         if path == "SKILL.md" or not path.lower().endswith(".md"):
             continue
         if path.startswith(SKIP_ORPHAN_PREFIXES):
             continue
-        if Path(path).name in EXTRA_DOC_NAMES:
+        if is_human_or_legal_document(path):
             continue
         if path not in depths:
             orphans.append(path)
@@ -578,6 +589,130 @@ def inspect_docs(
             "orphan-doc",
             "以下 Markdown 未从 SKILL.md 的引用链到达：" + "、".join(orphans[:10]),
         )
+
+
+def summarize_release_envelope(paths: Sequence[str]) -> Dict[str, Any]:
+    paths = sorted(paths)
+    root_files = [path for path in paths if "/" not in path]
+    human_docs = [path for path in paths if Path(path).name in HUMAN_DOC_NAMES]
+    license_files = [
+        path
+        for path in root_files
+        if Path(path).name.lower().startswith(LEGAL_ARTIFACT_PREFIXES)
+    ]
+    legal_support = [
+        path
+        for path in root_files
+        if Path(path).name.lower().startswith(LEGAL_SUPPORT_PREFIXES)
+    ]
+    showcase = [
+        path
+        for path in paths
+        if any(part.lower() in SHOWCASE_PARTS for part in Path(path).parts)
+    ]
+    readme_present = "README.md" in root_files
+    license_present = bool(license_files)
+    return {
+        "readme_present": readme_present,
+        "license_present": license_present,
+        "license_files": license_files,
+        "human_documents": human_docs,
+        "legal_support": legal_support,
+        "showcase_examples": showcase,
+    }
+
+
+def inspect_release_envelope(
+    records: Sequence[Dict[str, Any]],
+    surface: str,
+    findings: List[Dict[str, Any]],
+    source_paths: Optional[Sequence[str]] = None,
+) -> Dict[str, Any]:
+    target = summarize_release_envelope(
+        [str(record["file"]) for record in records]
+    )
+    source = (
+        summarize_release_envelope(source_paths)
+        if source_paths is not None
+        else None
+    )
+    checked = surface == "release"
+    preservation_checked = checked and source is not None
+    readme_removed = bool(
+        preservation_checked
+        and source["readme_present"]
+        and not target["readme_present"]
+    )
+    license_removed = bool(
+        preservation_checked
+        and source["license_present"]
+        and not target["license_present"]
+    )
+    removed_legal_support = (
+        sorted(set(source["legal_support"]) - set(target["legal_support"]))
+        if preservation_checked
+        else []
+    )
+
+    if readme_removed:
+        add_finding(
+            findings,
+            "error",
+            "release-readme-removed",
+            "权威源码原有 README.md，但用户发行包将其移除；不能仅因 Agent 不读取而清理。",
+            "README.md",
+        )
+    if license_removed:
+        add_finding(
+            findings,
+            "error",
+            "release-license-removed",
+            "权威源码原有许可证文件，但用户发行包将其移除。",
+            "LICENSE",
+        )
+    if removed_legal_support:
+        add_finding(
+            findings,
+            "error",
+            "release-legal-notice-removed",
+            "用户发行包移除了权威源码原有的法律或第三方声明。",
+            evidence="、".join(removed_legal_support),
+        )
+
+    regression = readme_removed or license_removed or bool(removed_legal_support)
+
+    return {
+        "checked": checked,
+        "preservation_checked": preservation_checked,
+        "status": (
+            "not-checked"
+            if not checked
+            else "observed"
+            if not preservation_checked
+            else "regressed"
+            if regression
+            else "preserved"
+        ),
+        "readme": {
+            "required": False,
+            "present": target["readme_present"],
+            "source_present": source["readme_present"] if source else None,
+            "removed": readme_removed,
+            "file": "README.md",
+        },
+        "license": {
+            "required": False,
+            "present": target["license_present"],
+            "source_present": source["license_present"] if source else None,
+            "removed": license_removed,
+            "files": target["license_files"],
+        },
+        "human_documents": target["human_documents"],
+        "legal_support": target["legal_support"],
+        "removed_legal_support": removed_legal_support,
+        "showcase_examples": target["showcase_examples"],
+        "note": "README 和法律文件不是通用必填项；原本没有不报错，源码原有但发行时移除才报错。除非 SKILL.md 引用，否则不计入声明上下文。",
+    }
 
 
 def run_git(root: Path, arguments: Sequence[str]) -> Optional[str]:
@@ -848,7 +983,15 @@ def compare_trees(target: Path, source: Path) -> Dict[str, Any]:
     }
 
 
-def audit_skill(target: Path, source: Optional[Path] = None) -> Tuple[Dict[str, Any], int]:
+def audit_skill(
+    target: Path,
+    source: Optional[Path] = None,
+    surface: str = "auto",
+) -> Tuple[Dict[str, Any], int]:
+    if surface not in SURFACE_CHOICES:
+        raise ValueError(
+            "目标载体必须是 {} 之一：{}".format("、".join(SURFACE_CHOICES), surface)
+        )
     input_path = Path(os.path.abspath(str(target.expanduser())))
     root = input_path.resolve(strict=False)
     if not root.exists() or not root.is_dir():
@@ -955,6 +1098,7 @@ def audit_skill(target: Path, source: Optional[Path] = None) -> Tuple[Dict[str, 
 
     source_comparison = None  # type: Optional[Dict[str, Any]]
     source_git = None  # type: Optional[Dict[str, Any]]
+    source_paths = None  # type: Optional[List[str]]
     if source is not None:
         source_input = Path(os.path.abspath(str(source.expanduser())))
         source_root = source_input.resolve(strict=False)
@@ -963,6 +1107,7 @@ def audit_skill(target: Path, source: Optional[Path] = None) -> Tuple[Dict[str, 
         source_comparison = compare_trees(root, source_root)
         source_comparison["input"] = str(source_input)
         source_git = git_metadata(source_root)
+        source_paths = sorted(tree_file_map(source_root))
         if source_comparison["status"] == "drift":
             add_finding(
                 findings,
@@ -982,6 +1127,13 @@ def audit_skill(target: Path, source: Optional[Path] = None) -> Tuple[Dict[str, 
                 "source-install-same-tree",
                 "权威源码与目标解析到同一目录；这只能证明当前内容相同，不能代替发行包或干净安装验证。",
             )
+
+    release_envelope = inspect_release_envelope(
+        records,
+        surface,
+        findings,
+        source_paths=source_paths,
+    )
 
     severity_order = {"error": 0, "warning": 1, "info": 2}
     findings.sort(
@@ -1029,6 +1181,7 @@ def audit_skill(target: Path, source: Optional[Path] = None) -> Tuple[Dict[str, 
         "summary": dict(counts, exit_code=exit_code),
         "metrics": metrics,
         "surfaces": {
+            "target_surface": surface,
             "input_is_symlink": input_is_symlink,
             "git": git,
             "authoritative_source": {
@@ -1037,9 +1190,15 @@ def audit_skill(target: Path, source: Optional[Path] = None) -> Tuple[Dict[str, 
                 "git": source_git,
             },
             "release_artifact": {
-                "status": "not-provided",
-                "note": "审计器不会把源码或目标目录自动当成用户发行包。",
+                "status": "provided" if surface == "release" else "not-provided",
+                "path": str(root) if surface == "release" else None,
+                "note": (
+                    "目标已按用户发行包检查。"
+                    if surface == "release"
+                    else "审计器不会把源码或安装目录自动当成用户发行包。"
+                ),
             },
+            "release_envelope": release_envelope,
             "developer_assets": developer_assets,
             "dependency_manifests": dependency_manifests,
             "runtime_command_candidates": runtime_commands,
@@ -1080,8 +1239,14 @@ def format_text(result: Dict[str, Any]) -> str:
             result["resolved_target"],
             "（符号链接）" if surfaces["input_is_symlink"] else "",
         ),
+        "- 目标载体：{}".format(surfaces["target_surface"]),
         "- 权威源码：{}".format(surfaces["authoritative_source"]["status"]),
-        "- 用户发行包：未提供，未自动推断",
+        "- 用户发行包：{}".format(surfaces["release_artifact"]["status"]),
+        "- 发行外壳：{}（README={}，LICENSE={}）".format(
+            surfaces["release_envelope"]["status"],
+            "有" if surfaces["release_envelope"]["readme"]["present"] else "缺",
+            "有" if surfaces["release_envelope"]["license"]["present"] else "缺",
+        ),
         "",
         "声明上下文估算：",
         "- 常驻 metadata：{} token".format(metrics["metadata_estimated_tokens"]),
@@ -1128,6 +1293,12 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="只读审计一个 Skill 目录")
     parser.add_argument("skill_directory", help="目标 Skill 目录")
     parser.add_argument("--source", help="可选：权威源码 Skill 目录")
+    parser.add_argument(
+        "--surface",
+        choices=SURFACE_CHOICES,
+        default="auto",
+        help="目标载体；release 配合 --source 检查既有 README 和许可证是否被移除",
+    )
     parser.add_argument("--format", choices=("text", "json"), default="text")
     return parser.parse_args(argv)
 
@@ -1138,6 +1309,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         result, exit_code = audit_skill(
             Path(args.skill_directory),
             source=Path(args.source) if args.source else None,
+            surface=args.surface,
         )
     except (OSError, ValueError) as exc:
         if args.format == "json":

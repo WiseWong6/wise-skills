@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill Optimizer"
-  short_description: "区分开发者与使用者，审计 Skill 发行、依赖和多端适配"
-  default_prompt: "使用 $skill-optimizer 检查这个 Skill，先区分开发者与使用者，核对源码仓库、发行包、本地安装、运行依赖以及 macOS/Windows 和多 Agent 适配；以复现证据定位公共根因和影响面，定义防复发验证，用通俗中文说明方案，等我确认后再修改。"
+  short_description: "区分开发、发行与安装，保护既有说明、许可证和运行边界"
+  default_prompt: "使用 $skill-optimizer 检查这个 Skill，先区分开发者与使用者，核对源码、发行外壳、安装副本和运行环境；保留优化前已有的 README、License、声明、示例入口和有效链接，不为原本没有的自用 Skill 强制新增，再检查 macOS/Windows 和多 Agent 适配，以公共根因、影响面和防复发验证说明方案，等我确认后再修改。"
