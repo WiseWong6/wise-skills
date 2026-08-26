@@ -87,6 +87,7 @@
 ## 本阶段输出物
 
 - **Prompt Pack**：按"图1/图2/…"编号输出；每张图使用标准格式（见下文）；便于 wise-image-flow 解析
+- 完整交付形态可参考 `references/examples/ai-tools-selection.md`（图清单拆分与文案压缩思路；提示词包裹格式以本文件「输出格式规范」为准）
 
 ### 输出格式规范（与 wise-image-flow 兼容）
 
