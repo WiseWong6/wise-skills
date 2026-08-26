@@ -18,27 +18,27 @@
 
 2. **动态读取风格块**：
    - 根据阶段2确认的风格 ID，读取对应的风格块文件：
-     - `cream-paper` → `templates/style-block-cream-paper.md`
-     - `infographic` → `templates/style-block-infographic.md`
-     - `handdrawn` → `templates/style-block-handdrawn.md`
-     - `healing` → `templates/style-block-healing.md`
-     - `sokamono` → `templates/style-block-sokamono.md`
-     - `minimalist-sketch` → `templates/style-block-minimalist-sketch.md`
-     - `xhs-cartoon` → `templates/style-block-xhs-cartoon.md`
-     - `editorial` → `templates/style-block-editorial.md`
-     - `cream-journal` → `templates/style-block-cream-journal.md`
-     - `editorial-paper` → `templates/style-block-editorial-paper.md`
+     - `cream-paper` → `references/templates/style-block-cream-paper.md`
+     - `infographic` → `references/templates/style-block-infographic.md`
+     - `handdrawn` → `references/templates/style-block-handdrawn.md`
+     - `healing` → `references/templates/style-block-healing.md`
+     - `sokamono` → `references/templates/style-block-sokamono.md`
+     - `minimalist-sketch` → `references/templates/style-block-minimalist-sketch.md`
+     - `xhs-cartoon` → `references/templates/style-block-xhs-cartoon.md`
+     - `editorial` → `references/templates/style-block-editorial.md`
+     - `cream-journal` → `references/templates/style-block-cream-journal.md`
+     - `editorial-paper` → `references/templates/style-block-editorial-paper.md`
    - **风格基准锁定**：每张图都必须以读取的风格块定义作为**唯一允许的基础风格**来生成。
    - **不得换风格**：不要让模型自行切换成其他风格（如扁平矢量海报风/3D/摄影写实等）。
    - 允许你用自己的话描述该风格，但不能删掉关键要素与负面约束（否则风格会被模型先验带偏）。
 
 3. **动态读取结构模板（Layout 维度）**：
    - 根据阶段2确认的 Layout ID，读取对应的结构模板：
-     - `balanced` → `templates/16x9-infographic.md`
-     - `comparison` → `templates/16x9-contrast-2cards.md`
-     - `list` → `templates/16x9-3cards-insights.md`
-     - `flow` → `templates/16x9-5panel-comic.md`
-     - `sparse` → `templates/16x9-cover-roadmap.md`
+     - `balanced` → `references/templates/16x9-infographic.md`
+     - `comparison` → `references/templates/16x9-contrast-2cards.md`
+     - `list` → `references/templates/16x9-3cards-insights.md`
+     - `flow` → `references/templates/16x9-5panel-comic.md`
+     - `sparse` → `references/templates/16x9-cover-roadmap.md`
 
 4. 写清楚画幅/用途（PPT远看 vs 手机近看）与排版硬约束（对齐、留白、字号）
 5. 粘贴 Copy Spec 的"必须逐字放入的文字"
@@ -50,26 +50,26 @@
 
 | Style ID | 风格块文件 | 画幅 |
 |----------|-----------|------|
-| `cream-paper` | `templates/style-block-cream-paper.md` | 16:9 |
-| `infographic` | `templates/style-block-infographic.md` | 4:3 |
-| `handdrawn` | `templates/style-block-handdrawn.md` | 4:3 |
-| `minimalist-sketch` | `templates/style-block-minimalist-sketch.md` | 3:4 |
-| `healing` | `templates/style-block-healing.md` | 3:4 |
-| `sokamono` | `templates/style-block-sokamono.md` | 3:4 |
-| `xhs-cartoon` | `templates/style-block-xhs-cartoon.md` | 3:4 |
-| `editorial` | `templates/style-block-editorial.md` | 16:9 |
-| `cream-journal` | `templates/style-block-cream-journal.md` | 3:4 |
-| `editorial-paper` | `templates/style-block-editorial-paper.md` | 3:4（可按场景横版） |
+| `cream-paper` | `references/templates/style-block-cream-paper.md` | 16:9 |
+| `infographic` | `references/templates/style-block-infographic.md` | 4:3 |
+| `handdrawn` | `references/templates/style-block-handdrawn.md` | 4:3 |
+| `minimalist-sketch` | `references/templates/style-block-minimalist-sketch.md` | 3:4 |
+| `healing` | `references/templates/style-block-healing.md` | 3:4 |
+| `sokamono` | `references/templates/style-block-sokamono.md` | 3:4 |
+| `xhs-cartoon` | `references/templates/style-block-xhs-cartoon.md` | 3:4 |
+| `editorial` | `references/templates/style-block-editorial.md` | 16:9 |
+| `cream-journal` | `references/templates/style-block-cream-journal.md` | 3:4 |
+| `editorial-paper` | `references/templates/style-block-editorial-paper.md` | 3:4（可按场景横版） |
 
 ### 结构模板（Layout 维度，5种）
 
 | Layout ID | 结构模板文件 | 信息密度 | 适用场景 |
 |-----------|-------------|:--------:|---------|
-| `balanced` | `templates/16x9-infographic.md` | 中等 | 解释原理、概念图解 |
-| `comparison` | `templates/16x9-contrast-2cards.md` | 中等 | A vs B 对比 |
-| `list` | `templates/16x9-3cards-insights.md` | 中高 | 要点清单、洞察 |
-| `flow` | `templates/16x9-5panel-comic.md` | 中等 | 流程步骤、故事线 |
-| `sparse` | `templates/16x9-cover-roadmap.md` | 低 | 封面、目录、概览 |
+| `balanced` | `references/templates/16x9-infographic.md` | 中等 | 解释原理、概念图解 |
+| `comparison` | `references/templates/16x9-contrast-2cards.md` | 中等 | A vs B 对比 |
+| `list` | `references/templates/16x9-3cards-insights.md` | 中高 | 要点清单、洞察 |
+| `flow` | `references/templates/16x9-5panel-comic.md` | 中等 | 流程步骤、故事线 |
+| `sparse` | `references/templates/16x9-cover-roadmap.md` | 低 | 封面、目录、概览 |
 
 ### 模板变量
 

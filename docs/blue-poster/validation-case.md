@@ -16,4 +16,4 @@ The accepted case confirms these reusable rules:
 - Make the split output one 3:4 canvas with the photograph above and complete design translation below.
 - Do not use either accepted output as the next generation's input.
 
-`assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.webp` is a useful aesthetic direction but is not a delivery reference because it is 1024×1536.
+`../../blue-poster/assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.webp` is a useful aesthetic direction but is not a delivery reference because it is 1024×1536.

@@ -45,3 +45,6 @@ yarn-error.log*
 # Python 字节码
 __pycache__/
 *.pyc
+
+# 外部 Skill 归档：非本人创作，仅本地保存，不纳入本仓库版本控制
+/travel-memory-sticker-card/

@@ -15,14 +15,14 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
   - [Claude Code](https://claude.ai/code) CLI
   - [OpenAI Codex CLI](https://github.com/openai/codex)
   - 其他支持 skill 指令的 AI 编程助手
-- Python 3.8+（wise-image-flow、image-to-pages 需要）
+- Python 3.8+（wise-image-flow、image-to-pages、mac-cleanup 需要）
 - 相关 API Key（见环境配置）
 
 ---
 
 ## 安装方法
 
-### 方法一：npx 一键安装（Claude Code）
+### 方法一：npx 一键安装
 
 ```bash
 npx skills add WiseWong6/wise-skills
@@ -33,23 +33,27 @@ npx skills add WiseWong6/wise-skills
 **Claude Code：**
 ```bash
 git clone https://github.com/WiseWong6/wise-skills.git
-cp -r wise-skills/<skill-name> ~/.claude/skills/
+cp -R wise-skills/<skill-name> ~/.claude/skills/
 ```
 
 **Codex CLI：**
 ```bash
 git clone https://github.com/WiseWong6/wise-skills.git
 # 全局安装
-cp -r wise-skills/<skill-name> ~/.codex/skills/
+cp -R wise-skills/<skill-name> ~/.codex/skills/
 # 或项目级安装
-cp -r wise-skills/<skill-name> .codex/skills/
+cp -R wise-skills/<skill-name> .codex/skills/
 ```
 
 ### 方法三：单技能安装
 
 ```bash
-npx skills add WiseWong6/wise-skills image-to-pages
+npx skills add WiseWong6/wise-skills --skill image-to-pages
 ```
+
+仓库中的每个顶层 Skill 目录都是可直接安装的用户发行载荷；开发测试、展示素材和发布说明统一放在仓库级 `tests/`、`docs/`。完整边界和发布前检查见 [Skill 源码与发行合同](docs/release-contract.md)。
+
+`wise-image-flow` 是例外：唯一权威源码位于独立仓库，本仓库只保存由 `python3 scripts/manage_release.py sync` 生成的发行镜像，禁止手改镜像。
 
 ---
 
@@ -64,7 +68,7 @@ npx skills add WiseWong6/wise-skills image-to-pages
 - **双模式排版**：`auto`（任意比例自动拼成 3:4）和 `full`（3:4 图片直接排列）
 - **自动 PDF 生成**：检测系统 Chrome/Chromium，headless 渲染输出 PDF
 - **打印白边优化**：页面尺寸 150mm × 200mm，PDF 无 A4 白边
-- **零外部依赖**：纯 Python + 系统浏览器，无需安装额外库
+- **渐进依赖**：基础 HTML 能力只需 Python；Pillow 用于图片压缩，Ghostscript 用于可选 PDF 二次压缩
 
 ```bash
 # 基本用法
@@ -106,7 +110,7 @@ $blue-poster
 **配图全流程：内容 → 提示词 → 生图 → 拼版 PDF/HTML**
 
 - 场景自动定比例：小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9
-- 9 种风格（奶油手账、极简手绘、社论全景等，出处见 skill 内致谢表）
+- 10 种风格（奶油手账、极简手绘、社论全景等，出处见 Skill 内致谢表）
 - 生图通道自动判定：宿主内置生图（Codex / 网页版 GPT、Gemini）→ MCP 生图工具 → API 兜底（火山 Ark Doubao Seedream / Gemini 3 Pro Image）
 - 批量生成 + 多线程并行、图片编辑、多图合成（最多14张）
 - 小红书与 PPT 场景生成后可拼成自包含 PDF/HTML（内置 image-to-pages 能力）
@@ -196,24 +200,49 @@ python scripts/generate_image.py \
 
 ---
 
-### 🖥️ optimize-system-performance
+### 🧹 skill-optimizer
 
-**Mac / Windows 低权限性能诊断与清理决策助手**
+**用人话诊断并精简现有 Skill**
 
-默认只读诊断，不自动清理：
-- 跨平台覆盖 CPU、内存、能耗/发热推断、磁盘、网络、启动项/后台项
-- Mac 和 Windows 使用独立采样脚本，共用中文报告和候选评分
-- 通过 PID、PPID、运行时长、监听端口、命令分组识别可疑 dev server / MCP / node_repl
-- 清理动作只生成逐项确认单，不批量执行、不强杀、不禁用启动项
-- 深度取证只作为确认后的菜单项，不默认执行
+先确定唯一现行合同，再检查 MECE、冲突、矛盾、冗余、重复、旧逻辑、上下文成本和交付闭环。审计请求保持只读；优化请求先说明保留、删除与影响，确认后才修改。
+
+- **不兼容旧逻辑**：历史只留在 Git，运行时只保留当前合同
+- **确定性审计**：检查断链、孤儿文件、重复段落、元数据和上下文体积
+- **交付优先**：完成后提供成品路径、验证结果、成本对比与失败信号
+- **零第三方依赖**：审计脚本仅使用 Python 标准库
+
+```text
+/skill-optimizer 检查这个 Skill，先用通俗中文说明问题，等我确认后再修改。
+```
 
 ---
 
-### 🖥️ optimize-mac-performance
+### 🧹 mac-cleanup
 
-**Mac 兼容入口**
+**Mac 清理、性能诊断与残留治理**
 
-保留给旧命令使用；安装了 `optimize-system-performance` 时优先走新的跨平台低权限流程。
+固定走“取证 → 按风险分层报告 → 用户拍板 → 执行 → 复查”：
+
+- 覆盖性能、磁盘、进程端口、启动项、应用和 CLI 工具
+- 每项都说明来源、删除风险、建议和体积
+- 个人机器档案保存在 Skill 目录外，不进入公开发行包
+- 本机清理与诊断统一由本 Skill 维护
+
+---
+
+### 🖥️ optimize-system-performance
+
+**远端保留的 Mac / Windows 低权限性能诊断 Skill**
+
+继续留在仓库供原有用户独立安装；本机不再安装它。该 Skill 偏跨平台只读诊断，`mac-cleanup` 则是当前本机的完整清理入口。
+
+---
+
+### 🧩 ppt-component-atlas
+
+**查询并导出 Wise PPT 组件**
+
+根据版式、内容结构和组件编号查询组件目录，必要时导出自包含 HTML。运行时只携带组件数据和导出脚本，不夹带开发测试或发布资料。
 
 ---
 
@@ -225,8 +254,9 @@ python scripts/generate_image.py \
 /wise-image-flow 生成一张星际穿越主题的图片
 $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 /prompt-creator 帮我创建一个代码审查提示词
+/skill-optimizer 优化这个 Skill，先用通俗中文说明问题，等我确认后再修改
 /ppt-speech-creator 帮我准备年终总结 PPT
-/optimize-system-performance 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
+/mac-cleanup 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
 ```
 
 **Codex CLI：** 将 skill 目录放入 `~/.codex/skills/` 或项目 `.codex/skills/`，在指令中描述需求即可触发。
@@ -262,6 +292,13 @@ pip install openai python-dotenv pyyaml
 
 # Gemini（可选）
 pip install google-genai pillow
+```
+
+`image-to-pages` 在没有 Pillow 时会回退为原图嵌入；没有 Ghostscript 时保留浏览器直接生成的 PDF。需要默认压缩能力时安装：
+
+```bash
+python3 -m pip install pillow
+brew install ghostscript
 ```
 
 ---

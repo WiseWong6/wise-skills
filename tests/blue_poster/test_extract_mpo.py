@@ -1,5 +1,11 @@
 import struct
+import sys
 import unittest
+from pathlib import Path
+
+
+SKILL_ROOT = Path(__file__).resolve().parents[2] / "blue-poster"
+sys.path.insert(0, str(SKILL_ROOT))
 
 from scripts.extract_mpo import MPOError, extract_frame, parse_mpo
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate style IDs, references, templates, catalog links, and E01 assets."""
+"""Validate the release Skill and repository-only Blue Poster examples."""
 
 from __future__ import annotations
 
@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SKILL_ROOT = REPO_ROOT / "blue-poster"
+DOCS_ROOT = REPO_ROOT / "docs/blue-poster"
 STYLES = {
     "S01": ("Blue Exposure Laboratory", "blue-exposure-laboratory"),
     "S02": ("Optical Field Array", "optical-field-array"),
@@ -79,7 +81,7 @@ def require(condition: bool, message: str, errors: list[str]) -> None:
 
 def main() -> int:
     errors: list[str] = []
-    programs_path = ROOT / "references/style-programs.md"
+    programs_path = SKILL_ROOT / "references/style-programs.md"
     programs = programs_path.read_text(encoding="utf-8")
     headings = re.findall(r"^## (S\d{2}) · (.+)$", programs, flags=re.MULTILINE)
     found_ids = [style_id for style_id, _ in headings]
@@ -90,8 +92,8 @@ def main() -> int:
         require((style_id, name) in headings, f"heading mismatch for {style_id} {name}", errors)
         require(programs.count(f"EFFECT PROGRAM — {style_id} ") == 1, f"{style_id} must have one effect program", errors)
         references = (
-            ROOT / "assets/style-references/split-1x1" / f"R-{style_id}-A-{slug}-split.webp",
-            ROOT / "assets/style-references/tokyo-tower-full" / f"R-{style_id}-A-{slug}-full.webp",
+            SKILL_ROOT / "assets/style-references/split-1x1" / f"R-{style_id}-A-{slug}-split.webp",
+            SKILL_ROOT / "assets/style-references/tokyo-tower-full" / f"R-{style_id}-A-{slug}-full.webp",
         )
         for image in references:
             require(image.is_file(), f"missing style reference: {image}", errors)
@@ -99,7 +101,7 @@ def main() -> int:
                 width, height = image_size(image)
                 require(width * 4 == height * 3, f"style reference is not exact 3:4: {image} ({width}x{height})", errors)
 
-    selection = (ROOT / "references/style-selection.md").read_text(encoding="utf-8")
+    selection = (SKILL_ROOT / "references/style-selection.md").read_text(encoding="utf-8")
     for style_id in STYLES:
         require(selection.count(f"| {style_id} |") == 1, f"selection matrix missing or duplicates {style_id}", errors)
 
@@ -107,7 +109,7 @@ def main() -> int:
         ("prompt-full-design.md", "FULL DESIGN TRANSLATION"),
         ("prompt-split-1x1.md", "ONE-PASS SPLIT 1:1"),
     ):
-        template = (ROOT / "references" / template_name).read_text(encoding="utf-8")
+        template = (SKILL_ROOT / "references" / template_name).read_text(encoding="utf-8")
         require(template.count("{{EFFECT_PROGRAM}}") == 2, f"{template_name} must document and contain one template placeholder", errors)
         require(mode_token in template, f"{template_name} missing mode token", errors)
         require("Image 1" in template, f"{template_name} missing original Image 1 contract", errors)
@@ -122,7 +124,7 @@ def main() -> int:
             require(assembled.count("EFFECT PROGRAM — S08") == 1, f"{template_name} S08 dry-run did not produce one program", errors)
             require("{{EFFECT_PROGRAM}}" not in assembled, f"{template_name} S08 dry-run left a placeholder", errors)
 
-    catalog_path = ROOT / "references/style-catalog.html"
+    catalog_path = SKILL_ROOT / "references/style-catalog.html"
     catalog = catalog_path.read_text(encoding="utf-8")
     links = re.findall(r"(?:src|href)=\"([^\"]+)\"", catalog)
     local_links = [
@@ -139,7 +141,7 @@ def main() -> int:
     require('id="split-1x1"' in catalog, "catalog missing split 1:1 section", errors)
     require('id="tokyo-tower-full"' in catalog, "catalog missing Tokyo Tower full section", errors)
 
-    secondary = ROOT / "assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.webp"
+    secondary = SKILL_ROOT / "assets/style-references/secondary/R-S08-B-material-tectonics-aesthetic-only-2x3.webp"
     require(secondary.is_file(), "missing S08 aesthetic-only secondary reference", errors)
     if secondary.is_file():
         width, height = image_size(secondary)
@@ -150,12 +152,12 @@ def main() -> int:
         "E01-FULL-S08-material-tectonics.webp",
         "E01-SPLIT-S08-material-tectonics.webp",
     ):
-        example = ROOT / "assets/examples" / example_name
+        example = DOCS_ROOT / "assets/examples" / example_name
         require(example.is_file(), f"missing E01 output: {example}", errors)
         if example.is_file():
             width, height = image_size(example)
             require(width * 4 == height * 3, f"E01 output is not exact 3:4: {example}", errors)
-    require((ROOT / "assets/examples/E01-SOURCE-tokyo-tower.jpg").is_file(), "missing E01 source", errors)
+    require((DOCS_ROOT / "assets/examples/E01-SOURCE-tokyo-tower.jpg").is_file(), "missing E01 source", errors)
 
     if errors:
         print("FAIL skill assets")

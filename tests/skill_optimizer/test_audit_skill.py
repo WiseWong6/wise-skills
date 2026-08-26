@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Optional, Set, Union
 
 
-SKILL_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = Path(__file__).resolve().parents[2] / "skill-optimizer"
 sys.path.insert(0, str(SKILL_ROOT / "scripts"))
 
 from audit_skill import MAX_TEXT_BYTES, audit_skill, estimate_tokens  # noqa: E402
