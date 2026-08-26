@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the release Skill and repository-only Blue Poster examples."""
+"""Validate the Blue Poster release Skill and its bundled user examples."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_ROOT = REPO_ROOT / "blue-poster"
-DOCS_ROOT = REPO_ROOT / "docs/blue-poster"
 STYLES = {
     "S01": ("Blue Exposure Laboratory", "blue-exposure-laboratory"),
     "S02": ("Optical Field Array", "optical-field-array"),
@@ -152,12 +151,12 @@ def main() -> int:
         "E01-FULL-S08-material-tectonics.webp",
         "E01-SPLIT-S08-material-tectonics.webp",
     ):
-        example = DOCS_ROOT / "assets/examples" / example_name
+        example = SKILL_ROOT / "assets/examples" / example_name
         require(example.is_file(), f"missing E01 output: {example}", errors)
         if example.is_file():
             width, height = image_size(example)
             require(width * 4 == height * 3, f"E01 output is not exact 3:4: {example}", errors)
-    require((DOCS_ROOT / "assets/examples/E01-SOURCE-tokyo-tower.jpg").is_file(), "missing E01 source", errors)
+    require((SKILL_ROOT / "assets/examples/E01-SOURCE-tokyo-tower.jpg").is_file(), "missing E01 source", errors)
 
     if errors:
         print("FAIL skill assets")

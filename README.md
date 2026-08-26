@@ -101,7 +101,7 @@ $blue-poster
 ```
 
 查看完整双模式示例、11 风格目录、安装与验证说明：
-[仓库内 Blue Poster 文档](docs/blue-poster/README.md)；也可访问 [Blue Poster 独立项目页](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
+[Blue Poster 完整说明与风格图册](blue-poster/README.md)；也可访问 [Blue Poster 独立项目页](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
 
 ---
 

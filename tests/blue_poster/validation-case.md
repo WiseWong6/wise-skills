@@ -2,11 +2,13 @@
 
 Use this case only for static prompt assembly and output-contract checks. Do not treat its content as a universal composition template.
 
+The referenced example images remain in the user release because the original README uses them as its public effect preview.
+
 | ID | Asset | Role | Status |
 | --- | --- | --- | --- |
-| E01-SOURCE | `assets/examples/E01-SOURCE-tokyo-tower.jpg` | original source image | input only; 2927×4390 |
-| E01-FULL-S08 | `assets/examples/E01-FULL-S08-material-tectonics.webp` | Full Design with S08 | accepted; 1086×1448 |
-| E01-SPLIT-S08 | `assets/examples/E01-SPLIT-S08-material-tectonics.webp` | Split 1:1 with S08 | accepted; 1086×1448 |
+| E01-SOURCE | `../../blue-poster/assets/examples/E01-SOURCE-tokyo-tower.jpg` | original source image | input only; 2927×4390 |
+| E01-FULL-S08 | `../../blue-poster/assets/examples/E01-FULL-S08-material-tectonics.webp` | Full Design with S08 | accepted; 1086×1448 |
+| E01-SPLIT-S08 | `../../blue-poster/assets/examples/E01-SPLIT-S08-material-tectonics.webp` | Split 1:1 with S08 | accepted; 1086×1448 |
 
 The accepted case confirms these reusable rules:
 
