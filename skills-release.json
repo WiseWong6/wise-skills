@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "skills": [
+    {"name": "blue-poster", "path": "blue-poster", "source": "repository"},
+    {"name": "image-to-pages", "path": "image-to-pages", "source": "repository"},
+    {"name": "mac-cleanup", "path": "mac-cleanup", "source": "repository"},
+    {"name": "optimize-system-performance", "path": "optimize-system-performance", "source": "repository-legacy"},
+    {"name": "ppt-component-atlas", "path": "ppt-component-atlas", "source": "repository"},
+    {"name": "ppt-speech-creator", "path": "ppt-speech-creator", "source": "repository"},
+    {"name": "prompt-creator", "path": "prompt-creator", "source": "repository"},
+    {"name": "prompt-optimizer", "path": "prompt-optimizer", "source": "repository"},
+    {"name": "skill-optimizer", "path": "skill-optimizer", "source": "repository"},
+    {
+      "name": "wise-image-flow",
+      "path": "wise-image-flow",
+      "source": "external-mirror",
+      "external_source": "../wise-image-flow",
+      "include": ["SKILL.md", "agents", "assets", "references", "scripts"]
+    }
+  ]
+}

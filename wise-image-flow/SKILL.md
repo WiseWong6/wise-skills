@@ -1,6 +1,9 @@
 ---
 name: wise-image-flow
 description: 配图全流程 skill：从内容生成提示词到多通道生图再到拼版交付。场景自动定比例（小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9），支持 10 种风格、多种布局；生图通道自动判定（宿主内置生图 / MCP / API：火山 Ark Doubao Seedream、Gemini 3 Pro Image）；批量生成；小红书与 PPT 场景可拼成自包含 PDF/HTML。
+version: "1.2.0"
+metadata:
+  author: wisewong
 ---
 
 # Wise Image Flow · 配图全流程
@@ -23,7 +26,7 @@ description: 配图全流程 skill：从内容生成提示词到多通道生图�
 - 用户说"这是 PPT 大纲"、"PPT 配图"、"/image ppt"
 - 文件中有 `.title-card`、`.two-col`、`.three-col`、`.grid-card` 等布局标记
 
-详见 `stages/00-ppt-mode.md`。
+详见 `references/stages/00-ppt-mode.md`。
 
 ### 直接生图模式
 - "生成一张……的图"、"画一个……"、"帮我出图"
@@ -96,12 +99,12 @@ description: 配图全流程 skill：从内容生成提示词到多通道生图�
 
 | 阶段 | 名称 | 目标 | 详细文件 |
 |---|---|---|---|
-| 1 | 需求澄清 | 挖需求：内容/场景/受众/字多字少；产出一句话复述 | `stages/01-brief.md` |
-| 2 | 配图规划 | 拆内容→定图清单（几张/每张讲啥/用啥模板） | `stages/02-plan.md` |
-| **2.5** | **风格选择（⚠️ 强制阻塞）** | **展示 10 种风格表，必须等用户明确选择** | `stages/02-plan.md` 2D 节 |
-| 3 | 文案定稿 | 逐字定稿"图上写什么"（唯一真值） | `stages/03-copy.md` |
-| 4 | 提示词封装 | 把文案封装成可复制提示词 | `stages/04-prompts.md` |
-| 5 | 迭代润色 | 减字、换隐喻、提可读性 | `stages/05-iterate.md` |
+| 1 | 需求澄清 | 挖需求：内容/场景/受众/字多字少；产出一句话复述 | `references/stages/01-brief.md` |
+| 2 | 配图规划 | 拆内容→定图清单（几张/每张讲啥/用啥模板） | `references/stages/02-plan.md` |
+| **2.5** | **风格选择（⚠️ 强制阻塞）** | **展示 10 种风格表，必须等用户明确选择** | `references/stages/02-plan.md` 2D 节 |
+| 3 | 文案定稿 | 逐字定稿"图上写什么"（唯一真值） | `references/stages/03-copy.md` |
+| 4 | 提示词封装 | 把文案封装成可复制提示词 | `references/stages/04-prompts.md` |
+| 5 | 迭代润色 | 减字、换隐喻、提可读性 | `references/stages/05-iterate.md` |
 
 ### PPT 模式（3 阶段）
 
@@ -113,7 +116,7 @@ description: 配图全流程 skill：从内容生成提示词到多通道生图�
 | P2 | 风格配色 | 选风格 + 确认配色（文案已固定） |
 | P3 | 批量生成 | 为每页生成完整提示词，一次性输出 |
 
-详见 `stages/00-ppt-mode.md`。
+详见 `references/stages/00-ppt-mode.md`。
 
 ### 调度规则
 
@@ -134,7 +137,7 @@ description: 配图全流程 skill：从内容生成提示词到多通道生图�
 - 全图字体最多 2 种：标题字体 + 正文字体，层级靠字号、字重与颜色深浅区分，禁止引入第三种字体、禁止手写体与印刷体混排（手账类风格则两种都用手写体）
 - 每张提示词独立代码块输出，便于复制
 - 比例由场景判定，不单独询问：小红书 3:4；公众号封面 21:9、公众号正文及其他 16:9；纯 PPT 16:9。用户明说 → 直接用；可推断 → 复述确认；未说明 → 阶段 1 询问；仍不明确 → 默认 16:9 并告知可改
-- 默认风格：奶油纸底 + 彩铅水彩手绘（`templates/style-block-cream-paper.md`）
+- 默认风格：奶油纸底 + 彩铅水彩手绘（`references/templates/style-block-cream-paper.md`）
 - 阶段 3 文案确认后，阶段 4 不得改文案，只做封装
 
 ---
@@ -288,33 +291,34 @@ pip install google-genai pillow                   # Gemini（可选）
 | 拼版交付能力（scripts/generate_html.py） | @歪斯Wise（继承自其 image-to-pages skill） |
 | 扁平风 / 治愈系 / 描边插画 等 | 网络整理，出处待补 |
 
-如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `templates/style-block-*.md` 模板与 `styles.json` 条目）。
+如你是某个风格的原作者，欢迎提 Issue / PR 认领补充出处；也欢迎贡献新风格（附上 `references/templates/style-block-*.md` 模板与 `references/styles.json` 条目）。
 
 ---
 
 ## 文件结构
 
 ```
-scripts/
-├── generate_image.py        # 生图统一入口（Ark + Gemini）
-└── generate_html.py         # 拼版输出 HTML/PDF（继承自 image-to-pages）
+SKILL.md                    # 本文件（入口）
+README.md
+scripts/                    # 可执行脚本
+├── generate_image.py       # 生图统一入口（Ark + Gemini）
+└── generate_html.py        # 拼版输出 HTML/PDF（继承自 image-to-pages）
 
-stages/                      # 配图助手流程（5 阶段 + PPT 模式）
-├── 00-ppt-mode.md
-├── 01-brief.md
-├── 02-plan.md
-├── 03-copy.md
-├── 04-prompts.md
-└── 05-iterate.md
-
-templates/                   # 风格模板与布局模板
-├── styles.json
-├── style-block-*.md         # 10 种风格
-├── 16x9-*.md                # 16:9 布局模板
-└── checklist.md
-
-examples/
-└── ai-tools-selection.md
+references/                 # 参考资料
+├── stages/                 # 配图助手流程（5 阶段 + PPT 模式）
+│   ├── 00-ppt-mode.md
+│   ├── 01-brief.md
+│   ├── 02-plan.md
+│   ├── 03-copy.md
+│   ├── 04-prompts.md
+│   └── 05-iterate.md
+├── templates/              # 风格模板与布局模板
+│   ├── style-block-*.md    # 10 种风格
+│   ├── 16x9-*.md           # 16:9 布局模板
+│   └── checklist.md
+├── examples/
+│   └── ai-tools-selection.md
+└── styles.json             # 风格/布局信号匹配表
 ```
 
 ---

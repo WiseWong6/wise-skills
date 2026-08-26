@@ -55,7 +55,7 @@
 ### Step 1：风格（Style）选择
 
 #### 智能推荐逻辑
-根据阶段1的内容关键词，匹配 `styles.json` 中的 `signals` 字段：
+根据阶段1的内容关键词，匹配 `references/styles.json` 中的 `signals` 字段：
 - 科普内容（"解释"、"原理"、"是什么"）→ 推荐 `infographic`
 - 叙事内容（"情绪"、"故事"、"场景"）→ 推荐 `healing`
 - 笔记内容（"手绘"、"学习"、"笔记"）→ 推荐 `handdrawn`
@@ -86,7 +86,7 @@
 ### Step 2：布局（Layout）选择
 
 #### 智能推荐逻辑
-根据配图清单的内容结构，匹配 `styles.json` 中的 `layouts.signals` 字段：
+根据配图清单的内容结构，匹配 `references/styles.json` 中的 `layouts.signals` 字段：
 - 对比内容（"对比"、"vs"、"区别"）→ 推荐 `comparison`
 - 列表内容（"要点"、"三个"、"清单"）→ 推荐 `list`
 - 流程内容（"流程"、"步骤"、"故事"）→ 推荐 `flow`
