@@ -304,6 +304,8 @@ pip install google-genai pillow                   # Gemini（可选）
 ```
 SKILL.md                    # 本文件（入口）
 README.md
+agents/
+└── openai.yaml             # Codex 薄适配层：生图锁定宿主内置通道，失败即停
 scripts/                    # 可执行脚本
 ├── generate_image.py       # 生图统一入口（Ark + Gemini）
 └── generate_html.py        # 拼版输出 HTML/PDF（继承自 image-to-pages）
