@@ -13,4 +13,4 @@
 
 ## 回归检查
 
-迭代后对照 `templates/checklist.md` 过一遍再交付。
+迭代后对照 `references/templates/checklist.md` 过一遍再交付。

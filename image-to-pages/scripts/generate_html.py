@@ -5,6 +5,7 @@
 """
 
 import base64
+import io
 import re
 import struct
 import subprocess
@@ -129,8 +130,45 @@ def image_to_base64(img_path: Path) -> str:
     return f"data:{mime};base64,{base64.b64encode(data).decode()}"
 
 
+def encode_image_src(img_path: Path, compress: bool = True, fmt: str = 'webp',
+                     quality: int = 80, max_width: int = 1920) -> str:
+    """返回 <img src> 用的 data URI。
+
+    compress=False、无 Pillow、或动图 .gif → 原样 base64（不破坏旧行为）；
+    否则用 Pillow 缩放（仅当宽>max_width）+重编码为 WebP/JPEG 后再 base64。
+    WebP q80 通常把幻灯片截图压到原图的 1/5~1/7，文字视觉几乎无损。
+    """
+    if not compress or img_path.suffix.lower() == '.gif':
+        return image_to_base64(img_path)
+
+    try:
+        from PIL import Image
+    except ImportError:
+        return image_to_base64(img_path)
+
+    try:
+        im = Image.open(img_path)
+        if max_width and im.width > max_width:
+            h = round(im.height * max_width / im.width)
+            im = im.resize((max_width, h), Image.LANCZOS)
+
+        buf = io.BytesIO()
+        if fmt == 'jpeg':
+            im.convert('RGB').save(buf, 'JPEG', quality=quality, optimize=True)
+            mime = 'image/jpeg'
+        else:
+            im.save(buf, 'WEBP', quality=quality, method=4)
+            mime = 'image/webp'
+        return f"data:{mime};base64,{base64.b64encode(buf.getvalue()).decode()}"
+    except Exception:
+        # 任何解码/编码失败都退回原图，确保永不破坏出图
+        return image_to_base64(img_path)
+
+
 def generate_html(image_paths: List[Path], output_path: Path, title: str = "图片展示",
-                  mode: str = "auto", orientation_key: str = "portrait_34"):
+                  mode: str = "auto", orientation_key: str = "portrait_34",
+                  compress: bool = True, img_format: str = 'webp',
+                  quality: int = 80, max_width: int = 1920):
     """生成图片以 base64 嵌入的独立 HTML 文件
 
     mode:
@@ -138,6 +176,7 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
         full - 每张图本身是3:4比例，每张图独占一个完整容器，直接拼接展示
     orientation_key: ORIENTATION_PRESETS 的 key，决定页面方向（横/竖）与比例。
         横版时每张图独占一个横版页面（一页一张）。
+    compress/img_format/quality/max_width: 嵌入前的压缩设置，见 encode_image_src。
     """
     page_size, aspect_ratio, _orient_label = ORIENTATION_PRESETS[orientation_key]
     is_landscape = orientation_key.startswith('landscape')
@@ -163,7 +202,7 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
         num_pages = len(image_paths)
         pages_html = []
         for page_idx, meta in enumerate(image_meta):
-            b64 = image_to_base64(meta['path'])
+            b64 = encode_image_src(meta['path'], compress, img_format, quality, max_width)
             size_kb = len(b64) // 1024
             ratio_str = f"{meta['ratio']:.3f}" if meta['ratio'] else "未知"
             print(f"  ✅ {meta['path'].name} ({size_kb}KB) 比例={ratio_str}")
@@ -176,7 +215,7 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
         pages_html = []
         for page_idx, meta in enumerate(image_meta):
             img = meta['path']
-            b64 = image_to_base64(img)
+            b64 = encode_image_src(img, compress, img_format, quality, max_width)
             size_kb = len(b64) // 1024
 
             ratio_str = f"{meta['ratio']:.3f}" if meta['ratio'] else "未知"
@@ -197,7 +236,7 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
             img_idx = page_idx * 2
             meta1 = image_meta[img_idx]
             img1 = meta1['path']
-            b64_1 = image_to_base64(img1)
+            b64_1 = encode_image_src(img1, compress, img_format, quality, max_width)
             size_kb = len(b64_1) // 1024
 
             ratio_str = f"{meta1['ratio']:.3f}" if meta1['ratio'] else "未知"
@@ -206,7 +245,7 @@ def generate_html(image_paths: List[Path], output_path: Path, title: str = "图�
             if img_idx + 1 < len(image_paths):
                 meta2 = image_meta[img_idx + 1]
                 img2 = meta2['path']
-                b64_2 = image_to_base64(img2)
+                b64_2 = encode_image_src(img2, compress, img_format, quality, max_width)
                 size_kb = len(b64_2) // 1024
 
                 ratio_str = f"{meta2['ratio']:.3f}" if meta2['ratio'] else "未知"
@@ -553,19 +592,57 @@ def find_chrome() -> Optional[str]:
     return None
 
 
+def find_gs() -> Optional[str]:
+    """查找 Ghostscript 可执行文件（用于 PDF 二次压缩）"""
+    import shutil
+    return shutil.which("gs") or shutil.which("gswin64c")
+
+
+def compress_pdf(gs_path: str, pdf_path: Path, preset: str = 'ebook',
+                 timeout: int = 180) -> Optional[float]:
+    """用 Ghostscript 就地重压 PDF（图片重采样 + JPEG 编码）。
+
+    Chrome 的 print-to-pdf 会把图按原像素重栅格化，故源图压缩不缩 PDF；
+    这里对生成好的 PDF 二次处理才是缩 PDF 的正解。preset:
+        screen(72dpi,最小) / ebook(150dpi,默认,质量好) / printer(300dpi) / prepress
+    成功且更小则替换原文件并返回新体积(MB)；否则返回 None（保留 Chrome 原 PDF，不破坏）。
+    """
+    tmp = pdf_path.with_suffix('.gstmp.pdf')
+    cmd = [
+        gs_path, '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.5',
+        f'-dPDFSETTINGS=/{preset}', '-dNOPAUSE', '-dQUIET', '-dBATCH',
+        '-dDetectDuplicateImages=true',
+        f'-sOutputFile={tmp}', str(pdf_path),
+    ]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        if (r.returncode == 0 and tmp.exists()
+                and 0 < tmp.stat().st_size < pdf_path.stat().st_size):
+            tmp.replace(pdf_path)
+            return pdf_path.stat().st_size / (1024 * 1024)
+    except Exception:
+        pass
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+    return None
+
+
 def generate_pdf(
     chrome_path: str,
     html_path: Path,
     pdf_path: Path,
     timeout: int = 120,
+    pdf_quality: str = 'ebook',
 ) -> Tuple[bool, str]:
-    """使用 Chrome headless 将 HTML 转换为 PDF
+    """使用 Chrome headless 将 HTML 转换为 PDF，再用 Ghostscript 二次压缩
 
     Args:
         chrome_path: Chrome 可执行文件路径
         html_path: HTML 文件路径
         pdf_path: 输出 PDF 路径
         timeout: 超时秒数（默认 120s）
+        pdf_quality: Ghostscript 压缩档位，'none' 跳过二次压缩
 
     Returns:
         (成功与否, 消息)
@@ -611,6 +688,18 @@ def generate_pdf(
             return False, "Chrome 执行成功但 PDF 文件未生成"
 
         size_mb = pdf_path.stat().st_size / (1024 * 1024)
+
+        # Ghostscript 二次压缩（真正缩 PDF 的步骤）
+        if pdf_quality and pdf_quality != 'none':
+            gs = find_gs()
+            if gs:
+                new_mb = compress_pdf(gs, pdf_path, pdf_quality)
+                if new_mb:
+                    return True, (f"PDF 已生成: {pdf_path} "
+                                  f"({new_mb:.1f}MB，gs/{pdf_quality} 压缩自 {size_mb:.1f}MB)")
+                return True, f"PDF 已生成: {pdf_path} ({size_mb:.1f}MB，gs 压缩未生效)"
+            return True, f"PDF 已生成: {pdf_path} ({size_mb:.1f}MB，未装 Ghostscript 跳过压缩)"
+
         return True, f"PDF 已生成: {pdf_path} ({size_mb:.1f}MB)"
 
     except subprocess.TimeoutExpired:
@@ -658,6 +747,18 @@ def main():
                         help='页面方向: auto=按图片主方向自动判定, landscape=强制横版(每页一张), portrait=强制竖版')
     parser.add_argument('--no-pdf', action='store_true', default=False,
                         help='跳过 PDF 生成，仅输出 HTML')
+    parser.add_argument('--no-compress', dest='compress', action='store_false', default=True,
+                        help='关闭图片压缩，按原图 base64 嵌入（体积约原图1.33倍，旧行为）')
+    parser.add_argument('--img-format', choices=['webp', 'jpeg'], default='webp',
+                        help='压缩格式: webp(默认,最小且文字锐利) / jpeg')
+    parser.add_argument('--quality', type=int, default=80,
+                        help='压缩质量 1-100（默认80）')
+    parser.add_argument('--max-width', type=int, default=1920,
+                        help='图片最大宽度，超过则等比缩小（默认1920，0=不缩放）')
+    parser.add_argument('--pdf-quality', choices=['none', 'screen', 'ebook', 'printer', 'prepress'],
+                        default='ebook',
+                        help='PDF 二次压缩档位(Ghostscript): ebook(默认,150dpi,缩约5倍) / '
+                             'screen(72dpi,最小) / printer(300dpi) / none(不压缩)')
 
     args = parser.parse_args()
 
@@ -722,10 +823,17 @@ def main():
     _page_size, _aspect, orient_label = ORIENTATION_PRESETS[orientation_key]
     mode_label = "横版每页一张" if is_landscape else ("3:4容器拼接" if mode == "auto" else "完整图片排列")
     print(f"📐 方向: {orient_label}")
+    if args.compress:
+        print(f"🗜️  压缩: {args.img_format.upper()} q{args.quality}，最大宽 {args.max_width or '不限'}")
+    else:
+        print(f"🗜️  压缩: 关闭（原图 base64 嵌入）")
     print(f"📁 共 {len(images)} 张图片，模式: {mode_label}，正在嵌入...")
 
     output_html = base_dir / f"{output_name}.html"
-    generate_html(images, output_html, title=output_name, mode=mode, orientation_key=orientation_key)
+    generate_html(images, output_html, title=output_name, mode=mode,
+                  orientation_key=orientation_key, compress=args.compress,
+                  img_format=args.img_format, quality=args.quality,
+                  max_width=args.max_width)
 
     # --- PDF 生成 ---
     if not args.no_pdf:
@@ -733,7 +841,7 @@ def main():
         if chrome:
             output_pdf = base_dir / f"{output_name}.pdf"
             print(f"\n📄 正在生成 PDF（使用 Chrome headless）...")
-            ok, msg = generate_pdf(chrome, output_html, output_pdf)
+            ok, msg = generate_pdf(chrome, output_html, output_pdf, pdf_quality=args.pdf_quality)
             if ok:
                 print(f"   {msg}")
             else:

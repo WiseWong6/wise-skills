@@ -6,7 +6,7 @@ license: MIT
 
 # 图片布局打印机
 
-将图片自动拼接成白色容器，生成可直接双击打开的独立 HTML 页面和 PDF 文件（图片以 base64 嵌入，无需服务器）。
+将图片自动拼接成白色容器，生成可直接双击打开的独立 HTML 页面和 PDF 文件（图片默认 WebP 压缩后 base64 嵌入，自包含、无需服务器）。
 
 支持**三种模式**，并自动判定页面方向（横版/竖版）：
 
@@ -35,16 +35,16 @@ license: MIT
 **排序策略（关键）**：
 
 - **文件名带序号**（`1.png 2.png ... 10.png`）：直接传文件夹，脚本按自然排序（数值序，不会变成 1, 10, 2）。
-- **文件名无序号**（`封面.png 目录.png 第二章.png` 或随机文件名）：脚本无法判断语义，**由你（Claude）评估顺序**：
+- **文件名无序号**（`封面.png 目录.png 第二章.png` 或随机文件名）：脚本无法判断语义，**由当前 Agent 评估顺序**：
   1. 先看文件名语义——章节词、步骤词、时间词、"一二三"等中文序词
-  2. 文件名也无语义时，用 Read 工具逐张看图，按内容逻辑排序（漫画分镜、操作步骤、故事时间线、目录页码）
+  2. 文件名也无语义时，用当前 Agent 的图片查看能力逐张看图，按内容逻辑排序（漫画分镜、操作步骤、故事时间线、目录页码）
   3. 排好后用 `--files <有序列表>` 传给脚本，脚本严格按给定顺序、不重排
   4. 顺序不确定时，简要说明排序依据并询问用户确认
 
 ### 步骤 2: 生成 HTML 与 PDF
 
 ```bash
-SCRIPT=~/.claude/skills/image-to-pages/scripts/generate_html.py
+SCRIPT="<skill-root>/scripts/generate_html.py"
 
 # 竖版图集（默认）：自动拼成3:4容器
 python3 $SCRIPT <图片文件夹> [输出名]
@@ -66,6 +66,8 @@ python3 $SCRIPT <文件夹> --mode full
 python3 $SCRIPT <文件夹> --no-pdf
 ```
 
+执行前把 `<skill-root>` 替换为当前加载的 `image-to-pages` Skill 绝对目录，不要假设它固定安装在 Claude、Codex 或其他 Agent 的某个家目录下。
+
 **自动模式检测**：竖版图集若超 70% 接近 3:4，自动从 `auto` 升级到 `full`（每张独占一页）。
 
 **横版比例自动 snap**：取横版图 `宽/高` 中位数，`< 1.5` → 4:3（200mm×150mm），`≥ 1.5` → 16:9（267mm×150mm）。竖版固定 3:4（150mm×200mm）。
@@ -85,6 +87,11 @@ python3 $SCRIPT <文件夹> --no-pdf
 | `--mode` | 竖版布局：`auto`（拼2张）/ `full`（每张独占），横版时不生效 |
 | `--orientation` | `auto`（默认，按主方向）/ `landscape`（强制横版）/ `portrait`（强制竖版） |
 | `--no-pdf` | 跳过 PDF 生成，仅输出 HTML |
+| `--no-compress` | 关闭压缩，按原图 base64 嵌入（旧行为，体积约原图 1.33 倍） |
+| `--img-format` | 压缩格式：`webp`（默认，最小且文字锐利）/ `jpeg` |
+| `--quality` | 压缩质量 1-100（默认 80） |
+| `--max-width` | 图片最大宽度，超过则等比缩小（默认 1920，0=不缩放） |
+| `--pdf-quality` | PDF 二次压缩档位(Ghostscript)：`ebook`（默认,150dpi,缩约5倍）/ `screen`（72dpi,最小）/ `printer`（300dpi）/ `none`（不压缩） |
 
 ### 模式说明
 
@@ -98,18 +105,18 @@ python3 $SCRIPT <文件夹> --no-pdf
 
 | 文件 | 说明 | 条件 |
 |------|------|------|
-| `<name>.html` | 独立 HTML，图片已 base64 嵌入，双击即可用 | 始终生成 |
-| `<name>.pdf` | PDF 文件，页面方向/比例与 HTML 一致 | 需安装 Chrome/Chromium（可选） |
+| `<name>.html` | 独立 HTML，图片默认 WebP 压缩后 base64 嵌入，双击即可用 | 始终生成 |
+| `<name>.pdf` | PDF 文件，页面方向/比例与 HTML 一致，默认经 Ghostscript 压缩 | 需安装 Chrome/Chromium（可选） |
 
 > PDF 生成需要系统安装 Chrome、Chromium、Edge 或 Arc 之一。脚本用 headless 模式渲染，会读取 HTML 里的 `@page` 尺寸，所以横版 HTML 自动产出横版 PDF。如未安装浏览器，仍可通过 HTML 的「打印/导出PDF」按钮手动生成。
 
 ## 注意事项
 
-1. **文件体积**: 图片以 base64 嵌入，HTML 体积约为原图总和的 1.33 倍
+1. **文件体积**: 图片默认压成 WebP 后再 base64 嵌入，HTML 体积约为原图总和的 1/5～1/7（需 Pillow，无则自动退回原图）；`--no-compress` 可关压缩回到原图 1.33 倍
 2. **排序**: 文件夹模式按自然排序（1,2,3...10）；`--files` 模式严格按传入顺序，不重排
 3. **横版一页一张**: 横版图固定每张独占一页（横版拼2张无意义）；竖版才支持 auto 拼2张
 4. **混合方向**: 一个 PDF 内只能统一一个方向（Chrome headless 的 `@page` 是文档级约束）。脚本按主方向统一，少数派图用 contain 放入（会留白）
-5. **PDF 生成**: 自动调用 Chrome headless，无需手动操作。大文件（>20MB）可能需要较长时间
+5. **PDF 生成**: 自动调用 Chrome headless，无需手动操作。Chrome 出图后默认用 Ghostscript（若已安装）二次压缩到约 1/5；源图的 WebP 压缩只缩 HTML 不缩 PDF（Chrome 会按原像素重栅格化），故 PDF 体积由 `--pdf-quality` 控制，与 `--quality` 无关
 
 ## 示例
 
