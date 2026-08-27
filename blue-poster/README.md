@@ -247,8 +247,7 @@ outputs/blue-poster/
   <a href="https://github.com/WiseWong6/wise-skills">Wise Skills</a>
 </p>
 
-<p><strong>微信公众号</strong></p>
-<p><img src="assets/social/wechat-qrcode.jpg" width="180" alt="歪斯Wise 微信公众号二维码"></p>
+<p><img src="assets/social/xiaohongshu-qr.jpg" width="180" alt="歪斯Wise 小红书名片"></p>
 
 ## License
 
