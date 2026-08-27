@@ -247,8 +247,7 @@ Find me across social platforms as **@歪斯Wise**, where I share AI creation, a
   <a href="https://github.com/WiseWong6/wise-skills">Wise Skills</a>
 </p>
 
-<p><strong>WeChat Official Account</strong></p>
-<p><img src="assets/social/wechat-qrcode.jpg" width="180" alt="歪斯Wise WeChat official account QR code"></p>
+<p><img src="assets/social/xiaohongshu-qr.jpg" width="180" alt="Wise's Xiaohongshu card"></p>
 
 ## License
 
