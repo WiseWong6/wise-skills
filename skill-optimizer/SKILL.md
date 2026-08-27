@@ -7,7 +7,7 @@ description: 优化、精简和审计已有 Skill。区分开发者与使用者�
 
 ## 质量内核
 
-把 Skill 当成可执行产品：接口明确、依赖最少、一个规则一个主人，并以可验证成品收尾。
+把 Skill 当成可执行产品：接口明确、依赖可解释、一个规则一个主人，并以可验证成品收尾。依赖允许存在，但必须说明用途、阶段、体积、引入路径，以及无依赖替代是否真的成立。
 
 优化不是只让 Agent 少读文件。必须同时保证用户拿到的发行包可使用，并保留优化前已经存在的用户说明、许可证和来源信息。
 
@@ -34,6 +34,8 @@ description: 优化、精简和审计已有 Skill。区分开发者与使用者�
 至少分开核对五个载体：远端源码版本、本地开发工作区、发布产物、本地安装副本、实际运行环境。`在 Git 中保留`、`进入发行包`、`模型会读取`、`用户必须安装`是四个不同结论，禁止互相推导。
 
 所有依赖按主要阶段归类为开发/测试、构建/CI、发布打包、用户运行时或可选能力。不能归类时标记“待验证”；不要仅凭文件名、体积或单次缺失就要求删除文件、迁移语言或安装系统软件。
+
+依赖决策固定按“系统原生能力 → 已有依赖 → 新增依赖”推进。原生替代只能作为候选，必须同时证明调用路径、功能等价与回归结果：Node 18+ 的全局 `fetch` 不覆盖 Undici 的 Agent/ProxyAgent/MockAgent 等专有能力；`node:zlib` 只替代 Node 路径中的压缩用途；UTF-8-only 合同不能靠猜测排除多编码支持；两套解析器只有进入同一入口且职责重叠才建议合并；Chrome 打印只有覆盖 `pdf-lib` 的全部实际能力后才构成替代。审计器不自动删除依赖。
 
 ### 用户发行包外壳
 
@@ -79,10 +81,22 @@ README 和许可证即使属于发行外壳，也不会因为未被 `SKILL.md` �
 先运行只读审计器，再按发现定点阅读文件。已知源码路径时一并比较：
 
 ```bash
-python3 <本 Skill 目录>/scripts/audit_skill.py <目标 Skill 目录> --surface <source|release|installed> --source <权威源码 Skill 目录> --format json
+python3 <本 Skill 目录>/scripts/audit_skill.py <目标 Skill 目录> \
+  --surface <source|release|installed> \
+  --profile <auto|general|review> \
+  --supported-node-majors 22,24 \
+  --source <权威源码 Skill 目录> \
+  --metafile <esbuild metafile 路径> \
+  --format json
 ```
 
-`--source` 可省略；载体无法确定时使用默认 `--surface auto`，此时不得给出删除建议。`--surface release` 会把目标视为用户发行包并检查文档断链；同时提供 `--source` 时，还会检查源码原有的 README 和许可证是否被发行瘦身清掉。源码与发行包原本都没有这些文件时不报错。审计器还检查结构、UI 元数据、声明上下文、目标目录体积、Git/符号链接关系、开发资产候选、依赖清单、外部命令和平台敏感线索；它不联网、不安装依赖，也不根据线索自动删除内容。退出码 `0` 只表示当前所选载体没有结构性阻断，不证明业务或跨平台运行正确。
+`--source` 和 `--metafile` 可省略；未显式提供 metafile 时只查找常见文件名。载体无法确定时使用默认 `--surface auto`，此时不得给出删除建议。`--profile auto` 在 `release` 载体自动使用 `review`，其他载体使用 `general`。`--supported-node-majors` 由 Agent 根据当前官方 LTS 支持矩阵查询后传入；审计器自身保持离线，不把内置默认值冒充实时官方事实。
+
+`review` 会联合检查 SKILL/README、`package.json engines`、doctor/constants 和测试矩阵中的版本门槛；流式分析 1 MiB 以上文件，不再因体积跳过；区分源码、生成 bundle、压缩代码和“有多项强证据的疑似混淆”，没有证据时不得直接称为混淆。它还按自有代码、第三方代码、数据、字体、示例和文档报告发行占比。超过体积或文件预算只要求解释，不会把大型 Catalog、字体或用户示例自动判为垃圾。
+
+依赖归因优先使用 `package.json`、npm lockfile、源码 import 和 esbuild metafile，输出直接/传递、开发/运行、外置/内联和字节占比。联网行为只沿公开 doctor/build/install 等入口做静态检查并按测试开发、构建发布、用户运行时归类；未知 Skill 的 doctor/build/install 不自动执行，审计器不联网、不安装依赖，也不根据线索自动删除内容。Node 原生能力和 esbuild 归因边界以 [Node Globals](https://nodejs.org/dist/latest/docs/api/globals.html)、[Node zlib](https://nodejs.org/api/zlib.html) 与 [esbuild Metafile](https://esbuild.github.io/api/#metafile) 为依据。
+
+`--surface release` 会把目标视为用户发行包并检查文档断链；同时提供 `--source` 时，还会检查源码原有的 README 和许可证是否被发行瘦身清掉。源码与发行包原本都没有这些文件时不报错；发行包仅缺少测试、生成器等开发文件属于正常裁剪，不再把整棵源码差异误报为安装漂移。Finding 保留原字段，并可增加 `surface`、`kind=fact|candidate|policy` 与 `confidence=high|medium|low`。退出码 `0` 只表示当前所选载体没有结构性阻断，不证明业务或跨平台运行正确。
 
 - `0`：审计完成且没有结构性阻断。
 - `1`：审计完成但存在断链、非法入口等阻断问题。
