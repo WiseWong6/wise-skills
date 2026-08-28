@@ -15,7 +15,7 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
   - [Claude Code](https://claude.ai/code) CLI
   - [OpenAI Codex CLI](https://github.com/openai/codex)
   - 其他支持 skill 指令的 AI 编程助手
-- Python 3.8+（wise-image-flow、image-to-pages、mac-cleanup 需要）
+- Python 3.8+（doubao-tts、wise-image-flow、image-to-pages、mac-cleanup 需要）
 - 相关 API Key（见环境配置）
 
 ---
@@ -58,6 +58,25 @@ npx skills add WiseWong6/wise-skills --skill image-to-pages
 ---
 
 ## Skills 列表
+
+### 🎙️ doubao-tts
+
+**用豆包复刻音色生成中文短视频配音**
+
+- 中文 MP3，默认 24 kHz、原始语速/音量/音调
+- 支持语速、音量、音调、`tone_fidelity` 和已通过复刻 2.0 实测的实验性风格提示
+- 超过 900 UTF-8 字节自动按中文标点分段，共享上下文并用 FFmpeg 拼接
+- API Key 与个人音色保存在仓库外，命令统一返回脱敏 JSON
+
+```bash
+python3 doubao-tts/scripts/doubao_tts.py synthesize \
+  --text '这是一段中文短视频配音。' \
+  --output ./voiceover.mp3
+```
+
+完整配置、参数与能力边界见 [doubao-tts/README.md](doubao-tts/README.md)。
+
+---
 
 ### 📄 image-to-pages
 
@@ -253,6 +272,7 @@ python scripts/generate_image.py \
 **Claude Code：** 在对话中使用 `/skill-name` 触发：
 ```
 /image-to-pages /path/to/images 帮我做成打印页面
+/doubao-tts 把这段中文稿生成自然、克制的短视频配音
 /wise-image-flow 生成一张星际穿越主题的图片
 $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 /prompt-creator 帮我创建一个代码审查提示词
@@ -266,6 +286,18 @@ $blue-poster 把这张图做成完整 3:4 蓝色光波海报
 ---
 
 ## 环境配置
+
+### doubao-tts API Key 与复刻音色
+
+在 Skill 目录中通过标准输入配置；个人配置写入 `~/.config/doubao-tts/config.json`，不会进入仓库：
+
+```bash
+python3 scripts/doubao_tts.py configure \
+  --api-key-stdin \
+  --speaker '<复刻音色 ID>'
+```
+
+长稿 MP3 拼接需要 `ffmpeg`，时长校验需要 `ffprobe`。
 
 ### wise-image-flow API Key 配置
 
