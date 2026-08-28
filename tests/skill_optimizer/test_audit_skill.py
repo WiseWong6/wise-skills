@@ -553,6 +553,7 @@ class AuditSkillTests(unittest.TestCase):
                     {
                         "skills": ["coordinate-skill"],
                         "source_commit": "deadbeef",
+                        "source_dirty": True,
                         "sha256": {
                             "coordinate-skill/SKILL.md": hashlib.sha256(
                                 (root / "SKILL.md").read_bytes()
@@ -575,7 +576,9 @@ class AuditSkillTests(unittest.TestCase):
             self.assertEqual(coordinates["source"]["git_head"], head)
             self.assertTrue(coordinates["source"]["git_dirty"])
             self.assertEqual(coordinates["release"]["source_commit"], "deadbeef")
+            self.assertIs(coordinates["release"]["source_dirty"], True)
             self.assertIn("release-source-commit-divergence", codes(result, "warning"))
+            self.assertIn("release-source-dirty", codes(result, "warning"))
 
     def test_deadweight_uses_functional_edges_not_manifest_inventory(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -881,6 +884,54 @@ class AuditSkillTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             self.assertIn("legacy-signal", codes(result, "info"))
+            single_owner = next(
+                item for item in result["structure"]["checks"] if item["id"] == "single-owner"
+            )
+            self.assertEqual(single_owner["status"], "review")
+
+    def test_legacy_policy_mentions_do_not_imply_an_active_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "legacy-policy-skill"
+            root.mkdir()
+            make_valid_skill(
+                root,
+                "# Legacy policy\n\n检查 legacy/fallback 线索，但不保留旧逻辑，也不用 fallback 掩盖错误合同。\n",
+            )
+
+            result, exit_code = audit_skill(root)
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("legacy-signal", codes(result, "info"))
+            single_owner = next(
+                item for item in result["structure"]["checks"] if item["id"] == "single-owner"
+            )
+            self.assertEqual(single_owner["status"], "pass")
+
+    def test_legacy_detector_regex_does_not_match_its_own_pattern(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "legacy-detector-skill"
+            root.mkdir()
+            make_valid_skill(
+                root,
+                "# Detector\n\n运行 `scripts/check.py` 扫描结构线索。\n",
+            )
+            write(
+                root / "scripts/check.py",
+                "import re\nACTIVE_LEGACY_RE = re.compile(\n"
+                "    r\"保留.{0,24}(?:旧逻辑|旧版|历史版本)\"\n"
+                ")\n"
+                "# A detector pattern is evidence about what to search for, not\n"
+                "# evidence that the target keeps that legacy contract active.\n",
+            )
+
+            result, exit_code = audit_skill(root)
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("legacy-signal", codes(result, "info"))
+            single_owner = next(
+                item for item in result["structure"]["checks"] if item["id"] == "single-owner"
+            )
+            self.assertEqual(single_owner["status"], "pass")
 
     def test_openai_metadata_mismatch_is_warning(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

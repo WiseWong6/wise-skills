@@ -240,6 +240,25 @@ def _source_commit(data: Any, skill_name: str) -> Optional[str]:
     return None
 
 
+def _source_dirty(data: Any, skill_name: str) -> Optional[bool]:
+    if not isinstance(data, dict):
+        return None
+    direct = data.get("source_dirty")
+    if isinstance(direct, bool):
+        return direct
+    metadata = data.get("metadata")
+    if isinstance(metadata, dict):
+        value = metadata.get("source_dirty")
+        if isinstance(value, bool):
+            return value
+    external = data.get("external_sources")
+    if isinstance(external, dict):
+        state = external.get(skill_name)
+        if isinstance(state, dict) and isinstance(state.get("dirty"), bool):
+            return bool(state["dirty"])
+    return None
+
+
 def _hash_entries(data: Any) -> Dict[str, str]:
     if not isinstance(data, dict):
         return {}
@@ -322,6 +341,7 @@ def inspect_release_manifest(
         return {"status": "invalid", "path": str(path), "error": str(exc)}
 
     source_commit = _source_commit(data, skill_name)
+    source_dirty = _source_dirty(data, skill_name)
     hashes = _hash_entries(data)
     declared_skills = data.get("skills", []) if isinstance(data, dict) else []
     skill_declared = isinstance(declared_skills, list) and skill_name in declared_skills
@@ -424,11 +444,23 @@ def inspect_release_manifest(
             kind="candidate",
             confidence="high",
         )
+    if source_dirty is True:
+        add_finding(
+            findings,
+            "warning",
+            "release-source-dirty",
+            "发行 manifest 表明载荷由未提交源码生成；source_commit 只是基座提交，不能单独代表发行内容。",
+            evidence="source_commit={}".format(source_commit),
+            surface="release",
+            kind="fact",
+            confidence="high",
+        )
 
     return {
         "status": "verified" if not (unsafe or mismatches or missing) else "invalid",
         "path": str(path),
         "source_commit": source_commit,
+        "source_dirty": source_dirty,
         "skill_declared": skill_declared,
         "hash_entry_count": len(hashes),
         "relevant_hash_count": relevant,
@@ -704,6 +736,7 @@ def inspect_lifecycle(
         },
         "release": {
             "source_commit": manifest.get("source_commit"),
+            "source_dirty": manifest.get("source_dirty"),
             "manifest_status": manifest.get("status"),
             "manifest_path": manifest.get("path"),
         },
