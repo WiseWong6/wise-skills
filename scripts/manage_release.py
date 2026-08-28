@@ -277,6 +277,7 @@ def build_release(output: Path) -> None:
         raise ReleaseError("发行目录必须不存在或为空：{}".format(output))
     output.mkdir(parents=True, exist_ok=True)
 
+    repository_state = git_source_state(REPO_ROOT)
     release_files: Dict[str, str] = {}
     source_states: Dict[str, Mapping[str, object]] = {}
     for source_name, destination_name in RELEASE_ROOT_FILES:
@@ -301,6 +302,8 @@ def build_release(output: Path) -> None:
 
     release_manifest = {
         "schema_version": 1,
+        "source_commit": repository_state.get("commit"),
+        "source_dirty": repository_state.get("dirty"),
         "skills": [str(skill["name"]) for skill in manifest_skills()],
         "external_sources": source_states,
         "sha256": dict(sorted(release_files.items())),
