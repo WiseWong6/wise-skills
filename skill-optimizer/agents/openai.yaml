@@ -1,4 +1,4 @@
 interface:
   display_name: "Skill Optimizer"
-  short_description: "审计运行门槛、Bundle 来源、发行体量与依赖替代边界"
-  default_prompt: "使用 $skill-optimizer 检查这个 Skill，先区分开发者与使用者，核对源码、发行外壳、安装副本和运行环境；依赖允许存在，但按系统原生能力、已有依赖、新增依赖的顺序寻找更轻方案，并验证用途条件；检查版本门槛、Bundle 来源、发行分类占比、静态联网行为，以及 macOS/Windows 和多 Agent 适配，保留优化前已有的 README、License、声明、示例入口和有效链接，不为原本没有的自用 Skill 强制新增，再以公共根因、影响面和防复发验证说明方案，等我确认后再修改。"
+  short_description: "审计 Skill 传播拓扑、版本坐标、死重候选与结构职责"
+  default_prompt: "使用 $skill-optimizer 检查这个 Skill，先区分开发者与使用者，并沿权威源码、发行载荷、Agent 安装入口/软链、实际加载和真实任务建立生命周期证据图；分别记录 Git、manifest、frontmatter 与安装副本版本坐标，区分功能、文档、发行、完整性、来源和法律入边，只输出待隔离验证的死重候选，不自动删除或修复软链；保留已有 README、License/NOTICE、用户入口和必要依赖，检查 macOS/Windows 与多 Agent 适配、公共根因、影响面和防复发门禁，先用通俗中文给方案，等我确认后再修改。"

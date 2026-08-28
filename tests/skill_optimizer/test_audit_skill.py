@@ -1,4 +1,5 @@
 import json
+import hashlib
 import os
 import shutil
 import subprocess
@@ -60,30 +61,30 @@ class AuditSkillTests(unittest.TestCase):
         metadata = (SKILL_ROOT / "agents/openai.yaml").read_text(encoding="utf-8")
 
         for requirement in (
-            "系统性诊断与反补丁门禁",
-            "问题合同",
-            "公共根因与影响面",
-            "不得称为“系统性修复”",
-            "修改前失败、修改后通过",
-            "临时缓解不能作为完整修复关闭",
-            "先拆角色、载体和成本",
-            "在 Git 中保留",
-            "进入发行包",
-            "用户必须安装",
-            "macOS/Windows × Agent × 入口",
-            "平台/Agent 未实测",
-            "用户发行包外壳",
-            "不进入模型上下文不等于应该从发行包删除",
-            "原本没有也不等于必须新增",
-            "借发行瘦身改变权威源码",
-            "原本存在的根目录 `README.md`",
-            "原本存在的 `LICENSE`",
-            "依赖允许存在",
-            "系统原生能力 → 已有依赖 → 新增依赖",
+            "权威源码 → 发行载荷 → Agent 安装入口/软链 → Agent 实际加载 → 真实任务",
+            "生命周期审计判据",
+            "平台 Schema Profile",
+            "不通过目录名猜开发仓或发行仓",
             "--profile <auto|general|review>",
+            "--schema-profile <auto|codex|redskill>",
+            "--release-manifest <发行 manifest 路径>",
+            "--agent-entry codex=<Codex 安装入口>",
             "--supported-node-majors 22,24",
             "未知 Skill 的 doctor/build/install 不自动执行",
-            "没有证据时不得直接称为混淆",
+            "version_coordinates",
+            "runtime_verification",
+            "deadweight-candidate",
+            "被 manifest 列出，不等于有功能用途",
+            "Git SHA、frontmatter 语义版本和平台线上版本不是同一个版本数字",
+            "系统原生能力 → 已有依赖 → 新增依赖",
+            "不得称为系统性修复",
+            "先给人话方案",
+            "用户确认后实施",
+            "真实运行验收",
+            "macOS/Windows × Agent × 入口",
+            "平台/Agent 未实测",
+            "用户确认前不修改权威源码",
+            "逐条执行、逐条复核",
         ):
             self.assertIn(requirement, skill)
         self.assertNotIn("Linux", skill)
@@ -95,7 +96,10 @@ class AuditSkillTests(unittest.TestCase):
             "影响面",
             "防复发",
             "README",
-            "License",
+            "License/NOTICE",
+            "生命周期证据图",
+            "死重候选",
+            "不自动删除或修复软链",
         ):
             self.assertIn(requirement, metadata)
 
@@ -299,6 +303,452 @@ class AuditSkillTests(unittest.TestCase):
             self.assertEqual(comparison["status"], "drift")
             self.assertEqual(comparison["source_only_count"], 1)
             self.assertIn("source-install-drift", codes(result, "warning"))
+
+    def test_codex_and_redskill_schema_profiles_do_not_share_one_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "Demo-Skill"
+            root.mkdir()
+            write(
+                root / "SKILL.md",
+                "---\n"
+                "name: Demo-Skill\n"
+                "description: Demo platform-specific schema.\n"
+                'version: "1.2.3"\n'
+                "metadata:\n"
+                "  author: Demo\n"
+                "---\n",
+            )
+
+            codex, codex_exit = audit_skill(root, schema_profile="codex")
+            redskill, redskill_exit = audit_skill(root, schema_profile="redskill")
+
+            self.assertEqual(codex_exit, 1)
+            self.assertIn("skill-name-invalid", codes(codex, "error"))
+            self.assertIn("frontmatter-extra-keys", codes(codex, "warning"))
+            self.assertEqual(redskill_exit, 0)
+            self.assertNotIn("skill-name-invalid", codes(redskill))
+            self.assertNotIn("frontmatter-extra-keys", codes(redskill))
+            self.assertNotIn("redskill-version-policy", codes(redskill))
+            self.assertEqual(
+                redskill["surfaces"]["schema_profile"]["effective"], "redskill"
+            )
+
+    def test_redskill_missing_version_is_policy_warning_not_blocker(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "redskill-demo"
+            root.mkdir()
+            make_valid_skill(root)
+
+            result, exit_code = audit_skill(root, schema_profile="redskill")
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("redskill-version-policy", codes(result, "warning"))
+            finding = next(
+                item for item in result["findings"] if item["code"] == "redskill-version-policy"
+            )
+            self.assertEqual(finding["kind"], "policy")
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "requires symlinks")
+    def test_agent_entry_chain_reports_multi_hop_and_cross_agent_upstream(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            source = base / "source" / "demo-skill"
+            codex_entry = base / ".codex/skills/demo-skill"
+            agents_entry = base / ".agents/skills/demo-skill"
+            source.mkdir(parents=True)
+            codex_entry.parent.mkdir(parents=True)
+            agents_entry.parent.mkdir(parents=True)
+            make_valid_skill(source)
+            os.symlink(str(source), str(codex_entry), target_is_directory=True)
+            os.symlink(str(codex_entry), str(agents_entry), target_is_directory=True)
+
+            result, exit_code = audit_skill(
+                source,
+                agent_entries=(("codex", codex_entry), ("agents", agents_entry)),
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("agent-entry-multi-hop", codes(result, "warning"))
+            self.assertIn("agent-entry-cross-agent-upstream", codes(result, "warning"))
+            agents = next(
+                item
+                for item in result["lifecycle"]["agent_entries"]
+                if item["agent"] == "agents"
+            )
+            self.assertEqual(agents["hop_count"], 2)
+            self.assertEqual(agents["cross_agent_targets"], ["codex"])
+            self.assertEqual(result["runtime_verification"]["status"], "not-run")
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "requires symlinks")
+    def test_broken_and_cyclic_agent_entries_are_blocking(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            root = base / "demo-skill"
+            root.mkdir()
+            make_valid_skill(root)
+            broken = base / "broken"
+            os.symlink("missing", str(broken))
+
+            broken_result, broken_exit = audit_skill(
+                root, agent_entries=(("codex", broken),)
+            )
+            self.assertEqual(broken_exit, 1)
+            self.assertIn("agent-entry-broken", codes(broken_result, "error"))
+
+            missing = base / "not-created"
+            missing_result, missing_exit = audit_skill(
+                root, agent_entries=(("codex", missing),)
+            )
+            self.assertEqual(missing_exit, 1)
+            self.assertIn("agent-entry-missing", codes(missing_result, "error"))
+
+            first = base / "cycle-a"
+            second = base / "cycle-b"
+            os.symlink(second.name, str(first))
+            os.symlink(first.name, str(second))
+            cycle_result, cycle_exit = audit_skill(
+                root, agent_entries=(("codex", first),)
+            )
+            self.assertEqual(cycle_exit, 1)
+            self.assertIn("agent-entry-cycle", codes(cycle_result, "error"))
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "requires symlinks")
+    def test_wrong_relative_agent_entry_to_another_skill_is_blocking(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            root = base / "demo-skill"
+            wrong = base / "other-skill"
+            entry = base / ".agents/skills/demo-skill"
+            root.mkdir()
+            wrong.mkdir()
+            entry.parent.mkdir(parents=True)
+            make_valid_skill(root)
+            make_valid_skill(wrong)
+            os.symlink("../../other-skill", str(entry), target_is_directory=True)
+
+            result, exit_code = audit_skill(
+                root, agent_entries=(("agents", entry),)
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("agent-entry-target-mismatch", codes(result, "error"))
+            trace = result["lifecycle"]["agent_entries"][0]
+            self.assertTrue(trace["hops"][0]["relative"])
+            self.assertEqual(trace["declared_skill_name"], "other-skill")
+
+    def test_independent_agent_copies_report_content_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            source = base / "source" / "demo-skill"
+            installed = base / "installed" / "demo-skill"
+            source.mkdir(parents=True)
+            installed.mkdir(parents=True)
+            make_valid_skill(source)
+            make_valid_skill(installed, "# Drift\n\n另一份可独立变化的内容。\n")
+
+            result, exit_code = audit_skill(
+                source,
+                agent_entries=(("codex", source), ("agents", installed)),
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("agent-entry-content-drift", codes(result, "warning"))
+
+    def test_release_manifest_hash_damage_is_blocking(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "manifest-skill"
+            root.mkdir()
+            make_valid_skill(root)
+            actual = hashlib.sha256((root / "SKILL.md").read_bytes()).hexdigest()
+            manifest = Path(temp) / "_release-manifest.json"
+            write(
+                manifest,
+                json.dumps(
+                    {
+                        "skills": ["manifest-skill"],
+                        "sha256": {
+                            "manifest-skill/SKILL.md": "0" * 64,
+                            "unrelated/README.md": actual,
+                        },
+                    }
+                ),
+            )
+            result, exit_code = audit_skill(
+                root, surface="release", release_manifest=manifest
+            )
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("release-manifest-hash-mismatch", codes(result, "error"))
+            self.assertTrue(
+                result["lifecycle"]["release_manifest"]["skill_declared"]
+            )
+
+    def test_repository_manifest_does_not_apply_root_file_to_same_named_skill_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "manifest-skill"
+            root.mkdir()
+            make_valid_skill(root)
+            add_release_envelope(root)
+            manifest = Path(temp) / "_release-manifest.json"
+            skill_readme = hashlib.sha256((root / "README.md").read_bytes()).hexdigest()
+            skill_contract = hashlib.sha256((root / "SKILL.md").read_bytes()).hexdigest()
+            write(
+                manifest,
+                json.dumps(
+                    {
+                        "skills": ["manifest-skill"],
+                        "sha256": {
+                            "README.md": "0" * 64,
+                            "manifest-skill/README.md": skill_readme,
+                            "manifest-skill/SKILL.md": skill_contract,
+                        },
+                    }
+                ),
+            )
+            result, exit_code = audit_skill(
+                root, surface="release", release_manifest=manifest
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("release-manifest-hash-mismatch", codes(result))
+            checked = result["lifecycle"]["release_manifest"]["checked"]
+            self.assertEqual(
+                {item["file"] for item in checked}, {"README.md", "SKILL.md"}
+            )
+
+    @unittest.skipUnless(shutil.which("git"), "requires git")
+    def test_release_source_commit_is_separate_from_git_and_dirty_coordinates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            repository = Path(temp) / "repository"
+            root = repository / "coordinate-skill"
+            root.mkdir(parents=True)
+            make_valid_skill(root)
+            subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+            subprocess.run(["git", "add", "."], cwd=repository, check=True)
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "user.name=Skill Test",
+                    "-c",
+                    "user.email=skill-test@example.invalid",
+                    "commit",
+                    "-qm",
+                    "fixture",
+                ],
+                cwd=repository,
+                check=True,
+            )
+            head = subprocess.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=repository,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+            manifest = repository / "_release-manifest.json"
+            write(
+                manifest,
+                json.dumps(
+                    {
+                        "skills": ["coordinate-skill"],
+                        "source_commit": "deadbeef",
+                        "sha256": {
+                            "coordinate-skill/SKILL.md": hashlib.sha256(
+                                (root / "SKILL.md").read_bytes()
+                            ).hexdigest(),
+                            "coordinate-skill/agents/openai.yaml": hashlib.sha256(
+                                (root / "agents/openai.yaml").read_bytes()
+                            ).hexdigest(),
+                        },
+                    }
+                ),
+            )
+            write(root / "runtime-note.tmp", "untracked coordinate evidence\n")
+
+            result, exit_code = audit_skill(
+                root, source=root, surface="release", release_manifest=manifest
+            )
+
+            self.assertEqual(exit_code, 0)
+            coordinates = result["version_coordinates"]
+            self.assertEqual(coordinates["source"]["git_head"], head)
+            self.assertTrue(coordinates["source"]["git_dirty"])
+            self.assertEqual(coordinates["release"]["source_commit"], "deadbeef")
+            self.assertIn("release-source-commit-divergence", codes(result, "warning"))
+
+    def test_deadweight_uses_functional_edges_not_manifest_inventory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "deadweight-skill"
+            root.mkdir()
+            make_valid_skill(
+                root,
+                "# Runtime\n\n运行 `scripts/run.py`，并由 `scripts/loader.py` 动态读取数据。\n",
+            )
+            add_release_envelope(root)
+            write(root / "scripts/run.py", "print('run')\n")
+            write(
+                root / "scripts/loader.py",
+                'from pathlib import Path\nlist(Path("assets/dynamic").glob("*.json"))\n',
+            )
+            write(root / "assets/dynamic/live.json", "{}\n")
+            write(root / "assets/unused.json", "{}\n")
+            write(root / "tests/test_demo.py", "def test_demo():\n    assert True\n")
+            write(root / "archive/old.txt", "archived\n")
+            write(
+                root / "bundle-manifest.json",
+                json.dumps(
+                    {
+                        "files": {
+                            "assets/unused.json": "inventory-only",
+                            "assets/dynamic/live.json": "inventory-only",
+                        }
+                    }
+                ),
+            )
+
+            result, exit_code = audit_skill(root, surface="release")
+
+            self.assertEqual(exit_code, 0)
+            by_path = {
+                item["path"]: item for item in result["reachability"]["files"]
+            }
+            self.assertEqual(
+                by_path["assets/unused.json"]["status"], "deadweight-candidate"
+            )
+            self.assertEqual(
+                {edge["kind"] for edge in by_path["assets/unused.json"]["inbound_edges"]},
+                {"integrity"},
+            )
+            self.assertEqual(
+                by_path["assets/dynamic/live.json"]["status"], "dynamic-unresolved"
+            )
+            self.assertEqual(by_path["README.md"]["status"], "user-envelope")
+            self.assertEqual(by_path["LICENSE"]["status"], "user-envelope")
+            self.assertEqual(
+                by_path["tests/test_demo.py"]["status"], "development-only"
+            )
+            self.assertEqual(by_path["archive/old.txt"]["status"], "archive-only")
+            self.assertEqual(by_path["bundle-manifest.json"]["status"], "required")
+            self.assertNotIn("confirmed-deadweight", codes(result))
+
+    def test_unused_dependency_requires_build_evidence_and_stays_candidate(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "dependency-candidate-skill"
+            root.mkdir()
+            make_valid_skill(root, "# Runtime\n\n运行 `scripts/main.mjs`。\n")
+            write(
+                root / "package.json",
+                json.dumps(
+                    {
+                        "dependencies": {
+                            "used-package": "1.0.0",
+                            "unused-package": "1.0.0",
+                        },
+                        "devDependencies": {"test-package": "1.0.0"},
+                    }
+                ),
+            )
+            write(root / "scripts/main.mjs", 'import "used-package";\n')
+            metafile = root / "metafile.json"
+            write(
+                metafile,
+                json.dumps(
+                    {
+                        "inputs": {
+                            "scripts/main.mjs": {"bytes": 24},
+                            "node_modules/used-package/index.js": {"bytes": 50},
+                        },
+                        "outputs": {
+                            "dist/main.js": {
+                                "bytes": 74,
+                                "inputs": {
+                                    "scripts/main.mjs": {"bytesInOutput": 24},
+                                    "node_modules/used-package/index.js": {
+                                        "bytesInOutput": 50
+                                    },
+                                },
+                            }
+                        },
+                    }
+                ),
+            )
+
+            result, exit_code = audit_skill(
+                root, surface="release", metafile=metafile
+            )
+
+            self.assertEqual(exit_code, 0)
+            roles = {
+                item["name"]: item for item in result["reachability"]["dependencies"]
+            }
+            self.assertEqual(roles["used-package"]["status"], "required")
+            self.assertEqual(
+                roles["unused-package"]["status"], "deadweight-candidate"
+            )
+            self.assertEqual(roles["test-package"]["status"], "development-only")
+            self.assertIn("unused-dependency-candidate", codes(result, "warning"))
+
+    def test_local_python_package_imports_keep_split_runtime_modules_reachable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "python-module-skill"
+            root.mkdir()
+            make_valid_skill(root, "# Runtime\n\n运行 `scripts/audit_skill.py`。\n")
+            write(
+                root / "scripts/audit_skill.py",
+                "from skill_audit import core as _core\n_core.run()\n",
+            )
+            write(root / "scripts/skill_audit/__init__.py", "\n")
+            write(
+                root / "scripts/skill_audit/core.py",
+                "from skill_audit.model import result\ndef run(): return result\n",
+            )
+            write(root / "scripts/skill_audit/model.py", "result = True\n")
+
+            result, exit_code = audit_skill(root, surface="release")
+
+            self.assertEqual(exit_code, 0)
+            by_path = {
+                item["path"]: item for item in result["reachability"]["files"]
+            }
+            for path in (
+                "scripts/audit_skill.py",
+                "scripts/skill_audit/__init__.py",
+                "scripts/skill_audit/core.py",
+                "scripts/skill_audit/model.py",
+            ):
+                self.assertEqual(by_path[path]["status"], "required")
+
+    def test_structure_matrix_explains_policy_without_a_score(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "structured-skill"
+            root.mkdir()
+            write(
+                root / "SKILL.md",
+                "---\nname: structured-skill\n"
+                "description: Structure matrix test.\n"
+                'version: "1.0.0"\n---\n\n'
+                "[A](references/a.md)\n",
+            )
+            write(root / "references/a.md", "[B](b.md)\n")
+            write(root / "references/b.md", "[A](a.md)\n")
+            write(root / "custom/data.txt", "custom\n")
+
+            result, exit_code = audit_skill(
+                root, surface="release", schema_profile="redskill"
+            )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIsNone(result["structure"]["score"])
+            self.assertIn("reference-graph-cycle", codes(result, "warning"))
+            self.assertIn("structure-top-level-unclassified", codes(result, "warning"))
+            self.assertIn("redskill-top-level-structure-policy", codes(result, "warning"))
+            dag = next(
+                item
+                for item in result["structure"]["checks"]
+                if item["id"] == "lifecycle-dag"
+            )
+            self.assertEqual(dag["status"], "review")
 
     @unittest.skipUnless(hasattr(os, "symlink") and shutil.which("git"), "requires git and symlinks")
     def test_symlinked_install_is_not_treated_as_independent_copy(self) -> None:
