@@ -1,0 +1,4 @@
+interface:
+  display_name: "豆包中文配音"
+  short_description: "生成可调语速、音调和音量的豆包中文复刻音色短视频配音"
+  default_prompt: "使用 $doubao-tts 把这段中文稿合成为短视频配音。"
