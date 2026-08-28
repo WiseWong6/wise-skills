@@ -237,6 +237,10 @@ class ManageReleaseTests(unittest.TestCase):
 
             with mock.patch.object(manage_release, "REPO_ROOT", root), mock.patch.object(
                 manage_release, "MANIFEST_PATH", root / "skills-release.json"
+            ), mock.patch.object(
+                manage_release,
+                "git_source_state",
+                return_value={"path": str(root), "commit": "a" * 40, "dirty": False},
             ):
                 manage_release.build_release(output)
 
@@ -247,6 +251,8 @@ class ManageReleaseTests(unittest.TestCase):
                 "root license\n",
             )
             manifest = json.loads((output / "_release-manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["source_commit"], "a" * 40)
+            self.assertIs(manifest["source_dirty"], False)
             for relative in (
                 "README.md",
                 "LICENSE",

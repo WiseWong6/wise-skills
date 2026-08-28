@@ -24,7 +24,8 @@
 版本不是单一数字。分别记录：
 
 - `source.git_head` 和 `source.git_dirty`：源码提交与工作区状态。
-- `release.source_commit`：发行 manifest 声称的源码提交。
+- `release.source_commit`：发行 manifest 声称的源码基座提交。
+- `release.source_dirty`：发行时源码是否含未提交变更；为 `true` 时 `source_commit` 不能单独代表载荷内容。
 - `source.tree_sha256`、`release.tree_sha256`、`installed.tree_sha256`：各载体内容坐标。
 - `frontmatter.version`：Skill 自述语义版本，仅在对应平台 profile 有意义。
 - 平台线上版本：只能由平台记录证明，静态目录审计不推断。

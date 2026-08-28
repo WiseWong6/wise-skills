@@ -100,6 +100,20 @@ LEGACY_RE = re.compile(
     r"\blegacy\b|\bdeprecated\b|\bfallback\b",
     re.IGNORECASE,
 )
+ACTIVE_LEGACY_RE = re.compile(
+    r"保留.{0,24}(?:旧逻辑|旧版|历史版本)|"
+    r"(?:继续|仍然|同时).{0,16}(?:使用|调用|加载|支持).{0,16}(?:旧逻辑|旧版|历史版本)|"
+    r"兼容(?:旧版|历史版本|旧逻辑)|"
+    r"(?:\blegacy\b|\bdeprecated\b)\s+(?:path|mode|contract|implementation|entry|workflow|schema|api)\b|"
+    r"(?:\bkeep\b|\bretain\b|\bsupport\b|\bload\b|\brun\b|\buse\b).{0,32}(?:\blegacy\b|\bdeprecated\b)|"
+    r"\bfallback\s+(?:to|path|mode|contract|implementation|entry|workflow|schema|api)\b",
+    re.IGNORECASE,
+)
+INACTIVE_LEGACY_RE = re.compile(
+    r"(?:不|未|没有|不得|禁止)(?:再|继续)?(?:保留|使用|支持|加载|调用).{0,24}(?:旧逻辑|旧版|历史版本|\blegacy\b|\bdeprecated\b|\bfallback\b)|"
+    r"\bnot\b.{0,24}(?:evidence|keep|retain|use|load|run|support).{0,32}(?:\blegacy\b|\bdeprecated\b|\bfallback\b)",
+    re.IGNORECASE,
+)
 CJK_RE = re.compile(
     "["
     "\u3400-\u4dbf"
@@ -767,15 +781,23 @@ def inspect_legacy_signals(texts: Dict[str, str], findings: List[Dict[str, Any]]
                 suppressed_files.add(file)
                 suppressed_signals += matches
             continue
-        for line_number, line in enumerate(text.splitlines(), start=1):
-            match = LEGACY_RE.search(line)
-            if not match:
+        lines = text.splitlines()
+        for line_number, line in enumerate(lines, start=1):
+            stripped = line.lstrip()
+            if "(?:" in line and stripped.startswith(("r\"", "r'", "br\"", "br'")):
+                # A detector pattern is evidence about what to search for, not
+                # evidence that the target keeps that legacy contract active.
+                continue
+            match = ACTIVE_LEGACY_RE.search(line)
+            previous = lines[line_number - 2] if line_number > 1 else ""
+            local_context = "{} {}".format(previous, line)
+            if not match or INACTIVE_LEGACY_RE.search(local_context):
                 continue
             add_finding(
                 findings,
                 "info",
                 "legacy-signal",
-                "发现可能与旧合同有关的线索；需结合当前合同判断，不自动删除。",
+                "发现可能仍在运行的旧合同线索；需结合当前合同判断，不自动删除。",
                 file,
                 line_number,
                 match.group(0),
