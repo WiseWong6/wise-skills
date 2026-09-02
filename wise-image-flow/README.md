@@ -1,7 +1,5 @@
 # Wise Image Flow · 配图全流程 Skill
 
-🌐 **在线主页**：<https://wisewong6.github.io/wise-image-flow/>
-
 一个 skill 打通「**内容 → 提示词 → 生图 → 拼版交付（PDF/HTML）**」全链路：把文章、模块或 PPT 大纲转成统一风格、少字高可读的信息图，批量出图，最后可一键拼成可翻阅的自包含 PDF/HTML。
 
 ## 核心能力
