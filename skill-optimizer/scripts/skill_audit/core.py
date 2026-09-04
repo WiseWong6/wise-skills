@@ -27,6 +27,7 @@ from skill_audit.schema import (
     validate_frontmatter_schema,
 )
 from skill_audit.structure import inspect_structure
+from skill_audit.test_system import inspect_test_system
 
 
 MAX_IN_MEMORY_TEXT_BYTES = 1024 * 1024
@@ -1120,6 +1121,11 @@ def developer_asset_category(path: str) -> Optional[str]:
         return "repository-automation"
     if name.startswith("requirements-dev"):
         return "development-dependencies"
+    if lower.startswith("scripts/skill_audit/"):
+        # These files are importable parts of the shipped auditor even when a
+        # module name describes the subject it validates (for example,
+        # test_system.py). Do not classify the runtime package by basename.
+        return None
     if lower.startswith("scripts/") and name.startswith(DEVELOPER_SCRIPT_PREFIXES):
         return "development-scripts"
     return None
@@ -2364,6 +2370,7 @@ def audit_skill(
     schema_profile: str = "auto",
     release_manifest: Optional[Path] = None,
     agent_entries: Sequence[Tuple[str, Path]] = (),
+    test_system_contract: Optional[Path] = None,
 ) -> Tuple[Dict[str, Any], int]:
     if surface not in SURFACE_CHOICES:
         raise ValueError(
@@ -2584,6 +2591,14 @@ def audit_skill(
         metafile_analysis,
         findings,
     )
+    test_system = inspect_test_system(
+        root,
+        skill_name,
+        surface,
+        git,
+        findings,
+        contract_path=test_system_contract,
+    )
     structure = inspect_structure(
         records,
         texts,
@@ -2592,6 +2607,7 @@ def audit_skill(
         str(schema_analysis["effective"]),
         surface,
         findings,
+        test_system=test_system,
     )
 
     sort_findings(findings)
@@ -2676,6 +2692,7 @@ def audit_skill(
         "version_coordinates": version_coordinates,
         "runtime_verification": runtime_verification,
         "reachability": reachability,
+        "test_system": test_system,
         "structure": structure,
         "files": {
             "text": sorted(texts),
@@ -2694,6 +2711,7 @@ def format_text(result: Dict[str, Any]) -> str:
     summary = result["summary"]
     metrics = result["metrics"]
     surfaces = result["surfaces"]
+    test_system = result["test_system"]
     category_labels = {
         "own_code": "自有代码",
         "third_party_code": "第三方代码",
@@ -2736,6 +2754,13 @@ def format_text(result: Dict[str, Any]) -> str:
         "- 死重候选：{} 个 / {} 字节（静态候选，不是确认删除）".format(
             len(result["reachability"]["candidates"]),
             result["reachability"]["candidate_bytes"],
+        ),
+        "- 测试体系：{}（合同={}，机制={}，runner={}，未登记={}）".format(
+            test_system["status"],
+            test_system["contract"]["status"],
+            len(test_system["mechanisms"]),
+            len(test_system["runners"]),
+            len(test_system["unregistered_files"]),
         ),
         "- 发行外壳：{}（README={}，LICENSE={}）".format(
             surfaces["release_envelope"]["status"],
@@ -2831,6 +2856,10 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         "--metafile",
         help="显式提供 esbuild metafile；相对路径按目标 Skill 目录解析",
     )
+    parser.add_argument(
+        "--test-system-contract",
+        help="可选：源仓测试体系合同；相对路径按 Git 根（非 Git 目标按目标根）解析",
+    )
     parser.add_argument("--format", choices=("text", "json"), default="text")
     return parser.parse_args(argv)
 
@@ -2860,6 +2889,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 Path(args.release_manifest) if args.release_manifest else None
             ),
             agent_entries=[parse_agent_entry(value) for value in args.agent_entry],
+            test_system_contract=(
+                Path(args.test_system_contract) if args.test_system_contract else None
+            ),
         )
     except (OSError, ValueError) as exc:
         if args.format == "json":
