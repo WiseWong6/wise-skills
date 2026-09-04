@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "skill": "skill-optimizer",
+  "target_root": "skill-optimizer",
+  "inventory_patterns": [
+    "tests/skill_optimizer/test_*.py"
+  ],
+  "mechanisms": [
+    {
+      "id": "skill-audit-contracts",
+      "rule_owner": "skill-optimizer/SKILL.md",
+      "case_model": "inline",
+      "case_sources": [],
+      "rationale": "生命周期、发行、依赖和结构场景具有不同输入合同，不能由一张同构 case 表表达。"
+    },
+    {
+      "id": "test-system-contract",
+      "rule_owner": "skill-optimizer/references/test-system-audit.md",
+      "case_model": "inline",
+      "case_sources": [],
+      "rationale": "合同发现、路径安全和执行边界场景共享测试构造器，但各自验证不同的结构约束。"
+    }
+  ],
+  "runners": [
+    {
+      "id": "repository-unittest-discovery",
+      "boundary": "unit",
+      "mode": "shared",
+      "command": "python3 -m unittest discover -s tests -p 'test_*.py'",
+      "files": [
+        "tests/skill_optimizer/test_audit_skill.py",
+        "tests/skill_optimizer/test_test_system_contract.py"
+      ],
+      "covers": [
+        "skill-audit-contracts",
+        "test-system-contract"
+      ]
+    }
+  ],
+  "exclusions": []
+}

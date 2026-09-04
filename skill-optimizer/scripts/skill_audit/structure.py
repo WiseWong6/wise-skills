@@ -83,6 +83,7 @@ def inspect_structure(
     schema_profile: str,
     surface: str,
     findings: List[Dict[str, Any]],
+    test_system: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Return evidence checks rather than an opaque structural score."""
 
@@ -186,6 +187,17 @@ def inspect_structure(
     legacy_signal = "legacy-signal" in codes
     cross_agent = "agent-entry-cross-agent-upstream" in codes
     authority_explicit = lifecycle.get("authority", {}).get("status") == "explicit"
+    test_system = test_system or {"status": "not-applicable"}
+    test_system_status = str(test_system.get("status", "not-applicable"))
+    test_system_check_status = (
+        "fail"
+        if test_system_status == "fail"
+        else "review"
+        if test_system_status == "review"
+        else "pass"
+        if test_system_status == "pass"
+        else "not-applicable"
+    )
 
     checks = [
         {
@@ -236,6 +248,20 @@ def inspect_structure(
                 "redskill_deviations": redskill_deviations,
             },
             "rule": "平台推荐结构与通用正确性分开报告，不把过审与结构优秀混为一谈。",
+        },
+        {
+            "id": "test-systemization",
+            "status": test_system_check_status,
+            "evidence": {
+                "test_system_status": test_system_status,
+                "contract_status": test_system.get("contract", {}).get("status"),
+                "candidate_count": test_system.get("inventory", {}).get(
+                    "candidate_count",
+                    test_system.get("inventory", {}).get("matched_count", 0),
+                ),
+                "unregistered_files": test_system.get("unregistered_files", []),
+            },
+            "rule": "测试语义归目标源仓合同所有；审计器只校验规则主人、执行边界和文件覆盖。",
         },
     ]
 
