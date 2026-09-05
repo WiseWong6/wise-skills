@@ -1,0 +1,66 @@
+{
+  "schema_version": 3,
+  "status": "draft",
+  "subject": {
+    "name": "__SUBJECT__",
+    "slug": "__SLUG__",
+    "target_version": "",
+    "kind": "architecture-or-landmark"
+  },
+  "accuracy_class": "visual-reconstruction",
+  "local_axes": {
+    "up": "+Y",
+    "front": "-Z",
+    "right": "+X",
+    "origin": "main-building-ground-center",
+    "units": "meter"
+  },
+  "required_views": [
+    "front",
+    "back",
+    "left",
+    "right",
+    "roof",
+    "ground-contact",
+    "three-quarter"
+  ],
+  "required_features": [],
+  "required_parts": [],
+  "dimensions": [],
+  "landmarks": [],
+  "material_regions": [],
+  "allowed_simplifications": [],
+  "forbidden_assumptions": [
+    "Generated direction images are not dimensional or hidden-structure truth."
+  ],
+  "selected_effects": ["__EFFECT__"],
+  "viewport_profiles": ["1440x900", "390x844"],
+  "motion_contract": {
+    "clock": "raf-timestamp",
+    "animation_loop_owners": 1,
+    "pause_freezes": [
+      "effect-progress",
+      "auto-rotate",
+      "damping",
+      "shader-time",
+      "pulse",
+      "local-lights"
+    ],
+    "replay": "atomic-zero-preserve-user-camera",
+    "visibility_resume": "reset-frame-baseline",
+    "mode_switch": "prewarmed-atomic-no-blank"
+  },
+  "evidence_policy": {
+    "invalidate_on_change": [
+      "model-brief",
+      "reference-bundle",
+      "direction-set",
+      "model-source",
+      "glb",
+      "runtime",
+      "validation-driver"
+    ],
+    "require_http_asset_hash": true,
+    "require_same_run_seal": true
+  }
+}

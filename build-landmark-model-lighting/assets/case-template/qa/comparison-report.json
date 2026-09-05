@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "subject": "__SUBJECT__",
+  "status": "pending",
+  "review_mode": "__REVIEW_MODE__",
+  "reviewer": null,
+  "reviewed_at": null,
+  "asset_sha256": "",
+  "required_views": [
+    "front",
+    "back",
+    "left",
+    "right",
+    "roof",
+    "ground-contact",
+    "three-quarter"
+  ],
+  "comparisons": []
+}

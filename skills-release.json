@@ -8,6 +8,7 @@
       "upstream": "https://github.com/WiseWong6/blue-poster",
       "preserve": ["README.md", "README_EN.md", "assets/examples", "assets/social", "assets/web"]
     },
+    {"name": "build-landmark-model-lighting", "path": "build-landmark-model-lighting", "source": "repository"},
     {"name": "doubao-tts", "path": "doubao-tts", "source": "repository"},
     {"name": "image-to-pages", "path": "image-to-pages", "source": "repository"},
     {"name": "mac-cleanup", "path": "mac-cleanup", "source": "repository"},

@@ -15,7 +15,7 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
   - [Claude Code](https://claude.ai/code) CLI
   - [OpenAI Codex CLI](https://github.com/openai/codex)
   - 其他支持 skill 指令的 AI 编程助手
-- Python 3.8+（doubao-tts、wise-image-flow、image-to-pages、mac-cleanup 需要）
+- Python 3.8+（doubao-tts、wise-image-flow、image-to-pages、mac-cleanup、build-landmark-model-lighting 需要）
 - 相关 API Key（见环境配置）
 
 ---
@@ -121,6 +121,29 @@ $blue-poster
 
 查看完整双模式示例、11 风格目录、安装与验证说明：
 [Blue Poster 完整说明与风格图册](blue-poster/README.md)；也可访问 [Blue Poster 独立项目页](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
+
+---
+
+### 🏙️ build-landmark-model-lighting
+
+**按真实资料重建地标 3D 模型：白模 → 材质光效 → GLB + Three.js 预览**
+
+- **真实资料驱动**：尺度、轮廓和结构由权威来源决定，生图只定构图与光效语言
+- **白模先行**：`blockout → macro → meso → micro` 逐级建模并同视口校对，白模不过不进材质
+- **三类光效**：`color` / `build`（结构生长）/ `edge-color`（拓扑寻光），按结构自动选型
+- **证据封印**：`passed` 必须绑定真实 GLB、源码哈希与浏览器返回字节，区分 `candidate-ready` 与 `visual-approved`
+- **零第三方依赖**：脚本只用 Python 标准库；方向图只用 Codex 宿主内置 `image_gen.imagegen`
+
+```bash
+python3 build-landmark-model-lighting/scripts/init_case.py \
+  --root ./cases/my-landmark \
+  --subject "<建筑名称>" \
+  --slug my-landmark \
+  --effect auto \
+  --review-mode user-self-check
+```
+
+完整阶段门禁与验收接口见 [build-landmark-model-lighting/README.md](build-landmark-model-lighting/README.md)。
 
 ---
 
@@ -275,6 +298,7 @@ python scripts/generate_image.py \
 /doubao-tts 把这段中文稿生成自然、克制的短视频配音
 /wise-image-flow 生成一张星际穿越主题的图片
 $blue-poster 把这张图做成完整 3:4 蓝色光波海报
+/build-landmark-model-lighting 按这些照片和公开资料重建这座地标并交付 GLB 预览页
 /prompt-creator 帮我创建一个代码审查提示词
 /skill-optimizer 优化这个 Skill，先用通俗中文说明问题，等我确认后再修改
 /ppt-speech-creator 帮我准备年终总结 PPT
