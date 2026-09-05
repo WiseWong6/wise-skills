@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "subject": "__SUBJECT__",
+  "slug": "__SLUG__",
+  "created_at": "__CREATED_AT__",
+  "status": "research",
+  "current_stage": "research",
+  "stage_order": [
+    "research",
+    "brief-frozen",
+    "direction-approved",
+    "blockout",
+    "macro",
+    "meso",
+    "micro",
+    "white-approved",
+    "material",
+    "lighting",
+    "final-qa",
+    "candidate-ready",
+    "visual-approved",
+    "delivered"
+  ],
+  "selected_effects": ["__EFFECT__"],
+  "evidence_epoch": 1,
+  "review_policy": {
+    "mode": "__REVIEW_MODE__",
+    "raster_capture": "explicit-request-only",
+    "status": "pending",
+    "reviewer": null,
+    "reviewed_at": null,
+    "evidence_paths": []
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 3,
+  "subject": "__SUBJECT__",
+  "status": "draft",
+  "asset": {
+    "path": "",
+    "sha256": "",
+    "bytes": null,
+    "triangles": null,
+    "vertices": null,
+    "parts": [],
+    "materials": []
+  },
+  "source_entry": {
+    "path": "",
+    "sha256": ""
+  },
+  "runtime": {
+    "entry": {
+      "path": "",
+      "sha256": ""
+    },
+    "acceptance_bridge": "window.__BUILD_WHITE_MODEL_MOTION_ACCEPTANCE__",
+    "acceptance_bridge_version": 4,
+    "animation_loop_owners": 1,
+    "visibility_lifecycle": true,
+    "shader_variants_prewarmed": true,
+    "viewports": ["1440x900", "390x844"]
+  },
+  "effects": {
+    "selected": ["__EFFECT__"],
+    "default": "__EFFECT__"
+  },
+  "validation": {
+    "khronos_report": { "path": "", "sha256": "" },
+    "loader_report": { "path": "", "sha256": "" },
+    "browser_report": { "path": "", "sha256": "" },
+    "drivers": []
+  },
+  "evidence_seal": { "path": "", "sha256": "" },
+  "artifacts": {
+    "direction_set": "direction/direction-set.json",
+    "comparison_report": "qa/comparison-report.json",
+    "capture_dir": "qa/captures"
+  },
+  "risks": [],
+  "cleanup": {
+    "servers_stopped": false,
+    "browsers_closed": false,
+    "temporary_paths": []
+  }
+}

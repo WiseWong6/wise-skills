@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "subject": "__SUBJECT__",
+  "provider": "image_gen.imagegen",
+  "no_third_party_fallback": true,
+  "structure_truth": false,
+  "conflict_policy": "real-sources-win-structure",
+  "master_role": "white-idle",
+  "prompts": [],
+  "images": []
+}
