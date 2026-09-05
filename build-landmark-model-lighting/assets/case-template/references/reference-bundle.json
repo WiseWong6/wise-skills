@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "subject": "__SUBJECT__",
+  "coverage_required": [
+    "front",
+    "back",
+    "left",
+    "right",
+    "roof",
+    "ground-contact",
+    "three-quarter"
+  ],
+  "sources": []
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "地标建模与光效"
+  short_description: "真实资料建模、语义 GLB、光效与同轮证据封印"
+  brand_color: "#7c3d28"
+  default_prompt: "使用 $build-landmark-model-lighting，先遵循目标工作区规则，再从真实资料完成地标建模、光效、同轮证据封印与可人工复核的交付。"
