@@ -2,11 +2,15 @@
 
 一个 skill 打通「**内容 → 提示词 → 生图 → 拼版交付（PDF/HTML）**」全链路：把文章、模块或 PPT 大纲转成统一风格、少字高可读的信息图，批量出图，最后可一键拼成可翻阅的自包含 PDF/HTML。
 
+## 使用边界
+
+需要把内容拆成系列图、统一风格并规划逐张文案时使用本 Skill；也可明确指定 `wise-image-flow`。普通生图、修图、执行已有完整提示词（含批量）直接用生图工具，Codex 中直接调用 `image_gen.imagegen`，不进入本 Skill 的规划和风格确认流程。仅拼接已有图片时使用 `image-to-pages`。
+
 ## 核心能力
 
 - **场景自动定比例**：小红书 3:4 ｜ 公众号封面 21:9、正文 16:9 ｜ 纯 PPT 16:9；明说→直接用，可推断→复述确认，未说明→询问
 - **10 种风格**：奶油纸手绘、小红书卡通、方格纸手绘、极简手绘笔记、社论全景、奶油手账、社论纸艺等（出处见 SKILL.md 致谢表）
-- **生图通道自动判定**：宿主内置生图（Codex / 网页版 GPT、Gemini）→ MCP 生图工具 → API 兜底（火山 Ark Doubao Seedream / Gemini 3 Pro Image）
+- **生图通道**：Codex 仅用 `image_gen.imagegen`，不可用或失败即停，批量和编辑也不例外；不回退第三方工具或脚本。其他宿主可依次使用内置工具、MCP、Ark / Gemini API，详见 SKILL.md。
 - **5 阶段配图流程**：需求澄清 → 配图规划 → 风格选择（阻塞确认）→ 文案定稿 → 提示词封装；另有 PPT 大纲快速通道（3 阶段）
 - **全图最多 2 种字体**：层级靠字号、字重与颜色深浅，不靠换字体
 - **拼版交付**：小红书与 PPT 场景生成 ≥2 张后，可拼成自包含 PDF/HTML（图片 base64 内嵌、双击即开；Ghostscript/Pillow 压缩，缺依赖优雅降级）
@@ -27,7 +31,7 @@ git clone https://github.com/WiseWong6/wise-image-flow.git ~/.claude/skills/wise
 
 给四项就能开始：① 要配图的内容 ② 用在哪个场景（小红书 / 公众号 / PPT / 海报）③ 谁来看 ④ 少字清爽还是信息密度高。
 
-直接生图（API 通道）：
+其他宿主直接生图（API 通道；Codex 不执行此脚本）：
 
 ```bash
 python scripts/generate_image.py \
@@ -42,7 +46,7 @@ python scripts/generate_html.py ./my_images 输出名            # 竖版合集
 python scripts/generate_html.py ./my_images 演示 --orientation landscape  # PPT 横版
 ```
 
-## 环境变量（API 通道）
+## 环境变量（仅其他宿主的 API 通道）
 
 | 变量 | 用途 |
 |---|---|
