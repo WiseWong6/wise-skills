@@ -12,7 +12,6 @@
     {"name": "doubao-tts", "path": "doubao-tts", "source": "repository"},
     {"name": "image-to-pages", "path": "image-to-pages", "source": "repository"},
     {"name": "mac-cleanup", "path": "mac-cleanup", "source": "repository"},
-    {"name": "optimize-system-performance", "path": "optimize-system-performance", "source": "repository-legacy"},
     {"name": "ppt-component-atlas", "path": "ppt-component-atlas", "source": "repository"},
     {"name": "ppt-speech-creator", "path": "ppt-speech-creator", "source": "repository"},
     {"name": "prompt-creator", "path": "prompt-creator", "source": "repository"},

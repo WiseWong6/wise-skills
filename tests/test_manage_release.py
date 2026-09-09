@@ -93,12 +93,6 @@ class ManageReleaseTests(unittest.TestCase):
 
     def test_operational_reference_docs_have_skill_entrypoints(self) -> None:
         expected_links = {
-            "optimize-system-performance": {
-                "references/deep-forensics-macos.md",
-                "references/deep-forensics-windows.md",
-                "references/platform-mapping.md",
-                "references/report-template.zh.md",
-            },
             "ppt-speech-creator": {
                 "references/component-library.md",
                 "references/page-composition.md",
