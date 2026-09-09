@@ -83,29 +83,25 @@ class AuditSkillTests(unittest.TestCase):
             "系统原生能力 → 已有依赖 → 新增依赖",
             "不得称为系统性修复",
             "先给人话方案",
-            "用户确认后实施",
-            "真实运行验收",
-            "macOS/Windows × Agent × 入口",
-            "平台/Agent 未实测",
+            "在授权范围内实施",
+            "Agent metadata 保持薄层",
+            "开发、发行、安装和运行职责分离",
+            "公共根因",
+            "LICENSE/NOTICE",
+            "真实调用",
+            "多平台支持：只检查本次影响或明确要求的平台和 Agent",
+            "没有实测的组合不宣称已验证支持",
             "用户确认前不修改权威源码",
             "逐条执行、逐条复核",
         ):
             self.assertIn(requirement, skill)
         self.assertNotIn("Linux", skill)
         for requirement in (
-            "开发者",
-            "使用者",
-            "macOS/Windows",
-            "公共根因",
-            "影响面",
-            "防复发",
-            "README",
-            "License/NOTICE",
-            "生命周期证据图",
-            "死重候选",
-            "测试体系",
-            "目标源仓合同声明",
-            "不自动删除或修复软链",
+            "审计 Skill 生命周期、测试体系、死重候选与结构职责",
+            "先说明问题和处理方向",
+            "按已授权范围实施",
+            "不自动删除候选文件",
+            "allow_implicit_invocation: false",
         ):
             self.assertIn(requirement, metadata)
 

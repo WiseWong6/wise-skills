@@ -1,6 +1,6 @@
 ---
 name: wise-image-flow
-description: 配图全流程 skill：从内容生成提示词到多通道生图再到拼版交付。场景自动定比例（小红书 3:4 / 公众号封面 21:9、正文 16:9 / PPT 16:9），支持 10 种风格、多种布局；生图通道自动判定（宿主内置生图 / MCP / API：火山 Ark Doubao Seedream、Gemini 3 Pro Image）；批量生成；小红书与 PPT 场景可拼成自包含 PDF/HTML。
+description: 将文章或 PPT 大纲拆成图清单、统一系列风格、逐张图上文案与提示词，并可生图及拼版交付。用于需要内容规划的系列配图，或用户明确指定 wise-image-flow。普通生图、修图、已有完整提示词的直接执行不触发；Codex 此时直接使用内置生图工具。进入本 Skill 后，Codex 生图也仅限 image_gen.imagegen，不回退第三方通道。
 version: "1.2.0"
 metadata:
   author: wisewong
@@ -10,27 +10,26 @@ metadata:
 
 一个 skill 覆盖「内容 → 提示词 → 生图」全链路：
 - **上半场（配图助手）**：把文章/模块/PPT 大纲转成统一风格、少字高可读的提示词（10 种风格 + 25 种布局 + 5 阶段流程）
-- **下半场（生图工具）**：按「生图通道判定」优先用宿主自带生图能力（Codex / 网页版 GPT、Gemini 等）或 MCP 生图工具；都不可用才落 API（火山 Ark Doubao Seedream / Gemini 3 Pro Image），支持批量、编辑与多图合成
+- **下半场（生图工具）**：Codex 只用 `image_gen.imagegen`，不可用或失败即停；其他宿主按下方通道规则选择内置工具、MCP 或 API。
 
 ## 触发方式
 
+先判断是否需要配图规划，再选择普通或 PPT 模式；不能只凭图片数量、文件格式或布局标记触发。
+
+- **进入本 Skill**：用户明确指定 `wise-image-flow`；或要求将文章/PPT 大纲拆成系列配图，需要确定图清单、统一系列风格、逐张文案和提示词，并可继续生图、拼版交付。
+- **直接使用生图工具**：普通生图、修图、已有完整提示词的单张或批量执行，不进入本 Skill。在 Codex 中直接使用 `image_gen.imagegen`，不插入图清单、风格 Gallery 或 Copy Spec 确认流程。
+- **用户指定优先**：用户说“直接用 Codex 生图”“不用这个 Skill”时跳过本 Skill；不因“配图”“出图”“PPT”或单张图片的风格要求强制进入。仅拼接已有图片时使用 `image-to-pages`。
+- **续作**：已在本 Skill 中完成规划后要求“出图”，沿用已确认方案进入生图步骤；已提供完整提示词并显式指定本 Skill 时，同样跳过前置规划。
+
 ### 普通配图模式
-- "这段内容做个图 / 配几张图？"
-- "给我两张（或多张）出图提示词"
-- "字太多不好看，帮我更趣味、更好读"
-- "/image " "/配图" "/出图"
+
+例如：“把这篇文章拆成一组图，规划每张讲什么、写什么，并统一风格。”
 
 ### PPT 配图模式（快速通道，3 阶段）
-检测到以下信号自动进入：
-- 用户上传 `.md` 文件，含 `第X页`、`## 第`、`可视化类型：`、`ASCII` 等标记
-- 用户说"这是 PPT 大纲"、"PPT 配图"、"/image ppt"
-- 文件中有 `.title-card`、`.two-col`、`.three-col`、`.grid-card` 等布局标记
+
+只有已满足本 Skill 进入条件，且用户要求按 PPT 大纲规划系列配图时才进入。`第X页`、`可视化类型：`、ASCII 框图和布局标记只辅助解析，不独立触发。
 
 详见 `references/stages/00-ppt-mode.md`。
-
-### 直接生图模式
-- "生成一张……的图"、"画一个……"、"帮我出图"
-- 已有提示词文件，直接批量生图（见下方「生图工具」章节）
 
 ---
 
@@ -150,22 +149,26 @@ metadata:
 
 ### 生图通道判定（先于一切生图调用，必走）
 
-提示词就绪后，先判定当前运行环境，按优先级选生图通道——**能不依赖 API 就不依赖**：
+先识别宿主。下列 Codex 分支优先于后续 API 示例、依赖说明及其他宿主规则。
 
-| 优先级 | 环境 | 判定方式 | 生图通道 |
-|---|---|---|---|
-| 1 | Codex / ChatGPT 网页端 / Gemini 网页端 | 宿主本身自带生图能力 | 直接用宿主内置生图：把提示词原样交给宿主执行，**不调用 API、不要求配 Key** |
-| 2 | 其他宿主（Claude Code / ZCode / 通用 CLI 等） | 检查会话可用工具列表里有没有生图类 MCP 工具（工具名含 image-gen / generate_image / seedream / draw / banana 等） | 有就直接用该 MCP 工具生图 |
-| 3 | 以上都不可用 | — | 走本 skill 的 `scripts/generate_image.py`（需 API Key），并按「依赖与环境变量」引导用户配置 |
+**Codex：**
 
-判定规则：
+- 生成、编辑、批量或多图合成都只调用宿主内置 `image_gen.imagegen`。
+- 工具不可用或失败时停止生图并说明原因；不得转用 Ark、Doubao、Gemini、第三方 MCP、本地模型、CLI、脚本或其他第三方图片生成 API，也不得安装或恢复第三方 `image-gen` Skill。
+- “批量”“本地生成”“编辑合成”等要求不构成改用第三方通道的例外；不引导配置第三方生图 Key 或依赖。
+- `scripts/generate_image.py` 及下方 API 操作说明只适用于其他宿主。图片生成后的 HTML/PDF 拼版仍可使用 `scripts/generate_html.py`。
 
-1. 先看系统信息与可用工具列表，确认宿主类型与生图工具，**再**决定通道；
-2. 命中通道 1/2 时，上半场提示词产出流程完全不变，只是「生图」一步换通道执行（提示词同样要求少字、大字号、可复制）；
-3. 仅当通道 1/2 不存在，或用户明确要求本地批量生成 / 图片编辑合成时，落到通道 3；
-4. 通道 3 缺 Key 时，提示用户自行配置 `ARK_API_KEY`（火山 Ark）或 `GEMINI_API_KEY`，给出获取方式即可，**不要替用户编造或硬编码 Key**。
+**其他宿主：**
 
-### 提供商（通道 3：API 直连）
+| 优先级 | 判定方式 | 生图通道 |
+|---|---|---|
+| 1 | 宿主自带生图能力 | 使用宿主内置工具，无需 API Key |
+| 2 | 内置工具不可用，有生图 MCP | 使用该 MCP 工具 |
+| 3 | 前两种工具不可用，或用户明确要求本地批量生成/编辑合成 | 使用 `scripts/generate_image.py`（Ark / Gemini） |
+
+其他宿主使用 API 通道但缺 Key 时，引导用户配置 `ARK_API_KEY` 或 `GEMINI_API_KEY`，不编造或硬编码凭据。各宿主自身的权限及工具限制仍须遵守。
+
+### 提供商（仅其他宿主的 API 通道）
 
 - **火山 Ark**（默认）：OpenAI 兼容接口，Doubao Seedream 系列
 - **Gemini 3 Pro Image**：Nano Banana Pro，支持图片编辑和多图合成
@@ -265,7 +268,7 @@ python3 scripts/generate_html.py --output <输出名> --files 封面.png 01.png 
 - 输出与图片同目录：`<名>.html`（图片 base64 自包含，双击即开）+ `<名>.pdf`（需 Chrome/Edge/Arc 渲染，缺失时自动降级为仅 HTML 并提示可手动打印）
 - 常用参数：`--mode auto/full`、`--no-pdf`、`--img-format webp|jpeg`、`--quality 80`、`--max-width 1920`、`--pdf-quality none|screen|ebook|printer`（压缩依赖 Pillow/Ghostscript，缺失时优雅降级为原图/跳过）
 
-### 依赖与环境变量
+### 依赖与环境变量（仅其他宿主的 API 通道）
 
 ```bash
 pip install openai python-dotenv pyyaml          # Ark
@@ -337,4 +340,4 @@ references/                 # 参考资料
 3. 谁来看（小白/从业者/老板/学生…）
 4. 偏好：更"少字清爽"还是更"信息密度"
 
-交付顺序：图清单（阶段 2）→ **用户确认后展示 10 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（宿主内置 / MCP / `generate_image.py`）→（小红书/PPT 场景）询问是否拼版交付 PDF/HTML。
+交付顺序：图清单（阶段 2）→ **用户确认后展示 10 种风格等用户选（阶段 2.5 阻塞）** → 逐张 Copy Spec（阶段 3）→ 可复制提示词（阶段 4）→ 按生图通道判定出图（Codex 仅 `image_gen.imagegen`；其他宿主按通道规则）→（小红书/PPT 场景）询问是否拼版交付 PDF/HTML。
