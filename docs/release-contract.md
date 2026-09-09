@@ -11,7 +11,8 @@
 - `wise-image-flow` 的唯一权威源码是同级独立仓库 `../wise-image-flow`。本仓库中的同名目录是受管的实体发行镜像，禁止手改。
 - 其余 Skill 的权威源码就是本仓库中的同名目录。
 - `docs/`、`tests/` 和仓库级脚本属于开发仓，不进入单个 Skill 用户包；但原本由 Skill README 直接使用的用户展示素材仍属于发行外壳，不能仅因体积或目录名移出用户包。
-- `optimize-system-performance` 继续作为远端仓库中的独立旧 Skill 保留；本机不再安装它。`mac-cleanup` 是本机当前入口，两者不得用本机安装副本相互覆盖源码。
+- 本机清理与性能诊断统一由 `mac-cleanup` 提供。
+- `archive/optimize-system-performance/` 仅作历史留档；入口文件使用 `SKILL.archived.md`，不进入发行清单，也不得复制或链接到任何 Agent 技能发现目录。
 
 每个可安装 Skill 目录必须保留其源码原有的人类可读 `README.md`，以及与仓库根一致的 `LICENSE`。`skills-release.json` 的 `preserve` 清单用于锁定原有英文说明、用户示例和 README 依赖素材，`check` 与 `build` 都不得绕过。完整发行包根目录仍使用 `docs/release-README.md` 生成集合说明，并同时携带根 `LICENSE`；测试、缓存和仅供开发者使用的文档不进入运行载荷。
 

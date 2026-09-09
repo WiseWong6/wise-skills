@@ -274,11 +274,9 @@ python scripts/generate_image.py \
 
 ---
 
-### 🖥️ optimize-system-performance
+### 历史留档
 
-**远端保留的 Mac / Windows 低权限性能诊断 Skill**
-
-继续留在仓库供原有用户独立安装；本机不再安装它。该 Skill 偏跨平台只读诊断，`mac-cleanup` 则是当前本机的完整清理入口。
+[optimize-system-performance](archive/optimize-system-performance/ARCHIVE.md) 仅保留历史源码，不发行、不安装到 Agent。当前本机入口为 `mac-cleanup`。
 
 ---
 
