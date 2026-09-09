@@ -9,7 +9,6 @@ Included Skills:
 - `doubao-tts`
 - `image-to-pages`
 - `mac-cleanup`
-- `optimize-system-performance`
 - `ppt-component-atlas`
 - `ppt-speech-creator`
 - `prompt-creator`
