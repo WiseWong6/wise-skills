@@ -2,6 +2,26 @@
   "schema_version": 1,
   "skills": [
     {
+      "name": "memory-fragment-posters",
+      "path": "memory-fragment-posters",
+      "source": "external-mirror",
+      "upstream": "https://github.com/WiseWong6/memory-fragment-posters",
+      "external_source": "../memory-fragment-posters",
+      "include": [
+        "SKILL.md",
+        "README.md",
+        "README_EN.md",
+        "LICENSE",
+        "agents",
+        "references",
+        "scripts"
+      ],
+      "preserve": [
+        "README.md",
+        "README_EN.md"
+      ]
+    },
+    {
       "name": "blue-poster",
       "path": "blue-poster",
       "source": "repository",
