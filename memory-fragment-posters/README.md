@@ -22,6 +22,24 @@
 
 默认交付**拼图版 + 票根版**：每套包含每张照片的独立海报，以及一张完整拼接图。上传 9 张照片，得到两套共 **20 张**。
 
+## 效果预览
+
+以下为作者授权公开的定稿成品。左右分别为拼图版与票根版，点击可查看原尺寸。示例只用于理解设计，不作为新任务的照片输入。
+
+<table>
+  <tr><th>拼图版</th><th>票根版</th></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/10.png"><img src="assets/examples/puzzle/10.png" alt="完整拼接 · puzzle" width="100%" loading="lazy"></a><br>完整拼接</td><td width="50%"><a href="assets/examples/ticket/10.png"><img src="assets/examples/ticket/10.png" alt="完整拼接 · ticket" width="100%" loading="lazy"></a><br>完整拼接</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/01.png"><img src="assets/examples/puzzle/01.png" alt="雪山与海 · puzzle" width="100%" loading="lazy"></a><br>雪山与海</td><td width="50%"><a href="assets/examples/ticket/01.png"><img src="assets/examples/ticket/01.png" alt="雪山与海 · ticket" width="100%" loading="lazy"></a><br>雪山与海</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/02.png"><img src="assets/examples/puzzle/02.png" alt="黄金岁月 · puzzle" width="100%" loading="lazy"></a><br>黄金岁月</td><td width="50%"><a href="assets/examples/ticket/02.png"><img src="assets/examples/ticket/02.png" alt="黄金岁月 · ticket" width="100%" loading="lazy"></a><br>黄金岁月</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/03.png"><img src="assets/examples/puzzle/03.png" alt="夕阳的机翼 · puzzle" width="100%" loading="lazy"></a><br>夕阳的机翼</td><td width="50%"><a href="assets/examples/ticket/03.png"><img src="assets/examples/ticket/03.png" alt="夕阳的机翼 · ticket" width="100%" loading="lazy"></a><br>夕阳的机翼</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/04.png"><img src="assets/examples/puzzle/04.png" alt="南京陵园路 · puzzle" width="100%" loading="lazy"></a><br>南京陵园路</td><td width="50%"><a href="assets/examples/ticket/04.png"><img src="assets/examples/ticket/04.png" alt="南京陵园路 · ticket" width="100%" loading="lazy"></a><br>南京陵园路</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/05.png"><img src="assets/examples/puzzle/05.png" alt="杭州机场 · puzzle" width="100%" loading="lazy"></a><br>杭州机场</td><td width="50%"><a href="assets/examples/ticket/05.png"><img src="assets/examples/ticket/05.png" alt="杭州机场 · ticket" width="100%" loading="lazy"></a><br>杭州机场</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/06.png"><img src="assets/examples/puzzle/06.png" alt="海上日落 · puzzle" width="100%" loading="lazy"></a><br>海上日落</td><td width="50%"><a href="assets/examples/ticket/06.png"><img src="assets/examples/ticket/06.png" alt="海上日落 · ticket" width="100%" loading="lazy"></a><br>海上日落</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/07.png"><img src="assets/examples/puzzle/07.png" alt="阔叶树枝梢 · puzzle" width="100%" loading="lazy"></a><br>阔叶树枝梢</td><td width="50%"><a href="assets/examples/ticket/07.png"><img src="assets/examples/ticket/07.png" alt="阔叶树枝梢 · ticket" width="100%" loading="lazy"></a><br>阔叶树枝梢</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/08.png"><img src="assets/examples/puzzle/08.png" alt="招牌人物 · puzzle" width="100%" loading="lazy"></a><br>招牌人物</td><td width="50%"><a href="assets/examples/ticket/08.png"><img src="assets/examples/ticket/08.png" alt="招牌人物 · ticket" width="100%" loading="lazy"></a><br>招牌人物</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/09.png"><img src="assets/examples/puzzle/09.png" alt="雪夜街角 · puzzle" width="100%" loading="lazy"></a><br>雪夜街角</td><td width="50%"><a href="assets/examples/ticket/09.png"><img src="assets/examples/ticket/09.png" alt="雪夜街角 · ticket" width="100%" loading="lazy"></a><br>雪夜街角</td></tr>
+</table>
+
 ## 核心能力
 
 - **自动选取记忆点**：助手根据照片选择雪山、枝梢、落日、人物或建筑细节，直接制作；用户指定的位置优先。
@@ -158,7 +176,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/test_render.py
 - 碎片中心靠边时，来源框会整体移入照片，实际位置记录在检查报告里。
 - 不接受动画或多帧图片，包括部分使用 JPG 扩展名的 MPO 文件；需先提供确定的静态主图。
 - 不支持任意画幅或单独缩放某块碎片，以保证三个位置精确对应。
-- 不重绘、扩图、补画或调用第三方生图服务。仓库不包含用户照片和私人任务记录。
+- 不重绘、扩图、补画或调用第三方生图服务。仓库仅包含作者授权公开的定稿示例，不包含原始照片、私人路径或任务记录。
 
 ## 关于作者
 
@@ -166,6 +184,8 @@ PYTHONDONTWRITEBYTECODE=1 python3 scripts/test_render.py
 
 [X / Twitter](https://x.com/killthewhys) · [小红书](https://www.xiaohongshu.com/user/profile/61f3ea4f000000001000db73) · [Wise Skills](https://github.com/WiseWong6/wise-skills)
 
+<p><img src="assets/social/xiaohongshu-qr.jpg" width="180" alt="歪斯Wise 小红书名片"></p>
+
 ## 许可证
 
-[MIT](LICENSE) © 2026 Wise Wong。许可证适用于技能代码与文档；使用者提供的照片仍归其各自权利人所有。
+[MIT](LICENSE) © 2026 Wise Wong。许可证适用于技能代码与文档；示例成品及使用者提供的照片仍归其各自权利人所有，不随代码的 MIT 许可转授权。

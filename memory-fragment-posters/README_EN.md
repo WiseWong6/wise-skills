@@ -12,6 +12,24 @@ This Codex skill combines visual selection by the assistant with deterministic p
 
 By default, it delivers **Puzzle + Ticket** editions. Each contains one poster per photograph and one assembled poster: **9 photographs produce 20 images**.
 
+## Preview
+
+These final examples are published with the author’s permission. Puzzle and Ticket editions are shown side by side; click to view original dimensions. Examples illustrate the design and are not photo inputs for new tasks.
+
+<table>
+  <tr><th>Puzzle</th><th>Ticket</th></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/10.png"><img src="assets/examples/puzzle/10.png" alt="Complete assembly · puzzle" width="100%" loading="lazy"></a><br>Complete assembly</td><td width="50%"><a href="assets/examples/ticket/10.png"><img src="assets/examples/ticket/10.png" alt="Complete assembly · ticket" width="100%" loading="lazy"></a><br>Complete assembly</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/01.png"><img src="assets/examples/puzzle/01.png" alt="Mountains and sea · puzzle" width="100%" loading="lazy"></a><br>Mountains and sea</td><td width="50%"><a href="assets/examples/ticket/01.png"><img src="assets/examples/ticket/01.png" alt="Mountains and sea · ticket" width="100%" loading="lazy"></a><br>Mountains and sea</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/02.png"><img src="assets/examples/puzzle/02.png" alt="Golden years · puzzle" width="100%" loading="lazy"></a><br>Golden years</td><td width="50%"><a href="assets/examples/ticket/02.png"><img src="assets/examples/ticket/02.png" alt="Golden years · ticket" width="100%" loading="lazy"></a><br>Golden years</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/03.png"><img src="assets/examples/puzzle/03.png" alt="Sunlit wing · puzzle" width="100%" loading="lazy"></a><br>Sunlit wing</td><td width="50%"><a href="assets/examples/ticket/03.png"><img src="assets/examples/ticket/03.png" alt="Sunlit wing · ticket" width="100%" loading="lazy"></a><br>Sunlit wing</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/04.png"><img src="assets/examples/puzzle/04.png" alt="Nanjing avenue · puzzle" width="100%" loading="lazy"></a><br>Nanjing avenue</td><td width="50%"><a href="assets/examples/ticket/04.png"><img src="assets/examples/ticket/04.png" alt="Nanjing avenue · ticket" width="100%" loading="lazy"></a><br>Nanjing avenue</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/05.png"><img src="assets/examples/puzzle/05.png" alt="Hangzhou airport · puzzle" width="100%" loading="lazy"></a><br>Hangzhou airport</td><td width="50%"><a href="assets/examples/ticket/05.png"><img src="assets/examples/ticket/05.png" alt="Hangzhou airport · ticket" width="100%" loading="lazy"></a><br>Hangzhou airport</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/06.png"><img src="assets/examples/puzzle/06.png" alt="Sea sunset · puzzle" width="100%" loading="lazy"></a><br>Sea sunset</td><td width="50%"><a href="assets/examples/ticket/06.png"><img src="assets/examples/ticket/06.png" alt="Sea sunset · ticket" width="100%" loading="lazy"></a><br>Sea sunset</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/07.png"><img src="assets/examples/puzzle/07.png" alt="Winter branches · puzzle" width="100%" loading="lazy"></a><br>Winter branches</td><td width="50%"><a href="assets/examples/ticket/07.png"><img src="assets/examples/ticket/07.png" alt="Winter branches · ticket" width="100%" loading="lazy"></a><br>Winter branches</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/08.png"><img src="assets/examples/puzzle/08.png" alt="Portrait sign · puzzle" width="100%" loading="lazy"></a><br>Portrait sign</td><td width="50%"><a href="assets/examples/ticket/08.png"><img src="assets/examples/ticket/08.png" alt="Portrait sign · ticket" width="100%" loading="lazy"></a><br>Portrait sign</td></tr>
+  <tr><td width="50%"><a href="assets/examples/puzzle/09.png"><img src="assets/examples/puzzle/09.png" alt="Snowy street · puzzle" width="100%" loading="lazy"></a><br>Snowy street</td><td width="50%"><a href="assets/examples/ticket/09.png"><img src="assets/examples/ticket/09.png" alt="Snowy street · ticket" width="100%" loading="lazy"></a><br>Snowy street</td></tr>
+</table>
+
 ## Core Capabilities
 
 - The assistant selects recognizable details automatically; explicit user choices take priority.
@@ -128,7 +146,7 @@ Tests cover 1, 2, 5, and 10-photo layouts, portrait orientation, EXIF rotation, 
 - Near an image edge, the source box shifts inward as a whole. Actual coordinates are recorded.
 - Animated and multi-frame files are rejected, including some MPO files with JPG extensions. Supply a definite static primary image first.
 - Arbitrary canvas ratios and independent piece resizing are unsupported.
-- No repainting, outpainting, content reconstruction, or third-party image generation. The repository contains no user photographs or private task records.
+- No repainting, outpainting, content reconstruction, or third-party image generation. The repository includes only author-authorized final examples, with no original source photos, private paths, or task records.
 
 ## About
 
@@ -136,6 +154,8 @@ Find me as **@歪斯Wise**, sharing AI creation, agent workflows, visual design,
 
 [X / Twitter](https://x.com/killthewhys) · [Xiaohongshu](https://www.xiaohongshu.com/user/profile/61f3ea4f000000001000db73) · [Wise Skills](https://github.com/WiseWong6/wise-skills)
 
+<p><img src="assets/social/xiaohongshu-qr.jpg" width="180" alt="Wise’s Xiaohongshu card"></p>
+
 ## License
 
-[MIT](LICENSE) © 2026 Wise Wong. The license covers skill code and documentation; user-supplied photographs remain the property of their respective rights holders.
+[MIT](LICENSE) © 2026 Wise Wong. The license covers skill code and documentation; example artwork and user-supplied photographs remain the property of their respective rights holders and are not sublicensed under MIT.
