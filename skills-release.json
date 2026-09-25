@@ -14,11 +14,14 @@
         "LICENSE",
         "agents",
         "references",
-        "scripts"
+        "scripts",
+        "assets"
       ],
       "preserve": [
         "README.md",
-        "README_EN.md"
+        "README_EN.md",
+        "assets/examples",
+        "assets/social"
       ]
     },
     {
