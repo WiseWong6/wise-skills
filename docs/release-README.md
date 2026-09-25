@@ -5,6 +5,7 @@ This directory is a clean user release of Wise Skills. Each named subdirectory i
 Included Skills:
 
 - `blue-poster`
+- `memory-fragment-posters`
 - `build-landmark-model-lighting`
 - `doubao-tts`
 - `image-to-pages`

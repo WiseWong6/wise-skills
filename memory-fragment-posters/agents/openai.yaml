@@ -1,0 +1,7 @@
+interface:
+  display_name: "记忆碎片摄影海报"
+  short_description: "从原照片精确裁取记忆碎片，制作拼图版、票根版海报与完整拼接图"
+  default_prompt: "用 $memory-fragment-posters 处理我提供的照片，自动选取记忆点，生成拼图版和票根版海报及完整拼接图。"
+
+policy:
+  allow_implicit_invocation: false
