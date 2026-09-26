@@ -8,7 +8,7 @@
 
 Take a memory from each photograph, place it on warm ivory paper, and assemble the fragments into one complete poster.
 
-This Codex skill combines visual selection by the assistant with deterministic photo compositing. The upper fragment, lower cutout, and final assembly reuse the same photo crop and alpha mask. Original colors, perspective, and lighting are preserved.
+This skill supports host-specific execution. The exact compositing capabilities and examples below come from the authorized programmatic workflow in Codex. The upper fragment, lower cutout, and final assembly reuse the same photo crop and alpha mask. Original colors, perspective, and lighting are preserved.
 
 By default, it delivers **Puzzle + Ticket** editions. Each contains one poster per photograph and one assembled poster: **9 photographs produce 20 images**.
 
@@ -51,6 +51,17 @@ These final examples are published with the author’s permission. Puzzle and Ti
 For larger batches, all cells are scaled together **before extraction**, keeping the assembly within 70% of canvas width and 60% of canvas height. Final assembly translates pieces without resizing or rotating them.
 
 The visual direction is warm ivory fiber paper, subtle grain, and generous space. No added text, logos, watermarks, stickers, tape, or heavy shadows. Signs and lettering already present in the photographs remain.
+
+## Platform Routing
+
+| Environment | Default workflow | Precision |
+|---|---|---|
+| Codex | Authorized photo-cropping and compositing scripts | Shared crops and masks with pixel checks |
+| Other hosts | Prefer the host’s built-in image generation or editing capability | Same design target; unverified results are visual candidates |
+
+Outside Codex, bundled scripts are not the default. If built-in tools are unavailable or cannot meet exact correspondence, disclose the limitation first. A programmatic alternative requires user authorization and permission under host rules. Do not automatically use external image services. See the [native image workflow](references/native-image.md).
+
+Python dependencies, commands, and pixel acceptance below apply to the programmatic path; native image workflows use the host’s existing capabilities.
 
 ## Installation
 
@@ -102,6 +113,8 @@ Selection and production proceed automatically by default. Ask explicitly if you
 
 ## How Exact Correspondence Works
 
+This describes the programmatic path. Native image outputs do not inherit its pixel-level guarantees without equivalent verification.
+
 1. The assistant reads each photo and selects a 3:2 landscape crop and fragment center.
 2. The script handles orientation and fits the crop proportionally into the lower half.
 3. It plans the entire connected assembly and shared boundaries before extracting pieces.
@@ -146,7 +159,7 @@ Tests cover 1, 2, 5, and 10-photo layouts, portrait orientation, EXIF rotation, 
 - Near an image edge, the source box shifts inward as a whole. Actual coordinates are recorded.
 - Animated and multi-frame files are rejected, including some MPO files with JPG extensions. Supply a definite static primary image first.
 - Arbitrary canvas ratios and independent piece resizing are unsupported.
-- No repainting, outpainting, content reconstruction, or third-party image generation. The repository includes only author-authorized final examples, with no original source photos, private paths, or task records.
+- Preserve original content without repainting or reconstruction; actual fidelity of native image outputs must be verified separately. No external image services. The repository includes only author-authorized final examples, with no original source photos, private paths, or task records.
 
 ## About
 
