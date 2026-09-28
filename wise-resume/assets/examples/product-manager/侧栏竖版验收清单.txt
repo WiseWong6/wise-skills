@@ -1,0 +1,34 @@
+公开样例技术验收清单
+======================
+
+历史导出记录：以下结果仅对应当时导出的 PDF，不代表当前 HTML 已完成验收；当时的四套字体不是当前可选范围。
+公开案例文案已更新，旧 PDF 及本记录不用于当前内容验收。
+
+HTML：portrait.html
+PDF：顾清和-产品经理-侧栏竖版.pdf
+输出预设：wenkai
+配色：正黑；头像：开启；左侧竖线：关闭
+页数：1（上限 1）
+网页 A4 纸张数：1（与 PDF 一致）
+页面尺寸：第 1 页 594.96 × 841.92 pt
+
+已通过：
+- HTML 通过 file:// 加载，无需服务器
+- 页面容器没有固定 height，也没有 overflow:hidden
+- 页面横向与纵向均未发现容器裁切
+- modern、classic、wenkai、smiley 四套预设均加载并应用本地字体
+- PDF 各页均为标准 A4，页数未超过上限
+- PDF 字体全部嵌入且带 Unicode 映射
+- HTML 主内容与 PDF 提取文字的去空白字符流逐字一致
+
+边界：本清单只证明载体技术检查通过，不代表事实真实性已确认；视觉仍需用户打开文件验收，未制作截图。
+
+去空白字符数：1146
+文字指纹（SHA-256）：45aa2f02971951714d3a9045942d04c399c1106264c342d0a76f1ade6a1446e0
+PDF 字体：AAAAAA+LXGWWenKai-Medium, BAAAAA+LXGWWenKai-Regular
+
+四套标题字体：
+- modern：标题 Source Han Sans CN；正文 Source Han Sans CN
+- classic：标题 Source Han Serif CN；正文 Source Han Serif CN
+- wenkai：标题 LXGW WenKai；正文 LXGW WenKai
+- smiley：标题 Smiley Sans；正文 LXGW WenKai

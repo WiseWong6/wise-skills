@@ -16,6 +16,7 @@ Included Skills:
 - `prompt-optimizer`
 - `skill-optimizer`
 - `wise-image-flow`
+- `wise-resume`
 
 Install one Skill by copying its directory into the discovery directory used by your Agent, such as `~/.codex/skills/` or `~/.claude/skills/`.
 
