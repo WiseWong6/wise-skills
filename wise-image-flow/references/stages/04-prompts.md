@@ -27,6 +27,7 @@
      - `xhs-cartoon` → `references/templates/style-block-xhs-cartoon.md`
      - `editorial` → `references/templates/style-block-editorial.md`
      - `cream-journal` → `references/templates/style-block-cream-journal.md`
+     - `paper-precision-atlas` → `references/templates/style-block-paper-precision-atlas.md`
      - `editorial-paper` → `references/templates/style-block-editorial-paper.md`
    - **风格基准锁定**：每张图都必须以读取的风格块定义作为**唯一允许的基础风格**来生成。
    - **不得换风格**：不要让模型自行切换成其他风格（如扁平矢量海报风/3D/摄影写实等）。
@@ -46,7 +47,7 @@
 
 ## 模板使用
 
-### 风格块（Style 维度，10种）
+### 风格块（Style 维度，11种）
 
 | Style ID | 风格块文件 | 画幅 |
 |----------|-----------|------|
@@ -60,6 +61,7 @@
 | `editorial` | `references/templates/style-block-editorial.md` | 16:9 |
 | `cream-journal` | `references/templates/style-block-cream-journal.md` | 3:4 |
 | `editorial-paper` | `references/templates/style-block-editorial-paper.md` | 3:4（可按场景横版） |
+| `paper-precision-atlas` | `references/templates/style-block-paper-precision-atlas.md` | 按场景；视频 16:9 |
 
 ### 结构模板（Layout 维度，5种）
 
