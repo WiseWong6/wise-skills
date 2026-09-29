@@ -9,7 +9,7 @@
 ## 核心能力
 
 - **场景自动定比例**：小红书 3:4 ｜ 公众号封面 21:9、正文 16:9 ｜ 纯 PPT 16:9；明说→直接用，可推断→复述确认，未说明→询问
-- **10 种风格**：奶油纸手绘、小红书卡通、方格纸手绘、极简手绘笔记、社论全景、奶油手账、社论纸艺等（出处见 SKILL.md 致谢表）
+- **11 种风格**：奶油纸手绘、小红书卡通、方格纸手绘、极简手绘笔记、社论全景、奶油手账、社论纸艺等（出处见 SKILL.md 致谢表）
 - **生图通道**：Codex 仅用 `image_gen.imagegen`，不可用或失败即停，批量和编辑也不例外；不回退第三方工具或脚本。其他宿主可依次使用内置工具、MCP、Ark / Gemini API，详见 SKILL.md。
 - **5 阶段配图流程**：需求澄清 → 配图规划 → 风格选择（阻塞确认）→ 文案定稿 → 提示词封装；另有 PPT 大纲快速通道（3 阶段）
 - **全图最多 2 种字体**：层级靠字号、字重与颜色深浅，不靠换字体
@@ -62,3 +62,7 @@ python scripts/generate_html.py ./my_images 演示 --orientation landscape  # PP
 ## License
 
 [MIT](LICENSE)
+
+### 纸上精密图谱
+
+风格 ID：`paper-precision-atlas`。[完整提示词](references/templates/style-block-paper-precision-atlas.md)包含材料自动分页、单页高密度、图片对照和简约纸本视频变体。暖象牙白纸、精密石墨结构与连续轨迹形成通透体积；视频变体使用思源黑体 Light/Regular、灰阶配色和统一安全边距。

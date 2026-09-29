@@ -457,6 +457,52 @@
         "text_budget": "标题 + 5块标题 + 底栏2行",
         "max_chars_per_block": 10
       }
+    },
+    "paper-precision-atlas": {
+      "id": "paper-precision-atlas",
+      "name": "纸上精密图谱",
+      "credit": "@歪斯Wise",
+      "aspect_ratio": "16:9",
+      "platforms": [
+        "wechat",
+        "xiaohongshu",
+        "ppt",
+        "video"
+      ],
+      "description": "暖象牙白纸上的精密石墨概念研究图；含简约纸本视频变体，比例服从场景与用户要求",
+      "recommended_for": [
+        "概念研究",
+        "技术机制",
+        "科学结构",
+        "工匠感"
+      ],
+      "signals": {
+        "keywords": [
+          "纸上精密图谱",
+          "石墨",
+          "精密制图",
+          "线网",
+          "工匠感"
+        ],
+        "content_type": "conceptual",
+        "text_density": "low"
+      },
+      "colors": {
+        "primary": "warm ivory paper #f2f0e8",
+        "accent": "graphite grayscale by default; explicit subject color only when requested or applicable"
+      },
+      "elements": [
+        "fine registration guides",
+        "graphite structural lines",
+        "continuous translucent trajectory networks",
+        "sparse meaningful nodes"
+      ],
+      "prompt_prefix": "暖象牙白细纤维纸上，以基准线、石墨结构线、局部密集连续轨迹与关键节点呈现内容关系；保留清楚纸面，无无意义外框。完整规则读取 references/templates/style-block-paper-precision-atlas.md。",
+      "careful_mode": {
+        "default_template": "16x9-balanced",
+        "text_budget": "短标题 + 必要概念标签",
+        "max_chars_per_label": 12
+      }
     }
   },
   "negative_constraints": [
@@ -668,7 +714,8 @@
       "情绪|故事|场景|人物|治愈": "healing",
       "清新|简洁|文艺": "sokamono",
       "笔记|手绘|草图|学习": "handdrawn",
-      "配图|信息图|概览|框架|路线图": "cream-paper"
+      "配图|信息图|概览|框架|路线图": "cream-paper",
+      "纸上精密图谱|石墨|精密制图|线网|工匠感": "paper-precision-atlas"
     }
   },
   "layout_selection": {
