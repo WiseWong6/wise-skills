@@ -298,7 +298,7 @@ pip install google-genai pillow                   # Gemini（可选）
 | 社论全景（editorial） | @歸藏 |
 | 奶油手账（cream-journal） | @歪斯Wise |
 | 社论纸艺（editorial-paper） | @歪斯Wise |
-| 纸上精密图谱（paper-precision-atlas） | @歪斯Wise；恢复历史提示词并补充简约纸本变体 |
+| 纸上精密图谱（paper-precision-atlas） | @歪斯Wise |
 | 拼版交付能力（scripts/generate_html.py） | @歪斯Wise（继承自其 image-to-pages skill） |
 | 扁平风 / 治愈系 / 描边插画 等 | 网络整理，出处待补 |
 
