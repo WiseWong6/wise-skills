@@ -1,1 +1,0 @@
-"""Blue Poster development tests."""

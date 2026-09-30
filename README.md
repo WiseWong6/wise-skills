@@ -51,9 +51,9 @@ cp -R wise-skills/<skill-name> .codex/skills/
 npx skills add WiseWong6/wise-skills --skill image-to-pages
 ```
 
-仓库中的每个顶层 Skill 目录都是可直接安装的用户发行载荷；开发测试、展示素材和发布说明统一放在仓库级 `tests/`、`docs/`。完整边界和发布前检查见 [Skill 源码与发行合同](docs/release-contract.md)。
+仓库中的每个顶层 Skill 目录都是自包含、可直接安装的用户发行载荷。
 
-`wise-image-flow` 和 `wise-resume` 的权威源码位于各自独立仓库，本仓库只保存发行镜像，禁止手改镜像。使用 `python3 scripts/manage_release.py sync` 同步前，先确认各镜像没有尚未保存的本地改动。
+`wise-image-flow` 的权威源码位于独立仓库，本仓库只保存发行镜像，禁止手改镜像。
 
 ---
 
@@ -121,6 +121,23 @@ $blue-poster
 
 查看完整双模式示例、11 风格目录、安装与验证说明：
 [Blue Poster 完整说明与风格图册](blue-poster/README.md)；也可访问 [Blue Poster 独立项目页](https://github.com/WiseWong6/blue-poster)。如果它对你有帮助，欢迎点一个 [Star](https://github.com/WiseWong6/blue-poster/stargazers)。
+
+---
+
+### 🧩 memory-fragment-posters（记忆碎片摄影海报）
+
+**从原照片取下一块记忆，再把所有碎片拼成完整海报。**
+
+- 拼图版与票根版两套，每套每张照片一张海报，另加一张完整拼接；9 张照片输出 20 张
+- 1800×2400，上下严格等分；暖象牙纸、原照局部与原位缺口
+- 上方碎片、下方缺口和最终拼接共用裁片与遮罩，包含半透明边缘的像素检查
+- 助手选择记忆点，Pillow 与 NumPy 精确排版；仅在明确调用时执行，不重绘、不接入生图服务
+
+```text
+用 $memory-fragment-posters 处理这些照片，生成拼图版和票根版。
+```
+
+[完整说明](memory-fragment-posters/README.md) · [独立仓库](https://github.com/WiseWong6/memory-fragment-posters)
 
 ---
 
@@ -224,12 +241,6 @@ python scripts/generate_image.py \
 - 每项都说明来源、删除风险、建议和体积
 - 个人机器档案保存在 Skill 目录外，不进入公开发行包
 - 本机清理与诊断统一由本 Skill 维护
-
----
-
-### 历史留档
-
-[optimize-system-performance](archive/optimize-system-performance/ARCHIVE.md) 仅保留历史源码，不发行、不安装到 Agent。当前本机入口为 `mac-cleanup`。
 
 ---
 
