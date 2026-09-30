@@ -27,30 +27,15 @@
 
 - 写作原则以主入口为准；具体疑点查 `references/content-methodology.md`，改写示范查 `references/examples.md`，均按需读取。
 - 排版细节唯一来源是 `assets/template/DESIGN-SPEC.md`。
-- 提示词、规则与模板的创作、编辑和诊断按 `references/skill-maintenance.md` 检查实际加载、概念分工、规则冲突及执行偏差，只维护本技能。
 - 两个中性模板为 `assets/template/index.html`（多页竖版）、`portrait.html`（单页侧版），共享同目录 `assets/` 中的字体、样式、控件和分页。
 
-以上资源路径相对于 Skill 目录。真实原件、草稿、HTML 和 PDF 只放在已被仓库忽略的 `private/` 或仓库外，不进入公开样例。
-
-## 本机装载
-
-仓库根目录是唯一维护源，各工具的技能目录只放指向本仓库的符号链接，不复制内容：
-
-| 入口 | 用途 |
-|---|---|
-| `~/.agents/skills/wise-resume` | Codex、ZCode、DeepSeek Harness 的共享入口 |
-| `~/.codex/skills/wise-resume` | 与本机现有 Codex 技能入口保持一致 |
-| `~/.claude/skills/wise-resume` | Claude Code 入口 |
-
-Codex 的手动调用策略保存在 `agents/openai.yaml`；Claude Code 和 DeepSeek Harness 使用 `SKILL.md` 中的 `disable-model-invocation: true`。ZCode 的技能说明将“明确点名或菜单选择”放在开头，不将说明约束等同于客户端强制开关。
-
-装载后在各工具的技能选择菜单核对 `wise-resume`；已有会话未刷新时，新建会话或重启对应工具。调整本仓库内容会直接反映到各链接入口，不需要重复安装。
+以上资源路径相对于 Skill 目录。
 
 ## 先交 HTML
 
 用户提供简历与已有岗位资料，AI 负责诊断、改写和填写模板。网页只保留两份共享代码，分别负责外观切换和 A4 分页；它们不判断内容好坏，也不自动删减文字。
 
-复制中性模板和共享资源到私有交付目录，填入用户原文或确认后的文案。缺少可选信息时移除相应占位。若交付两版，放在同一目录供菜单切换，共有文字保持一致；仅交一版时移除版式选择项，避免跳转到不存在的文件。
+复制中性模板和共享资源到交付目录，填入用户原文或确认后的文案。缺少可选信息时移除相应占位。若交付两版，放在同一目录供菜单切换，共有文字保持一致；仅交一版时移除版式选择项，避免跳转到不存在的文件。
 
 新建默认多页竖版、纯白背景、正黑配色、霞鹜文楷；保留用户已选外观。
 
@@ -71,10 +56,6 @@ Codex 的手动调用策略保存在 `agents/openai.yaml`；Claude Code 和 Deep
 用户确认当前 HTML 内容与视觉后，保留已选外观，通过浏览器打印保存为 PDF。打印设置：A4、100% 比例、无额外页边距、关闭浏览器页眉页脚，并启用背景图形以保留纸纹、线条和列表圆点。
 
 核对 PDF 的页数、字体、文字完整性和阅读顺序，与已确认的网页一致。HTML 改动后重新验收再导出，未实际验证的项目如实说明。
-
-## 示例
-
-`assets/examples/product-manager/` 提供多页竖版与单页侧版的布局样例，人物、经历和数字均为虚构。内容写法参照 `references/examples.md`。
 
 ## 交付检查
 

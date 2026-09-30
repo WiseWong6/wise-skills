@@ -15,7 +15,7 @@ AI 编程助手技能集合，提升编程与内容创作效率。兼容 [Claude
   - [Claude Code](https://claude.ai/code) CLI
   - [OpenAI Codex CLI](https://github.com/openai/codex)
   - 其他支持 skill 指令的 AI 编程助手
-- Python 3.8+（doubao-tts、wise-image-flow、image-to-pages、mac-cleanup、build-landmark-model-lighting 需要）
+- Python 3.8+（doubao-tts、wise-image-flow、image-to-pages、mac-cleanup 需要）
 - 相关 API Key（见环境配置）
 
 ---
@@ -53,7 +53,7 @@ npx skills add WiseWong6/wise-skills --skill image-to-pages
 
 仓库中的每个顶层 Skill 目录都是可直接安装的用户发行载荷；开发测试、展示素材和发布说明统一放在仓库级 `tests/`、`docs/`。完整边界和发布前检查见 [Skill 源码与发行合同](docs/release-contract.md)。
 
-`wise-image-flow` 和 `memory-fragment-posters` 的权威源码位于各自独立仓库，本仓库只保存发行镜像，禁止手改镜像。使用 `python3 scripts/manage_release.py sync` 同步前，先确认各镜像没有尚未保存的本地改动。
+`wise-image-flow` 和 `wise-resume` 的权威源码位于各自独立仓库，本仓库只保存发行镜像，禁止手改镜像。使用 `python3 scripts/manage_release.py sync` 同步前，先确认各镜像没有尚未保存的本地改动。
 
 ---
 
@@ -124,46 +124,6 @@ $blue-poster
 
 ---
 
-### 🧩 memory-fragment-posters（记忆碎片摄影海报）
-
-**从原照片取下一块记忆，再把所有碎片拼成完整海报。**
-
-- 拼图版与票根版两套，每套每张照片一张海报，另加一张完整拼接；9 张照片输出 20 张
-- 1800×2400，上下严格等分；暖象牙纸、原照局部与原位缺口
-- 上方碎片、下方缺口和最终拼接共用裁片与遮罩，包含半透明边缘的像素检查
-- 助手选择记忆点，Pillow 与 NumPy 精确排版；仅在明确调用时执行，不重绘、不接入生图服务
-
-```text
-用 $memory-fragment-posters 处理这些照片，生成拼图版和票根版。
-```
-
-[完整说明](memory-fragment-posters/README.md) · [独立仓库](https://github.com/WiseWong6/memory-fragment-posters)
-
----
-
-### 🏙️ build-landmark-model-lighting
-
-**按真实资料重建地标 3D 模型：白模 → 材质光效 → GLB + Three.js 预览**
-
-- **真实资料驱动**：尺度、轮廓和结构由权威来源决定，生图只定构图与光效语言
-- **白模先行**：`blockout → macro → meso → micro` 逐级建模并同视口校对，白模不过不进材质
-- **三类光效**：`color` / `build`（结构生长）/ `edge-color`（拓扑寻光），按结构自动选型
-- **证据封印**：`passed` 必须绑定真实 GLB、源码哈希与浏览器返回字节，区分 `candidate-ready` 与 `visual-approved`
-- **零第三方依赖**：脚本只用 Python 标准库；方向图只用 Codex 宿主内置 `image_gen.imagegen`
-
-```bash
-python3 build-landmark-model-lighting/scripts/init_case.py \
-  --root ./cases/my-landmark \
-  --subject "<建筑名称>" \
-  --slug my-landmark \
-  --effect auto \
-  --review-mode user-self-check
-```
-
-完整阶段门禁与验收接口见 [build-landmark-model-lighting/README.md](build-landmark-model-lighting/README.md)。
-
----
-
 ### 🎨 wise-image-flow
 
 **配图全流程：内容 → 提示词 → 生图 → 拼版 PDF/HTML**
@@ -221,30 +181,6 @@ python scripts/generate_image.py \
 2. 收集字段 - 按需填充 6 字段
 3. 自检 - MECE / 冲突 / 冗余 / 模糊
 4. 输出保存
-
----
-
-### 📊 ppt-speech-creator
-
-**自动生成 PPT 结构和配套演讲逐字稿**
-
-当你需要：
-- 准备年终总结/述职报告
-- 项目复盘演示
-- 产品发布/路演
-
-**支持场景：**
-- 📅 年终总结：回顾 → 成果 → 问题 → 成长 → 规划
-- 📁 项目复盘：背景 → 目标 → 过程 → 结果 → 经验 → 后续
-- 🚀 产品发布：痛点 → 方案 → 产品 → 优势 → 市场 → 愿景
-- 👔 述职报告：职责 → 业绩 → 亮点 → 不足 → 规划
-
-**智能时长计算：**
-- 正常语速 220 字/分钟
-- 自动评估页面复杂度
-- 边界检查：单页 15 秒 - 5 分钟
-
-查看完整示例：[2024 年度工作总结示例](docs/ppt-speech-creator/examples/annual-review-example.md)。
 
 ---
 
@@ -313,10 +249,8 @@ python scripts/generate_image.py \
 /doubao-tts 把这段中文稿生成自然、克制的短视频配音
 /wise-image-flow 生成一张星际穿越主题的图片
 $blue-poster 把这张图做成完整 3:4 蓝色光波海报
-/build-landmark-model-lighting 按这些照片和公开资料重建这座地标并交付 GLB 预览页
 /prompt-creator 帮我创建一个代码审查提示词
 /skill-optimizer 优化这个 Skill，先用通俗中文说明问题，等我确认后再修改
-/ppt-speech-creator 帮我准备年终总结 PPT
 /mac-cleanup 诊断当前电脑的 CPU、内存、发热、磁盘、网络和后台占用
 ```
 

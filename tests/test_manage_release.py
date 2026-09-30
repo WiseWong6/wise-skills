@@ -58,7 +58,6 @@ class ManageReleaseTests(unittest.TestCase):
         readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
         for relative in (
             "blue-poster/README.md",
-            "docs/ppt-speech-creator/examples/annual-review-example.md",
         ):
             self.assertIn(relative, readme)
             self.assertTrue((REPO_ROOT / relative).is_file())
@@ -90,26 +89,6 @@ class ManageReleaseTests(unittest.TestCase):
         readme = (REPO_ROOT / "blue-poster/README.md").read_text(encoding="utf-8")
         for heading in ("## 效果预览", "## 11 套风格程序", "## 安装", "## 输出与验收"):
             self.assertIn(heading, readme)
-
-    def test_operational_reference_docs_have_skill_entrypoints(self) -> None:
-        expected_links = {
-            "ppt-speech-creator": {
-                "references/component-library.md",
-                "references/page-composition.md",
-                "references/swiss-editorial-handoff.md",
-                "references/templates/annual-review.md",
-                "references/templates/product-launch.md",
-                "references/templates/project-review.md",
-                "references/templates/述职报告.md",
-                "references/timing-strategies.md",
-            },
-        }
-        for skill_name, expected in expected_links.items():
-            skill_file = REPO_ROOT / skill_name / "SKILL.md"
-            actual = set(local_links(skill_file))
-            self.assertTrue(expected.issubset(actual), f"{skill_name}: {sorted(expected - actual)}")
-            for link in expected:
-                self.assertTrue((skill_file.parent / link).is_file(), f"{skill_name}: {link}")
 
     def test_check_package_ignores_generated_python_cache_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
